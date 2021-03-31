@@ -1,0 +1,451 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		321BA148261404A100E876CB /* GuardianFirewall.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianFirewall.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA170261405BA00E876CB /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA162261405B900E876CB /* GRDHousekeepingAPI.h */; };
+		321BA171261405BA00E876CB /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA163261405B900E876CB /* GRDVPNHelper.h */; };
+		321BA172261405BA00E876CB /* GRDSubscriberCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA164261405B900E876CB /* GRDSubscriberCredential.m */; };
+		321BA173261405BA00E876CB /* GRDSubscriberCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA165261405B900E876CB /* GRDSubscriberCredential.h */; };
+		321BA174261405BA00E876CB /* GRDGatewayAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA166261405B900E876CB /* GRDGatewayAPI.m */; };
+		321BA175261405BA00E876CB /* GRDDebugHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA167261405B900E876CB /* GRDDebugHelper.h */; };
+		321BA176261405BA00E876CB /* GRDHousekeepingAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA168261405B900E876CB /* GRDHousekeepingAPI.m */; };
+		321BA177261405BA00E876CB /* GRDGatewayAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA169261405B900E876CB /* GRDGatewayAPI.h */; };
+		321BA178261405BA00E876CB /* GRDDebugHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16A261405B900E876CB /* GRDDebugHelper.m */; };
+		321BA179261405BA00E876CB /* GRDVPNHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16B261405B900E876CB /* GRDVPNHelper.m */; };
+		321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA16D261405BA00E876CB /* GRDGatewayAPIResponse.h */; };
+		321BA17D261405BA00E876CB /* GRDGatewayAPIResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16F261405BA00E876CB /* GRDGatewayAPIResponse.m */; };
+		321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA17F261405EF00E876CB /* EXTRuntimeExtensions.h */; };
+		321BA186261405EF00E876CB /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA180261405EF00E876CB /* metamacros.h */; };
+		321BA187261405EF00E876CB /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA181261405EF00E876CB /* EXTScope.m */; };
+		321BA188261405EF00E876CB /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA182261405EF00E876CB /* EXTRuntimeExtensions.m */; };
+		321BA189261405EF00E876CB /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA183261405EF00E876CB /* EXTScope.h */; };
+		321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA184261405EF00E876CB /* EXTKeyPathCoding.h */; };
+		321BA18D2614064700E876CB /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18B2614064600E876CB /* GRDKeychain.h */; };
+		321BA18E2614064700E876CB /* GRDKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA18C2614064700E876CB /* GRDKeychain.m */; };
+		321BA1912614069600E876CB /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18F2614069600E876CB /* GRDServerManager.h */; };
+		321BA1922614069600E876CB /* GRDServerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA1902614069600E876CB /* GRDServerManager.m */; };
+		321BA1992614079D00E876CB /* GRDNotificationMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA1982614079D00E876CB /* GRDNotificationMode.h */; };
+		321BA19D2614083700E876CB /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA19B2614083700E876CB /* NSPredicate+Additions.m */; };
+		321BA19E2614083700E876CB /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19C2614083700E876CB /* NSPredicate+Additions.h */; };
+		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		321BA143261404A100E876CB /* GuardianFirewall.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianFirewall.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		321BA146261404A100E876CB /* GuardianFirewall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianFirewall.h; sourceTree = "<group>"; };
+		321BA147261404A100E876CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		321BA162261405B900E876CB /* GRDHousekeepingAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDHousekeepingAPI.h; sourceTree = "<group>"; };
+		321BA163261405B900E876CB /* GRDVPNHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDVPNHelper.h; sourceTree = "<group>"; };
+		321BA164261405B900E876CB /* GRDSubscriberCredential.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSubscriberCredential.m; sourceTree = "<group>"; };
+		321BA165261405B900E876CB /* GRDSubscriberCredential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSubscriberCredential.h; sourceTree = "<group>"; };
+		321BA166261405B900E876CB /* GRDGatewayAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDGatewayAPI.m; sourceTree = "<group>"; };
+		321BA167261405B900E876CB /* GRDDebugHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDDebugHelper.h; sourceTree = "<group>"; };
+		321BA168261405B900E876CB /* GRDHousekeepingAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDHousekeepingAPI.m; sourceTree = "<group>"; };
+		321BA169261405B900E876CB /* GRDGatewayAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDGatewayAPI.h; sourceTree = "<group>"; };
+		321BA16A261405B900E876CB /* GRDDebugHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDDebugHelper.m; sourceTree = "<group>"; };
+		321BA16B261405B900E876CB /* GRDVPNHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDVPNHelper.m; sourceTree = "<group>"; };
+		321BA16D261405BA00E876CB /* GRDGatewayAPIResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDGatewayAPIResponse.h; sourceTree = "<group>"; };
+		321BA16F261405BA00E876CB /* GRDGatewayAPIResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDGatewayAPIResponse.m; sourceTree = "<group>"; };
+		321BA17F261405EF00E876CB /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
+		321BA180261405EF00E876CB /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
+		321BA181261405EF00E876CB /* EXTScope.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTScope.m; sourceTree = "<group>"; };
+		321BA182261405EF00E876CB /* EXTRuntimeExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXTRuntimeExtensions.m; sourceTree = "<group>"; };
+		321BA183261405EF00E876CB /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
+		321BA184261405EF00E876CB /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
+		321BA18B2614064600E876CB /* GRDKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GRDKeychain.h; path = GuardianFirewall/GRDKeychain.h; sourceTree = SOURCE_ROOT; };
+		321BA18C2614064700E876CB /* GRDKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GRDKeychain.m; path = GuardianFirewall/GRDKeychain.m; sourceTree = SOURCE_ROOT; };
+		321BA18F2614069600E876CB /* GRDServerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDServerManager.h; sourceTree = "<group>"; };
+		321BA1902614069600E876CB /* GRDServerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDServerManager.m; sourceTree = "<group>"; };
+		321BA1972614070F00E876CB /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		321BA1982614079D00E876CB /* GRDNotificationMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDNotificationMode.h; sourceTree = "<group>"; };
+		321BA19B2614083700E876CB /* NSPredicate+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Additions.m"; sourceTree = "<group>"; };
+		321BA19C2614083700E876CB /* NSPredicate+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Additions.h"; sourceTree = "<group>"; };
+		321BA19F261408B800E876CB /* Shared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shared.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		321BA140261404A100E876CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		321BA139261404A100E876CB = {
+			isa = PBXGroup;
+			children = (
+				321BA145261404A100E876CB /* GuardianFirewall */,
+				321BA144261404A100E876CB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		321BA144261404A100E876CB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				321BA143261404A100E876CB /* GuardianFirewall.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		321BA145261404A100E876CB /* GuardianFirewall */ = {
+			isa = PBXGroup;
+			children = (
+				321BA19A2614083700E876CB /* Categories */,
+				321BA17E261405EF00E876CB /* extobjc */,
+				321BA167261405B900E876CB /* GRDDebugHelper.h */,
+				321BA16A261405B900E876CB /* GRDDebugHelper.m */,
+				321BA1982614079D00E876CB /* GRDNotificationMode.h */,
+				321BA169261405B900E876CB /* GRDGatewayAPI.h */,
+				321BA166261405B900E876CB /* GRDGatewayAPI.m */,
+				321BA16D261405BA00E876CB /* GRDGatewayAPIResponse.h */,
+				321BA16F261405BA00E876CB /* GRDGatewayAPIResponse.m */,
+				321BA162261405B900E876CB /* GRDHousekeepingAPI.h */,
+				321BA168261405B900E876CB /* GRDHousekeepingAPI.m */,
+				321BA18B2614064600E876CB /* GRDKeychain.h */,
+				321BA18C2614064700E876CB /* GRDKeychain.m */,
+				321BA18F2614069600E876CB /* GRDServerManager.h */,
+				321BA1902614069600E876CB /* GRDServerManager.m */,
+				321BA165261405B900E876CB /* GRDSubscriberCredential.h */,
+				321BA164261405B900E876CB /* GRDSubscriberCredential.m */,
+				321BA163261405B900E876CB /* GRDVPNHelper.h */,
+				321BA16B261405B900E876CB /* GRDVPNHelper.m */,
+				321BA146261404A100E876CB /* GuardianFirewall.h */,
+				321BA1972614070F00E876CB /* PrefixHeader.pch */,
+				321BA19F261408B800E876CB /* Shared.h */,
+				321BA147261404A100E876CB /* Info.plist */,
+			);
+			path = GuardianFirewall;
+			sourceTree = "<group>";
+		};
+		321BA17E261405EF00E876CB /* extobjc */ = {
+			isa = PBXGroup;
+			children = (
+				321BA17F261405EF00E876CB /* EXTRuntimeExtensions.h */,
+				321BA180261405EF00E876CB /* metamacros.h */,
+				321BA181261405EF00E876CB /* EXTScope.m */,
+				321BA182261405EF00E876CB /* EXTRuntimeExtensions.m */,
+				321BA183261405EF00E876CB /* EXTScope.h */,
+				321BA184261405EF00E876CB /* EXTKeyPathCoding.h */,
+			);
+			path = extobjc;
+			sourceTree = "<group>";
+		};
+		321BA19A2614083700E876CB /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				321BA19B2614083700E876CB /* NSPredicate+Additions.m */,
+				321BA19C2614083700E876CB /* NSPredicate+Additions.h */,
+			);
+			name = Categories;
+			path = GuardianFirewall/Categories;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		321BA13E261404A100E876CB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				321BA189261405EF00E876CB /* EXTScope.h in Headers */,
+				321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */,
+				321BA1912614069600E876CB /* GRDServerManager.h in Headers */,
+				321BA177261405BA00E876CB /* GRDGatewayAPI.h in Headers */,
+				321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */,
+				321BA1A0261408B800E876CB /* Shared.h in Headers */,
+				321BA18D2614064700E876CB /* GRDKeychain.h in Headers */,
+				321BA170261405BA00E876CB /* GRDHousekeepingAPI.h in Headers */,
+				321BA171261405BA00E876CB /* GRDVPNHelper.h in Headers */,
+				321BA148261404A100E876CB /* GuardianFirewall.h in Headers */,
+				321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */,
+				321BA173261405BA00E876CB /* GRDSubscriberCredential.h in Headers */,
+				321BA186261405EF00E876CB /* metamacros.h in Headers */,
+				321BA1992614079D00E876CB /* GRDNotificationMode.h in Headers */,
+				321BA19E2614083700E876CB /* NSPredicate+Additions.h in Headers */,
+				321BA175261405BA00E876CB /* GRDDebugHelper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		321BA142261404A100E876CB /* GuardianFirewall */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 321BA14B261404A100E876CB /* Build configuration list for PBXNativeTarget "GuardianFirewall" */;
+			buildPhases = (
+				321BA13E261404A100E876CB /* Headers */,
+				321BA13F261404A100E876CB /* Sources */,
+				321BA140261404A100E876CB /* Frameworks */,
+				321BA141261404A100E876CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GuardianFirewall;
+			productName = GuardianFirewall;
+			productReference = 321BA143261404A100E876CB /* GuardianFirewall.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		321BA13A261404A100E876CB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1170;
+				ORGANIZATIONNAME = "Sudo Security Group Inc";
+				TargetAttributes = {
+					321BA142261404A100E876CB = {
+						CreatedOnToolsVersion = 11.7;
+					};
+				};
+			};
+			buildConfigurationList = 321BA13D261404A100E876CB /* Build configuration list for PBXProject "GuardianFirewall" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 321BA139261404A100E876CB;
+			productRefGroup = 321BA144261404A100E876CB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				321BA142261404A100E876CB /* GuardianFirewall */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		321BA141261404A100E876CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		321BA13F261404A100E876CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				321BA19D2614083700E876CB /* NSPredicate+Additions.m in Sources */,
+				321BA187261405EF00E876CB /* EXTScope.m in Sources */,
+				321BA172261405BA00E876CB /* GRDSubscriberCredential.m in Sources */,
+				321BA174261405BA00E876CB /* GRDGatewayAPI.m in Sources */,
+				321BA179261405BA00E876CB /* GRDVPNHelper.m in Sources */,
+				321BA1922614069600E876CB /* GRDServerManager.m in Sources */,
+				321BA188261405EF00E876CB /* EXTRuntimeExtensions.m in Sources */,
+				321BA176261405BA00E876CB /* GRDHousekeepingAPI.m in Sources */,
+				321BA178261405BA00E876CB /* GRDDebugHelper.m in Sources */,
+				321BA18E2614064700E876CB /* GRDKeychain.m in Sources */,
+				321BA17D261405BA00E876CB /* GRDGatewayAPIResponse.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		321BA149261404A100E876CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		321BA14A261404A100E876CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		321BA14C261404A100E876CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = $SRCROOT/GuardianFirewall/PrefixHeader.pch;
+				INFOPLIST_FILE = GuardianFirewall/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianFirewall;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		321BA14D261404A100E876CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = $SRCROOT/GuardianFirewall/PrefixHeader.pch;
+				INFOPLIST_FILE = GuardianFirewall/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianFirewall;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		321BA13D261404A100E876CB /* Build configuration list for PBXProject "GuardianFirewall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				321BA149261404A100E876CB /* Debug */,
+				321BA14A261404A100E876CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		321BA14B261404A100E876CB /* Build configuration list for PBXNativeTarget "GuardianFirewall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				321BA14C261404A100E876CB /* Debug */,
+				321BA14D261404A100E876CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 321BA13A261404A100E876CB /* Project object */;
+}
