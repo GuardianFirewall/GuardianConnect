@@ -14,10 +14,8 @@
     if (!self) {
         self = [super init];
     }
-    
     self.subscriberCredential = subscriberCredential;
     [self processSubscriberCredentialInformation];
-    
     return self;
 }
 

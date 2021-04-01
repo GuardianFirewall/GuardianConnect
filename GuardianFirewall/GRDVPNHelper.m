@@ -96,18 +96,6 @@
     return onDemandArr;
 }
 
-+ (NSArray *)vpnOnDemandRulesFree {
-    // RULE: connect to VPN automatically if server reports that it is running OK
-    NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
-    // Only allowing free users to connect over WiFi to save on bandwidth costs
-    vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi; //FIX: won't disconnect as users roam among multiple Access Points on big wifi networks now
-    vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride], kSGAPI_ServerStatus]];
-    
-    NSArray *onDemandArr = @[vpnServerConnectRule];
-    return onDemandArr;
-}
-
-
 - (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
@@ -321,12 +309,8 @@
                     vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
                     vpnManager.localizedDescription = @"Guardian Firewall";
                     vpnManager.onDemandEnabled = YES;
-                    if ([GRDVPNHelper isPayingUser] == YES) {
-                        vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
-                    } else {
-                        vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRulesFree];
-                    }
-                    
+                    vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
+                  
                     [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
                         if (saveErr) {
                             NSLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);
