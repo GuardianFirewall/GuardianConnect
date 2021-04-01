@@ -20,9 +20,8 @@
 #define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
 
-// Define below both to 0 to make guardian specific code inactive
+// Define below to 0 to make guardian specific code inactive
 #define GUARDIAN_INTERNAL 1
-#define IS_GUARDIAN_APP 0
 
 #pragma mark - Misc
 
