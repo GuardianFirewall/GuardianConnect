@@ -8,32 +8,32 @@
 
 /* Begin PBXBuildFile section */
 		321BA148261404A100E876CB /* GuardianFirewall.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianFirewall.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321BA170261405BA00E876CB /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA162261405B900E876CB /* GRDHousekeepingAPI.h */; };
-		321BA171261405BA00E876CB /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA163261405B900E876CB /* GRDVPNHelper.h */; };
+		321BA170261405BA00E876CB /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA162261405B900E876CB /* GRDHousekeepingAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA171261405BA00E876CB /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA163261405B900E876CB /* GRDVPNHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA172261405BA00E876CB /* GRDSubscriberCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA164261405B900E876CB /* GRDSubscriberCredential.m */; };
-		321BA173261405BA00E876CB /* GRDSubscriberCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA165261405B900E876CB /* GRDSubscriberCredential.h */; };
+		321BA173261405BA00E876CB /* GRDSubscriberCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA165261405B900E876CB /* GRDSubscriberCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA174261405BA00E876CB /* GRDGatewayAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA166261405B900E876CB /* GRDGatewayAPI.m */; };
-		321BA175261405BA00E876CB /* GRDDebugHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA167261405B900E876CB /* GRDDebugHelper.h */; };
+		321BA175261405BA00E876CB /* GRDDebugHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA167261405B900E876CB /* GRDDebugHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA176261405BA00E876CB /* GRDHousekeepingAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA168261405B900E876CB /* GRDHousekeepingAPI.m */; };
-		321BA177261405BA00E876CB /* GRDGatewayAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA169261405B900E876CB /* GRDGatewayAPI.h */; };
+		321BA177261405BA00E876CB /* GRDGatewayAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA169261405B900E876CB /* GRDGatewayAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA178261405BA00E876CB /* GRDDebugHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16A261405B900E876CB /* GRDDebugHelper.m */; };
 		321BA179261405BA00E876CB /* GRDVPNHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16B261405B900E876CB /* GRDVPNHelper.m */; };
-		321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA16D261405BA00E876CB /* GRDGatewayAPIResponse.h */; };
+		321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA16D261405BA00E876CB /* GRDGatewayAPIResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA17D261405BA00E876CB /* GRDGatewayAPIResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA16F261405BA00E876CB /* GRDGatewayAPIResponse.m */; };
-		321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA17F261405EF00E876CB /* EXTRuntimeExtensions.h */; };
-		321BA186261405EF00E876CB /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA180261405EF00E876CB /* metamacros.h */; };
+		321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA17F261405EF00E876CB /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA186261405EF00E876CB /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA180261405EF00E876CB /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA187261405EF00E876CB /* EXTScope.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA181261405EF00E876CB /* EXTScope.m */; };
 		321BA188261405EF00E876CB /* EXTRuntimeExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA182261405EF00E876CB /* EXTRuntimeExtensions.m */; };
-		321BA189261405EF00E876CB /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA183261405EF00E876CB /* EXTScope.h */; };
-		321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA184261405EF00E876CB /* EXTKeyPathCoding.h */; };
-		321BA18D2614064700E876CB /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18B2614064600E876CB /* GRDKeychain.h */; };
+		321BA189261405EF00E876CB /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA183261405EF00E876CB /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA184261405EF00E876CB /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA18D2614064700E876CB /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18B2614064600E876CB /* GRDKeychain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA18E2614064700E876CB /* GRDKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA18C2614064700E876CB /* GRDKeychain.m */; };
-		321BA1912614069600E876CB /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18F2614069600E876CB /* GRDServerManager.h */; };
+		321BA1912614069600E876CB /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA18F2614069600E876CB /* GRDServerManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1922614069600E876CB /* GRDServerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA1902614069600E876CB /* GRDServerManager.m */; };
-		321BA1992614079D00E876CB /* GRDNotificationMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA1982614079D00E876CB /* GRDNotificationMode.h */; };
+		321BA1992614079D00E876CB /* GRDNotificationMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA1982614079D00E876CB /* GRDNotificationMode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA19D2614083700E876CB /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 321BA19B2614083700E876CB /* NSPredicate+Additions.m */; };
-		321BA19E2614083700E876CB /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19C2614083700E876CB /* NSPredicate+Additions.h */; };
-		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; };
+		321BA19E2614083700E876CB /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19C2614083700E876CB /* NSPredicate+Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -157,21 +157,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				321BA189261405EF00E876CB /* EXTScope.h in Headers */,
-				321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */,
-				321BA1912614069600E876CB /* GRDServerManager.h in Headers */,
 				321BA177261405BA00E876CB /* GRDGatewayAPI.h in Headers */,
-				321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */,
 				321BA1A0261408B800E876CB /* Shared.h in Headers */,
 				321BA18D2614064700E876CB /* GRDKeychain.h in Headers */,
+				321BA1912614069600E876CB /* GRDServerManager.h in Headers */,
+				321BA185261405EF00E876CB /* EXTRuntimeExtensions.h in Headers */,
+				321BA17B261405BA00E876CB /* GRDGatewayAPIResponse.h in Headers */,
 				321BA170261405BA00E876CB /* GRDHousekeepingAPI.h in Headers */,
 				321BA171261405BA00E876CB /* GRDVPNHelper.h in Headers */,
-				321BA148261404A100E876CB /* GuardianFirewall.h in Headers */,
-				321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */,
 				321BA173261405BA00E876CB /* GRDSubscriberCredential.h in Headers */,
 				321BA186261405EF00E876CB /* metamacros.h in Headers */,
+				321BA18A261405EF00E876CB /* EXTKeyPathCoding.h in Headers */,
 				321BA1992614079D00E876CB /* GRDNotificationMode.h in Headers */,
 				321BA19E2614083700E876CB /* NSPredicate+Additions.h in Headers */,
 				321BA175261405BA00E876CB /* GRDDebugHelper.h in Headers */,
+				321BA148261404A100E876CB /* GuardianFirewall.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
