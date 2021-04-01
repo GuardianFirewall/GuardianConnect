@@ -101,25 +101,9 @@
 			children = (
 				32939A6226167D0E007A4DFA /* Categories */,
 				32939A6526167D0E007A4DFA /* extobjc */,
-				321BA146261404A100E876CB /* GuardianConnect.h */,
-				32939A8026167D1F007A4DFA /* GRDDebugHelper.h */,
-				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
-				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
-				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
-				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
-				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
-				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
-				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
-				32939A7526167D1F007A4DFA /* GRDKeychain.h */,
-				32939A7B26167D1F007A4DFA /* GRDKeychain.m */,
-				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
-				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
-				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
-				32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */,
-				32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */,
-				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
-				32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */,
+				32939A962616837F007A4DFA /* Classes */,
 				321BA1972614070F00E876CB /* PrefixHeader.pch */,
+				321BA146261404A100E876CB /* GuardianConnect.h */,
 				321BA19F261408B800E876CB /* Shared.h */,
 				321BA147261404A100E876CB /* Info.plist */,
 			);
@@ -146,6 +130,30 @@
 				32939A6B26167D0E007A4DFA /* EXTKeyPathCoding.h */,
 			);
 			path = extobjc;
+			sourceTree = "<group>";
+		};
+		32939A962616837F007A4DFA /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				32939A8026167D1F007A4DFA /* GRDDebugHelper.h */,
+				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
+				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
+				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
+				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
+				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
+				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
+				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
+				32939A7526167D1F007A4DFA /* GRDKeychain.h */,
+				32939A7B26167D1F007A4DFA /* GRDKeychain.m */,
+				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
+				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
+				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
+				32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */,
+				32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */,
+				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
+				32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
