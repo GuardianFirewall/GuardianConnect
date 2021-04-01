@@ -10,7 +10,6 @@
 #import <DeviceCheck/DeviceCheck.h>
 #import "GRDGatewayAPIResponse.h"
 #import "GRDVPNHelper.h"
-//#import "GRDBlacklistGroupItem.h"
 
 #define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
 
@@ -76,10 +75,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable allServers, BOOL success))completion;
-
-/// endpoint: /api/v1/blocklist/all
-/// @param completion completion block returning an array of all curated blocklist items and indicating request success
-//- (void)requestAllBlocklistItemsWithCompletion:(void (^)(NSArray <GRDBlacklistGroupItem*> * _Nullable allBlocklistItems, BOOL success))completion;
 
 /// endpoint: /api/v1.1/is-eligible-for-free
 /// @param completion completion block returning eligible and success BOOL indicating if the user is allowed to connect and whether or not the request was successful

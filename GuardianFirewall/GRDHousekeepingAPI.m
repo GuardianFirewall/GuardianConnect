@@ -565,44 +565,8 @@
     [task resume];
 }
 
-# pragma mark - Blocklist Endpoints & Trial Days Endpoints
-/*
-- (void)requestAllBlocklistItemsWithCompletion:(void (^)(NSArray <GRDBlacklistGroupItem*> * _Nullable items, BOOL success))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/blocklist/all-items"]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            NSLog(@"Failed to get all blocklist items: %@", error);
-            if (completion) completion(nil, NO);
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            NSLog(@"[requestAllBlocklistItems] Internal server error");
-            if (completion) completion(nil, NO);
-            return;
-            
-        } else if (statusCode == 204) {
-            NSLog(@"No blocklist items available. Display empty UI");
-            if (completion) completion(@[], YES);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSArray *blocklistItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSArray <GRDBlacklistGroupItem*> *returnItems = [GRDBlacklistGroupItem blacklistGroupsFromJSON:blocklistItems];
-            
-            if (completion) completion(returnItems, YES);
-            return;
-            
-        } else {
-            NSLog(@"Unknown server response: %ld", statusCode);
-            if (completion) completion(nil, NO);
-        }
-    }];
-    [task resume];
-}
-*/
+# pragma mark - Trial Days Endpoints
+
 - (void)isEligibleForExtendedFreeWithCompletion:(void (^)(BOOL, BOOL, BOOL, NSInteger, NSString * _Nullable, NSInteger, NSString * _Nullable))completion {
     [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken;
