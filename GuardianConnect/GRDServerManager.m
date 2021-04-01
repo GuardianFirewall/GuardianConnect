@@ -291,10 +291,6 @@
     
 }
 
-- (BOOL)proMode {
-    return false; //STUB for building purposes during refactor
-}
-
 /**
  
  the logic for this is simple, we need a delay to make sure we are actually connected to the server so the details get synced properly
@@ -304,7 +300,7 @@
  */
 
 - (void)bindPushToken {
-    if (![self proMode]) {
+    if (![GRDVPNHelper proMode]) {
           return;
     }
     //doing this on a delay to make sure the settings get synced w/ the new server properly, without the delay it happens too fast.
@@ -313,7 +309,7 @@
               if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
                   dispatch_async(dispatch_get_main_queue(), ^{
                       dispatch_async(dispatch_get_main_queue(), ^{
-                          //[[UIApplication sharedApplication] registerForRemoteNotifications];
+                          //[[UIApplication sharedApplication] registerForRemoteNotifications]; //FIXME: frameworks have no concept of the application they are loaded, maybe post a notification AppDelegate has to listen for instead? 
                       });
                   });
               }

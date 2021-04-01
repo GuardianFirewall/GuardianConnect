@@ -53,6 +53,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)createFreshUserWithSubscriberCredential:(NSString *)subscriberCredential completion:(void (^)(GRDVPNHelperStatusCode statusCode, NSString * _Nullable errString))completion;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))block;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block;
+
+#pragma mark Shared Framework Code
+
++ (GRDPlanDetailType)subscriptionTypeFromDefaults;
++ (BOOL)proMode;
 @end
 
 NS_ASSUME_NONNULL_END

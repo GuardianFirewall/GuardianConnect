@@ -15,7 +15,10 @@
     NSInteger _retryCount;
 }
 
-//i know you are going to hate this coming back, but it has to, in order for me to decouple the blacklist code from this class it was a 100% necessity.
++ (BOOL)proMode {
+    return ([self subscriptionTypeFromDefaults] == GRDPlanDetailTypeProfessional);
+}
+
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
     static GRDVPNHelper *shared;
@@ -95,6 +98,7 @@
     NSArray *onDemandArr = @[vpnServerConnectRule];
     return onDemandArr;
 }
+
 
 - (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -247,6 +251,51 @@
     }];
 }
 
+//trying to make configureAndConnectVPNWithCompletion a bit smaller and more manageable, DONT CALL DIRECTLY.
+
+- (void)_createVPNConnectionWithCreds:(NSDictionary *)creds completion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
+    NEVPNManager *vpnManager = [NEVPNManager sharedManager];
+    [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
+        if (loadError) {
+            NSLog(@"[DEBUG] error loading prefs = %@", loadError);
+            if (completion) completion(@"Error loading VPN configuration. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
+            return;
+        } else {
+            NSString *vpnServer = creds[kGRDHostnameOverride];
+            NSString *eapUsername = creds[kKeychainStr_EapUsername];
+            NSData *eapPassword = creds[kKeychainStr_EapPassword];
+            vpnManager.enabled = YES;
+            vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
+            vpnManager.localizedDescription = @"Guardian Firewall";
+            vpnManager.onDemandEnabled = YES;
+            vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
+            
+            [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+                if (saveErr) {
+                    NSLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);
+                    if (completion) completion(@"Error saving the VPN configuration. Please try again.", GRDVPNHelperFail);
+                    return;
+                } else {
+                    [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError1) {
+                        [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+                            NSError *vpnErr;
+                            [[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
+                            if (vpnErr != nil) {
+                                NSLog(@"[DEBUG] vpnErr = %@", vpnErr);
+                                if (completion) completion(@"Error starting VPN tunnel. Please reset your connection. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
+                                return;
+                            } else {
+                                [[GRDGatewayAPI sharedAPI] startHealthCheckTimer];
+                                if (completion) completion(nil, GRDVPNHelperSuccess);
+                            }
+                        }];
+                    }];
+                }
+            }];
+        }
+    }];
+}
+
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
     __block NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     __block NSString *vpnServer = [defaults objectForKey:kGRDHostnameOverride];
@@ -297,44 +346,14 @@
                 }];
                 return;
             }
+            NSDictionary *creds = @{kKeychainStr_APIAuthToken: apiAuthToken,
+                                    kKeychainStr_EapUsername: eapUsername,
+                                    kKeychainStr_EapPassword: eapPassword,
+                                    kGRDHostnameOverride: vpnServer,
+                                    
+            };
             
-            NEVPNManager *vpnManager = [NEVPNManager sharedManager];
-            [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
-                if (loadError) {
-                    NSLog(@"[DEBUG] error loading prefs = %@", loadError);
-                    if (completion) completion(@"Error loading VPN configuration. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
-                    return;
-                } else {
-                    vpnManager.enabled = YES;
-                    vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
-                    vpnManager.localizedDescription = @"Guardian Firewall";
-                    vpnManager.onDemandEnabled = YES;
-                    vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
-                  
-                    [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-                        if (saveErr) {
-                            NSLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);
-                            if (completion) completion(@"Error saving the VPN configuration. Please try again.", GRDVPNHelperFail);
-                            return;
-                        } else {
-                            [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError1) {
-                                [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-                                    NSError *vpnErr;
-                                    [[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
-                                    if (vpnErr != nil) {
-                                        NSLog(@"[DEBUG] vpnErr = %@", vpnErr);
-                                        if (completion) completion(@"Error starting VPN tunnel. Please reset your connection. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
-                                        return;
-                                    } else {
-                                        [[GRDGatewayAPI sharedAPI] startHealthCheckTimer];
-                                        if (completion) completion(nil, GRDVPNHelperSuccess);
-                                    }
-                                }];
-                            }];
-                        }
-                    }];
-                }
-            }];
+            [self _createVPNConnectionWithCreds:creds completion:completion];
             
         } else if (apiResponse.responseStatus == GRDGatewayAPIServerInternalError || apiResponse.responseStatus == GRDGatewayAPIServerNotOK) {
             NSMutableArray *knownHostnames = [NSMutableArray arrayWithArray:[defaults objectForKey:@"kKnownGuardianHosts"]];
@@ -398,10 +417,6 @@
     }];
 }
 
-- (BOOL)proMode {
-    return false; //FIXME: stub to get this building
-}
-
 - (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *credential, NSString *error))block {
     __block NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
     
@@ -421,7 +436,7 @@
             /* i don't know this as well, and not sure if we should proceed if we dont have a PEToken when promode or pretrial token are set. but either
              way we shouldn't proceed with the PEToken validation method if we cant retreive the PEToken! -kevin */
             NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-            if (([self proMode] || [[NSUserDefaults standardUserDefaults] boolForKey:kGuardianFreeTrialPeTokenSet] == YES || [petToken containsString:@"gdp_"]) && petToken.length > 0) {
+            if (([GRDVPNHelper proMode] || [[NSUserDefaults standardUserDefaults] boolForKey:kGuardianFreeTrialPeTokenSet] == YES || [petToken containsString:@"gdp_"]) && petToken.length > 0) {
                 valmethod = ValidationmethodPEToken;
             } else {
                 valmethod = ValidationMethodAppStoreReceipt;
@@ -514,5 +529,36 @@
         }
     }];
 }
+
+#pragma mark shared framework code
+
++ (GRDPlanDetailType)subscriptionTypeFromDefaults {
+    NSString *subscriptionTypeStr = [[NSUserDefaults standardUserDefaults] objectForKey:kSubscriptionPlanTypeStr];
+    NSArray *essSubTypes = @[kGuardianSubscriptionDayPass,
+                             kGuardianSubscriptionDayPassAlt,
+                             kGuardianSubscriptionAnnual,
+                             kGuardianSubscriptionThreeMonths,
+                             kGuardianSubscriptionMonthly,
+                             kGuardianSubscriptionFreeTrial,
+                             kGuardianSubscriptionTypeEssentials,
+                             kGuardianFreeTrial3Days,
+                             kGuardianExtendedTrial30Days,
+                             kGuardianSubscriptionCustomDayPass];
+    
+    NSArray *proSubTypes = @[kGuardianSubscriptionTypeProfessionalYearly,
+                             kGuardianSubscriptionTypeProfessionalMonthly,
+                             kGuardianSubscriptionTypeVisionary,
+                             kGuardianSubscriptionTypeProfessionalIAP,
+                             kGuardianSubscriptionTypeProfessionalBrave];
+    
+    if ([essSubTypes containsObject:subscriptionTypeStr]){
+        return GRDPlanDetailTypeEssentials;
+    }
+    if ([proSubTypes containsObject:subscriptionTypeStr]){
+        return GRDPlanDetailTypeProfessional;
+    }
+    return GRDPlanDetailTypeFree; //maybe others??
+}
+
 
 @end

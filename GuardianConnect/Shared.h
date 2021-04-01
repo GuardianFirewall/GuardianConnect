@@ -84,5 +84,11 @@ static NSString * const kGuardianPETokenExpirationDate                  = @"kGua
 #define kIsPremiumUser                  @"userHasPaidSubscription"
 #define kSubscriptionPlanTypeStr @"subscriptionPlanType"
 
+//not a fan of having this here, but its needed for proMode discernment
+typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
+    GRDPlanDetailTypeFree = 0,
+    GRDPlanDetailTypeEssentials,
+    GRDPlanDetailTypeProfessional
+};
 
 #endif /* Shared_h */
