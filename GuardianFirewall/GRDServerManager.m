@@ -291,6 +291,10 @@
     
 }
 
+- (BOOL)proMode {
+    return false; //STUB for building purposes during refactor
+}
+
 /**
  
  the logic for this is simple, we need a delay to make sure we are actually connected to the server so the details get synced properly
@@ -298,7 +302,7 @@
  given permission to receive push notifications to begin with.
  
  */
-/*
+
 - (void)bindPushToken {
     if (![self proMode]) {
           return;
@@ -309,12 +313,12 @@
               if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
                   dispatch_async(dispatch_get_main_queue(), ^{
                       dispatch_async(dispatch_get_main_queue(), ^{
-                          [[UIApplication sharedApplication] registerForRemoteNotifications];
+                          //[[UIApplication sharedApplication] registerForRemoteNotifications];
                       });
                   });
               }
           }];
     });
 }
-*/
+
 @end

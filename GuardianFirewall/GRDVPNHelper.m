@@ -123,7 +123,7 @@
     NEProxySettings *proxSettings = [[NEProxySettings alloc] init];
     proxSettings.autoProxyConfigurationEnabled = YES;
 #if IS_GUARDIAN_APP
-    NSString *blacklistJS = [self blacklistJavascriptString];
+    NSString *blacklistJS = [GRDSettingsController blacklistJavascriptString];
     if (blacklistJS != nil){ //only add these changes if the blacklist has any enabled items.
         proxSettings.proxyAutoConfigurationJavaScript = blacklistJS;
         //NSLog(@"[DEBUG] proxyAutoConfigurationJavaScript %@", proxSettings.proxyAutoConfigurationJavaScript);
