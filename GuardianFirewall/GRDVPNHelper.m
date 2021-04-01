@@ -153,6 +153,20 @@
     return protocolConfig;
 }
 
+- (void)forceDisconnectVPNIfNecessary {
+    __block NEVPNStatus currentStatus = [[[NEVPNManager sharedManager] connection] status];
+    if (currentStatus == NEVPNStatusConnected){
+        [self disconnectVPN];
+    } else if (currentStatus == NEVPNStatusInvalid) { //if its invalid we need to delay for a moment until our local instance is propagated with the proper connection info.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            currentStatus = [[[NEVPNManager sharedManager] connection] status];
+            if (currentStatus == NEVPNStatusConnected){
+                [self disconnectVPN];
+            }
+        });
+    }
+}
+
 - (void)disconnectVPN {
     NEVPNManager *vpnManager = [NEVPNManager sharedManager];
     [vpnManager setEnabled:NO];

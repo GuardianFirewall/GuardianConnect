@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block;
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString *_Nullable message, GRDVPNHelperStatusCode status))completion;
 - (void)disconnectVPN;
+- (void)forceDisconnectVPNIfNecessary;
 - (void)createFreshUserWithSubscriberCredential:(NSString *)subscriberCredential completion:(void (^)(GRDVPNHelperStatusCode statusCode, NSString * _Nullable errString))completion;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))block;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block;
