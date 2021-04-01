@@ -201,7 +201,7 @@
                 NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
                 NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
                 GRDLog(@"Selected host: %@", guardianHost);
-                GRDVPNHelper *vpnHelper = [GRDVPNHelper new];
+                GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
                 [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                     
                     if (!success){
@@ -235,7 +235,7 @@
                     });
                 }
             } else { //no error occured
-                GRDVPNHelper *vpnHelper = [GRDVPNHelper new];
+                GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
                 [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                     if (!success){
                         if (block){

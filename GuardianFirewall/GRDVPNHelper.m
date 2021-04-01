@@ -15,6 +15,16 @@
     NSInteger _retryCount;
 }
 
+//i know you are going to hate this coming back, but it has to, in order for me to decouple the blacklist code from this class it was a 100% necessity.
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    static GRDVPNHelper *shared;
+    dispatch_once(&onceToken, ^{
+        shared = [[GRDVPNHelper alloc] init];
+    });
+    return shared;
+}
+
 - (NSInteger)retryCount {
     return _retryCount;
 }
@@ -98,7 +108,7 @@
 }
 
 
-+ (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
+- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
     protocolConfig.serverAddress = server;
@@ -120,16 +130,11 @@
             protocolConfig.enforceRoutes = [defaults boolForKey:kGRDExcludeLocalNetworks];
         }
     }
-    NEProxySettings *proxSettings = [[NEProxySettings alloc] init];
-    proxSettings.autoProxyConfigurationEnabled = YES;
-#if IS_GUARDIAN_APP
-    NSString *blacklistJS = [GRDSettingsController blacklistJavascriptString];
-    if (blacklistJS != nil){ //only add these changes if the blacklist has any enabled items.
-        proxSettings.proxyAutoConfigurationJavaScript = blacklistJS;
-        //NSLog(@"[DEBUG] proxyAutoConfigurationJavaScript %@", proxSettings.proxyAutoConfigurationJavaScript);
+    NEProxySettings *proxSettings = [self proxySettings];
+    if (proxSettings){
         protocolConfig.proxySettings = proxSettings;
     }
-#endif
+
     protocolConfig.useConfigurationAttributeInternalIPSubnet = false;
 #if !TARGET_IPHONE_SIMULATOR
     if (@available(iOS 13.0, *)) {
@@ -313,7 +318,7 @@
                     return;
                 } else {
                     vpnManager.enabled = YES;
-                    vpnManager.protocolConfiguration = [GRDVPNHelper prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
+                    vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
                     vpnManager.localizedDescription = @"Guardian Firewall";
                     vpnManager.onDemandEnabled = YES;
                     if ([GRDVPNHelper isPayingUser] == YES) {

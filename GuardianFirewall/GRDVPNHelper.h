@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
+@property (nullable) NEProxySettings *proxySettings;
+
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperSuccess,
 	GRDVPNHelperFail,
@@ -32,6 +34,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperAPI_AuthenticationError,
     GRDVPNHelperAPI_ProvisioningError
 };
++ (instancetype)sharedInstance;
 - (void)setRetryCount:(NSInteger)retryCount;
 - (NSInteger)retryCount;
 + (BOOL)activeConnectionPossible;
@@ -40,7 +43,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (void)setIsPayingUser:(BOOL)isPaying;
 + (void)clearVpnConfiguration;
 + (void)saveAllInOneBoxHostname:(NSString *)host;
-+ (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType;
+- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType;
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block;
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block;
