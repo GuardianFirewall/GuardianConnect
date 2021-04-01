@@ -10,8 +10,6 @@
 
 @implementation GRDDebugHelper
 
-
-
 - (instancetype)initWithTitle:(NSString *)title {
     if([super init]) {
         self.logTitle = title;
