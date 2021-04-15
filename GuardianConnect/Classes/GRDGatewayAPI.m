@@ -7,19 +7,19 @@
 
 #import "GRDGatewayAPI.h"
 #import <NetworkExtension/NetworkExtension.h>
-
+#import "GRDVPNHelper.h"
 
 @implementation GRDGatewayAPI
 @synthesize apiAuthToken, deviceIdentifier;
 @synthesize apiHostname, healthCheckTimer;
 
-+ (instancetype)sharedAPI {
-    static GRDGatewayAPI *sharedAPI = nil;
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        sharedAPI = [[self alloc] init];
-    });
-    return sharedAPI;
+
+- (NSString *)apiAuthToken {
+    return [[[GRDVPNHelper sharedInstance] mainCredential] apiAuthToken];
+}
+
+- (NSString *)deviceIdentifier {
+    return [[[GRDVPNHelper sharedInstance] mainCredential] username];
 }
 
 - (BOOL)isVPNConnected {
@@ -27,36 +27,15 @@
 }
 
 - (void)_loadCredentialsFromKeychain {
-    apiAuthToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
-    deviceIdentifier = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
-    
-    if (apiAuthToken != nil) {
-        NSLog(@"[DEBUG][loadCredentials] we have authToken (%@)", apiAuthToken);
-    } else {
-        NSLog(@"[DEBUG][loadCredentials] no authToken !!!");
-    }
-    
-    if (deviceIdentifier != nil) {
-        NSLog(@"[DEBUG][loadCredentials] we have deviceIdentifier (%@)", deviceIdentifier);
-    } else {
-        NSLog(@"[DEBUG][loadCredentials] no deviceIdentifier !!!");
-    }
+    [[GRDVPNHelper sharedInstance] setMainCredential:[GRDCredentialManager mainCredentials]];
 }
 
 - (NSString *)baseHostname {
-    if (apiHostname == nil) {        
-        // this should be removed some time when we deem that it 100% will not break shit if we do
-        // FYI - I am keeping this as the direct user defaults read, because this API object should never interact with VPN helper object
-        if ([[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride]) {
-            apiHostname = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride];
-            NSLog(@"[DEBUG][GRDGatewayAPI][baseHostname] Override for API present, setting base hostname to: %@", apiHostname);
-            return apiHostname;
-        } else {
-            return nil;
-        }
-    } else {
-        return apiHostname;
-   }
+    GRDCredential *main = [[GRDVPNHelper sharedInstance] mainCredential];
+    if (main){
+        return [main hostname];
+    }
+    return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride];
 }
 
 - (BOOL)_canMakeApiRequests {
@@ -120,15 +99,6 @@
     });
 }
 
-- (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestString:(NSString *)postRequestStr {
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint]];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[postRequestStr dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    return request;
-}
 
 - (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat {
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint]];
@@ -142,23 +112,11 @@
     return request;
 }
 
-+ (GRDGatewayAPIResponse *)deniedResponse {
-    GRDGatewayAPIResponse *response = [[GRDGatewayAPIResponse alloc] init];
-    response.responseStatus = GRDGatewayAPIStatusAPIRequestsDenied;
-    return response;
-}
-
-+ (GRDGatewayAPIResponse *)missingTokenResponse {
-    GRDGatewayAPIResponse *response = [[GRDGatewayAPIResponse alloc] init];
-    response.responseStatus = GRDGatewayAPITokenMissing;
-    return response;
-}
-
 - (void)getServerStatusWithCompletion:(void (^)(GRDGatewayAPIResponse *apiResponse))completion {
     if ([self _canMakeApiRequests] == NO) {
         NSLog(@"[DEBUG][getServerStatus] cannot make API requests !!! won't continue");
         if (completion) {
-            completion([GRDGatewayAPI deniedResponse]);
+            completion([GRDGatewayAPIResponse deniedResponse]);
         }
         return;
     }
@@ -228,6 +186,11 @@
 - (void)verifyEAPCredentialsUsername:(NSString *)eapUsername apiToken:(NSString *)apiToken andSubscriberCredential:(NSString *)subscriberCredential forVPNNode:(NSString *)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.2/device/%@/verify-credentials", vpnNode, eapUsername]]];
     
+    if (eapUsername == nil || apiToken == nil || subscriberCredential == nil || vpnNode == nil) {
+        if (completion) completion(NO, NO, @"nil variable detected. Aborting", NO);
+        return;
+    }
+    
     NSError *encodingError;
     NSData *jsonBody = [NSJSONSerialization dataWithJSONObject:@{@"subscriber-credential": subscriberCredential, @"api-auth-token": apiToken} options:0 error:&encodingError];
     if (encodingError != nil) {
@@ -277,14 +240,8 @@
 }
 
 - (void)registerAndCreateWithHostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-    if ([self _canMakeApiRequests] == NO) {
-        NSLog(@"[DEBUG][registerAndCreateWithSubscriberCredential] cannot make API requests !!! won't continue");
-        if (completion) {
-            completion(nil, NO, @"No VPN server selected. Can't create EAP Crendentials");
-        }
-        return;
-    }
-    
+    NSLog(@"hostname: %@", hostname);
+    //we don't need to do [self _canMakeApiRequests] here because that just checks for a hostname, and we get a hostname as one of the parameters.
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/register-and-create", hostname]]];
     [request setHTTPMethod:@"POST"];
     
@@ -353,20 +310,20 @@
         return;
     }
     
-    if (apiAuthToken == nil) {
+    if ([self apiAuthToken] == nil) {
         GRDLog(@"No auth token! Can't invalidate EAP credentials");
         if (completion) completion(NO, @"No auth token. Can't invalidate EAP credentials");
         return;
         
-    } else if (deviceIdentifier == nil) {
+    } else if ([self deviceIdentifier] == nil) {
         GRDLog(@"No device id. Can't invalidate EAP credentials");
         if (completion) completion(NO, @"No device id. Can't invalidate EAP credentials");
         return;
     }
     
-    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: apiAuthToken};
+    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: [self apiAuthToken]};
     
-    NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/invalidate-credentials", deviceIdentifier] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+    NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/invalidate-credentials", [self deviceIdentifier]] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -406,13 +363,13 @@
         return;
     }
     
-    if (apiAuthToken == nil) {
+    if ([self apiAuthToken] == nil) {
         NSLog(@"[DEBUG][bindAPNs] no auth token! cannot bind push token.");
         if (completion){
             completion(false, @"[DEBUG][bindAPNs] no auth token! cannot bind push token.");
         }
         return;
-    } else if (deviceIdentifier == nil) {
+    } else if ([self deviceIdentifier] == nil) {
         NSLog(@"[DEBUG][bindAPNs] no device id! cannot bind push token.");
         if (completion){
             completion(false, @"[DEBUG][bindAPNs] no device id! cannot bind push token.");
@@ -420,9 +377,9 @@
         return;
     }
 
-    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:apiAuthToken, @"push-token": pushToken, @"push-data-tracker": [NSNumber numberWithBool:dataTrackers], @"push-location-tracker": [NSNumber numberWithBool:locationTrackers], @"push-page-hijacker": [NSNumber numberWithBool:pageHijackers], @"push-mail-tracker": [NSNumber numberWithBool:mailTrackers]};
+    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken], @"push-token": pushToken, @"push-data-tracker": [NSNumber numberWithBool:dataTrackers], @"push-location-tracker": [NSNumber numberWithBool:locationTrackers], @"push-page-hijacker": [NSNumber numberWithBool:pageHijackers], @"push-mail-tracker": [NSNumber numberWithBool:mailTrackers]};
     
-    NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.1/device/%@/set-push-token", deviceIdentifier] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+    NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.1/device/%@/set-push-token", [self deviceIdentifier]] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -481,15 +438,15 @@
         return;
     }
     
-    if (apiAuthToken == nil ) {
+    if ([self apiAuthToken] == nil) {
         NSLog(@"[DEBUG][bindAPNs] no auth token! cannot bind push token.");
         return;
-    } else if (deviceIdentifier == nil) {
+    } else if ([self deviceIdentifier] == nil) {
         NSLog(@"[DEBUG][bindAPNs] no device id! cannot bind push token.");
         return;
     }
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/device/%@/remove-push-token", [self baseHostname], deviceIdentifier]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/device/%@/remove-push-token", [self baseHostname], [self deviceIdentifier]]]];
     [request setHTTPMethod:@"POST"];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -527,16 +484,16 @@
             return;
         }
         
-        if (!deviceIdentifier) {
+        if (![self deviceIdentifier]) {
             if (completion) completion(nil, NO, @"An error occured!, Missing device id!");
             return;
         }
         
-        NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alerts", deviceIdentifier];
+        NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alerts", [self deviceIdentifier]];
         NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint];
         
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
-        NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:apiAuthToken};
+        NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken]};
         [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
         [request setHTTPMethod:@"POST"];
         
@@ -646,15 +603,15 @@
         return;
     }
     
-    if (!deviceIdentifier) {
+    if (![self deviceIdentifier]) {
         GRDLog(@"Missing device id. Can't send API requests");
         if (completion) completion(NO, @"Missing device id. Can't send API requests");
         return;
     }
     
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: apiAuthToken, @"timestamp": [NSNumber numberWithInteger:timestamp]} options:0 error:nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: [self apiAuthToken], @"timestamp": [NSNumber numberWithInteger:timestamp]} options:0 error:nil];
     
-    NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/set-alerts-download-timestamp", deviceIdentifier] andPostRequestData:jsonData];
+    NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/set-alerts-download-timestamp", [self deviceIdentifier]] andPostRequestData:jsonData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -693,16 +650,16 @@
         return;
     }
     
-    if (!deviceIdentifier) {
+    if (![self deviceIdentifier]) {
         if (completion) completion(nil, NO, @"An error occured!, Missing device id!");
         return;
     }
     
-    NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alert-totals", deviceIdentifier];
+    NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alert-totals", [self deviceIdentifier]];
     NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
-    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:apiAuthToken};
+    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken]};
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
     [request setHTTPMethod:@"POST"];
     

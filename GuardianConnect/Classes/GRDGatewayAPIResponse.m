@@ -16,4 +16,16 @@
     return [NSString stringWithFormat:@"%@ status: %lu url response: %@", ogDesc, _responseStatus, _urlResponse];
 }
 
++ (GRDGatewayAPIResponse *)deniedResponse {
+    GRDGatewayAPIResponse *response = [[GRDGatewayAPIResponse alloc] init];
+    response.responseStatus = GRDGatewayAPIStatusAPIRequestsDenied;
+    return response;
+}
+
++ (GRDGatewayAPIResponse *)missingTokenResponse {
+    GRDGatewayAPIResponse *response = [[GRDGatewayAPIResponse alloc] init];
+    response.responseStatus = GRDGatewayAPITokenMissing;
+    return response;
+}
+
 @end

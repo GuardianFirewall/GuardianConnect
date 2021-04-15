@@ -9,7 +9,6 @@
 @import UserNotifications;
 #import "GRDServerManager.h"
 #import "GRDDebugHelper.h"
-#import <UIKit/UIKit.h>
 
 @interface GRDServerManager() {
     GRDNetworkHealthType networkHealth;
@@ -79,7 +78,7 @@
             NSLog(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
             
             // In case housekeeping goes down try to grab the cached hosts
-            NSArray *knownServersForRegion = [defaults objectForKey:@"kKnownGuardianHosts"];
+            NSArray *knownServersForRegion = [defaults objectForKey:kKnownGuardianHosts];
             if (knownServersForRegion != nil) {
                 NSLog(@"Found cached array of servers");
                 if (completion) completion(knownServersForRegion, nil);
@@ -93,7 +92,7 @@
             [debugHelper logTimeWithMessage:@"ending early, because we have cached time zones"];
             
             // No new time zones to process. Using the existing servers we have cached already
-            NSArray *knownServersForRegion = [defaults objectForKey:@"kKnownGuardianHosts"];
+            NSArray *knownServersForRegion = [defaults objectForKey:kKnownGuardianHosts];
             if (completion) completion(knownServersForRegion, nil);
             return;
         }
@@ -107,8 +106,8 @@
         [defaults setObject:[NSNumber numberWithInt:nowUnix] forKey:housekeepingTimezonesTimestamp];
         
         NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
-        NSLog(@"[DEBUG] found region: %@", region[@"name"]);
         NSString *regionName = region[@"name"];
+        NSLog(@"[DEBUG] found region: %@", regionName);
         NSTimeZone *local = [NSTimeZone localTimeZone];
         NSLog(@"[DEBUG] real local time zone: %@", local);
         if ([defaults boolForKey:kGuardianUseFauxTimeZone]){
@@ -130,7 +129,7 @@
                 return;
             } else {
                 //NSLog(@"servers: %@", servers);
-                [defaults setObject:servers forKey:@"kKnownGuardianHosts"];
+                [defaults setObject:servers forKey:kKnownGuardianHosts];
                 if (completion) completion(servers, nil);
             }
         }];
@@ -142,8 +141,13 @@
     if (regionName == nil){ //if the region is nil, use the current one
         GRDLog(@"[DEBUG] nil region, use the default!");
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+        GRDCredential *creds = [GRDCredentialManager mainCredentials];
         NSString *host = [def objectForKey:kGRDHostnameOverride];
         NSString *hl = [def objectForKey:kGRDVPNHostLocation];
+        if (creds){
+            host = [creds hostname];
+            hl = [creds hostnameDisplayValue];
+        }
         if(block){
             dispatch_async(dispatch_get_main_queue(), ^{
                 block(host, hl, nil);

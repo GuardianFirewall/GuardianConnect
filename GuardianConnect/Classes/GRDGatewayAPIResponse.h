@@ -59,7 +59,8 @@ typedef NS_ENUM(NSInteger, GRDGatewayAPIResponseStatus) {
 @property (nonatomic) BOOL receiptIndicatesFreeTrialUsed;
 @property (nonatomic) BOOL receiptHasActiveSubscription;
 
-
++ (GRDGatewayAPIResponse *)deniedResponse;
++ (GRDGatewayAPIResponse *)missingTokenResponse;
 @end
 
 NS_ASSUME_NONNULL_END

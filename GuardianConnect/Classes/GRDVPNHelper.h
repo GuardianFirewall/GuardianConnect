@@ -13,16 +13,18 @@
 #import "GRDGatewayAPI.h"
 #import "GRDServerManager.h"
 #import "GRDHousekeepingAPI.h"
+//#import "GRDSettingsController.h"
 #import "GRDGatewayAPIResponse.h"
 #import "GRDSubscriberCredential.h"
 #import <UIKit/UIKit.h>
-
+#import "GRDCredentialManager.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
 @property (nullable) NEProxySettings *proxySettings;
 @property UIBackgroundTaskIdentifier bgTask;
+@property (nullable) GRDCredential *mainCredential;
 
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperSuccess,
@@ -55,14 +57,14 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString *_Nullable message, GRDVPNHelperStatusCode status))completion;
 - (void)disconnectVPN;
 - (void)forceDisconnectVPNIfNecessary;
-- (void)createFreshUserWithSubscriberCredential:(NSString *)subscriberCredential completion:(void (^)(GRDVPNHelperStatusCode statusCode, NSString * _Nullable errString))completion;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))block;
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block;
 
 #pragma mark Shared Framework Code
 
 + (GRDPlanDetailType)subscriptionTypeFromDefaults;
-+ (BOOL)proMode;
++ (BOOL)proMode; //not used yet, moving here to help framework transition.
+
 @end
 
 NS_ASSUME_NONNULL_END

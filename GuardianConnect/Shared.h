@@ -16,39 +16,39 @@
 #define LOG_SELF        NSLog(@"%@ %@", self, NSStringFromSelector(_cmd))
 #define DLOG_SELF DLog(@"%@ %@", self, NSStringFromSelector(_cmd))
 
-#define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
-#define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
-#define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
-
 // Define below to 0 to make guardian specific code inactive
 #define GUARDIAN_INTERNAL 1
 
 #pragma mark - Misc
 
-#define kAppNeedsSelfRepair             @"guardianNeedsSelfRepair"
+static NSString * const kAppNeedsSelfRepair                             = @"guardianNeedsSelfRepair";
 
 #pragma mark - Housekeeping / Region / Timezone
 
-#define kGuardianNetworkHealthStatusNotification @"networkHealthStatusNotification"
-#define kGuardianSuccessfulSubscription @"successfullySubscribedToGuardian"
+static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
+static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
-static NSString * const kVPNHadNetworkHealthDisconnect = @"vpnHadNetworkHealthDisconnect";
-static NSString * const kGRDHostnameOverride = @"APIHostname-Override";
-static NSString * const kGRDEAPSharedHostname = @"SharedAPIHostname";
-static NSString * const kGRDVPNHostLocation = @"kGRDVPNHostLocation";
-static NSString * const kGRDIncludesAllNetworks = @"kGRDIncludesAllNetworks";
-static NSString * const kGRDExcludeLocalNetworks = @"kGRDExcludeLocalNetworks";
-static NSString * const kGRDWifiAssistEnableFallback = @"kGRDWifiAssistEnableFallback";
-static NSString * const kGRDRefreshProxySettings = @"kGRDRefreshProxySettings";
-static NSString * const kGRDTunnelEnabled = @"kGRDTunnelEnabled";
+static NSString * const kGRDDefaultGatewayUUID                          = @"kGRDDefaultGatewayUUID";
 
-static NSString * const kGuardianFauxTimeZone = @"faux-timezone";
-static NSString * const kGuardianFauxTimeZonePretty = @"faux-timezone-pretty";
-static NSString * const kGuardianUseFauxTimeZone = @"use-faux-timezone";
-static NSString * const kKnownHousekeepingTimeZonesForRegions = @"kKnownHousekeepingTimeZonesForRegions";
-static NSString * const housekeepingTimezonesTimestamp = @"housekeepingTimezonesTimestamp";
-static NSString * const kGuardianAllRegions = @"kGRDAllRegions";
-static NSString * const kGuardianAllRegionsTimeStamp = @"kGRDAllRegionsTimeStamp";
+static NSString * const kVPNHadNetworkHealthDisconnect                  = @"vpnHadNetworkHealthDisconnect";
+static NSString * const kGRDHostnameOverride                            = @"APIHostname-Override";
+static NSString * const kGRDEAPSharedHostname                           = @"SharedAPIHostname";
+static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
+static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
+static NSString * const kGRDExcludeLocalNetworks                        = @"kGRDExcludeLocalNetworks";
+static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
+static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
+static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
+
+static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
+static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
+static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
+static NSString * const kKnownHousekeepingTimeZonesForRegions           = @"kKnownHousekeepingTimeZonesForRegions";
+static NSString * const housekeepingTimezonesTimestamp                  = @"housekeepingTimezonesTimestamp";
+static NSString * const kGuardianAllRegions                             = @"kGRDAllRegions";
+static NSString * const kGuardianAllRegionsTimeStamp                    = @"kGRDAllRegionsTimeStamp";
+static NSString * const kKnownGuardianHosts                             = @"kKnownGuardianHosts";
+static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 
 
 #pragma mark - Subscription types + related
@@ -78,17 +78,18 @@ static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRD
 static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
 static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
 
+//moved to make framework friendly
+static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
+static NSString * const kSubscriptionPlanTypeStr                        = @"subscriptionPlanType";
 
-//newly added
-
-#define kIsPremiumUser                  @"userHasPaidSubscription"
-#define kSubscriptionPlanTypeStr @"subscriptionPlanType"
-
-//not a fan of having this here, but its needed for proMode discernment
 typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
     GRDPlanDetailTypeFree = 0,
     GRDPlanDetailTypeEssentials,
     GRDPlanDetailTypeProfessional
 };
+
+#define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
+#define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
+#define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
 
 #endif /* Shared_h */

@@ -58,10 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// timer used to regularly check on the network condition and detect network changes or outages
 @property (strong, nonatomic) NSTimer * _Nullable healthCheckTimer;
 
-
-/// singleton object to quickly access objects from the VPN host
-+ (instancetype)sharedAPI;
-
 /// hits an endpoint with as little data transferred as possible to verify that network requests can still be made
 - (void)networkHealthCheck;
 
@@ -79,9 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Load the current VPN node hostname out of NSUserDefaults
 - (NSString *)baseHostname;
-
-/// DEPRECATED! All URL encoding has been removed from zoe-agent. DO NOT USE!
-- (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestString:(NSString *)postRequestStr;
 
 /// convenience method to quickly set various HTTP headers
 - (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat;

@@ -9,14 +9,11 @@
 #import "GRDVPNHelper.h"
 #import "EXTScope.h"
 
+
 @import UserNotifications;
 
 @implementation GRDVPNHelper {
     NSInteger _retryCount;
-}
-
-+ (id)sharedApp {
-    return [UIApplication sharedApplication];
 }
 
 + (BOOL)proMode {
@@ -41,33 +38,36 @@
 }
 
 + (BOOL)activeConnectionPossible {
-    NSString *apiHostname = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride];
-    NSString *authToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
-    NSString *eapUsername = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
+    GRDCredential *cred = [GRDCredentialManager mainCredentials];
+    NSString *apiHostname = cred.hostname;
+    NSString *authToken = cred.apiAuthToken;
+    NSString *eapUsername = cred.username;
     if (apiHostname == nil || authToken == nil || eapUsername == nil) return false;
     return true;
 }
 
 + (void)saveAllInOneBoxHostname:(NSString *)host {
-    [[NSUserDefaults standardUserDefaults] setObject:host forKey:@"GatewayHostname-Override"];
     [[NSUserDefaults standardUserDefaults] setObject:host forKey:kGRDHostnameOverride];
 }
 
 + (void)clearVpnConfiguration {
-    NSString *eapUsername = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
-    NSString *apiAuthToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
     
-    [[GRDGatewayAPI sharedAPI] invalidateEAPCredentials:eapUsername andAPIToken:apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
+    GRDCredential *creds = [GRDCredentialManager mainCredentials];
+    NSString *eapUsername = [creds username];
+    NSString *apiAuthToken = [creds apiAuthToken];
+    
+    [[GRDGatewayAPI new] invalidateEAPCredentials:eapUsername andAPIToken:apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
         if (success == NO) {
             GRDLog(@"Failed to invalidate EAP credentials: %@", errorMessage);
         }
     }];
     
     [GRDKeychain removeGuardianKeychainItems];
+    [GRDCredentialManager clearMainCredentials];
+    [[GRDVPNHelper sharedInstance] setMainCredential:nil];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:kGRDHostnameOverride];
     [defaults removeObjectForKey:kGRDVPNHostLocation];
-    [defaults removeObjectForKey:@"GatewayHostname-Override"];
     [defaults removeObjectForKey:housekeepingTimezonesTimestamp];
     [defaults setBool:NO forKey:kAppNeedsSelfRepair];
     
@@ -119,13 +119,6 @@
     protocolConfig.username = user;
     protocolConfig.passwordReference = passRef;
     protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
-    if (@available(iOS 14.0, *)){
-        //protocolConfig.includeAllNetworks = [defaults boolForKey:kGRDIncludesAllNetworks]; //TODO: comment this back in when killswitch is enabled
-        if (@available(iOS 14.2, *)){
-            protocolConfig.excludeLocalNetworks = [defaults boolForKey:kGRDExcludeLocalNetworks];
-            protocolConfig.enforceRoutes = [defaults boolForKey:kGRDExcludeLocalNetworks];
-        }
-    }
     NEProxySettings *proxSettings = [self proxySettings];
     if (proxSettings){
         protocolConfig.proxySettings = proxSettings;
@@ -182,61 +175,19 @@
     }];
 }
 
-- (void)createFreshUserWithSubscriberCredential:(NSString *)subscriberCredential completion:(void (^)(GRDVPNHelperStatusCode, NSString * _Nullable))completion {
-    // remove previous authentication details
-    [GRDKeychain removeGuardianKeychainItems];
-    
++ (NSInteger)subCredentialDays {
     NSInteger eapCredentialsValidFor = 30;
-    GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
+    GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:[GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential]];
+    if (!subCred){
+        GRDLog(@"[DEBUG] this is probably bad!!");
+    }
     
     // Note from CJ 2020-11-24
     // This is incredibly primitive and will be improved soon
     if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
         eapCredentialsValidFor = 3;
     }
-    
-    [[GRDGatewayAPI sharedAPI] registerAndCreateWithSubscriberCredential:subscriberCredential validForDays:eapCredentialsValidFor completion:^(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage) {
-        if (success == NO && errorMessage != nil) {
-            completion(GRDVPNHelperFail, errorMessage);
-            return;
-            
-        } else {
-            // These values will never be nil if the API request was successful
-            NSString *eapUsername = [credentials objectForKey:kKeychainStr_EapUsername];
-            NSString *eapPassword = [credentials objectForKey:kKeychainStr_EapPassword];
-            NSString *apiAuthToken = [credentials objectForKey:kKeychainStr_APIAuthToken];
-            
-            OSStatus usernameStatus = [GRDKeychain storePassword:eapUsername forAccount:kKeychainStr_EapUsername];
-            if (usernameStatus != errSecSuccess) {
-                NSLog(@"[createFreshUserWithSubscriberCredential] Failed to store eap username: %d", usernameStatus);
-                if (completion) completion(GRDVPNHelperFail, @"Failed to store EAP Username");
-                return;
-            }
-            
-            OSStatus passwordStatus = [GRDKeychain storePassword:eapPassword forAccount:kKeychainStr_EapPassword];
-            if (passwordStatus != errSecSuccess) {
-                NSLog(@"[createFreshUserWithSubscriberCredential] Failed to store eap password: %d", passwordStatus);
-                if (completion) completion(GRDVPNHelperFail, @"Failed to store EAP Password");
-                return;
-            }
-            
-            OSStatus apiAuthTokenStatus = [GRDKeychain storePassword:apiAuthToken forAccount:kKeychainStr_APIAuthToken];
-            if (apiAuthTokenStatus != errSecSuccess) {
-                NSLog(@"[createFreshUserWithSubscriberCredential] Failed to store api auth token: %d", apiAuthTokenStatus);
-                if (completion) completion(GRDVPNHelperFail, @"Failed to store API Auth Token");
-                return;
-            }
-            [[GRDGatewayAPI sharedAPI] setAPIAuthToken:apiAuthToken];
-            [[GRDGatewayAPI sharedAPI] setDeviceIdentifier:eapUsername];
-            
-            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDCurrentUserChanged" object:nil];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDShouldConfigureVPN" object:nil];
-            GRDLog(@"Posted GRDCurrentUserChanged and GRDShouldConfigureVPN");
-            
-            completion(GRDVPNHelperSuccess, nil);
-        }
-    }];
+    return eapCredentialsValidFor;
 }
 
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
@@ -289,7 +240,7 @@
                                 if (completion) completion(@"Error starting VPN tunnel. Please reset your connection. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
                                 return;
                             } else {
-                                [[GRDGatewayAPI sharedAPI] startHealthCheckTimer];
+                                [[GRDGatewayAPI new] startHealthCheckTimer];
                                 if (completion) completion(nil, GRDVPNHelperSuccess);
                             }
                         }];
@@ -319,21 +270,34 @@
         }];
         return;
     }
-    
-    if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO) {
+    if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
         NSLog(@"[DEBUG] something went wrong! bad server (%@)", vpnServer);
+        /*
         if (completion) completion([NSString stringWithFormat:@"%@ is not allowed as a server hostname. If this issue persists please select Contact Technical Support in the Settings tab.", vpnServer], GRDVPNHelperFail);
+        return;
+         */
+        [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
+            if (completion){
+                if (success){
+                    completion(nil, GRDVPNHelperSuccess);
+                } else {
+                    completion(error, GRDVPNHelperFail);
+                }
+            } else {
+                NSLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
+            }
+        }];
         return;
     }
     
-    [[GRDGatewayAPI sharedAPI] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
+    [[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
         // GRDGatewayAPIEndpointNotFound exists for VPN node legacy reasons but will never be hit
         // It will be removed in the next iteration
         //NSLog(@"[DEBUG] APIResponse: %@", apiResponse);
         if (apiResponse.responseStatus == GRDGatewayAPIServerOK || apiResponse.responseStatus == GRDGatewayAPIEndpointNotFound) {
-            NSString *apiAuthToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
-            NSString *eapUsername = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
-            NSData *eapPassword = [GRDKeychain getPasswordRefForAccount:kKeychainStr_EapPassword];
+            NSString *apiAuthToken = [self.mainCredential apiAuthToken];
+            NSString *eapUsername = [self.mainCredential username];
+            NSData *eapPassword = [self.mainCredential passwordRef];
             
             if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
                 
@@ -360,7 +324,7 @@
             [self _createVPNConnectionWithCreds:creds completion:completion];
             
         } else if (apiResponse.responseStatus == GRDGatewayAPIServerInternalError || apiResponse.responseStatus == GRDGatewayAPIServerNotOK) {
-            NSMutableArray *knownHostnames = [NSMutableArray arrayWithArray:[defaults objectForKey:@"kKnownGuardianHosts"]];
+            NSMutableArray *knownHostnames = [NSMutableArray arrayWithArray:[defaults objectForKey:kKnownGuardianHosts]];
             for (int i = 0; i < [knownHostnames count]; i++) {
                 NSDictionary *serverObject = [knownHostnames objectAtIndex:i];
                 if ([[serverObject objectForKey:@"hostname"] isEqualToString:vpnServer]) {
@@ -368,7 +332,7 @@
                 }
             }
             
-            [defaults setObject:[NSArray arrayWithArray:knownHostnames] forKey:@"kKnownGuardianHosts"];
+            [defaults setObject:[NSArray arrayWithArray:knownHostnames] forKey:kKnownGuardianHosts];
             [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
                 if (completion){
                     if (success){
@@ -400,19 +364,19 @@
                 }];
             } else if (apiResponse.error.code == NSURLErrorNotConnectedToInternet) {
                 // probably should not reach here, due to use of Reachability, but leaving this as a fallback
-                NSLog(@"[DEBUG][createFreshUserWithCompletion] not connected to internet!");
+                NSLog(@"[DEBUG][configureAndConnectVPNWithCompletion] not connected to internet!");
                 if (completion) completion(@"Your device is not connected to the internet. Please check your Settings.", GRDVPNHelperFail);
             } else if (apiResponse.error.code == NSURLErrorNetworkConnectionLost) {
-                NSLog(@"[DEBUG][createFreshUserWithCompletion] connection lost!");
+                NSLog(@"[DEBUG][configureAndConnectVPNWithCompletion] connection lost!");
                 if (completion) completion(@"Connection failed, potentially due to weak network signal. Please ty again.", GRDVPNHelperFail);
             } else if (apiResponse.error.code == NSURLErrorInternationalRoamingOff) {
-                NSLog(@"[DEBUG][createFreshUserWithCompletion] international roaming is off!");
+                NSLog(@"[DEBUG][configureAndConnectVPNWithCompletion] international roaming is off!");
                 if (completion) completion(@"Your device is not connected to the internet. Please turn Roaming on in your Settings.", GRDVPNHelperFail);
             } else if (apiResponse.error.code == NSURLErrorDataNotAllowed) {
-                NSLog(@"[DEBUG][createFreshUserWithCompletion] data not allowed!");
+                NSLog(@"[DEBUG][configureAndConnectVPNWithCompletion] data not allowed!");
                 if (completion) completion(@"Your device is not connected to the internet. Your cellular network did not allow this connection to complete.", GRDVPNHelperFail);
             } else if (apiResponse.error.code == NSURLErrorCallIsActive) {
-                NSLog(@"[DEBUG][createFreshUserWithCompletion] phone call active!");
+                NSLog(@"[DEBUG][configureAndConnectVPNWithCompletion] phone call active!");
                 if (completion) completion(@"The connection could not be completed due to an active phone call. Please try again after completing your phone call.", GRDVPNHelperFail);
             } else {
                 if (completion) completion(@"Unknown error occured. Please contact support@guardianapp.com if this issue persists.", GRDVPNHelperFail);
@@ -476,13 +440,15 @@
 }
 
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block {
-    [self createStandaloneCredentialsForDays:validForDays hostname:[[GRDGatewayAPI sharedAPI] apiHostname] completion:block];
+    [self createStandaloneCredentialsForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults]valueForKey:kGRDHostnameOverride] completion:block];
 }
 
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * creds, NSString * errorMessage))block {
     [self getValidSubscriberCredentialWithCompletion:^(NSString *credential, NSString *error) {
         if (credential != nil) {
-            [[GRDGatewayAPI sharedAPI] registerAndCreateWithHostname:hostname subscriberCredential:credential validForDays:validForDays completion:^(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage) {
+            NSInteger adjustedDays = [GRDVPNHelper subCredentialDays];
+            //adjust the day count in case 30 is too many
+            [[GRDGatewayAPI new] registerAndCreateWithHostname:hostname subscriberCredential:credential validForDays:adjustedDays completion:^(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage) {
                 if (success == NO && errorMessage != nil) {
                     block(nil, errorMessage);
                     
@@ -503,33 +469,31 @@
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [[GRDGatewayAPI sharedAPI] setApiHostname:host];
+    [[GRDGatewayAPI new] setApiHostname:host];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
-    
-    [self getValidSubscriberCredentialWithCompletion:^(NSString *credential, NSString *error) {
-        if (error != nil) {
-            GRDLog(@"Failed to obtain valid subscriber credential: %@", error);
-            if (block) block(NO, error);
-            return;
-            
-        } else {
+    [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nonnull errorMessage) {
+        if (errorMessage != nil){
+            GRDLog(@"%@", errorMessage);
+            if (block) {
+                block(FALSE, errorMessage);
+            }
+        } else if (creds){
             if (mid){
                 mid();
             }
-            [self createFreshUserWithSubscriberCredential:credential completion:^(GRDVPNHelperStatusCode statusCode, NSString * _Nonnull errString) {
-                if (errString != nil) {
-                    GRDLog(@"%@", errString);
-                    if (block) {
-                        block(FALSE, errString);
-                    }
-                    
-                } else if (statusCode == GRDVPNHelperSuccess) {
-                    if (block) {
-                        block(TRUE, nil);
-                    }
-                }
-            }];
+            NSMutableDictionary *fullCreds = [creds mutableCopy];
+            fullCreds[kGRDHostnameOverride] = host;
+            fullCreds[kGRDVPNHostLocation] = hostLocation;
+            self.mainCredential = [[GRDCredential alloc] initWithFullDictionary:fullCreds validFor:30 isMain:true];
+            [self.mainCredential saveToKeychain];
+            [GRDCredentialManager addOrUpdateCredential:self.mainCredential];
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDCurrentUserChanged" object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDShouldConfigureVPN" object:nil];
+            if (block) {
+                block(TRUE, nil);
+            }
         }
     }];
 }
