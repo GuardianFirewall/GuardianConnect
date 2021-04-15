@@ -15,6 +15,10 @@
     NSInteger _retryCount;
 }
 
++ (id)sharedApp {
+    return [UIApplication sharedApplication];
+}
+
 + (BOOL)proMode {
     return ([self subscriptionTypeFromDefaults] == GRDPlanDetailTypeProfessional);
 }
@@ -558,6 +562,28 @@
         return GRDPlanDetailTypeProfessional;
     }
     return GRDPlanDetailTypeFree; //maybe others??
+}
+
+#pragma mark Background Task code
+
+- (void)startBackgroundTaskIfNecessary {
+    if (self.bgTask != UIBackgroundTaskInvalid) {
+        NSLog(@"[DEBUG] background task already started!");
+        return;
+    }
+    @weakify(self);
+    UIApplication *app = [UIApplication sharedApplication];
+       self.bgTask = [app beginBackgroundTaskWithName:@"Guardian VPN Connection" expirationHandler:^{
+           NSLog(@"[DEBUG] bg task expired!");
+           [app endBackgroundTask:self_weak_.bgTask];
+           self_weak_.bgTask = UIBackgroundTaskInvalid;
+       }];
+}
+
+- (void)endBackgroundTask {
+    UIApplication *app = [UIApplication sharedApplication];
+    [app endBackgroundTask:self.bgTask];
+    self.bgTask = UIBackgroundTaskInvalid;
 }
 
 

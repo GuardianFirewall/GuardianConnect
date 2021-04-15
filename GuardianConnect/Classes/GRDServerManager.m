@@ -9,6 +9,7 @@
 @import UserNotifications;
 #import "GRDServerManager.h"
 #import "GRDDebugHelper.h"
+#import <UIKit/UIKit.h>
 
 @interface GRDServerManager() {
     GRDNetworkHealthType networkHealth;
@@ -309,7 +310,7 @@
               if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
                   dispatch_async(dispatch_get_main_queue(), ^{
                       dispatch_async(dispatch_get_main_queue(), ^{
-                          //[[UIApplication sharedApplication] registerForRemoteNotifications]; //FIXME: frameworks have no concept of the application they are loaded, maybe post a notification AppDelegate has to listen for instead? 
+                          [[UIApplication sharedApplication] registerForRemoteNotifications];
                       });
                   });
               }
