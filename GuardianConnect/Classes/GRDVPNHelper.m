@@ -208,7 +208,7 @@
 
 //trying to make configureAndConnectVPNWithCompletion a bit smaller and more manageable, DONT CALL DIRECTLY.
 
-- (void)_createVPNConnectionWithCreds:(NSDictionary *)creds completion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
+- (void)_createVPNConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
     NEVPNManager *vpnManager = [NEVPNManager sharedManager];
     [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
         if (loadError) {
@@ -216,9 +216,9 @@
             if (completion) completion(@"Error loading VPN configuration. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
             return;
         } else {
-            NSString *vpnServer = creds[kGRDHostnameOverride];
-            NSString *eapUsername = creds[kKeychainStr_EapUsername];
-            NSData *eapPassword = creds[kKeychainStr_EapPassword];
+            NSString *vpnServer = self.mainCredential.hostname;
+            NSString *eapUsername = self.mainCredential.username;
+            NSData *eapPassword = self.mainCredential.passwordRef;
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
             vpnManager.localizedDescription = @"Guardian Firewall";
@@ -314,14 +314,8 @@
                 }];
                 return;
             }
-            NSDictionary *creds = @{kKeychainStr_APIAuthToken: apiAuthToken,
-                                    kKeychainStr_EapUsername: eapUsername,
-                                    kKeychainStr_EapPassword: eapPassword,
-                                    kGRDHostnameOverride: vpnServer,
-                                    
-            };
             
-            [self _createVPNConnectionWithCreds:creds completion:completion];
+            [self _createVPNConnectionWithCompletion:completion];
             
         } else if (apiResponse.responseStatus == GRDGatewayAPIServerInternalError || apiResponse.responseStatus == GRDGatewayAPIServerNotOK) {
             NSMutableArray *knownHostnames = [NSMutableArray arrayWithArray:[defaults objectForKey:kKnownGuardianHosts]];
