@@ -13,7 +13,6 @@
 #import "GRDGatewayAPI.h"
 #import "GRDServerManager.h"
 #import "GRDHousekeepingAPI.h"
-//#import "GRDSettingsController.h"
 #import "GRDGatewayAPIResponse.h"
 #import "GRDSubscriberCredential.h"
 #import <UIKit/UIKit.h>
@@ -28,9 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperSuccess,
-	GRDVPNHelperFail,
+    GRDVPNHelperFail,
     GRDVPNHelperDoesNeedMigration,
-	GRDVPNHelperMigrating,
+    GRDVPNHelperMigrating,
     GRDVPNHelperNetworkConnectionError, // add other network errors
     GRDVPNHelperCoudNotReachAPIError,
     GRDVPNHelperApp_VpnPrefsLoadError,
@@ -51,6 +50,8 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (void)clearVpnConfiguration;
 + (void)saveAllInOneBoxHostname:(NSString *)host;
 - (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType;
+
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block;
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block;
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block;

@@ -463,6 +463,18 @@
     }];
 }
 
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
+    [[GRDServerManager new] selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+        if (!errorMessage){
+            [self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:block];
+        } else {
+            if (block){
+                block(false,errorMessage);
+            }
+        }
+    }];
+}
+
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block {
     [self configureFirstTimeUserForHostname:host andHostLocation:hostLocation postCredential:nil completion:block];
 }
