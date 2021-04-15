@@ -501,11 +501,27 @@
             [self.mainCredential saveToKeychain];
             [GRDCredentialManager addOrUpdateCredential:self.mainCredential];
             [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDCurrentUserChanged" object:nil];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"GRDShouldConfigureVPN" object:nil];
-            if (block) {
-                block(TRUE, nil);
-            }
+            [self configureAndConnectVPNWithCompletion:^(NSString * _Nonnull message, GRDVPNHelperStatusCode status) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (status == GRDVPNHelperFail) {
+                        if (message != nil) {
+                            if (block){
+                                block(FALSE, message);
+                            }
+                        } else {
+                            if (block){
+                                block(FALSE, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
+                            }
+                        }
+                    } else {
+                        if (block) {
+                            block(TRUE, nil);
+                        }
+                    }
+                    
+                });
+            }];
+            
         }
     }];
 }
