@@ -15,15 +15,19 @@
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
+#if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
+#endif
 #import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
 @property (nullable) NEProxySettings *proxySettings;
-@property UIBackgroundTaskIdentifier bgTask;
 @property (nullable) GRDCredential *mainCredential;
+#if !TARGET_OS_OSX
+@property UIBackgroundTaskIdentifier bgTask;
+#endif
 
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperSuccess,
@@ -38,8 +42,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperAPI_ProvisioningError
 };
 + (instancetype)sharedInstance;
+
+#if !TARGET_OS_OSX
 - (void)startBackgroundTaskIfNecessary;
 - (void)endBackgroundTask;
+#endif
 
 - (void)setRetryCount:(NSInteger)retryCount;
 - (NSInteger)retryCount;

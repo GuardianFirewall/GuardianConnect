@@ -105,7 +105,6 @@
 
 
 - (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
     protocolConfig.serverAddress = server;
     protocolConfig.serverCertificateCommonName = server;
@@ -125,10 +124,14 @@
     }
 
     protocolConfig.useConfigurationAttributeInternalIPSubnet = false;
+#if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
     if (@available(iOS 13.0, *)) {
         protocolConfig.enableFallback = [defaults boolForKey:kGRDWifiAssistEnableFallback];
     }
+#endif
 #endif
     // TO DO - find out if this all works fine with Always On VPN (allegedly uses two open tunnels at once, for wifi/cellular interfaces)
     // - may require settings "uniqueids" in VPN-side of config to "never" otherwise same EAP creds on both tunnels may cause an issue
@@ -550,6 +553,8 @@
     return GRDPlanDetailTypeFree; //maybe others??
 }
 
+#if !TARGET_OS_OSX
+
 #pragma mark Background Task code
 
 - (void)startBackgroundTaskIfNecessary {
@@ -572,5 +577,6 @@
     self.bgTask = UIBackgroundTaskInvalid;
 }
 
+#endif
 
 @end
