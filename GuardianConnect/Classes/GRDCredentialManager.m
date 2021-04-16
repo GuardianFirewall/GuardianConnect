@@ -71,7 +71,10 @@
     NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianCredentialList];
     NSMutableArray<NSData *> *credentialList = [NSMutableArray arrayWithArray:storedItems];
     if (credentialList.count) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         NSData *itemData = [NSKeyedArchiver archivedDataWithRootObject:credential];
+#pragma clang diagnostic pop
         [credentialList removeObject:itemData];
         [[NSUserDefaults standardUserDefaults] setValue:credentialList forKey:kGuardianCredentialList];
     }
@@ -83,7 +86,10 @@
     if (!credentialList.count) {
         credentialList = [NSMutableArray array];
     }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSData *newObject = [NSKeyedArchiver archivedDataWithRootObject:credential];
+#pragma clang diagnostic pop
     GRDCredential *foundCred = [self credentialWithIdentifier:credential.identifier];
     if (foundCred){
         NSArray *creds = [self credentials]; //this is REALLY inefficient, may have to stop dodging making this a singleton
@@ -105,7 +111,10 @@
     NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianCredentialList];
     NSMutableArray<GRDCredential*> *credentials = [NSMutableArray array];
     for (NSData *item in items) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         GRDCredential *credential = [NSKeyedUnarchiver unarchiveObjectWithData:item];
+#pragma clang diagnostic pop
         [credentials addObject:credential];
     }
     return credentials;

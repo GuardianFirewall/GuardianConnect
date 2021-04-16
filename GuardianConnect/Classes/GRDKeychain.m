@@ -28,7 +28,10 @@
     NSDictionary *secItem = @{
         (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
         (__bridge id)kSecAttrService : bundleId,
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAlways,
+#pragma clang diagnostic pop
         (__bridge id)kSecAttrSynchronizable : (__bridge id)kCFBooleanFalse,
         (__bridge id)kSecAttrAccount : accountKeyStr,
         (__bridge id)kSecValueData : valueData,
