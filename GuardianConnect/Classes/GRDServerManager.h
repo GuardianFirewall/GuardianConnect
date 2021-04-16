@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "GRDVPNHelper.h"
-#import "GRDHousekeepingAPI.h"
+#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDHousekeepingAPI.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

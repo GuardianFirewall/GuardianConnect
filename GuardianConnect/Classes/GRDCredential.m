@@ -6,11 +6,11 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDCredential.h"
-#import "GRDVPNHelper.h"
-#import "GRDKeychain.h"
-#import "GRDGatewayAPI.h"
-#import "NSDate+Extras.h"
+#import <GuardianConnect/GRDCredential.h>
+#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDGatewayAPI.h>
+#import <GuardianConnect/NSDate+Extras.h>
 
 @interface GRDCredential(){
     BOOL _checkedExpiration;

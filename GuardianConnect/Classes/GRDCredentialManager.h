@@ -8,7 +8,8 @@
 // Manage EAP credentials
 
 #import <Foundation/Foundation.h>
-#import "GRDCredential.h"
+#import <GuardianConnect/GRDCredential.h>
+
 NS_ASSUME_NONNULL_BEGIN
 static NSString * const kGuardianCredentialList = @"kGuardianCredentialList";
 @interface GRDCredentialManager : NSObject

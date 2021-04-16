@@ -7,8 +7,8 @@
 //
 
 @import UserNotifications;
-#import "GRDServerManager.h"
-#import "GRDDebugHelper.h"
+#import <GuardianConnect/GRDServerManager.h>
+#import <GuardianConnect/GRDDebugHelper.h>
 
 @interface GRDServerManager() {
     GRDNetworkHealthType networkHealth;

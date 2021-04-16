@@ -7,6 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <GuardianConnect/GRDCredential.h>
+#import <GuardianConnect/GRDCredentialManager.h>
+#import <GuardianConnect/GRDDebugHelper.h>
+#import <GuardianConnect/GRDGatewayAPI.h>
+#import <GuardianConnect/Shared.h>
+#import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDGatewayAPIResponse.h>
+#import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDServerManager.h>
+#import <GuardianConnect/GRDSubscriberCredential.h>
+#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/NSDate+Extras.h>
+#import <GuardianConnect/NSPredicate+Additions.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;

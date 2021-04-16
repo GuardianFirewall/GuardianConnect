@@ -6,8 +6,8 @@
 //  Copyright © 2019 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDVPNHelper.h"
-#import "EXTScope.h"
+#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/EXTScope.h>
 
 
 @import UserNotifications;

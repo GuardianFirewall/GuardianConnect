@@ -6,7 +6,7 @@
 //  Copyright © 2020 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "NSDate+Extras.h"
+#import <GuardianConnect/NSDate+Extras.h>
 
 @implementation NSDate (Extras)
 

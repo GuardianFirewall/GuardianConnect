@@ -6,7 +6,7 @@
 //  Copyright © 2020 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "NSPredicate+Additions.h"
+#import <GuardianConnect/NSPredicate+Additions.h>
 
 @implementation NSPredicate (Additions)
 

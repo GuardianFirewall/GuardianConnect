@@ -9,7 +9,7 @@
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
-#import "NSPredicate+Additions.h"
-#import "Shared.h"
+#import <GuardianConnect/NSPredicate+Additions.h>
+#import <GuardianConnect/Shared.h>
 
 #endif /* PrefixHeader_pch */

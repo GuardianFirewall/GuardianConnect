@@ -5,7 +5,7 @@
 //  Copyright © 2017 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDKeychain.h"
+#import <GuardianConnect/GRDKeychain.h>
 
 @interface GRDKeychain ()
 

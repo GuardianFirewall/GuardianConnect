@@ -6,7 +6,7 @@
 //  Copyright © 2019 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDGatewayAPIResponse.h"
+#import <GuardianConnect/GRDGatewayAPIResponse.h>
 
 @implementation GRDGatewayAPIResponse
 

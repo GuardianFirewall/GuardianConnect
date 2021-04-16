@@ -8,9 +8,9 @@
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
 
-#import "GRDKeychain.h"
-#import "GRDGatewayAPIResponse.h"
-#import "GRDDebugHelper.h"
+#import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDGatewayAPIResponse.h>
+#import <GuardianConnect/GRDDebugHelper.h>
 
 #define kSGAPI_ValidateReceipt_APIv1 @"/api/v1/verify-receipt"
 

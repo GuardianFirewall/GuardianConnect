@@ -6,7 +6,7 @@
 //  Copyright © 2020 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDSubscriberCredential.h"
+#import <GuardianConnect/GRDSubscriberCredential.h>
 
 @implementation GRDSubscriberCredential
 

@@ -9,14 +9,14 @@
 #import <Foundation/Foundation.h>
 #import <NetworkExtension/NetworkExtension.h>
 
-#import "GRDKeychain.h"
-#import "GRDGatewayAPI.h"
-#import "GRDServerManager.h"
-#import "GRDHousekeepingAPI.h"
-#import "GRDGatewayAPIResponse.h"
-#import "GRDSubscriberCredential.h"
+#import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDGatewayAPI.h>
+#import <GuardianConnect/GRDServerManager.h>
+#import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDGatewayAPIResponse.h>
+#import <GuardianConnect/GRDSubscriberCredential.h>
 #import <UIKit/UIKit.h>
-#import "GRDCredentialManager.h"
+#import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject

@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
-#import "GRDGatewayAPIResponse.h"
-#import "GRDVPNHelper.h"
+#import <GuardianConnect/GRDGatewayAPIResponse.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 //#import "GRDBlacklistGroupItem.h"
 
 #define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
