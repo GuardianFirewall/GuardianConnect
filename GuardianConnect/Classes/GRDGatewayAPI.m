@@ -13,6 +13,9 @@
 @synthesize apiAuthToken, deviceIdentifier;
 @synthesize apiHostname, healthCheckTimer;
 
+- (NSString *)apiHostname {
+    return [[[GRDVPNHelper sharedInstance] mainCredential] hostname];
+}
 
 - (NSString *)apiAuthToken {
     return [[[GRDVPNHelper sharedInstance] mainCredential] apiAuthToken];
