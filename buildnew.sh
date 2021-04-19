@@ -1,76 +1,46 @@
 #!/bin/bash
 
+# clear previous build folder if it exist
+rm -rf build
+
+# build simulator and iphoneos frameworks
 xcodebuild -sdk iphonesimulator
 xcodebuild -sdk iphoneos
 
+# keep track of our current working directory
 pwd=`pwd`
-lipo=`which lipo`
-cd build/Release-iphoneos
+
+# change to the release-iphoneos folder to get the name of the framework (this is to make this script more universal)
+
+pushd build/Release-iphoneos
+
+# find the name of the framework, in our case 'GuardianConnect'
 
 for i in `find * -name "*.framework"`; do
 
-name=${i%\.*}
-echo $name
-
-done
-#for i in *.framework ; do
-#name=${i%\.*}
-#echo $name
-#echo "in here?"
-#done
-
-#echo $name
-outputfile=$name.framework/$name
-uniname=$outputfile.uni
-fwpath=$pwd/build/Release-iphoneos/$name.framework
-incpath=$pwd/build/Release-iphoneos/include
-fullpath=$pwd/build/Release-iphoneos/$uniname
-
-if [ -z "$name" ]; then
-
-echo "empty name??"
-
-for i in `find * -type f -name '*.a'`; do
-
-name=${i%\.*}
-echo $name
+    name=${i%\.*}
+    echo $name
 
 done
 
-outputfile=$name.a
-uniname=$outputfile.uni
-fwpath=$pwd/build/Release-iphoneos/$name.a
-incpath=$pwd/build/Release-iphoneos/include
-fullpath=$pwd/build/Release-iphoneos/$uniname
+# remove the old copy of the xcframework if it already exists
 
-fi
+rm -rf ../../$name.xcframework
 
-lipocmd="$lipo -create $outputfile ../Release-iphonesimulator/$outputfile -output $uniname"
-echo $lipocmd
-$lipocmd
-echo $fullpath
-chmod +x $uniname
+# pop back to the GuardianConnect folder
 
-if [ -f $fullpath ]; then
+popd
 
-rm $outputfile
-mv $uniname $outputfile
-mv $fwpath ../..
+# create variables for the path to each respective framework
 
-if [ -d $incpath ]; then
+ios_fwpath=$pwd/build/Release-iphoneos/$name.framework
 
-    echo "found include path: $incpath"
-    cp -r $incpath ../..
+sim_fwpath=$pwd/build/Release-iphonesimulator/$name.framework
 
-fi
+# create the xcframework
 
-echo "done!"
+xcodebuild -create-xcframework -framework $ios_fwpath -framework $sim_fwpath -output $name.xcframework
 
-else
-
-echo "The file does not exist";
-
-fi
 
 
 
