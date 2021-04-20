@@ -6,6 +6,7 @@
 //
 
 #import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDCredentialManager.h>
 
 @interface GRDKeychain ()
 
@@ -104,6 +105,7 @@
     [guardianKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self removeKeychanItemForAccount:obj];
     }];
+    [GRDCredentialManager clearMainCredentials];
 }
 
 + (OSStatus)removeSubscriberCredentialWithRetries:(NSInteger)retryCount {
