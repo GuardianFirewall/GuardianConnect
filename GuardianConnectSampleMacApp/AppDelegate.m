@@ -18,6 +18,9 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    
+    GRDCredential *main = [GRDCredentialManager mainCredentials];
+    [[GRDVPNHelper sharedInstance] setMainCredential:main];
 }
 
 
@@ -60,9 +63,14 @@
     }];
 }
 
+- (IBAction)clearKeychain:(id)sender {
+    [GRDVPNHelper clearVpnConfiguration];
+}
+
 - (IBAction)createVPNConnection:(id)sender {
-    GRDLog(@"create vpn connection??");
     if ([GRDVPNHelper activeConnectionPossible]){
+        GRDLog(@"activeConnectionPossible!!");
+        
         [[GRDVPNHelper sharedInstance] configureAndConnectVPNWithCompletion:^(NSString * _Nullable message, GRDVPNHelperStatusCode status) {
             GRDLog(@"message: %@", message);
         }];

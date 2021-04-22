@@ -14,5 +14,6 @@
 @property IBOutlet NSTextField *passwordField;
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
+- (IBAction)clearKeychain:(id)sender;
 @end
 
