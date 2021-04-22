@@ -25,22 +25,18 @@
 }
 
 - (void)showConnectedStateUI {
-    LOG_SELF;
     self.createButton.title = NSLocalizedString(@"Disconnect VPN", nil);
 }
 
 - (void)showDisconnectedStateUI {
-    LOG_SELF;
     self.createButton.title = NSLocalizedString(@"Connect VPN", nil);
 }
 
 - (void)showDisconnectingStateUI {
-    LOG_SELF;
     self.createButton.title = NSLocalizedString(@"Disconnecting VPN...", nil);
 }
 
 - (void)showConnectingStateUI {
-    LOG_SELF;
     self.createButton.title = NSLocalizedString(@"Connecting VPN...", nil);
 }
 
@@ -86,9 +82,11 @@
             if (saveStatus != errSecSuccess) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSLog(@"[authenticateUser] Failed to store PET. Aborting");
-                    //UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error" message:[NSString stringWithFormat:@"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue."] preferredStyle:UIAlertControllerStyleAlert];
-                    //[alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
-                    //[self safePresentViewController:alert];
+                    NSAlert *alert = [NSAlert new];
+                    alert.messageText = @"Error";
+                    alert.informativeText = @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.";
+                    [alert runModal];
+                   
                 });
                 
             } else { //we were successful saving the token
@@ -98,19 +96,10 @@
                     [defaults setObject:[response objectForKey:@"type"] forKey:kSubscriptionPlanTypeStr];
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
-                    
-                    // Removing any pending day pass expiration notifications
-                    //[[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
-                    //GRDDayPassManager *dayPassManager = [GRDDayPassManager new];
-                    //NSString *dpat = [response objectForKey:@"dpat"];
-                                        
-                    //[[NSNotificationCenter defaultCenter] postNotificationName:kNotificationSubscriptionActive object:nil];
-                    
                 });
             }
-            
         } else {
-            GRDLog(@"Login failed :S with error: %@", errorMessage);
+            GRDLog(@"Login failed with error: %@", errorMessage);
         }
         GRDLog(@"response: %@", response);
         
