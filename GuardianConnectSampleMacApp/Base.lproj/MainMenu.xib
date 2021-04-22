@@ -748,11 +748,26 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.onDemand" id="LIi-j1-y8L">
+                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.onDemand" id="Tdm-iw-z9w">
                                 <dictionary key="options">
+                                    <integer key="NSMultipleValuesPlaceholder" value="0"/>
+                                    <integer key="NSNoSelectionPlaceholder" value="0"/>
+                                    <integer key="NSNotApplicablePlaceholder" value="0"/>
+                                    <integer key="NSNullPlaceholder" value="0"/>
                                     <bool key="NSValidatesImmediately" value="YES"/>
                                 </dictionary>
                             </binding>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Q5B-pa-hU2">
+                        <rect key="frame" x="161" y="30" width="158" height="23"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="roundTextured" title="Spoof Receipt Data" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Tzm-s1-Fj4">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="spoofReceiptData:" target="Voe-Tx-rLC" id="Adp-WT-ypB"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b9r-BV-2Kw">

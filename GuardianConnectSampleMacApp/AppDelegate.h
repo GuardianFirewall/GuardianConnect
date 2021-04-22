@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+static NSString * const kGRDExpiresDate =                       @"grd_expires_date";
+static NSString * const kGRDProductID =                         @"product_id";
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (weak) IBOutlet NSTextField *usernameField;
@@ -18,5 +21,6 @@
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
 - (IBAction)clearKeychain:(id)sender;
+- (IBAction)spoofReceiptData:(id)sender;
 @end
 
