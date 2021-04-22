@@ -99,6 +99,8 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion;
 
+- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -10,6 +10,9 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-
+@property IBOutlet NSTextField *usernameField;
+@property IBOutlet NSTextField *passwordField;
+- (IBAction)login:(id)sender;
+- (IBAction)createVPNConnection:(id)sender;
 @end
 

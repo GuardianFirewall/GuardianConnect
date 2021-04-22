@@ -22,10 +22,29 @@
     return request;
 }
 
+- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block {
+    Class dcDeviceClass = NSClassFromString(@"DCDevice");
+    __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulator";
+    if (!dcDeviceClass){
+        if (block){
+            block(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
+        }
+    } else {
+        [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+            if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]){
+                defaultDevice = [token base64EncodedStringWithOptions:0];
+            }
+            if (block){
+                block(defaultDevice, error);
+            }
+        }];
+    }
+}
+
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken = nil;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
             
         } else {
@@ -94,9 +113,9 @@
 }
 
 - (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable, BOOL, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
         } else {
             deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
@@ -568,9 +587,9 @@
 # pragma mark - Trial Days Endpoints
 
 - (void)isEligibleForExtendedFreeWithCompletion:(void (^)(BOOL, BOOL, BOOL, NSInteger, NSString * _Nullable, NSInteger, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
         } else {
             if (error != nil) {
