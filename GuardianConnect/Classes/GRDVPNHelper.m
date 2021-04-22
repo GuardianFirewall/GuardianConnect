@@ -494,7 +494,9 @@
             NSMutableDictionary *fullCreds = [creds mutableCopy];
             fullCreds[kGRDHostnameOverride] = host;
             fullCreds[kGRDVPNHostLocation] = hostLocation;
-            self.mainCredential = [[GRDCredential alloc] initWithFullDictionary:fullCreds validFor:30 isMain:true];
+            NSInteger adjustedDays = [GRDVPNHelper subCredentialDays];
+            GRDLog(@"AdjustedDays: %lu", adjustedDays);
+            self.mainCredential = [[GRDCredential alloc] initWithFullDictionary:fullCreds validFor:adjustedDays isMain:true];
             [self.mainCredential saveToKeychain];
             [GRDCredentialManager addOrUpdateCredential:self.mainCredential];
             [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
