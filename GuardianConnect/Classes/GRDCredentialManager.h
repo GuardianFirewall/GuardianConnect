@@ -15,6 +15,7 @@ static NSString * const kGuardianCredentialList = @"kGuardianCredentialList";
 @interface GRDCredentialManager : NSObject
 + (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))block;
 + (NSArray <GRDCredential *>*)credentials;
++ (NSArray <GRDCredential *>*)filteredCredentials;
 + (void)removeCredential:(GRDCredential *)credential;
 + (void)addOrUpdateCredential:(GRDCredential *)credential;
 + (GRDCredential *)credentialWithIdentifier:(NSString *)groupIdentifier;
