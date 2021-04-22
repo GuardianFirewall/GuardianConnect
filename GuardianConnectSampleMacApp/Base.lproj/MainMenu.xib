@@ -12,9 +12,11 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="createButton" destination="b9r-BV-2Kw" id="SNq-7j-29b"/>
+                <outlet property="onDemandCheckbox" destination="YFL-Vd-Qu1" id="H5n-G4-I0K"/>
                 <outlet property="passwordField" destination="yjl-Tt-EyZ" id="fOz-kH-bVA"/>
                 <outlet property="usernameField" destination="DIG-kD-qOb" id="xf9-wH-z36"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
@@ -700,6 +702,9 @@
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
+                        <connections>
+                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.userName" id="jTC-tj-uxw"/>
+                        </connections>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Hb-WE-68o">
                         <rect key="frame" x="164" y="190" width="153" height="23"/>
@@ -735,8 +740,23 @@
                             <action selector="clearKeychain:" target="Voe-Tx-rLC" id="koB-FA-jOZ"/>
                         </connections>
                     </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFL-Vd-Qu1">
+                        <rect key="frame" x="162" y="155" width="94" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="On Demand" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="NBU-8U-HSv">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.onDemand" id="LIi-j1-y8L">
+                                <dictionary key="options">
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b9r-BV-2Kw">
-                        <rect key="frame" x="161" y="119" width="158" height="23"/>
+                        <rect key="frame" x="161" y="113" width="158" height="23"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="roundTextured" title="Create VPN Connection" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Nyu-Qx-sv6">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>

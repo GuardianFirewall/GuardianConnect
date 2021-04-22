@@ -10,8 +10,11 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property IBOutlet NSTextField *usernameField;
-@property IBOutlet NSTextField *passwordField;
+@property (weak) IBOutlet NSTextField *usernameField;
+@property (weak) IBOutlet NSTextField *passwordField;
+@property (weak) IBOutlet NSButton *createButton;
+@property (weak) IBOutlet NSButton *onDemandCheckbox;
+
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
 - (IBAction)clearKeychain:(id)sender;

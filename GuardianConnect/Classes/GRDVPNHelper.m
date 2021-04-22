@@ -25,6 +25,7 @@
     static GRDVPNHelper *shared;
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
+        shared.onDemand = true;
     });
     return shared;
 }
@@ -225,9 +226,10 @@
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
             vpnManager.localizedDescription = @"Guardian Firewall";
-            vpnManager.onDemandEnabled = YES;
-            vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
-            
+            if ([self onDemand]){
+                vpnManager.onDemandEnabled = YES;
+                vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
+            }
             [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
                 if (saveErr) {
                     GRDLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);

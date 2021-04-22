@@ -21,8 +21,62 @@
     
     GRDCredential *main = [GRDCredentialManager mainCredentials];
     [[GRDVPNHelper sharedInstance] setMainCredential:main];
+    [self addVPNObserver];
 }
 
+- (void)showConnectedStateUI {
+    LOG_SELF;
+    self.createButton.title = NSLocalizedString(@"Disconnect VPN", nil);
+}
+
+- (void)showDisconnectedStateUI {
+    LOG_SELF;
+    self.createButton.title = NSLocalizedString(@"Connect VPN", nil);
+}
+
+- (void)showDisconnectingStateUI {
+    LOG_SELF;
+    self.createButton.title = NSLocalizedString(@"Disconnecting VPN...", nil);
+}
+
+- (void)showConnectingStateUI {
+    LOG_SELF;
+    self.createButton.title = NSLocalizedString(@"Connecting VPN...", nil);
+}
+
+- (void)handleConnectionStatus:(NEVPNStatus)status {
+    switch (status) {
+        case NEVPNStatusConnected:{
+            [self showConnectedStateUI];
+            break;
+            
+        case NEVPNStatusDisconnected:
+        case NEVPNStatusInvalid:
+            [self showDisconnectedStateUI];
+            break;
+            
+        case NEVPNStatusDisconnecting:
+            [self showDisconnectingStateUI];
+            break;
+            
+        case NEVPNStatusConnecting:
+        case NEVPNStatusReasserting:
+            [self showConnectingStateUI];
+            break;
+            
+        default:
+            break;
+        }
+    }
+}
+
+- (void)addVPNObserver {
+    [[NSNotificationCenter defaultCenter] addObserverForName:NEVPNStatusDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *notif) {
+        if ([notif.object isMemberOfClass:NEVPNConnection.class]){
+            [self handleConnectionStatus:[[[NEVPNManager sharedManager] connection] status]];
+        }
+    }];
+}
 
 - (IBAction)login:(id)sender {
     [[GRDHousekeepingAPI new] loginUserWithEMail:self.usernameField.stringValue password:self.passwordField.stringValue completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
@@ -64,13 +118,20 @@
 }
 
 - (IBAction)clearKeychain:(id)sender {
+    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
 }
 
 - (IBAction)createVPNConnection:(id)sender {
+    
+    if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
+        [[GRDVPNHelper sharedInstance] disconnectVPN];
+        return;
+    }
+    
     if ([GRDVPNHelper activeConnectionPossible]){
         GRDLog(@"activeConnectionPossible!!");
-        
+        [[GRDVPNHelper sharedInstance] setOnDemand:self.onDemandCheckbox.state];
         [[GRDVPNHelper sharedInstance] configureAndConnectVPNWithCompletion:^(NSString * _Nullable message, GRDVPNHelperStatusCode status) {
             GRDLog(@"message: %@", message);
         }];
