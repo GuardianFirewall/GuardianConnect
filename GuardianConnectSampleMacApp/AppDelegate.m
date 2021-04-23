@@ -29,6 +29,9 @@
     [[NEVPNManager sharedManager] loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
         if (!error){
             [self addVPNObserver];
+            [self handleConnectionStatus:[[[NEVPNManager sharedManager] connection] status]];
+        } else {
+            GRDLog(@"error: %@", error);
         }
     }];
 }
