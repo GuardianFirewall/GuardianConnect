@@ -7,4 +7,5 @@ To build an xcframework for iOS change into the root folder and run
 
 if all goes well you should have GuardianConnect.xcframework in that folder upon completion.
 
-This is an experimental branch to create a sample macOS app with the GuardianConnect framework. It illustrates how quickly and easily you can get everything set up with minimal code.
+There is now a sample POC macintosh client available in the repo, it does not have IAP implemented but can sign in to a pro account OR use a receipt data file from the iOS app with existing purchases to create a valid account.
+
