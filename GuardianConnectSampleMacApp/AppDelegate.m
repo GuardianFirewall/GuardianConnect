@@ -18,6 +18,11 @@
 
 @implementation AppDelegate
 
+- (BOOL)isLoggedIn {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"userLoggedIn"];
+}
+
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
@@ -37,6 +42,10 @@
     }];
     
     [self createMenu];
+    
+    if (![GRDVPNHelper isPayingUser]){
+        [self.window makeKeyAndOrderFront:nil];
+    }
 }
 
 #pragma clang diagnostic push
@@ -65,6 +74,13 @@
     return @"Connect VPN";
 }
 
+- (NSString *)proMenuTitle {
+    if ([self isLoggedIn]){
+        return @"Pro Logout";
+    }
+    return @"Pro Login";
+}
+
 - (void)createMenu {
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     NSMenu *menu = [NSMenu new];
@@ -75,7 +91,7 @@
     }
     NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
     [menu addItem:enableVPN];
-    NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:@"Pro Login" action:@selector(showLoginWindow:) keyEquivalent:@""];
+    NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
     [menu addItem:proLogin];
     NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearKeychain:) keyEquivalent:@""];
     [menu addItem:clearVPNSettings];
@@ -114,9 +130,14 @@
 }
 
 - (void)showLoginWindow:(id)sender {
-    [self.window makeKeyAndOrderFront:self.window];
-    self.window.level = NSStatusWindowLevel;
     
+    if ([self isLoggedIn]){
+        [self logOutUser];
+        [self createMenu];
+    } else {
+        [self.window makeKeyAndOrderFront:self.window];
+        self.window.level = NSStatusWindowLevel;
+    }
 }
 
 - (void)startEventRefreshTimer {
@@ -267,10 +288,20 @@
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
                     self.createButton.enabled = true;
+                    [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"userLoggedIn"];
+                    [self.window close];
+                    [self createMenu];
                 });
             }
         } else {
             GRDLog(@"Login failed with error: %@", errorMessage);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                NSAlert *alert = [NSAlert new];
+                alert.messageText = @"Error";
+                alert.informativeText = errorMessage;
+                [alert runModal];
+            });
         }
         GRDLog(@"response: %@", response);
         
@@ -296,6 +327,7 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:kSubscriptionPlanTypeStr];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
+    [[NSUserDefaults standardUserDefaults] setBool:false forKey:@"userLoggedIn"];
     
 }
 

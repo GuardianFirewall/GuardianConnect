@@ -702,7 +702,11 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.userName" id="jTC-tj-uxw"/>
+                            <binding destination="fAJ-Mu-7EW" name="value" keyPath="values.userName" id="3ai-Yh-RiZ">
+                                <dictionary key="options">
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Hb-WE-68o">
