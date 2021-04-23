@@ -36,6 +36,19 @@
     }];
 }
 
+- (void)startEventRefreshTimer {
+    [self stopEventRefreshTimer];
+    self.eventRefreshTimer = [NSTimer scheduledTimerWithTimeInterval:30 repeats:true block:^(NSTimer * _Nonnull timer) {
+        [self fetchEventData];
+    }];
+}
+
+- (void)stopEventRefreshTimer {
+    if (self.eventRefreshTimer){
+        [self.eventRefreshTimer invalidate];
+        self.eventRefreshTimer = nil;
+    }
+}
 
 - (IBAction)spoofReceiptData:(id)sender {
     NSOpenPanel *op = [NSOpenPanel openPanel];
@@ -65,11 +78,13 @@
 
 - (void)showConnectedStateUI {
     self.createButton.title = NSLocalizedString(@"Disconnect VPN", nil);
-    [self fetchEventData];
+    [self fetchEventData]; //get data immediately, then start the timeer
+    [self startEventRefreshTimer];
 }
 
 - (void)showDisconnectedStateUI {
     self.createButton.title = NSLocalizedString(@"Connect VPN", nil);
+    [self stopEventRefreshTimer];
 }
 
 - (void)showDisconnectingStateUI {
@@ -134,10 +149,11 @@
                 self.mailTrackerField.stringValue = mailTrackerTotal;
             });
         }];
-        
+        /*
         [[GRDGatewayAPI new] getEvents:^(NSDictionary * _Nonnull response, BOOL success, NSString * _Nonnull error) {
             GRDLog(@"events: %@", response);
         }];
+         */
     }
 }
 

@@ -21,6 +21,7 @@
 @property (weak) IBOutlet NSButton *createButton;
 @property (weak) IBOutlet NSButton *refreshButton;
 @property (weak) IBOutlet NSButton *onDemandCheckbox;
+@property (nonatomic, strong) NSTimer *eventRefreshTimer;
 
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
