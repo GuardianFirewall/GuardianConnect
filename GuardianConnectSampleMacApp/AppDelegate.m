@@ -75,10 +75,14 @@
     }
     NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
     [menu addItem:enableVPN];
+    NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:@"Pro Login" action:@selector(showLoginWindow:) keyEquivalent:@""];
+    [menu addItem:proLogin];
     NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearKeychain:) keyEquivalent:@""];
     [menu addItem:clearVPNSettings];
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
+NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit Guardian Application" action:@selector(quit:) keyEquivalent:@""];
+    [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
     if ([self isConnected]){
@@ -99,6 +103,16 @@
         NSMenuItem *pageHijackerBlocked = [[NSMenuItem alloc] initWithTitle:pageHijackerString action:nil keyEquivalent:@""];
         [menu addItem:pageHijackerBlocked];
     }
+}
+
+- (void)quit:(id)sender {
+    exit(0);
+}
+
+- (void)showLoginWindow:(id)sender {
+    [self.window makeKeyAndOrderFront:self.window];
+    self.window.level = NSStatusWindowLevel;
+    
 }
 
 - (void)startEventRefreshTimer {
@@ -206,15 +220,7 @@
               "page-hijacker-total" = 0;
              */
             __latestStats = alertTotals;
-            NSString *dataTrackerTotal = alertTotals[@"data-tracker-total"];
-            NSString *locationTrackerTotal = alertTotals[@"location-tracker-total"];
-            NSString *mailTrackerTotal = alertTotals[@"mail-tracker-total"];
-            NSString *pageHijackerTotal = alertTotals[@"page-hijacker-total"];
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.dataTrackerField.stringValue = dataTrackerTotal;
-                self.locationTrackerField.stringValue = locationTrackerTotal;
-                self.pageHijackerField.stringValue = pageHijackerTotal;
-                self.mailTrackerField.stringValue = mailTrackerTotal;
                 [self createMenu];
             });
         }];
