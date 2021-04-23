@@ -25,6 +25,7 @@
     static GRDVPNHelper *shared;
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
+        shared.onDemand = true;
     });
     return shared;
 }
@@ -215,7 +216,7 @@
     NEVPNManager *vpnManager = [NEVPNManager sharedManager];
     [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
         if (loadError) {
-            NSLog(@"[DEBUG] error loading prefs = %@", loadError);
+            GRDLog(@"[DEBUG] error loading prefs = %@", loadError);
             if (completion) completion(@"Error loading VPN configuration. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
             return;
         } else {
@@ -225,12 +226,13 @@
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
             vpnManager.localizedDescription = @"Guardian Firewall";
-            vpnManager.onDemandEnabled = YES;
-            vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
-            
+            if ([self onDemand]){
+                vpnManager.onDemandEnabled = YES;
+                vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
+            }
             [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
                 if (saveErr) {
-                    NSLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);
+                    GRDLog(@"[DEBUG] error saving configuration for firewall = %@", saveErr);
                     if (completion) completion(@"Error saving the VPN configuration. Please try again.", GRDVPNHelperFail);
                     return;
                 } else {
@@ -239,10 +241,12 @@
                             NSError *vpnErr;
                             [[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
                             if (vpnErr != nil) {
-                                NSLog(@"[DEBUG] vpnErr = %@", vpnErr);
+                                GRDLog(@"[DEBUG] vpnErr = %@", vpnErr);
                                 if (completion) completion(@"Error starting VPN tunnel. Please reset your connection. If this issue persists please select Contact Technical Support in the Settings tab.", GRDVPNHelperFail);
                                 return;
                             } else {
+                                
+                                GRDLog(@"[DEBUG] created successful VPN connection??");
                                 [[GRDGatewayAPI new] startHealthCheckTimer];
                                 if (completion) completion(nil, GRDVPNHelperSuccess);
                             }
@@ -259,7 +263,7 @@
     __block NSString *vpnServer = [defaults objectForKey:kGRDHostnameOverride];
     
     if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
-        NSLog(@"[DEBUG] MIGRATING USER!!!!!!");
+        GRDLog(@"[DEBUG] kAppNeedsSelfRepair == true. MIGRATING USER!!!!!!");
         [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
             if (completion){
                 if (success){
@@ -274,11 +278,7 @@
         return;
     }
     if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
-        NSLog(@"[DEBUG] something went wrong! bad server (%@)", vpnServer);
-        /*
-        if (completion) completion([NSString stringWithFormat:@"%@ is not allowed as a server hostname. If this issue persists please select Contact Technical Support in the Settings tab.", vpnServer], GRDVPNHelperFail);
-        return;
-         */
+        GRDLog(@"[DEBUG] something went wrong! bad server (%@). Migrating user...", vpnServer);
         [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
             if (completion){
                 if (success){
@@ -287,23 +287,23 @@
                     completion(error, GRDVPNHelperFail);
                 }
             } else {
-                NSLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
+                GRDLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
             }
         }];
         return;
     }
     
     [[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
-        // GRDGatewayAPIEndpointNotFound exists for VPN node legacy reasons but will never be hit
-        // It will be removed in the next iteration
+    
         //NSLog(@"[DEBUG] APIResponse: %@", apiResponse);
-        if (apiResponse.responseStatus == GRDGatewayAPIServerOK || apiResponse.responseStatus == GRDGatewayAPIEndpointNotFound) {
+        if (apiResponse.responseStatus == GRDGatewayAPIServerOK) {
             NSString *apiAuthToken = [self.mainCredential apiAuthToken];
             NSString *eapUsername = [self.mainCredential username];
             NSData *eapPassword = [self.mainCredential passwordRef];
             
             if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
                 
+                GRDLog(@"[DEBUG] missing required credentials, migrating!");
                 [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
                     if (completion){
                         if (success){
@@ -478,7 +478,6 @@
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [[GRDGatewayAPI new] setApiHostname:host];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
     [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nonnull errorMessage) {

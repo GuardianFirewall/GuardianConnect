@@ -22,10 +22,29 @@
     return request;
 }
 
+- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block {
+    Class dcDeviceClass = NSClassFromString(@"DCDevice");
+    __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulator";
+    if (!dcDeviceClass){
+        if (block){
+            block(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
+        }
+    } else {
+        [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+            if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]){
+                defaultDevice = [token base64EncodedStringWithOptions:0];
+            }
+            if (block){
+                block(defaultDevice, error);
+            }
+        }];
+    }
+}
+
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken = nil;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
             
         } else {
@@ -37,10 +56,22 @@
         NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
         if (receiptData == nil) {
             NSLog(@"[DEBUG][validate receipt] receiptData == nil");
+            #if !TARGET_OS_OSX
             if (completion) {
                 completion(nil, NO, @"No App Store receipt data present");
             }
             return;
+            #else
+            //check spoofed user defaults for it
+            NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+            receiptData = [def valueForKey:@"spoofedReceiptData"];
+            if (!receiptData){ // its still nil
+                if (completion) {
+                    completion(nil, NO, @"No App Store receipt data present");
+                }
+                return;
+            }
+            #endif
         }
         
         NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0], @"device-check-token": deviceCheckToken} options:0 error:nil];
@@ -94,9 +125,9 @@
 }
 
 - (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable, BOOL, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
         } else {
             deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
@@ -112,11 +143,29 @@
         if (validationMethod == ValidationMethodAppStoreReceipt) {
             NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
             if (receiptData == nil) {
-                NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
+                /*
                 if (completion) {
                     completion(nil, NO, @"AppStore receipt missing");
                 }
                 return;
+                 */
+                NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
+                #if !TARGET_OS_OSX
+                if (completion) {
+                    completion(nil, NO, @"AppStore receipt missing");
+                }
+                return;
+                #else
+                //check spoofed user defaults for it
+                NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+                receiptData = [def valueForKey:@"spoofedReceiptData"];
+                if (!receiptData){ // its still nil
+                    if (completion) {
+                        completion(nil, NO, @"AppStore receipt missing");
+                    }
+                    return;
+                }
+                #endif
             }
             
             NSString *appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
@@ -217,10 +266,27 @@
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
     if (receiptData == nil) {
         GRDLog(@"receiptData == nil");
-        if (completion) {
+        /*if (completion) {
             completion(nil, NO, @"No App Store receipt data present");
         }
         return;
+         */
+        #if !TARGET_OS_OSX
+        if (completion) {
+            completion(nil, NO, @"AppStore receipt missing");
+        }
+        return;
+        #else
+        //check spoofed user defaults for it
+        NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+        receiptData = [def valueForKey:@"spoofedReceiptData"];
+        if (!receiptData){ // its still nil
+            if (completion) {
+                completion(nil, NO, @"No App Store receipt data present");
+            }
+            return;
+        }
+        #endif
     }
     
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
@@ -568,9 +634,9 @@
 # pragma mark - Trial Days Endpoints
 
 - (void)isEligibleForExtendedFreeWithCompletion:(void (^)(BOOL, BOOL, BOOL, NSInteger, NSString * _Nullable, NSInteger, NSString * _Nullable))completion {
-    [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
         NSString *deviceCheckToken;
-        if (token != nil) {
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
             deviceCheckToken = [token base64EncodedStringWithOptions:0];
         } else {
             if (error != nil) {

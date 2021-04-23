@@ -20,6 +20,11 @@
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/NSDate+Extras.h>
 #import <GuardianConnect/NSPredicate+Additions.h>
+#import <GuardianConnect/metamacros.h>
+#import <GuardianConnect/EXTScope.h>
+#import <GuardianConnect/EXTKeyPathCoding.h>
+#import <GuardianConnect/EXTRuntimeExtensions.h>
+#import <GuardianConnect/GRDNotificationMode.h>
 
 //! Project version number for GuardianConnectMac.
 FOUNDATION_EXPORT double GuardianConnectMacVersionNumber;

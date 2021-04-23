@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable) NEProxySettings *proxySettings;
 @property (nullable) GRDCredential *mainCredential;
+@property (readwrite, assign) BOOL onDemand; //defaults to yes
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;
 #endif

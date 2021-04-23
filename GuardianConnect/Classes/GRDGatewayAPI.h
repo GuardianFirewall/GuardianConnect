@@ -47,13 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL dummyDataForDebugging;
 
 /// apiAuthToken is used as a second factor of authentication by the zoe-agent API. zoe-agent expects this value to be sent in the JSON encoded body of the HTTP request for the value 'api-auth-token'
-@property (strong, nonatomic, setter=setAPIAuthToken:) NSString *apiAuthToken;
+@property (strong, nonatomic, readonly) NSString *apiAuthToken;
 
 /// deviceIdentifier and eapUsername are the same values. eapUsername is stored in the keychain for the value 'eap-username'
-@property (strong, nonatomic) NSString *deviceIdentifier;
+@property (strong, nonatomic, readonly) NSString *deviceIdentifier;
 
 /// apiHostname holds the value of the zoe-agent instance the app is currently connected to in memory. A persistent copy of it is stored in NSUserDefaults
-@property (strong, nonatomic) NSString *apiHostname;
+@property (strong, nonatomic, readonly) NSString *apiHostname;
 
 /// timer used to regularly check on the network condition and detect network changes or outages
 @property (strong, nonatomic) NSTimer * _Nullable healthCheckTimer;
