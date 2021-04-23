@@ -14,6 +14,10 @@
 
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
+@property (weak) IBOutlet NSTextField *dataTrackerField;
+@property (weak) IBOutlet NSTextField *mailTrackerField;
+@property (weak) IBOutlet NSTextField *pageHijackerField;
+@property (weak) IBOutlet NSTextField *locationTrackerField;
 @property (weak) IBOutlet NSButton *createButton;
 @property (weak) IBOutlet NSButton *refreshButton;
 @property (weak) IBOutlet NSButton *onDemandCheckbox;

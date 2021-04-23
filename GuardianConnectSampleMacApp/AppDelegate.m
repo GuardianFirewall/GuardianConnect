@@ -109,6 +109,22 @@
         
         [[GRDGatewayAPI new] getAlertTotals:^(NSDictionary * _Nullable alertTotals, BOOL success, NSString * _Nullable errorMessage) {
             GRDLog(@"alert totals: %@", alertTotals);
+            /*
+             "data-tracker-total" = 122;
+              "location-tracker-total" = 0;
+              "mail-tracker-total" = 0;
+              "page-hijacker-total" = 0;
+             */
+            NSString *dataTrackerTotal = alertTotals[@"data-tracker-total"];
+            NSString *locationTrackerTotal = alertTotals[@"location-tracker-total"];
+            NSString *mailTrackerTotal = alertTotals[@"mail-tracker-total"];
+            NSString *pageHijackerTotal = alertTotals[@"page-hijacker-total"];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.dataTrackerField.stringValue = dataTrackerTotal;
+                self.locationTrackerField.stringValue = locationTrackerTotal;
+                self.pageHijackerField.stringValue = pageHijackerTotal;
+                self.mailTrackerField.stringValue = mailTrackerTotal;
+            });
         }];
         
         [[GRDGatewayAPI new] getEvents:^(NSDictionary * _Nonnull response, BOOL success, NSString * _Nonnull error) {
