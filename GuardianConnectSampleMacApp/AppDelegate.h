@@ -7,11 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "GCSubscriptionManager.h"
 
-static NSString * const kGRDExpiresDate =                       @"grd_expires_date";
-static NSString * const kGRDProductID =                         @"product_id";
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate, GCSubscriptionManagerDelegate>
 
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
