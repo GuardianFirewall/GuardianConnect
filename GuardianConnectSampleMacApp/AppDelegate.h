@@ -12,6 +12,7 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, GCSubscriptionManagerDelegate>
 
+@property (nonatomic, strong) NSStatusItem *item;
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
 @property (weak) IBOutlet NSTextField *dataTrackerField;

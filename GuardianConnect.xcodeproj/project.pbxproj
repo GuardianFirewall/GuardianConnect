@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3218DB2026326A4D005DD56B /* Little_G.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB1F26326A4D005DD56B /* Little_G.png */; };
+		3218DB2226326D66005DD56B /* White_G.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB2126326D66005DD56B /* White_G.png */; };
 		321BA148261404A100E876CB /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -93,6 +95,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3218DB1F26326A4D005DD56B /* Little_G.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Little_G.png; sourceTree = "<group>"; };
+		3218DB2126326D66005DD56B /* White_G.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = White_G.png; sourceTree = "<group>"; };
 		321BA143261404A100E876CB /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		321BA146261404A100E876CB /* GuardianConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnect.h; sourceTree = "<group>"; };
 		321BA147261404A100E876CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -270,6 +274,8 @@
 				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
 				329C526826315073003B78D8 /* Assets.xcassets */,
 				329C526A26315073003B78D8 /* MainMenu.xib */,
+				3218DB2126326D66005DD56B /* White_G.png */,
+				3218DB1F26326A4D005DD56B /* Little_G.png */,
 				329C526D26315073003B78D8 /* Info.plist */,
 				329C526E26315073003B78D8 /* main.m */,
 				329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */,
@@ -458,6 +464,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3218DB2026326A4D005DD56B /* Little_G.png in Resources */,
+				3218DB2226326D66005DD56B /* White_G.png in Resources */,
 				329C526926315073003B78D8 /* Assets.xcassets in Resources */,
 				329C526C26315073003B78D8 /* MainMenu.xib in Resources */,
 			);

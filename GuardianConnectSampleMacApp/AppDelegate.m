@@ -34,6 +34,52 @@
             GRDLog(@"error: %@", error);
         }
     }];
+    
+    [self createMenu];
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability-new"
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+- (BOOL)darkMode {
+
+    NSString *interfaceStyle = [[NSUserDefaults standardUserDefaults] valueForKey:@"AppleInterfaceStyle"];
+    if ([interfaceStyle isEqualToString:@"Dark"]){
+        return true;
+    }
+    return false;
+    
+}
+#pragma clang diagnostic pop
+
+- (NSString *)connectButtonTitle {
+    NEVPNStatus status = [[[NEVPNManager sharedManager] connection] status];
+    switch (status) {
+        case NEVPNStatusConnected:
+            return @"Disconnect VPN";
+        case NEVPNStatusDisconnected:
+            return @"Connect VPN";
+            
+        default:
+            return @"Connect VPN";
+    }
+}
+
+- (void)createMenu {
+    CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
+    NSMenu *menu = [NSMenu new];
+    self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
+     self.item.image = [NSImage imageNamed:@"Little_G.png"];
+    if ([self darkMode]){
+        self.item.image = [NSImage imageNamed:@"White_G.png"];
+    }
+    NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
+    [menu addItem:enableVPN];
+    NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearKeychain:) keyEquivalent:@""];
+    [menu addItem:clearVPNSettings];
+    NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
+    [menu addItem:spoofReceipt];
+    self.item.menu = menu;
 }
 
 - (void)startEventRefreshTimer {
@@ -80,11 +126,13 @@
     self.createButton.title = NSLocalizedString(@"Disconnect VPN", nil);
     [self fetchEventData]; //get data immediately, then start the timeer
     [self startEventRefreshTimer];
+    [self createMenu];
 }
 
 - (void)showDisconnectedStateUI {
     self.createButton.title = NSLocalizedString(@"Connect VPN", nil);
     [self stopEventRefreshTimer];
+    [self createMenu];
 }
 
 - (void)showDisconnectingStateUI {
