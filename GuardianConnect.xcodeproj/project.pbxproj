@@ -49,7 +49,7 @@
 		329C526926315073003B78D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 329C526826315073003B78D8 /* Assets.xcassets */; };
 		329C526C26315073003B78D8 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 329C526A26315073003B78D8 /* MainMenu.xib */; };
 		329C526F26315073003B78D8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 329C526E26315073003B78D8 /* main.m */; };
-		329C5279263151A6003B78D8 /* GuardianConnect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E92C02262A1B3D00A3202C /* GuardianConnect.framework */; };
+		329C5279263151A6003B78D8 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E92C02262A1B3D00A3202C /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		329C527B26315721003B78D8 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329C527A26315721003B78D8 /* NetworkExtension.framework */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
@@ -84,6 +84,7 @@
 		32E92C27262A1BC100A3202C /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6726167D0E007A4DFA /* metamacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C28262A1BC500A3202C /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6A26167D0E007A4DFA /* EXTScope.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C29262A1BCA00A3202C /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6B26167D0E007A4DFA /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F79426263386DD006A77CF /* GuardianConnect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E92C02262A1B3D00A3202C /* GuardianConnect.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,19 @@
 			remoteInfo = GuardianConnectMac;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		32F79425263386CA006A77CF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				329C5279263151A6003B78D8 /* GuardianConnect.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3218DB1F26326A4D005DD56B /* Little_G.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Little_G.png; sourceTree = "<group>"; };
@@ -166,7 +180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				329C5279263151A6003B78D8 /* GuardianConnect.framework in Frameworks */,
+				32F79426263386DD006A77CF /* GuardianConnect.framework in Frameworks */,
 				329C527B26315721003B78D8 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,6 +403,7 @@
 				329C525F26315071003B78D8 /* Sources */,
 				329C526026315071003B78D8 /* Frameworks */,
 				329C526126315071003B78D8 /* Resources */,
+				32F79425263386CA006A77CF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -736,17 +751,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = GuardianConnectSampleMacApp/GuardianConnectSampleMacApp.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Developer ID Application: Kevin Bradley (9EUFEA5U7G)";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = FL2NUL637S;
+				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectSampleMacApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nito.GuardianConnectSampleMacApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = macOSGuardianTest;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -756,17 +773,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = GuardianConnectSampleMacApp/GuardianConnectSampleMacApp.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Developer ID Application: Kevin Bradley (9EUFEA5U7G)";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = FL2NUL637S;
+				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectSampleMacApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nito.GuardianConnectSampleMacApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = macOSGuardianTest;
 				SDKROOT = macosx;
 			};
 			name = Release;
