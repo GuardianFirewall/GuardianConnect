@@ -286,9 +286,17 @@
     [defaults removeObjectForKey:kGuardianAllRegionsTimeStamp];;
     [defaults removeObjectForKey:kGRDEAPSharedHostname];
     //[defaults removeObjectForKey:kGuardianEAPExpirationDate];
-    [GRDVPNHelper setIsPayingUser:false];
     [GRDKeychain removeGuardianKeychainItems];
     [GRDKeychain removeSubscriberCredentialWithRetries:3];
+}
+
+- (void)logOutUser {
+    [self clearLocalCache];
+    [GRDVPNHelper setIsPayingUser:false];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:kSubscriptionPlanTypeStr];
+    [[GRDVPNHelper sharedInstance] setMainCredential:nil];
+    
 }
 
 - (IBAction)clearKeychain:(id)sender {
