@@ -131,7 +131,7 @@
     if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
         
         [[GRDGatewayAPI new] getAlertTotals:^(NSDictionary * _Nullable alertTotals, BOOL success, NSString * _Nullable errorMessage) {
-            GRDLog(@"alert totals: %@", alertTotals);
+            //GRDLog(@"alert totals: %@", alertTotals);
             /*
              "data-tracker-total" = 122;
               "location-tracker-total" = 0;
