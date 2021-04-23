@@ -18,6 +18,7 @@
                 <outlet property="createButton" destination="b9r-BV-2Kw" id="SNq-7j-29b"/>
                 <outlet property="onDemandCheckbox" destination="YFL-Vd-Qu1" id="H5n-G4-I0K"/>
                 <outlet property="passwordField" destination="yjl-Tt-EyZ" id="fOz-kH-bVA"/>
+                <outlet property="refreshButton" destination="lge-W0-0Ig" id="8zM-rd-vXD"/>
                 <outlet property="usernameField" destination="DIG-kD-qOb" id="xf9-wH-z36"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
@@ -768,6 +769,17 @@
                         </buttonCell>
                         <connections>
                             <action selector="spoofReceiptData:" target="Voe-Tx-rLC" id="Adp-WT-ypB"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lge-W0-0Ig">
+                        <rect key="frame" x="146" y="11" width="158" height="23"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="roundTextured" title="Refresh Event Data" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hZV-yk-EpI">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="refreshEventData:" target="Voe-Tx-rLC" id="w4o-sR-edF"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b9r-BV-2Kw">

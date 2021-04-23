@@ -100,6 +100,10 @@
     });
 }
 
+- (IBAction)refreshEventData:(id)sender {
+    [self fetchEventData];
+}
+
 - (void)fetchEventData {
     if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
         

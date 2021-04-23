@@ -15,11 +15,13 @@
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
 @property (weak) IBOutlet NSButton *createButton;
+@property (weak) IBOutlet NSButton *refreshButton;
 @property (weak) IBOutlet NSButton *onDemandCheckbox;
 
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
 - (IBAction)clearKeychain:(id)sender;
 - (IBAction)spoofReceiptData:(id)sender;
+- (IBAction)refreshEventData:(id)sender;
 @end
 
