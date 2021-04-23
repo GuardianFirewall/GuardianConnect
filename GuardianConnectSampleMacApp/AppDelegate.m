@@ -13,6 +13,7 @@
 @interface AppDelegate ()
 
 @property (weak) IBOutlet NSWindow *window;
+@property (nonatomic, strong) NSDictionary *_latestStats;
 @end
 
 @implementation AppDelegate
@@ -52,17 +53,16 @@
 }
 #pragma clang diagnostic pop
 
-- (NSString *)connectButtonTitle {
+- (BOOL)isConnected {
     NEVPNStatus status = [[[NEVPNManager sharedManager] connection] status];
-    switch (status) {
-        case NEVPNStatusConnected:
+    return (status == NEVPNStatusConnected);
+}
+
+- (NSString *)connectButtonTitle {
+    if ([self isConnected]){
             return @"Disconnect VPN";
-        case NEVPNStatusDisconnected:
-            return @"Connect VPN";
-            
-        default:
-            return @"Connect VPN";
     }
+    return @"Connect VPN";
 }
 
 - (void)createMenu {
@@ -79,7 +79,26 @@
     [menu addItem:clearVPNSettings];
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
+    [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
+    if ([self isConnected]){
+        NSString *dataTrackerTotal = __latestStats[@"data-tracker-total"];
+        NSString *locationTrackerTotal = __latestStats[@"location-tracker-total"];
+        NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
+        NSString *pageHijackerTotal = __latestStats[@"page-hijacker-total"];
+        NSString *dataTrackerString = [NSString stringWithFormat:@"Data trackers blocked: %@", dataTrackerTotal];
+        NSString *locationTrackerString = [NSString stringWithFormat:@"Location trackers blocked: %@", locationTrackerTotal];
+        NSString *mailTrackerString = [NSString stringWithFormat:@"Data trackers blocked: %@", mailTrackerTotal];
+        NSString *pageHijackerString = [NSString stringWithFormat:@"Location trackers blocked: %@", pageHijackerTotal];
+        NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
+        [menu addItem:dataTrackerBlocked];
+        NSMenuItem *locationTrackerBlocked = [[NSMenuItem alloc] initWithTitle:locationTrackerString action:nil keyEquivalent:@""];
+        [menu addItem:locationTrackerBlocked];
+        NSMenuItem *mailTrackerBlocked = [[NSMenuItem alloc] initWithTitle:mailTrackerString action:nil keyEquivalent:@""];
+        [menu addItem:mailTrackerBlocked];
+        NSMenuItem *pageHijackerBlocked = [[NSMenuItem alloc] initWithTitle:pageHijackerString action:nil keyEquivalent:@""];
+        [menu addItem:pageHijackerBlocked];
+    }
 }
 
 - (void)startEventRefreshTimer {
@@ -186,6 +205,7 @@
               "mail-tracker-total" = 0;
               "page-hijacker-total" = 0;
              */
+            __latestStats = alertTotals;
             NSString *dataTrackerTotal = alertTotals[@"data-tracker-total"];
             NSString *locationTrackerTotal = alertTotals[@"location-tracker-total"];
             NSString *mailTrackerTotal = alertTotals[@"mail-tracker-total"];
@@ -195,6 +215,7 @@
                 self.locationTrackerField.stringValue = locationTrackerTotal;
                 self.pageHijackerField.stringValue = pageHijackerTotal;
                 self.mailTrackerField.stringValue = mailTrackerTotal;
+                [self createMenu];
             });
         }];
         /*
