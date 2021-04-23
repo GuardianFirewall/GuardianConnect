@@ -25,7 +25,12 @@
         self.createButton.enabled = true;
     }
     [[GRDVPNHelper sharedInstance] setMainCredential:main];
-    [self addVPNObserver];
+    
+    [[NEVPNManager sharedManager] loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+        if (!error){
+            [self addVPNObserver];
+        }
+    }];
 }
 
 
