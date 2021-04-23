@@ -478,7 +478,6 @@
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [[GRDGatewayAPI new] setApiHostname:host];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
     [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nonnull errorMessage) {

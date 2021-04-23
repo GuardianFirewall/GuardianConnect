@@ -10,8 +10,7 @@
 #import "GRDVPNHelper.h"
 
 @implementation GRDGatewayAPI
-@synthesize apiAuthToken, deviceIdentifier;
-@synthesize apiHostname, healthCheckTimer;
+@synthesize healthCheckTimer;
 
 - (NSString *)apiHostname {
     return [[[GRDVPNHelper sharedInstance] mainCredential] hostname];

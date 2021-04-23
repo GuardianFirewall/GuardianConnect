@@ -20,6 +20,9 @@
     // Insert code here to initialize your application
     
     GRDCredential *main = [GRDCredentialManager mainCredentials];
+    if (main || ([GRDVPNHelper isPayingUser])){
+        self.createButton.enabled = true;
+    }
     [[GRDVPNHelper sharedInstance] setMainCredential:main];
     [self addVPNObserver];
 }
@@ -34,7 +37,7 @@
     [op setCanChooseFiles:TRUE];
     [op setCanChooseDirectories:FALSE];
     [op setAllowsMultipleSelection:FALSE];
-    if ([op runModal] == NSOKButton)
+    if ([op runModal] == NSModalResponseOK)
     {
         NSURL* fileNameOpened = [[op URLs] objectAtIndex:0];
         NSData *receiptData = [NSData dataWithContentsOfURL:fileNameOpened];
@@ -47,6 +50,11 @@
 
 }
 
+- (void)handleValidationSuccess {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.createButton.enabled = true;
+    });
+}
 
 - (void)verifyReceipt {
     __block NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -122,7 +130,7 @@
                     [defaults removeObjectForKey:kKnownGuardianHosts];
                     //[[NSNotificationCenter defaultCenter] postNotificationName:kNotificationSubscriptionActive object:nil];
                     //[[NSNotificationCenter defaultCenter] postNotificationName:kGRDSubscriptionUpdatedNotification object:nil];
-                    //[self handleValidationSuccess];
+                    [self handleValidationSuccess];
                     
                     //there are additional steps necessary if it is a day pass subscription, setting a different user default for the expiration & setting up local user notifications about pending day pass expiration.
                     if ([productId isEqualToString:kGuardianSubscriptionDayPassAlt] || [productId isEqualToString:kGuardianSubscriptionDayPass]) {
@@ -146,7 +154,7 @@
                     NSString *productId = latestValidLineItem[kGRDProductID];
                     [defaults setObject:productId forKey:kSubscriptionPlanTypeStr]; //im fairly certain setting the product id here is redudant, but it shouldnt hurt anything.
                     [defaults setObject:grdExpiresDate forKey:kGuardianSubscriptionExpiresDate];
-                    //[self handleValidationSuccess]; //this call is almost definitely redudant, but im also not certain it hurts anything.
+                    [self handleValidationSuccess]; //this call is almost definitely redudant, but im also not certain it hurts anything.
                     
                 } else {
                     // Leaving the group explicitly to check wether the token has expired
@@ -192,15 +200,6 @@
     });
 }
 
-- (void)testVerifyReceipt {
-    [[GRDHousekeepingAPI new] verifyReceiptWithCompletion:^(NSArray * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
-        if (validLineItems){
-            NSString *file = [NSHomeDirectory() stringByAppendingPathComponent:@"validItems.plist"];
-            DLog(@"FILE: %@", file);
-            [validLineItems writeToFile:file atomically:true];
-        }
-    }];
-}
 
 - (void)showDisconnectedStateUI {
     self.createButton.title = NSLocalizedString(@"Connect VPN", nil);
@@ -215,29 +214,31 @@
 }
 
 - (void)handleConnectionStatus:(NEVPNStatus)status {
-    switch (status) {
-        case NEVPNStatusConnected:{
-            [self showConnectedStateUI];
-            break;
-            
-        case NEVPNStatusDisconnected:
-        case NEVPNStatusInvalid:
-            [self showDisconnectedStateUI];
-            break;
-            
-        case NEVPNStatusDisconnecting:
-            [self showDisconnectingStateUI];
-            break;
-            
-        case NEVPNStatusConnecting:
-        case NEVPNStatusReasserting:
-            [self showConnectingStateUI];
-            break;
-            
-        default:
-            break;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (status) {
+            case NEVPNStatusConnected:{
+                [self showConnectedStateUI];
+                break;
+                
+            case NEVPNStatusDisconnected:
+            case NEVPNStatusInvalid:
+                [self showDisconnectedStateUI];
+                break;
+                
+            case NEVPNStatusDisconnecting:
+                [self showDisconnectingStateUI];
+                break;
+                
+            case NEVPNStatusConnecting:
+            case NEVPNStatusReasserting:
+                [self showConnectingStateUI];
+                break;
+                
+            default:
+                break;
+            }
         }
-    }
+    });
 }
 
 - (void)addVPNObserver {
@@ -270,6 +271,7 @@
                     [defaults setObject:[response objectForKey:@"type"] forKey:kSubscriptionPlanTypeStr];
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
+                    self.createButton.enabled = true;
                 });
             }
         } else {
@@ -298,6 +300,7 @@
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
     [self clearLocalCache];
+    self.createButton.enabled = false;
     
 }
 
