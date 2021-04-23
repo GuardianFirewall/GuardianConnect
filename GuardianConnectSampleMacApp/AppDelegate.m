@@ -304,7 +304,19 @@
     
 }
 
+- (void)showMojaveIncompatibleAlert {
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = @"Error";
+    alert.informativeText = @"Catalina or newer is required to use the DeviceCheck framework, currently this version of macOS is unsupported.";
+    [alert runModal];
+}
+
 - (IBAction)createVPNConnection:(id)sender {
+    
+    if (kCFCoreFoundationVersionNumber <= 1575.401){
+        [self showMojaveIncompatibleAlert];
+        return;
+    }
     
     if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
         [[GRDVPNHelper sharedInstance] disconnectVPN];
