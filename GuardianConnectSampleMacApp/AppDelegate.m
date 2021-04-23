@@ -69,7 +69,7 @@
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     NSMenu *menu = [NSMenu new];
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
-     self.item.image = [NSImage imageNamed:@"Little_G.png"];
+    self.item.image = [NSImage imageNamed:@"Little_G.png"];
     if ([self darkMode]){
         self.item.image = [NSImage imageNamed:@"White_G.png"];
     }
@@ -81,7 +81,7 @@
     [menu addItem:clearVPNSettings];
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
-NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit Guardian Application" action:@selector(quit:) keyEquivalent:@""];
+    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit Guardian Application" action:@selector(quit:) keyEquivalent:@""];
     [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
@@ -102,6 +102,10 @@ NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit Guardian 
         [menu addItem:mailTrackerBlocked];
         NSMenuItem *pageHijackerBlocked = [[NSMenuItem alloc] initWithTitle:pageHijackerString action:nil keyEquivalent:@""];
         [menu addItem:pageHijackerBlocked];
+        self.item.image = [NSImage imageNamed:@"Little_G_Dark.png"];
+        if ([GRDVPNHelper proMode]){
+           self.item.image = [NSImage imageNamed:@"Little_G_Pro_Dark.png"];
+        }
     }
 }
 
