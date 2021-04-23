@@ -88,8 +88,8 @@
         NSString *pageHijackerTotal = __latestStats[@"page-hijacker-total"];
         NSString *dataTrackerString = [NSString stringWithFormat:@"Data trackers blocked: %@", dataTrackerTotal];
         NSString *locationTrackerString = [NSString stringWithFormat:@"Location trackers blocked: %@", locationTrackerTotal];
-        NSString *mailTrackerString = [NSString stringWithFormat:@"Data trackers blocked: %@", mailTrackerTotal];
-        NSString *pageHijackerString = [NSString stringWithFormat:@"Location trackers blocked: %@", pageHijackerTotal];
+        NSString *mailTrackerString = [NSString stringWithFormat:@"Mail trackers blocked: %@", mailTrackerTotal];
+        NSString *pageHijackerString = [NSString stringWithFormat:@"Page hijackers blocked: %@", pageHijackerTotal];
         NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
         [menu addItem:dataTrackerBlocked];
         NSMenuItem *locationTrackerBlocked = [[NSMenuItem alloc] initWithTitle:locationTrackerString action:nil keyEquivalent:@""];
