@@ -210,8 +210,6 @@
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
     if ([self isConnected]){
-        NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
-        [menu addItem:alertsView];
         //NSString *dataTrackerTotal = __latestStats[@"data-tracker-total"];
         //NSString *locationTrackerTotal = __latestStats[@"location-tracker-total"];
         //NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
@@ -226,6 +224,11 @@
         [self.pageHijackerButton setTitle:pageHijackerString];
         [self.mailTrackerButton setTitle:mailTrackerString];
         [self.totalAlertsButton setTitle:totalString];
+        NSMenuItem *totalAlertsBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
+        [menu addItem:totalAlertsBlocked];
+        NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
+        [menu addItem:alertsView];
+        
         /*
         NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
         [menu addItem:dataTrackerBlocked];
