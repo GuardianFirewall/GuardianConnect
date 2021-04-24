@@ -97,26 +97,31 @@
             break;
         
         case GRDButtonTypeDataTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Data Tracker"];
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Data Tracker'"];
             break;
             
         case GRDButtonTypeMailTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Mail Tracker"];
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Mail Tracker'"];
             break;
         
         case GRDButtonTypeLocationTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Location Tracker"];
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Location Tracker'"];
             break;
             
         case GRDButtonTypePageHijacker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Page Hijacker"];
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Page Hijacker'"];
             break;
             
         default:
             break;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-         [self.alertsArrayController setContent:[__events filteredArrayUsingPredicate:_filterPredicate]];
+        if (_filterPredicate){
+            [self.alertsArrayController setContent:[__events filteredArrayUsingPredicate:_filterPredicate]];
+        } else {
+            [self.alertsArrayController setContent:__events];
+        }
+        
     });
 }
 
@@ -144,7 +149,7 @@
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
     
-    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quitd" action:@selector(quit:) keyEquivalent:@""];
+    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
