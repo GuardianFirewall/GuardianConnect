@@ -89,15 +89,17 @@
     if ([self darkMode]){
         self.item.image = [NSImage imageNamed:@"White_G.png"];
     }
-    NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
-    [menu addItem:enableVPN];
     NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
     [menu addItem:proLogin];
-    NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearKeychain:) keyEquivalent:@""];
-    [menu addItem:clearVPNSettings];
+    if ([GRDVPNHelper isPayingUser]){
+        NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
+        [menu addItem:enableVPN];
+        NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearKeychain:) keyEquivalent:@""];
+        [menu addItem:clearVPNSettings];
+    }
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
-    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit Guardian Application" action:@selector(quit:) keyEquivalent:@""];
+    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
