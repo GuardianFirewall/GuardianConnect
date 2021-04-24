@@ -6,8 +6,8 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
-#define DARK_OFF 45.0f
-#define LIGHT_OFF 40.0f
+#define DARK_OFF 25.0f
+#define LIGHT_OFF 20.0f
 
 #import "NSColor+Additions.h"
 
