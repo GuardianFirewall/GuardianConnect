@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *host;
 @property NSString *identifier;
 @property NSString *message;
-@property NSInteger timestamp;
+@property NSDate *timestamp;
 @property NSString *title;
 
 - (instancetype)initWithDictionary:(NSDictionary *)dict;

@@ -18,7 +18,7 @@
         _host = dict[@"host"];
         _identifier = dict[@"identifier"];
         _message = dict[@"message"];
-        _timestamp = [dict[@"timestamp"] integerValue];
+        _timestamp = [NSDate dateWithTimeIntervalSince1970:[dict[@"timestamp"] integerValue]];
         _title = dict[@"title"];
     }
     return self;
