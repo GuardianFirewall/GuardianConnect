@@ -6,6 +6,9 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
+#define DARK_OFF 45.0f
+#define LIGHT_OFF 40.0f
+
 #import "NSColor+Additions.h"
 
 @implementation NSColor (Additions)
@@ -26,7 +29,7 @@
 + (NSColor *)pageHijackerPurpleSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.75;
+        if (!selected) alpha = DARK_OFF;
         return NSColorFromRGB(0xC588FF, alpha);
     }
     if (!selected) alpha = 0.70;
@@ -36,29 +39,29 @@
 + (NSColor *)dataTrackerYellowSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.75;
+        if (!selected) alpha = DARK_OFF;
         return NSColorFromRGB(0xD7BB2A, alpha);
     }
-    if (!selected) alpha = 0.70;
+    if (!selected) alpha = LIGHT_OFF;
     return NSColorFromRGB(0xD7BB2A, alpha);
 }
 
 + (NSColor *)locationTrackerGreenSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.75;
+        if (!selected) alpha = DARK_OFF;
         return NSColorFromRGB(0x2AC4A2, alpha);
     }
-    if (!selected) alpha = 0.70;
+    if (!selected) alpha = LIGHT_OFF;
     return NSColorFromRGB(0x2AC4A2, alpha);
 }
 + (NSColor *)mailTrackerRedSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.75;
+        if (!selected) alpha = DARK_OFF;
         return NSColorFromRGB(0xF22E5A, alpha);
     }
-    if (!selected) alpha = 0.70;
+    if (!selected) alpha = LIGHT_OFF;
     return NSColorFromRGB(0xF22E5A, alpha);
 }
 
