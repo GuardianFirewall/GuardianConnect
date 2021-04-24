@@ -24,7 +24,7 @@
 
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block {
     Class dcDeviceClass = NSClassFromString(@"DCDevice");
-    __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulator";
+    __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulators";
     if (!dcDeviceClass){
         if (block){
             block(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);

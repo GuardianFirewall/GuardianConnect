@@ -14,6 +14,7 @@
 
 @property (weak) IBOutlet NSWindow *window;
 @property (nonatomic, strong) NSDictionary *_latestStats;
+@property (nonatomic, strong) NSArray *_events;
 @end
 
 @implementation AppDelegate
@@ -81,6 +82,34 @@
     return @"Pro Login";
 }
 
+- (IBAction)toggleAlertFilter:(id)sender {
+    GRDButtonType type = [sender tag];
+    switch (type) {
+        case GRDButtonTypeTotalAlerts:
+            
+            break;
+        
+        case GRDButtonTypeDataTracker:
+            
+            break;
+            
+        case GRDButtonTypeMailTracker:
+            
+            break;
+        
+        case GRDButtonTypeLocationTracker:
+            
+            break;
+            
+        case GRDButtonTypePageHijacker:
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
 - (void)createMenu {
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     NSMenu *menu = [NSMenu new];
@@ -99,11 +128,14 @@
     }
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     [menu addItem:spoofReceipt];
-    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
+    
+    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quitd" action:@selector(quit:) keyEquivalent:@""];
     [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
     self.item.menu = menu;
     if ([self isConnected]){
+        NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
+        [menu addItem:alertsView];
         NSString *dataTrackerTotal = __latestStats[@"data-tracker-total"];
         NSString *locationTrackerTotal = __latestStats[@"location-tracker-total"];
         NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
@@ -251,11 +283,18 @@
                 [self createMenu];
             });
         }];
-        /*
+        
         [[GRDGatewayAPI new] getEvents:^(NSDictionary * _Nonnull response, BOOL success, NSString * _Nonnull error) {
-            GRDLog(@"events: %@", response);
+            
+            if (success){
+                __events = response[@"alerts"];
+                [self.alertsArrayController setContent:__events];
+            } else {
+                GRDLog(@"failed to fetch events: %@", error);
+            }
+            //GRDLog(@"events: %@", response);
         }];
-         */
+         
     }
 }
 
@@ -346,6 +385,10 @@
     alert.messageText = @"Error";
     alert.informativeText = @"Catalina or newer is required to use the DeviceCheck framework, currently this version of macOS is unsupported.";
     [alert runModal];
+}
+
+- (IBAction)showAlertsWindow:(id)sender {
+    [self.alertsWindow makeKeyAndOrderFront:nil];
 }
 
 - (IBAction)createVPNConnection:(id)sender {
