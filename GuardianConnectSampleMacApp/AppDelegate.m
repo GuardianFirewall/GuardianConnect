@@ -288,7 +288,10 @@
             
             if (success){
                 __events = response[@"alerts"];
-                [self.alertsArrayController setContent:__events];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.alertsArrayController setContent:__events];
+                });
+                
             } else {
                 GRDLog(@"failed to fetch events: %@", error);
             }
