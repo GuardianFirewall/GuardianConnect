@@ -87,7 +87,7 @@
 }
 
 - (void)selectInverted:(GRDButtonType)type {
-    dispatch_async(dispatch_get_main_queue(), ^{
+
         switch (type) {
             case GRDButtonTypeTotalAlerts:
                 [self.totalAlertsButton setState:NSControlStateValueOn];
@@ -132,7 +132,6 @@
             default:
                 break;
         }
-    });
 }
 
 - (IBAction)toggleAlertFilter:(NSButton *)sender {
