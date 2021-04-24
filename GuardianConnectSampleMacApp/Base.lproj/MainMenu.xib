@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.3"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -823,14 +824,13 @@
                             <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="0Yu-E6-WL9"/>
                         </connections>
                     </button>
-                    <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
+                    <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
                         <rect key="frame" x="0.0" y="0.0" width="536" height="145"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <clipView key="contentView" ambiguous="YES" id="Pxt-XQ-ewk">
+                        <clipView key="contentView" id="Pxt-XQ-ewk">
                             <rect key="frame" x="1" y="0.0" width="534" height="144"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" ambiguous="YES" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Bs4-YM-zse" id="CpU-wA-S77">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="Bs4-YM-zse" id="CpU-wA-S77">
                                     <rect key="frame" x="0.0" y="0.0" width="534" height="119"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -839,7 +839,6 @@
                                     <tableColumns>
                                         <tableColumn width="140" minWidth="40" maxWidth="1000" id="Hep-zE-TIQ">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Category">
-                                                <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
@@ -850,7 +849,7 @@
                                             </textFieldCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                             <connections>
-                                                <binding destination="XIQ-t8-o1I" name="value" keyPath="arrangedObjects.category" id="2K4-Ci-AaI">
+                                                <binding destination="XIQ-t8-o1I" name="value" keyPath="arrangedObjects.title" id="aAd-dR-umA">
                                                     <dictionary key="options">
                                                         <bool key="NSValidatesImmediately" value="YES"/>
                                                     </dictionary>
@@ -859,7 +858,6 @@
                                         </tableColumn>
                                         <tableColumn width="296" minWidth="40" maxWidth="1000" id="XOX-bJ-lsD">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Description">
-                                                <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
@@ -879,7 +877,6 @@
                                         </tableColumn>
                                         <tableColumn width="89" minWidth="10" maxWidth="3.4028234663852886e+38" id="Zag-oV-mso">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Date">
-                                                <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </tableHeaderCell>
@@ -901,6 +898,9 @@
                                 </tableView>
                             </subviews>
                         </clipView>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="145" id="uNG-RG-c7e"/>
+                        </constraints>
                         <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="0.028169014084507043" horizontal="YES" id="pfu-H6-Fnu">
                             <rect key="frame" x="1" y="128" width="498" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
@@ -926,6 +926,12 @@
                         </connections>
                     </button>
                 </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="a0Y-Qr-fsh" secondAttribute="bottom" id="Xjb-dN-4jz"/>
+                    <constraint firstAttribute="trailing" secondItem="a0Y-Qr-fsh" secondAttribute="trailing" id="act-XF-Qef"/>
+                    <constraint firstItem="a0Y-Qr-fsh" firstAttribute="leading" secondItem="xBO-xh-VjI" secondAttribute="leading" id="eG9-2r-2Q7"/>
+                    <constraint firstItem="a0Y-Qr-fsh" firstAttribute="width" secondItem="xBO-xh-VjI" secondAttribute="width" id="zol-ny-aD5"/>
+                </constraints>
             </view>
             <point key="canvasLocation" x="-13" y="429"/>
         </window>
