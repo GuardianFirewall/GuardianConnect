@@ -20,6 +20,7 @@
 		3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3249771326325929008ABFDB /* GCSubscriptionManager.m */; };
+		325583E22634D2420015DEE3 /* GRDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E12634D2420015DEE3 /* GRDEvent.m */; };
 		32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */; };
 		32939A6D26167D0E007A4DFA /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -128,6 +129,8 @@
 		3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Extras.h"; sourceTree = "<group>"; };
 		3249771226325929008ABFDB /* GCSubscriptionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCSubscriptionManager.h; sourceTree = "<group>"; };
 		3249771326325929008ABFDB /* GCSubscriptionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCSubscriptionManager.m; sourceTree = "<group>"; };
+		325583E02634D2420015DEE3 /* GRDEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDEvent.h; sourceTree = "<group>"; };
+		325583E12634D2420015DEE3 /* GRDEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDEvent.m; sourceTree = "<group>"; };
 		32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Additions.m"; sourceTree = "<group>"; };
 		32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Additions.h"; sourceTree = "<group>"; };
 		32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
@@ -288,6 +291,8 @@
 			children = (
 				329C526526315071003B78D8 /* AppDelegate.h */,
 				329C526626315071003B78D8 /* AppDelegate.m */,
+				325583E02634D2420015DEE3 /* GRDEvent.h */,
+				325583E12634D2420015DEE3 /* GRDEvent.m */,
 				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
 				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
 				329C526826315073003B78D8 /* Assets.xcassets */,
@@ -529,6 +534,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				325583E22634D2420015DEE3 /* GRDEvent.m in Sources */,
 				329C526F26315073003B78D8 /* main.m in Sources */,
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,

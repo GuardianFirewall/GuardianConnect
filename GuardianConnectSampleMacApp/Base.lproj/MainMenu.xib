@@ -30,7 +30,7 @@
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <arrayController id="XIQ-t8-o1I">
+        <arrayController objectClassName="GRDEvent" id="XIQ-t8-o1I">
             <declaredKeys>
                 <string>category</string>
                 <string>message</string>
@@ -951,7 +951,7 @@
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                 <connections>
-                                                                    <binding destination="6tO-Dl-0dL" name="value" keyPath="objectValue.timestamp" id="4mQ-sX-DRL"/>
+                                                                    <binding destination="6tO-Dl-0dL" name="value" keyPath="objectValue.formattedTimestamp" id="eOy-Xj-fS8"/>
                                                                 </connections>
                                                             </textFieldCell>
                                                         </textField>

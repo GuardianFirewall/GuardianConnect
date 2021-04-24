@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import <GuardianConnect/GuardianConnectMac.h>
-
+#import "GRDEvent.h"
 
 @interface AppDelegate ()
 
@@ -305,6 +305,16 @@
     
 }
 
+- (NSArray *)processedEvents:(NSArray *)events {
+    __block NSMutableArray *processed = [NSMutableArray new];
+    [events enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+       
+        GRDEvent *newEvent = [[GRDEvent alloc] initWithDictionary:obj];
+        [processed addObject:newEvent];
+    }];
+    return processed;
+}
+
 - (void)fetchEventData {
     if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
         
@@ -326,7 +336,7 @@
         [[GRDGatewayAPI new] getEvents:^(NSDictionary * _Nonnull response, BOOL success, NSString * _Nonnull error) {
             
             if (success){
-                __events = response[@"alerts"];
+                __events = [self processedEvents:response[@"alerts"]];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.alertsArrayController setContent:__events];
                 });
