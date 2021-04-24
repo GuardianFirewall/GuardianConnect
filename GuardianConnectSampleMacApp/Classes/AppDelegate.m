@@ -224,7 +224,7 @@
         [self.pageHijackerButton setTitle:pageHijackerString];
         [self.mailTrackerButton setTitle:mailTrackerString];
         [self.totalAlertsButton setTitle:totalString];
-        NSMenuItem *totalAlertsBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
+        NSMenuItem *totalAlertsBlocked = [[NSMenuItem alloc] initWithTitle:totalString action:nil keyEquivalent:@""];
         [menu addItem:totalAlertsBlocked];
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
