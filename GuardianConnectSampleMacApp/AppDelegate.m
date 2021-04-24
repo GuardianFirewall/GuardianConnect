@@ -15,6 +15,7 @@
 @property (weak) IBOutlet NSWindow *window;
 @property (nonatomic, strong) NSDictionary *_latestStats;
 @property (nonatomic, strong) NSArray *_events;
+@property NSInteger _alertTotal;
 @end
 
 @implementation AppDelegate
@@ -267,6 +268,18 @@
     [self fetchEventData];
 }
 
+- (void)createAlertTotals {
+    NSInteger dtt = [__latestStats[@"data-tracker-total"] integerValue];
+    NSInteger ltt = [__latestStats[@"location-tracker-total"] integerValue];
+    NSInteger mtt = [__latestStats[@"mail-tracker-total"] integerValue];
+    NSInteger pht = [__latestStats[@"page-hijacker-total"] integerValue];
+    __alertTotal = dtt + ltt + mtt + pht;
+}
+
+- (void)updateAlertTotals {
+    
+}
+
 - (void)fetchEventData {
     if ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected){
         
@@ -280,6 +293,7 @@
              */
             __latestStats = alertTotals;
             dispatch_async(dispatch_get_main_queue(), ^{
+                [self createAlertTotals];
                 [self createMenu];
             });
         }];
