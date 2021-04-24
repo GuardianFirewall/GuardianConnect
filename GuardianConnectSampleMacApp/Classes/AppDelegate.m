@@ -55,6 +55,8 @@
     if (![GRDVPNHelper isPayingUser]){
         [self.window makeKeyAndOrderFront:nil];
     }
+    [self.totalAlertsButton setState:NSControlStateValueOn];
+    [self updateAlertWindow];
 }
 
 - (BOOL)darkMode {
@@ -172,7 +174,11 @@
 }
 
 - (void)updateAlertWindow {
-    self.totalAlertsButton.contentTintColor = [NSColor whiteColor];
+    CGFloat alpha = 1.0;
+    if (self.totalAlertsButton.state == NSControlStateValueOff){
+        alpha = 0.5;
+    }
+    self.totalAlertsButton.contentTintColor = [NSColor colorWithWhite:1.0 alpha:alpha];
     self.mailTrackerButton.contentTintColor = [NSColor mailTrackerRedSelected:self.mailTrackerButton.state];
     self.locationTrackerButton.contentTintColor = [NSColor locationTrackerGreenSelected:self.locationTrackerButton.state];
     self.dataTrackerButton.contentTintColor = [NSColor dataTrackerYellowSelected:self.dataTrackerButton.state];

@@ -771,7 +771,7 @@
             <point key="canvasLocation" x="-544" y="307"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="fAJ-Mu-7EW"/>
-        <window title="Alerts" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="qtz-nh-7s2" customClass="NSPanel">
+        <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="qtz-nh-7s2" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES" HUD="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="1301" y="724" width="619" height="342"/>
@@ -782,7 +782,7 @@
                 <subviews>
                     <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="Jfx-WV-dfV">
                         <rect key="frame" x="273" y="308" width="73" height="16"/>
-                        <buttonCell key="cell" type="bevel" title="Total Alerts" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="cl8-gP-eg2">
+                        <buttonCell key="cell" type="bevel" title="Total Alerts" bezelStyle="rounded" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="cl8-gP-eg2">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
