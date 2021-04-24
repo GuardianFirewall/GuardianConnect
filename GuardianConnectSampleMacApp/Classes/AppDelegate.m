@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import <GuardianConnect/GuardianConnectMac.h>
 #import "GRDEvent.h"
+#import "NSColor+Additions.h"
 
 @interface AppDelegate ()
 
@@ -56,9 +57,6 @@
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability-new"
-#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (BOOL)darkMode {
 
     NSString *interfaceStyle = [[NSUserDefaults standardUserDefaults] valueForKey:@"AppleInterfaceStyle"];
@@ -68,7 +66,6 @@
     return false;
     
 }
-#pragma clang diagnostic pop
 
 - (BOOL)isConnected {
     NEVPNStatus status = [[[NEVPNManager sharedManager] connection] status];
@@ -121,12 +118,16 @@
         } else {
             [self.alertsArrayController setContent:__events];
         }
-        
+        [self updateAlertWindow];
     });
 }
 
 - (void)updateAlertWindow {
-
+    self.totalAlertsButton.contentTintColor = [NSColor whiteColor];
+    self.mailTrackerButton.contentTintColor = [NSColor mailTrackerRedSelected:self.mailTrackerButton.state];
+    self.locationTrackerButton.contentTintColor = [NSColor locationTrackerGreenSelected:self.locationTrackerButton.state];
+    self.dataTrackerButton.contentTintColor = [NSColor dataTrackerYellowSelected:self.dataTrackerButton.state];
+    self.pageHijackerButton.contentTintColor = [NSColor pageHijackerPurpleSelected:self.pageHijackerButton.state];
 }
 
 - (void)createMenu {
@@ -441,6 +442,7 @@
 
 - (IBAction)showAlertsWindow:(id)sender {
     [self.alertsWindow makeKeyAndOrderFront:nil];
+    [self updateAlertWindow];
 }
 
 - (IBAction)createVPNConnection:(id)sender {
