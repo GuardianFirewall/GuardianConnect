@@ -26,39 +26,39 @@
 + (NSColor *)pageHijackerPurpleSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.15;
+        if (!selected) alpha = 0.75;
         return NSColorFromRGB(0xC588FF, alpha);
     }
-    if (!selected) alpha = 0.10;
+    if (!selected) alpha = 0.70;
     return NSColorFromRGB(0x7543E4, alpha);
 }
 
 + (NSColor *)dataTrackerYellowSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.15;
+        if (!selected) alpha = 0.75;
         return NSColorFromRGB(0xD7BB2A, alpha);
     }
-    if (!selected) alpha = 0.10;
+    if (!selected) alpha = 0.70;
     return NSColorFromRGB(0xD7BB2A, alpha);
 }
 
 + (NSColor *)locationTrackerGreenSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.15;
+        if (!selected) alpha = 0.75;
         return NSColorFromRGB(0x2AC4A2, alpha);
     }
-    if (!selected) alpha = 0.10;
+    if (!selected) alpha = 0.70;
     return NSColorFromRGB(0x2AC4A2, alpha);
 }
 + (NSColor *)mailTrackerRedSelected:(BOOL)selected {
     CGFloat alpha = 1.0;
     if ([self darkMode]){
-        if (!selected) alpha = 0.15;
+        if (!selected) alpha = 0.75;
         return NSColorFromRGB(0xF22E5A, alpha);
     }
-    if (!selected) alpha = 0.10;
+    if (!selected) alpha = 0.70;
     return NSColorFromRGB(0xF22E5A, alpha);
 }
 
