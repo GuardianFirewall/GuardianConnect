@@ -86,7 +86,56 @@
     return @"Pro Login";
 }
 
-- (IBAction)toggleAlertFilter:(id)sender {
+- (void)selectInverted:(GRDButtonType)type {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (type) {
+            case GRDButtonTypeTotalAlerts:
+                [self.totalAlertsButton setState:NSControlStateValueOn];
+                [self.locationTrackerButton setState:NSControlStateValueOff];
+                [self.pageHijackerButton setState:NSControlStateValueOff];
+                [self.mailTrackerButton setState:NSControlStateValueOff];
+                [self.dataTrackerButton setState:NSControlStateValueOff];
+                break;
+            
+            case GRDButtonTypeDataTracker:
+                [self.totalAlertsButton setState:NSControlStateValueOff];
+                [self.locationTrackerButton setState:NSControlStateValueOff];
+                [self.pageHijackerButton setState:NSControlStateValueOff];
+                [self.mailTrackerButton setState:NSControlStateValueOff];
+                [self.dataTrackerButton setState:NSControlStateValueOn];
+                break;
+                
+            case GRDButtonTypeMailTracker:
+                [self.totalAlertsButton setState:NSControlStateValueOff];
+                [self.locationTrackerButton setState:NSControlStateValueOff];
+                [self.pageHijackerButton setState:NSControlStateValueOff];
+                [self.mailTrackerButton setState:NSControlStateValueOn];
+                [self.dataTrackerButton setState:NSControlStateValueOff];
+                break;
+            
+            case GRDButtonTypeLocationTracker:
+                [self.totalAlertsButton setState:NSControlStateValueOff];
+                [self.locationTrackerButton setState:NSControlStateValueOn];
+                [self.pageHijackerButton setState:NSControlStateValueOff];
+                [self.mailTrackerButton setState:NSControlStateValueOff];
+                [self.dataTrackerButton setState:NSControlStateValueOff];
+                break;
+                
+            case GRDButtonTypePageHijacker:
+                [self.totalAlertsButton setState:NSControlStateValueOff];
+                [self.locationTrackerButton setState:NSControlStateValueOff];
+                [self.pageHijackerButton setState:NSControlStateValueOn];
+                [self.mailTrackerButton setState:NSControlStateValueOff];
+                [self.dataTrackerButton setState:NSControlStateValueOff];
+                break;
+                
+            default:
+                break;
+        }
+    });
+}
+
+- (IBAction)toggleAlertFilter:(NSButton *)sender {
     GRDButtonType type = [sender tag];
     switch (type) {
         case GRDButtonTypeTotalAlerts:
@@ -113,6 +162,7 @@
             break;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self selectInverted:type];
         if (_filterPredicate){
             [self.alertsArrayController setContent:[__events filteredArrayUsingPredicate:_filterPredicate]];
         } else {
@@ -162,15 +212,16 @@
         //NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
         //NSString *pageHijackerTotal = __latestStats[@"page-hijacker-total"];
         NSString *totalString = [NSString stringWithFormat:@"Total Alerts: %lu", __alertTotal];
-        NSString *dataTrackerString = [NSString stringWithFormat:@"Data Trackers: %lu", __dataTotal];
-        NSString *locationTrackerString = [NSString stringWithFormat:@"Location Trackers: %lu", __locationTotal];
-        NSString *mailTrackerString = [NSString stringWithFormat:@"Mail Trackers: %lu", __mailTotal];
-        NSString *pageHijackerString = [NSString stringWithFormat:@"Page Hijackers: %lu", __pageTotal];
+        NSString *dataTrackerString = [NSString stringWithFormat:@" %lu", __dataTotal];
+        NSString *locationTrackerString = [NSString stringWithFormat:@" %lu", __locationTotal];
+        NSString *mailTrackerString = [NSString stringWithFormat:@" %lu", __mailTotal];
+        NSString *pageHijackerString = [NSString stringWithFormat:@" %lu", __pageTotal];
         [self.dataTrackerButton setTitle:dataTrackerString];
         [self.locationTrackerButton setTitle:locationTrackerString];
         [self.pageHijackerButton setTitle:pageHijackerString];
         [self.mailTrackerButton setTitle:mailTrackerString];
         [self.totalAlertsButton setTitle:totalString];
+        /*
         NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
         [menu addItem:dataTrackerBlocked];
         NSMenuItem *locationTrackerBlocked = [[NSMenuItem alloc] initWithTitle:locationTrackerString action:nil keyEquivalent:@""];
@@ -179,6 +230,7 @@
         [menu addItem:mailTrackerBlocked];
         NSMenuItem *pageHijackerBlocked = [[NSMenuItem alloc] initWithTitle:pageHijackerString action:nil keyEquivalent:@""];
         [menu addItem:pageHijackerBlocked];
+         */
         self.item.image = [NSImage imageNamed:@"Little_G_Dark.png"];
         if ([GRDVPNHelper proMode]){
            self.item.image = [NSImage imageNamed:@"Little_G_Pro_Dark.png"];
