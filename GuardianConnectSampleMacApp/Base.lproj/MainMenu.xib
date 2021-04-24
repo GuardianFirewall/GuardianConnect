@@ -30,7 +30,13 @@
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <arrayController id="XIQ-t8-o1I"/>
+        <arrayController id="XIQ-t8-o1I">
+            <declaredKeys>
+                <string>category</string>
+                <string>message</string>
+                <string>timestamp</string>
+            </declaredKeys>
+        </arrayController>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="GuardianConnectSampleMacApp" id="1Xt-HY-uBw">
