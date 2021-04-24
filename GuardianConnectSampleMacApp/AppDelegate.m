@@ -16,6 +16,12 @@
 @property (nonatomic, strong) NSDictionary *_latestStats;
 @property (nonatomic, strong) NSArray *_events;
 @property NSInteger _alertTotal;
+@property NSInteger _dataTotal;
+@property NSInteger _mailTotal;
+@property NSInteger _pageTotal;
+@property NSInteger _locationTotal;
+@property NSPredicate *filterPredicate;
+
 @end
 
 @implementation AppDelegate
@@ -87,31 +93,39 @@
     GRDButtonType type = [sender tag];
     switch (type) {
         case GRDButtonTypeTotalAlerts:
-            
+            _filterPredicate = nil;
             break;
         
         case GRDButtonTypeDataTracker:
-            
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Data Tracker"];
             break;
             
         case GRDButtonTypeMailTracker:
-            
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Mail Tracker"];
             break;
         
         case GRDButtonTypeLocationTracker:
-            
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Location Tracker"];
             break;
             
         case GRDButtonTypePageHijacker:
-            
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == Page Hijacker"];
             break;
             
         default:
             break;
     }
+    dispatch_async(dispatch_get_main_queue(), ^{
+         [self.alertsArrayController setContent:[__events filteredArrayUsingPredicate:_filterPredicate]];
+    });
+}
+
+- (void)updateAlertWindow {
+
 }
 
 - (void)createMenu {
+    [self createAlertTotals];
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     NSMenu *menu = [NSMenu new];
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
@@ -137,14 +151,20 @@
     if ([self isConnected]){
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
-        NSString *dataTrackerTotal = __latestStats[@"data-tracker-total"];
-        NSString *locationTrackerTotal = __latestStats[@"location-tracker-total"];
-        NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
-        NSString *pageHijackerTotal = __latestStats[@"page-hijacker-total"];
-        NSString *dataTrackerString = [NSString stringWithFormat:@"Data trackers blocked: %@", dataTrackerTotal];
-        NSString *locationTrackerString = [NSString stringWithFormat:@"Location trackers blocked: %@", locationTrackerTotal];
-        NSString *mailTrackerString = [NSString stringWithFormat:@"Mail trackers blocked: %@", mailTrackerTotal];
-        NSString *pageHijackerString = [NSString stringWithFormat:@"Page hijackers blocked: %@", pageHijackerTotal];
+        //NSString *dataTrackerTotal = __latestStats[@"data-tracker-total"];
+        //NSString *locationTrackerTotal = __latestStats[@"location-tracker-total"];
+        //NSString *mailTrackerTotal = __latestStats[@"mail-tracker-total"];
+        //NSString *pageHijackerTotal = __latestStats[@"page-hijacker-total"];
+        NSString *totalString = [NSString stringWithFormat:@"Total Alerts: %lu", __alertTotal];
+        NSString *dataTrackerString = [NSString stringWithFormat:@"Data Trackers: %lu", __dataTotal];
+        NSString *locationTrackerString = [NSString stringWithFormat:@"Location Trackers: %lu", __locationTotal];
+        NSString *mailTrackerString = [NSString stringWithFormat:@"Mail Trackers: %lu", __mailTotal];
+        NSString *pageHijackerString = [NSString stringWithFormat:@"Page Hijackers: %lu", __pageTotal];
+        [self.dataTrackerButton setTitle:dataTrackerString];
+        [self.locationTrackerButton setTitle:locationTrackerString];
+        [self.pageHijackerButton setTitle:pageHijackerString];
+        [self.mailTrackerButton setTitle:mailTrackerString];
+        [self.totalAlertsButton setTitle:totalString];
         NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
         [menu addItem:dataTrackerBlocked];
         NSMenuItem *locationTrackerBlocked = [[NSMenuItem alloc] initWithTitle:locationTrackerString action:nil keyEquivalent:@""];
@@ -269,11 +289,11 @@
 }
 
 - (void)createAlertTotals {
-    NSInteger dtt = [__latestStats[@"data-tracker-total"] integerValue];
-    NSInteger ltt = [__latestStats[@"location-tracker-total"] integerValue];
-    NSInteger mtt = [__latestStats[@"mail-tracker-total"] integerValue];
-    NSInteger pht = [__latestStats[@"page-hijacker-total"] integerValue];
-    __alertTotal = dtt + ltt + mtt + pht;
+    __dataTotal = [__latestStats[@"data-tracker-total"] integerValue];
+    __locationTotal = [__latestStats[@"location-tracker-total"] integerValue];
+    __mailTotal = [__latestStats[@"mail-tracker-total"] integerValue];
+    __pageTotal = [__latestStats[@"page-hijacker-total"] integerValue];
+    __alertTotal = __dataTotal + __locationTotal + __mailTotal + __pageTotal;
 }
 
 - (void)updateAlertTotals {
