@@ -780,20 +780,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="619" height="296"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
-                        <rect key="frame" x="35" y="207" width="141" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Data Tracker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="YW1-7g-sfh">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="T3R-iB-3U8"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="Jfx-WV-dfV">
-                        <rect key="frame" x="235" y="250" width="141" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="Jfx-WV-dfV">
+                        <rect key="frame" x="255" y="250" width="109" height="32"/>
                         <buttonCell key="cell" type="push" title="Total Alerts" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cl8-gP-eg2">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -802,9 +790,28 @@
                             <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="j9U-UT-rB9"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
-                        <rect key="frame" x="35" y="163" width="141" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <button verticalHuggingPriority="750" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
+                        <rect key="frame" x="35" y="207" width="118" height="32"/>
+                        <buttonCell key="cell" type="push" title="Data Tracker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="YW1-7g-sfh">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="T3R-iB-3U8"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
+                        <rect key="frame" x="428" y="207" width="141" height="32"/>
+                        <buttonCell key="cell" type="push" title="Location Tracker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tN4-nO-bQk">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="0Yu-E6-WL9"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
+                        <rect key="frame" x="35" y="163" width="114" height="32"/>
                         <buttonCell key="cell" type="push" title="Mail Tracker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uo4-J2-oMj">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -813,15 +820,14 @@
                             <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="gUy-ig-dIH"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
-                        <rect key="frame" x="428" y="207" width="141" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Location Tracker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tN4-nO-bQk">
+                    <button verticalHuggingPriority="750" tag="14" translatesAutoresizingMaskIntoConstraints="NO" id="99H-ov-vM9">
+                        <rect key="frame" x="446" y="163" width="123" height="32"/>
+                        <buttonCell key="cell" type="push" title="Page Hijacker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="p46-OF-3fm">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="0Yu-E6-WL9"/>
+                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="42I-hN-gNJ"/>
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
@@ -1043,9 +1049,6 @@
                                 </tableView>
                             </subviews>
                         </clipView>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="145" id="uNG-RG-c7e"/>
-                        </constraints>
                         <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="pfu-H6-Fnu">
                             <rect key="frame" x="1" y="128" width="617" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
@@ -1059,22 +1062,22 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" tag="14" translatesAutoresizingMaskIntoConstraints="NO" id="99H-ov-vM9">
-                        <rect key="frame" x="428" y="163" width="141" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Page Hijacker" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="p46-OF-3fm">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="42I-hN-gNJ"/>
-                        </connections>
-                    </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="NVv-O0-Krv" firstAttribute="top" secondItem="PqU-g6-oZt" secondAttribute="bottom" constant="23" id="3SV-vj-jYz"/>
+                    <constraint firstItem="NVv-O0-Krv" firstAttribute="leading" secondItem="PqU-g6-oZt" secondAttribute="leading" id="3s2-em-vA7"/>
+                    <constraint firstItem="Jfx-WV-dfV" firstAttribute="top" secondItem="xBO-xh-VjI" secondAttribute="top" constant="18" id="6Im-QG-AZQ"/>
+                    <constraint firstItem="99H-ov-vM9" firstAttribute="top" secondItem="0Zf-cS-Ydb" secondAttribute="bottom" constant="23" id="9XG-r5-U5Q"/>
+                    <constraint firstItem="PqU-g6-oZt" firstAttribute="leading" secondItem="xBO-xh-VjI" secondAttribute="leading" constant="41" id="KJQ-Ws-34l"/>
+                    <constraint firstAttribute="trailing" secondItem="0Zf-cS-Ydb" secondAttribute="trailing" constant="56" id="OFR-MS-1G2"/>
+                    <constraint firstItem="a0Y-Qr-fsh" firstAttribute="top" secondItem="99H-ov-vM9" secondAttribute="bottom" constant="25" id="Oan-ZK-rcp"/>
                     <constraint firstAttribute="bottom" secondItem="a0Y-Qr-fsh" secondAttribute="bottom" id="Xjb-dN-4jz"/>
                     <constraint firstAttribute="trailing" secondItem="a0Y-Qr-fsh" secondAttribute="trailing" id="act-XF-Qef"/>
                     <constraint firstItem="a0Y-Qr-fsh" firstAttribute="leading" secondItem="xBO-xh-VjI" secondAttribute="leading" id="eG9-2r-2Q7"/>
+                    <constraint firstItem="0Zf-cS-Ydb" firstAttribute="top" secondItem="Jfx-WV-dfV" secondAttribute="bottom" constant="22" id="g64-GX-4lV"/>
+                    <constraint firstItem="Jfx-WV-dfV" firstAttribute="centerX" secondItem="xBO-xh-VjI" secondAttribute="centerX" id="hmx-PN-KAP"/>
+                    <constraint firstItem="99H-ov-vM9" firstAttribute="trailing" secondItem="0Zf-cS-Ydb" secondAttribute="trailing" id="joN-1Z-upd"/>
+                    <constraint firstItem="PqU-g6-oZt" firstAttribute="top" secondItem="Jfx-WV-dfV" secondAttribute="bottom" constant="22" id="w1b-YC-fHU"/>
                     <constraint firstItem="a0Y-Qr-fsh" firstAttribute="width" secondItem="xBO-xh-VjI" secondAttribute="width" id="zol-ny-aD5"/>
                 </constraints>
             </view>
