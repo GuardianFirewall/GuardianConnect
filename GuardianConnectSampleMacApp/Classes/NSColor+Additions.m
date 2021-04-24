@@ -6,8 +6,8 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
-#define DARK_OFF 25.0f
-#define LIGHT_OFF 20.0f
+#define DARK_OFF 0.45f
+#define LIGHT_OFF 0.40f
 
 #import "NSColor+Additions.h"
 
@@ -32,7 +32,7 @@
         if (!selected) alpha = DARK_OFF;
         return NSColorFromRGB(0xC588FF, alpha);
     }
-    if (!selected) alpha = 0.70;
+    if (!selected) alpha = LIGHT_OFF;
     return NSColorFromRGB(0x7543E4, alpha);
 }
 
