@@ -754,6 +754,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application: Kevin Bradley (9EUFEA5U7G)";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
@@ -776,6 +777,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application: Kevin Bradley (9EUFEA5U7G)";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9EUFEA5U7G;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
