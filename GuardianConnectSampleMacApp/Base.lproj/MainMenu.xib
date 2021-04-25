@@ -791,8 +791,8 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
-                        <rect key="frame" x="41" y="226" width="52" height="48"/>
-                        <buttonCell key="cell" type="bevel" bezelStyle="regularSquare" image="dark-alert-data-tracker-depiction-list" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="YW1-7g-sfh">
+                        <rect key="frame" x="41" y="226" width="73" height="48"/>
+                        <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="regularSquare" image="dark-alert-data-tracker-depiction-list" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="YW1-7g-sfh">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
@@ -801,8 +801,8 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
-                        <rect key="frame" x="526" y="226" width="52" height="48"/>
-                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="dark-alert-location-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="tN4-nO-bQk">
+                        <rect key="frame" x="505" y="226" width="73" height="48"/>
+                        <buttonCell key="cell" type="square" title=" 0" bezelStyle="shadowlessSquare" image="dark-alert-location-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="tN4-nO-bQk">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
@@ -811,8 +811,8 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
-                        <rect key="frame" x="41" y="155" width="52" height="48"/>
-                        <buttonCell key="cell" type="bevel" bezelStyle="rounded" image="dark-alert-mail-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="uo4-J2-oMj">
+                        <rect key="frame" x="41" y="155" width="73" height="48"/>
+                        <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="rounded" image="dark-alert-mail-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="uo4-J2-oMj">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
@@ -1049,8 +1049,8 @@
                         </tableHeaderView>
                     </scrollView>
                     <button verticalHuggingPriority="750" tag="14" translatesAutoresizingMaskIntoConstraints="NO" id="99H-ov-vM9">
-                        <rect key="frame" x="526" y="155" width="52" height="48"/>
-                        <buttonCell key="cell" type="bevel" bezelStyle="rounded" image="dark-alert-page-hijacker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="p46-OF-3fm">
+                        <rect key="frame" x="505" y="155" width="73" height="48"/>
+                        <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="rounded" image="dark-alert-page-hijacker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="p46-OF-3fm">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
