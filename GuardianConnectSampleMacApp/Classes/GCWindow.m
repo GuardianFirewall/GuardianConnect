@@ -12,7 +12,21 @@
 
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backingStoreType defer:(BOOL)flag {
     self = [super initWithContentRect:contentRect styleMask:style backing:backingStoreType defer:flag];
+    if (self){
+        [self changeCloseButton];
+    }
     return self;
+}
+
+- (void)changeCloseButton {
+    NSButton *button = [self standardWindowButton:NSWindowCloseButton];
+    [button setTarget:self];
+    [button setAction:@selector(closeViaButton)];
+}
+
+- (void)closeViaButton {
+    self.shownManually = false;
+    [self close];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
