@@ -7,6 +7,7 @@
 //
 
 #import "GRDEvent.h"
+#import <AppKit/AppKit.h>
 
 @implementation GRDEvent
 
@@ -22,6 +23,20 @@
         _title = dict[@"title"];
     }
     return self;
+}
+
+- (NSImage *)image {
+    NSImage *_image = nil;
+    if ([_title isEqualToString:@"Data Tracker"]){
+        _image = [NSImage imageNamed:@"dark-alert-data-tracker-sml"];
+    } else if ([_title isEqualToString:@"Location Tracker"]) {
+        _image = [NSImage imageNamed:@"dark-alert-location-tracker-sml"];
+    } else if ([_title isEqualToString:@"Page Hijacker"]) {
+        _image = [NSImage imageNamed:@"dark-alert-page-hijacker-sml"];
+    } else if ([_title isEqualToString:@"Mail Tracker"]) {
+        _image = [NSImage imageNamed:@"dark-alert-mail-tracker-sml"];
+    }
+    return _image;
 }
 
 - (NSString *)formattedTimestamp {

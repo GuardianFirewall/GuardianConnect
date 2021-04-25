@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDictionary:(NSDictionary *)dict;
 - (NSString *)formattedTimestamp;
-
+- (NSImage *)image;
 @end
 
 NS_ASSUME_NONNULL_END
