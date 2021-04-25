@@ -16,7 +16,9 @@
 #import "NSColor+Additions.h"
 #import "GRDRegion.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () {
+    BOOL _addedRegionMenuItems; //dont do this more than once
+}
 
 @property (weak) IBOutlet NSWindow *window;
 @property (nonatomic, strong) NSDictionary *_latestStats;
@@ -211,11 +213,13 @@
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
         if ([GRDVPNHelper proMode]){
-            if (self.regionMenuItems){
-                NSMenuItem *regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
-                [regionPickerMenuItem setSubmenu:[NSMenu new]];
-                [[regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
-                [menu addItem:regionPickerMenuItem];
+            if (self.regionMenuItems && !self.regionPickerMenuItem){
+                self.regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
+                [self.regionPickerMenuItem setSubmenu:[NSMenu new]];
+                [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
+                [menu addItem:self.regionPickerMenuItem];
+            } else if (self.regionPickerMenuItem){
+                [menu addItem:self.regionPickerMenuItem];
             }
         }
     }

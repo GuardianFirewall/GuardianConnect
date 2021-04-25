@@ -37,6 +37,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (weak) IBOutlet NSArrayController *alertsArrayController;
 @property (weak) IBOutlet NSTableView *alertsTableView;
 @property (weak) IBOutlet NSScrollView *tableContainerView;
+@property NSMenuItem *regionPickerMenuItem;
 @property BOOL isMouseOverStatusIcon;
 @property BOOL isMouseOverAlertsWindow;
 @property BOOL menuIsOpen;
