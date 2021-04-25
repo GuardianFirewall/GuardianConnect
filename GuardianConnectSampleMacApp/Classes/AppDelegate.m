@@ -126,6 +126,7 @@
 - (void)createMenu {
     if (self.item){
         self.item.menu = [self freshMenu];
+        [self updateMenuImage];
         return;
     }
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
