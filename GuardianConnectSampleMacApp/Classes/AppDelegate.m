@@ -31,7 +31,7 @@
 @property BOOL expanded;
 @property NSArray *_currentHosts;
 @property NSArray *_regions;
-@property NSMenu *regionMenu;
+@property NSArray *regionMenuItems;
 @property NSArray <GRDRegion *> *regions;
 @property GRDRegion *_localRegion;
 @end
@@ -211,10 +211,10 @@
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
         if ([GRDVPNHelper proMode]){
-            if (self.regionMenu){
+            if (self.regionMenuItems){
                 NSMenuItem *regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
-                //[[regionPickerMenuItem submenu] setItemArray:self.regionMenu.itemArray];
-                [[regionPickerMenuItem submenu] addItem:[[NSMenuItem alloc] initWithTitle:@"Science DR" action:@selector(selectRegion:) keyEquivalent:@""]];
+                [regionPickerMenuItem setSubmenu:[NSMenu new]];
+                [[regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
                 [menu addItem:regionPickerMenuItem];
             }
         }
@@ -767,18 +767,18 @@ uint64_t absoluteNanoseconds(void) {
     }
 }
 
-- (void)_addRegionMenu {
-    self.regionMenu = [self _theRegionMenu];
+- (void)_createRegionMenu {
+    self.regionMenuItems = [self _theRegionMenuItems];
     [self createMenu];
 }
 
-- (NSMenu *)_theRegionMenu {
-    __block NSMenu *menu = [NSMenu new];
+- (NSArray *)_theRegionMenuItems {
+    __block NSMutableArray *menuItems = [NSMutableArray new];
     [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
-        [menu addItem:currentRegion];
+        [menuItems addObject:currentRegion];
     }];
-    return menu;
+    return menuItems;
 }
 
 - (void)selectRegion:(id)sender {
@@ -809,7 +809,7 @@ uint64_t absoluteNanoseconds(void) {
                 }];
                 _regions = newRegions;
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self _addRegionMenu];
+                    [self _createRegionMenu];
                 });
                 [self identifyLocalRegionIfNecessary:localRegion];
             }];
