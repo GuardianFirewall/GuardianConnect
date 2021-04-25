@@ -508,8 +508,9 @@ uint64_t nowAbsoluteNanoseconds(void) {
 - (void)toggleExpandedManually:(BOOL)manually {
     NSRect screenFrame = [[NSScreen mainScreen] frame];
     NSRect windowFrame = self.alertsWindow.frame;
+    CGFloat padding = 20;
     if (_expanded){
-        windowFrame.origin.x = screenFrame.size.width - 330;//1590;
+        windowFrame.origin.x = screenFrame.size.width - 330 - padding;//1590;
         windowFrame.origin.y = screenFrame.size.height - 200;//1000;
         windowFrame.size.width = 300;
         windowFrame.size.height = 200;
@@ -517,7 +518,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
         [self.tableContainerView setAlphaValue:0.0];
         _expanded = false;
     } else {
-        windowFrame.origin.x = screenFrame.size.width - 649;//1271;
+        windowFrame.origin.x = screenFrame.size.width - 649 - padding;//1271;
         windowFrame.origin.y = screenFrame.size.height - 356;//724;
         windowFrame.size.width = 619;
         windowFrame.size.height = 356;
