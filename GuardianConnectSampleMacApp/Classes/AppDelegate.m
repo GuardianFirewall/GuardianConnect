@@ -124,7 +124,10 @@
 
 /// Create the actual menu, this is recreated routinely to refresh the contents, could probably be done more 'properly' but this will do for now.
 - (void)createMenu {
-    //[self createAlertTotals];
+    if (self.item){
+        self.item.menu = [self freshMenu];
+        return;
+    }
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     //NSMenu *menu = [NSMenu new];
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
