@@ -33,6 +33,7 @@
 @property NSArray *_regions;
 @property NSMenu *regionMenu;
 @property NSArray <GRDRegion *> *regions;
+@property GRDRegion *_localRegion;
 @end
 
 @implementation AppDelegate
@@ -209,6 +210,13 @@
         [menu addItem:totalAlertsBlocked];
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
+        if ([GRDVPNHelper proMode]){
+            if (self.regionMenu){
+                NSMenuItem *regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
+                [regionPickerMenuItem setSubmenu:self.regionMenu];
+                [menu addItem:regionPickerMenuItem];
+            }
+        }
     }
     return menu;
 }
@@ -758,6 +766,25 @@ uint64_t absoluteNanoseconds(void) {
     }
 }
 
+- (void)_addRegionMenu {
+    self.regionMenu = [self _theRegionMenu];
+    [self createMenu];
+}
+
+- (NSMenu *)_theRegionMenu {
+    __block NSMenu *menu = [NSMenu new];
+    [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
+        [menu addItem:currentRegion];
+    }];
+    return menu;
+}
+
+- (void)selectRegion:(id)sender {
+    LOG_SELF;
+    GRDLog(@"sender: %@", sender);
+}
+
 #pragma mark Region Selection
 
 /// Populate region data for region selection
@@ -780,24 +807,29 @@ uint64_t absoluteNanoseconds(void) {
                     }
                 }];
                 _regions = newRegions;
-                NSPredicate *pred = [NSPredicate predicateWithFormat:@"regionName == %@", localRegion];
-                GRDRegion *local = [[_regions filteredArrayUsingPredicate:pred] firstObject];
-                if (local){
-                    GRDLog(@"local region: %@", local);
-                    [local _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-                        if (success){
-                            GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
-                        }
-                    }];
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self _addRegionMenu];
+                });
+                [self identifyLocalRegionIfNecessary:localRegion];
             }];
             
         }
     }];
     
-        
-   
-    
+}
+
+- (void)identifyLocalRegionIfNecessary:(NSString *)localRegion { //for now just always locate it.
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"regionName == %@", localRegion];
+    GRDRegion *local = [[_regions filteredArrayUsingPredicate:pred] firstObject];
+    if (local){
+        __localRegion = local;
+        GRDLog(@"local region: %@", local);
+        [local _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+            if (success){
+                GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
+            }
+        }];
+    }
 }
 
 @end
