@@ -187,7 +187,7 @@
 }
 
 -(BOOL)mouseIsInsideAnyView {
-    return _mouseIsInStatusWindow || _mouseIsInMainIcon;
+    return _mouseIsInStatusWindow || _mouseIsInMainIcon || self.alertsWindow.shownManually;
 }
 
 uint64_t nowAbsoluteNanoseconds(void) {
@@ -422,7 +422,14 @@ uint64_t nowAbsoluteNanoseconds(void) {
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id)sender {
     if (![self isConnected]){
-        return;
+        //return;
+    }
+    if (sender != nil){
+        NSLog(@"we got a sender, shown manually!");
+        self.alertsWindow.shownManually = true;
+    } else {
+        NSLog(@"we did not get sender, shown automatically?");
+        //self.alertsWindow.shownManually = false;
     }
     [self.alertsWindow makeKeyAndOrderFront:nil];
     [self updateAlertWindow];

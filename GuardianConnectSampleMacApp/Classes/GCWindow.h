@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GCWindow : NSPanel
 @property (weak) id <GCWindowDelegate> appDelegate;
+@property BOOL shownManually;
 @end
 
 NS_ASSUME_NONNULL_END
