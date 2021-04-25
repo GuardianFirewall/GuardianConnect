@@ -28,6 +28,7 @@
 @property NSInteger _locationTotal;
 @property NSPredicate *filterPredicate;
 @property GCImageView *imageView;
+@property BOOL expanded;
 
 @end
 
@@ -39,6 +40,7 @@
     // Insert code here to initialize your application
     
     _menuIsOpen = false;
+    _expanded = true;
     [[GRDVPNHelper sharedInstance] _loadCredentialsFromKeychain];
     
     // This needs to be done as early as possible in the application lifecycle, why not now? :)
@@ -501,6 +503,27 @@ uint64_t nowAbsoluteNanoseconds(void) {
 }
 
 #pragma mark Alert window management
+
+- (void)toggleExpanded {
+    NSRect windowFrame = self.alertsWindow.frame;
+    if (_expanded){
+        windowFrame.size.width = 300;
+        windowFrame.size.height = 200;
+        _expanded = false;
+    } else {
+        windowFrame.size.width = 690;
+        windowFrame.size.height = 356;
+        _expanded = true;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.alertsWindow setFrame:windowFrame display:true];
+        self.alertsWindow.shownManually = true;
+    });
+}
+
+- (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
+    [self toggleExpanded];
+}
 
 /// Array of buttons on alertWindow used to invert button state when choosing each respective button
 - (NSArray <NSButton *>*)alertButtons {

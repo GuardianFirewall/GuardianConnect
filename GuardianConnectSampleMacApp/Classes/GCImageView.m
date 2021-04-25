@@ -89,11 +89,13 @@
 
 -(void)mouseDown:(NSEvent *)theEvent {
 
+    NSLog(@"mouseDown");
     [self performSelectorOnMainThread: @selector(mouseDownMainThread:) withObject: theEvent waitUntilDone: NO];
+    [super mouseDown:theEvent];
 }
 
 -(void)mouseUp:(NSEvent *)theEvent {
-
+    [super mouseUp:theEvent];
 }
 
 @end

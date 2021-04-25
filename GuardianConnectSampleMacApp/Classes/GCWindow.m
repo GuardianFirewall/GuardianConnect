@@ -44,6 +44,7 @@
     [super mouseExited:event];
 }
 
+
 -(void)startMouseTracking {
     if (_trackingRectTag == 0  ) {
         NSView * windowView = [self contentView];
@@ -57,6 +58,23 @@
                                           assumeInside: NO];
     }
     
+}
+
+-(void)mouseUp:(NSEvent *)event {
+    [super mouseUp:event];
+}
+
+-(void)mouseDown:(NSEvent *)event {
+    NSTimeInterval thisTime = [event timestamp];
+    if ((_windowLastClickTime + 1.0) > thisTime) {
+        _windowLastClickTime = 0;
+        [_appDelegate doubleClickTriggered:self event:event];
+        return;
+    } else {
+        
+    }
+    _windowLastClickTime = thisTime;
+    [super mouseDown:event];
 }
 
 -(void)stopMouseTracking {

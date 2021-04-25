@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent;
 -(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent;
+-(void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent;
 
 @end
 
@@ -21,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) id <GCWindowDelegate> appDelegate;
 @property BOOL shownManually;
 @property NSTrackingRectTag          trackingRectTag;
+@property NSTimeInterval           windowLastClickTime;
 @end
 
 NS_ASSUME_NONNULL_END
