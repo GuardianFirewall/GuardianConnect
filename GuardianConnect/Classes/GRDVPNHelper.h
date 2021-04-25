@@ -44,6 +44,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 };
 
 + (instancetype)sharedInstance;
+
+/// retrieves values out of the system keychain and stores them in the sharedInstance singleton object in memory for other functions to use in the future
+- (void)_loadCredentialsFromKeychain;
+
 /// Used to determine if an active connection is possible, do we have all the necessary credentials (EAPUsername, Password, Host, etc)
 + (BOOL)activeConnectionPossible;
 

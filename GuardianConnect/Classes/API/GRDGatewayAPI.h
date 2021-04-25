@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// hits endpoint to probe current network health
 - (void)networkProbeWithCompletion:(void (^)(BOOL status, NSError *error))completion ;
 
-/// retrieves values out of the system keychain and stores them in the sharedAPI singleton object in memory for other functions to use in the future
+/// legacy - call the same method from GRDVPNHelper, this will be obsolete in the future
 - (void)_loadCredentialsFromKeychain;
 
 /// Load the current VPN node hostname out of NSUserDefaults

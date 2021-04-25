@@ -28,6 +28,7 @@
     return ([[[NEVPNManager sharedManager] connection] status] == NEVPNStatusConnected);
 }
 
+/// legacy, this will be going away in the future
 - (void)_loadCredentialsFromKeychain {
     [[GRDVPNHelper sharedInstance] setMainCredential:[GRDCredentialManager mainCredentials]];
 }

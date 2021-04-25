@@ -9,7 +9,6 @@
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/EXTScope.h>
 
-
 @import UserNotifications;
 
 @implementation GRDVPNHelper {
@@ -210,6 +209,11 @@
     }];
 }
 
+/// retrieves values out of the system keychain and stores them in the sharedAPI singleton object in memory for other functions to use in the future
+- (void)_loadCredentialsFromKeychain {
+    [self setMainCredential:[GRDCredentialManager mainCredentials]];
+}
+
 //trying to make configureAndConnectVPNWithCompletion a bit smaller and more manageable, DONT CALL DIRECTLY.
 
 - (void)_createVPNConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
@@ -226,7 +230,7 @@
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
             vpnManager.localizedDescription = @"Guardian Firewall";
-            if ([self onDemand]){
+            if ([self onDemand]) { //This defaults to YES
                 vpnManager.onDemandEnabled = YES;
                 vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
             }

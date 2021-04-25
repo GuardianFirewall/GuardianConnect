@@ -279,25 +279,10 @@
 		32939A962616837F007A4DFA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3247E9EE2628F252007D4E7E /* GRDCredential.h */,
-				3247E9EF2628F252007D4E7E /* GRDCredential.m */,
-				3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */,
-				3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */,
+				32ABCF5026352BCF0030B258 /* API */,
+				32ABCF4F26352BAC0030B258 /* Credentials */,
 				32939A8026167D1F007A4DFA /* GRDDebugHelper.h */,
 				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
-				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
-				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
-				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
-				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
-				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
-				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
-				32939A7526167D1F007A4DFA /* GRDKeychain.h */,
-				32939A7B26167D1F007A4DFA /* GRDKeychain.m */,
-				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
-				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
-				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
-				32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */,
-				32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */,
 				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
 				32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */,
 			);
@@ -335,6 +320,37 @@
 				329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		32ABCF4F26352BAC0030B258 /* Credentials */ = {
+			isa = PBXGroup;
+			children = (
+				32939A7526167D1F007A4DFA /* GRDKeychain.h */,
+				32939A7B26167D1F007A4DFA /* GRDKeychain.m */,
+				32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */,
+				32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */,
+				3247E9EE2628F252007D4E7E /* GRDCredential.h */,
+				3247E9EF2628F252007D4E7E /* GRDCredential.m */,
+				3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */,
+				3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */,
+			);
+			path = Credentials;
+			sourceTree = "<group>";
+		};
+		32ABCF5026352BCF0030B258 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
+				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
+				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
+				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
+				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
+				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
+				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
+				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
+				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
+			);
+			path = API;
 			sourceTree = "<group>";
 		};
 		32E92C03262A1B3D00A3202C /* GuardianConnectMac */ = {
@@ -745,6 +761,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -770,6 +787,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
