@@ -425,11 +425,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
         //return;
     }
     if (sender != nil){
-        NSLog(@"we got a sender, shown manually!");
         self.alertsWindow.shownManually = true;
-    } else {
-        NSLog(@"we did not get sender, shown automatically?");
-        //self.alertsWindow.shownManually = false;
     }
     [self.alertsWindow makeKeyAndOrderFront:nil];
     [self updateAlertWindow];
