@@ -767,6 +767,9 @@ uint64_t absoluteNanoseconds(void) {
         if (success){
             NSLog(@"got timezones: %@", timeZones);
             [[NSUserDefaults standardUserDefaults] setObject:timeZones forKey:kKnownHousekeepingTimeZonesForRegions];
+            NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
+            NSString *regionName = region[@"name"];
+            NSLog(@"local region: %@", regionName);
         }
     }];
     
@@ -782,7 +785,6 @@ uint64_t absoluteNanoseconds(void) {
             }
         }];
         _regions = newRegions;
-        GRDLog(@"newRegions: %@", newRegions);
         GRDRegion *firstRegion = [_regions firstObject];
            if (firstRegion){
                GRDLog(@"first region: %@", firstRegion);
