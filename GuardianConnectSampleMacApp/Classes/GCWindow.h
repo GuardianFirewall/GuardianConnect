@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GCWindow : NSPanel
 @property (weak) id <GCWindowDelegate> appDelegate;
 @property BOOL shownManually;
-@property NSTrackingRectTag          trackingRectTag;
-@property NSTimeInterval           windowLastClickTime;
+@property NSTrackingRectTag trackingRectTag;
+@property NSTimeInterval windowLastClickTime;
 @end
 
 NS_ASSUME_NONNULL_END

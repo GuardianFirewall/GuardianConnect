@@ -26,11 +26,11 @@
 
 - (void)makeKeyAndOrderFront:(id)sender {
     [super makeKeyAndOrderFront:sender];
-    [self startMouseTracking];
+    [self startTracking];
 }
 
 - (void)close {
-    [self stopMouseTracking];
+    [self stopTracking];
     [super close];
 }
 
@@ -45,11 +45,11 @@
 }
 
 
--(void)startMouseTracking {
-    if (_trackingRectTag == 0  ) {
-        NSView * windowView = [self contentView];
+-(void)startTracking {
+    if (_trackingRectTag == 0) {
+        NSView *windowView = [self contentView];
         NSRect trackingFrame = [windowView frame];
-        trackingFrame.size.height += 1000.0;    // Include the title bar in the tracking rectangle (will be clipped)]
+        trackingFrame.size.height += 1000.0;
         trackingFrame.size.width += 50; //to assist in resizing being easier
         
         _trackingRectTag = [windowView addTrackingRect: trackingFrame
@@ -77,8 +77,8 @@
     [super mouseDown:event];
 }
 
--(void)stopMouseTracking {
-    if (_trackingRectTag != 0  ) {
+-(void)stopTracking {
+    if (_trackingRectTag != 0) {
         [[self contentView] removeTrackingRect: _trackingRectTag];
         _trackingRectTag = 0;
     }
@@ -88,15 +88,5 @@
     self.shownManually = false;
     [self close];
 }
-/*
-- (void)mouseMoved:(NSEvent *)event {
-    NSPoint location = [event locationInWindow];
-    if(NSPointInRect(location, self.contentView.frame)){
-        [_appDelegate mouseEnteredAlertsWindow:self event:event];
-    } else {
-        [_appDelegate mouseExitedAlertsWindow:self event:event];
-    }
-    [super mouseMoved:event];
-}
-*/
+
 @end

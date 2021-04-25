@@ -21,22 +21,24 @@
     } else {
         NSStatusItem * statusI = [_appDelegate item];
         NSMenu       * menu    = [_appDelegate menu];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [statusI popUpStatusItemMenu: menu];
+#pragma clang diagnostic pop
     }
     mainIconLastClickTime = thisTime;
 }
 
--(void) removeTrackingRectangle {
+-(void)removeTrackingRect {
     
-    if ( mainIconTrackingRectTagIsValid ) {
+    if (mainIconTrackingRectTagIsValid ) {
         [self removeTrackingRect: mainIconTrackingRectTag];
         mainIconTrackingRectTagIsValid = FALSE;
-        NSLog(@"Removed main tracking rectangle for MainIconView");
     }
 }
 
--(void)setupTrackingRect{
-    [self removeTrackingRectangle];
+-(void)createTrackingRect {
+    [self removeTrackingRect];
     NSRect frame = [self frame];
     NSRect trackingRect = NSMakeRect(frame.origin.x + 1.0f, frame.origin.y, frame.size.width - 1.0f, frame.size.height);
     mainIconTrackingRectTag = [self addTrackingRect: trackingRect
@@ -44,14 +46,15 @@
                                            userData: nil
                                        assumeInside: NO];
     mainIconTrackingRectTagIsValid = TRUE;
-    NSLog(@"setupTrackingRect: Added main tracking rectangle (%f,%f, %f, %f) for MainIconView",
-          trackingRect.origin.x, trackingRect.origin.y, trackingRect.size.width, trackingRect.size.height);
 }
 
 -(void)drawRect:(NSRect)rect {
     NSStatusItem * statusI = [_appDelegate item];
     BOOL menuIsOpen = [_appDelegate menuIsOpen];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [statusI drawStatusBarBackgroundInRect: rect withHighlight: menuIsOpen];
+#pragma clang diagnostic pop
     [super drawRect: rect];
 }
 
@@ -61,7 +64,10 @@
     self = [super initWithFrame: frame];
     if (self) {
         mainIconTrackingRectTagIsValid = FALSE;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [self registerForDraggedTypes: [NSArray arrayWithObject: NSFilenamesPboardType]];
+#pragma clang diagnostic pop
     }
     
     return self;
@@ -69,9 +75,9 @@
 
 -(void) dealloc {
     
-    [self removeTrackingRectangle];
+    [self removeTrackingRect];
     [self unregisterDraggedTypes];
-    [_appDelegate mouseExitedMainIcon:self event:nil];
+    [_appDelegate mouseExitedMainIcon:self event:[NSEvent new]];
     
 }
 
@@ -88,8 +94,7 @@
 }
 
 -(void)mouseDown:(NSEvent *)theEvent {
-
-    NSLog(@"mouseDown");
+    
     [self performSelectorOnMainThread: @selector(mouseDownMainThread:) withObject: theEvent waitUntilDone: NO];
     [super mouseDown:theEvent];
 }

@@ -112,38 +112,25 @@
 
 #pragma mark Menu Management
 
--(void)mouseEntered:(NSEvent *)theEvent{
-  
-    [self mouseEnteredMainIcon:self event:theEvent];
-}
-
--(void)mouseExited:(NSEvent *)theEvent {
-
-    [self mouseExitedMainIcon:self event:theEvent];
-}
-
 -(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
     _mouseIsInMainIcon = TRUE;
-    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
-                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(showAlertsWindowsTimerHandler:)];
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(showAlertsWindowsTimerHandler:)];
      
 }
 
--(void)mouseExitedMainIcon: (id) control event: (NSEvent *)theEvent {
+-(void)mouseExitedMainIcon:(id)control event:(NSEvent *)theEvent {
     _mouseIsInMainIcon = FALSE;
-    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
-                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(hideAlertsWindowsTimerHandler:)];
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(hideAlertsWindowsTimerHandler:)];
     
 }
 
 -(void)showAlertsWindowsTimerHandler:(NSTimer *)theTimer {
     if ([self mouseIsInsideAnyView]) {
         [self performSelectorOnMainThread: @selector(showAlertsWindow) withObject: nil waitUntilDone: NO];
-        //GRDLog(@"showAlertsWindowsTimerHandler: mouse still inside a view; queueing showAlertsWindows");
-    } else {
-        //GRDLog(@"showAlertsWindowsTimerHandler: mouse no longer inside a view; NOT queueing showAlertsWindows");
     }
 }
 
@@ -151,25 +138,22 @@
 
     if (![self mouseIsInsideAnyView]) {
         [self performSelectorOnMainThread: @selector(hideAlertsWindow) withObject: nil waitUntilDone: NO];
-        //GRDLog(@"hideAlertsWindowsTimerHandler: mouse NOT back inside a view; queueing hideAlertsWindows");
-    } else {
-        //GRDLog(@"hideAlertsWindowsTimerHandler: mouse is back inside a view; NOT queueing hideAlertsWindows");
     }
 }
 
 -(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent  {
     _mouseIsInStatusWindow = TRUE;
-    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
-                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(showAlertsWindowsTimerHandler:)];
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(showAlertsWindowsTimerHandler:)];
     
 }
 
 -(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent {
     _mouseIsInStatusWindow = FALSE;
-    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
-                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(hideAlertsWindowsTimerHandler:)];
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(hideAlertsWindowsTimerHandler:)];
     
 }
 
@@ -202,23 +186,22 @@ uint64_t nowAbsoluteNanoseconds(void) {
 }
 
 -(void)showOrHideAlertsWindowsAfterDelay:(NSTimeInterval)delay
-                                fromTimestamp:(NSTimeInterval)timestamp
-                                     selector:(SEL)selector {
-    NSTimeInterval timeUntilAct;
+                           fromTimestamp:(NSTimeInterval)timestamp
+                                selector:(SEL)selector {
+    NSTimeInterval triggerTimeInterval;
     if (timestamp == 0.0) {
-        timeUntilAct = 0.1;
+        triggerTimeInterval = 0.1;
     } else {
         uint64_t nowNanoseconds = nowAbsoluteNanoseconds();
         NSTimeInterval nowTimeInterval = (  ((NSTimeInterval) nowNanoseconds) / 1.0e9  );
-        timeUntilAct = timestamp + delay - nowTimeInterval;
-        //GRDLog(@"showOrHideAlertsWindowsAfterDelay: delay = %f; timestamp = %f; nowNanoseconds = %llu; nowTimeInterval = %f; timeUntilAct = %f", delay, timestamp, (unsigned long long) nowNanoseconds, nowTimeInterval, timeUntilAct);
-        if (timeUntilAct < 0.1) {
-            timeUntilAct = 0.1;
+        triggerTimeInterval = timestamp + delay - nowTimeInterval;
+        if (triggerTimeInterval < 0.1) {
+            triggerTimeInterval = 0.1;
         }
     }
     
     //GRDLog(@"Queueing %s in %f seconds", sel_getName(selector), timeUntilAct);
-    NSTimer * timer = [NSTimer scheduledTimerWithTimeInterval: timeUntilAct
+    NSTimer * timer = [NSTimer scheduledTimerWithTimeInterval: triggerTimeInterval
                                                        target: self
                                                      selector: selector
                                                      userInfo: nil
@@ -255,11 +238,8 @@ uint64_t nowAbsoluteNanoseconds(void) {
         }
     }
     NSImage *image = [NSImage imageNamed:defaultImageName];
-    
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.imageView.image = image;
-#pragma clang diagnostic pop
+
 }
 
 - (void)refreshMenu {
@@ -278,8 +258,11 @@ uint64_t nowAbsoluteNanoseconds(void) {
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
     self.imageView = [[GCImageView alloc] initWithFrame: NSMakeRect(0.0, 0.0, 24.0, 22.0)];
     self.imageView.appDelegate = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self.item setView:self.imageView];
-    [self.imageView setupTrackingRect];
+#pragma clang diagnostic pop
+    [self.imageView createTrackingRect];
     [self refreshMenu];
     [self updateMenuImage];
 }
