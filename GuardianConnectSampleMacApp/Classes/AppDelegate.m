@@ -509,16 +509,16 @@ uint64_t nowAbsoluteNanoseconds(void) {
     NSRect screenFrame = [[NSScreen mainScreen] frame];
     NSRect windowFrame = self.alertsWindow.frame;
     if (_expanded){
-        windowFrame.origin.x = 1590;
-        windowFrame.origin.y = 1000;
+        windowFrame.origin.x = screenFrame.size.width - 330;//1590;
+        windowFrame.origin.y = screenFrame.size.height - 200;//1000;
         windowFrame.size.width = 300;
         windowFrame.size.height = 200;
         [self.tableContainerView setHidden:true];
         [self.tableContainerView setAlphaValue:0.0];
         _expanded = false;
     } else {
-        windowFrame.origin.x = 1271;
-        windowFrame.origin.y = 724;
+        windowFrame.origin.x = screenFrame.size.width - 649;//1271;
+        windowFrame.origin.y = screenFrame.size.height - 356;//724;
         windowFrame.size.width = 619;
         windowFrame.size.height = 356;
         _expanded = true;
