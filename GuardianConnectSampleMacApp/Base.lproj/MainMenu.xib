@@ -774,14 +774,14 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="qtz-nh-7s2" customClass="GCWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES" HUD="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="1301" y="724" width="619" height="342"/>
+            <rect key="contentRect" x="1301" y="724" width="619" height="356"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
             <view key="contentView" id="xBO-xh-VjI">
-                <rect key="frame" x="0.0" y="0.0" width="619" height="342"/>
+                <rect key="frame" x="0.0" y="0.0" width="619" height="356"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" tag="10" translatesAutoresizingMaskIntoConstraints="NO" id="Jfx-WV-dfV">
-                        <rect key="frame" x="250" y="296" width="119" height="28"/>
+                        <rect key="frame" x="250" y="318" width="119" height="28"/>
                         <buttonCell key="cell" type="bevel" title="Total Alerts" bezelStyle="rounded" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="cl8-gP-eg2">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
@@ -791,7 +791,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
-                        <rect key="frame" x="41" y="226" width="73" height="48"/>
+                        <rect key="frame" x="41" y="248" width="73" height="48"/>
                         <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="regularSquare" image="dark-alert-data-tracker-depiction-list" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="YW1-7g-sfh">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
@@ -801,7 +801,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
-                        <rect key="frame" x="505" y="226" width="73" height="48"/>
+                        <rect key="frame" x="505" y="248" width="73" height="48"/>
                         <buttonCell key="cell" type="square" title=" 0" bezelStyle="shadowlessSquare" image="dark-alert-location-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="tN4-nO-bQk">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
@@ -811,7 +811,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
-                        <rect key="frame" x="41" y="155" width="73" height="48"/>
+                        <rect key="frame" x="41" y="177" width="73" height="48"/>
                         <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="rounded" image="dark-alert-mail-tracker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="uo4-J2-oMj">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
@@ -821,13 +821,13 @@
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
-                        <rect key="frame" x="0.0" y="0.0" width="619" height="130"/>
+                        <rect key="frame" x="0.0" y="0.0" width="619" height="142"/>
                         <clipView key="contentView" id="Pxt-XQ-ewk">
-                            <rect key="frame" x="1" y="0.0" width="617" height="129"/>
+                            <rect key="frame" x="1" y="0.0" width="617" height="141"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Bs4-YM-zse" viewBased="YES" id="CpU-wA-S77">
-                                    <rect key="frame" x="0.0" y="0.0" width="751" height="104"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="751" height="116"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1036,7 +1036,7 @@
                             </subviews>
                         </clipView>
                         <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="pfu-H6-Fnu">
-                            <rect key="frame" x="1" y="113" width="617" height="16"/>
+                            <rect key="frame" x="1" y="125" width="617" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="q9k-1m-MOM">
@@ -1049,7 +1049,7 @@
                         </tableHeaderView>
                     </scrollView>
                     <button verticalHuggingPriority="750" tag="14" translatesAutoresizingMaskIntoConstraints="NO" id="99H-ov-vM9">
-                        <rect key="frame" x="505" y="155" width="73" height="48"/>
+                        <rect key="frame" x="505" y="177" width="73" height="48"/>
                         <buttonCell key="cell" type="bevel" title=" 0" bezelStyle="rounded" image="dark-alert-page-hijacker-med" imagePosition="leading" alignment="center" imageScaling="proportionallyDown" inset="2" id="p46-OF-3fm">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system" size="24"/>
@@ -1062,11 +1062,11 @@
                 <constraints>
                     <constraint firstItem="NVv-O0-Krv" firstAttribute="top" secondItem="PqU-g6-oZt" secondAttribute="bottom" constant="23" id="3SV-vj-jYz"/>
                     <constraint firstItem="NVv-O0-Krv" firstAttribute="leading" secondItem="PqU-g6-oZt" secondAttribute="leading" id="3s2-em-vA7"/>
-                    <constraint firstItem="Jfx-WV-dfV" firstAttribute="top" secondItem="xBO-xh-VjI" secondAttribute="top" constant="18" id="6Im-QG-AZQ"/>
+                    <constraint firstItem="Jfx-WV-dfV" firstAttribute="top" secondItem="xBO-xh-VjI" secondAttribute="top" constant="10" id="6Im-QG-AZQ"/>
                     <constraint firstItem="99H-ov-vM9" firstAttribute="top" secondItem="0Zf-cS-Ydb" secondAttribute="bottom" constant="23" id="9XG-r5-U5Q"/>
                     <constraint firstItem="PqU-g6-oZt" firstAttribute="leading" secondItem="xBO-xh-VjI" secondAttribute="leading" constant="41" id="KJQ-Ws-34l"/>
                     <constraint firstAttribute="trailing" secondItem="0Zf-cS-Ydb" secondAttribute="trailing" constant="41" id="OFR-MS-1G2"/>
-                    <constraint firstItem="a0Y-Qr-fsh" firstAttribute="top" secondItem="99H-ov-vM9" secondAttribute="bottom" constant="25" id="Oan-ZK-rcp"/>
+                    <constraint firstItem="a0Y-Qr-fsh" firstAttribute="top" secondItem="99H-ov-vM9" secondAttribute="bottom" constant="35" id="Oan-ZK-rcp"/>
                     <constraint firstItem="99H-ov-vM9" firstAttribute="leading" secondItem="0Zf-cS-Ydb" secondAttribute="leading" id="VsH-AX-Q6P"/>
                     <constraint firstAttribute="bottom" secondItem="a0Y-Qr-fsh" secondAttribute="bottom" id="Xjb-dN-4jz"/>
                     <constraint firstAttribute="trailing" secondItem="a0Y-Qr-fsh" secondAttribute="trailing" id="act-XF-Qef"/>
@@ -1077,7 +1077,7 @@
                     <constraint firstItem="a0Y-Qr-fsh" firstAttribute="width" secondItem="xBO-xh-VjI" secondAttribute="width" id="zol-ny-aD5"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="28.5" y="452"/>
+            <point key="canvasLocation" x="28.5" y="459"/>
         </window>
     </objects>
     <resources>
