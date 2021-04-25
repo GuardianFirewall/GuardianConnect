@@ -41,7 +41,7 @@
 
 - (NSString *)formattedTimestamp {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+    dateFormatter.dateStyle = NSDateFormatterShortStyle;
     dateFormatter.timeStyle = NSDateFormatterShortStyle;
     return [dateFormatter stringFromDate:self.timestamp];
 }
