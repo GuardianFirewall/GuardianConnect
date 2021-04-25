@@ -44,11 +44,12 @@
     [super mouseExited:event];
 }
 
--(void) startMouseTracking {
+-(void)startMouseTracking {
     if (_trackingRectTag == 0  ) {
         NSView * windowView = [self contentView];
         NSRect trackingFrame = [windowView frame];
-        trackingFrame.size.height += 1000.0;    // Include the title bar in the tracking rectangle (will be clipped)
+        trackingFrame.size.height += 1000.0;    // Include the title bar in the tracking rectangle (will be clipped)]
+        trackingFrame.size.width += 50; //to assist in resizing being easier
         
         _trackingRectTag = [windowView addTrackingRect: trackingFrame
                                                  owner: self
@@ -59,7 +60,7 @@
 }
 
 -(void)stopMouseTracking {
-    if (  _trackingRectTag != 0  ) {
+    if (_trackingRectTag != 0  ) {
         [[self contentView] removeTrackingRect: _trackingRectTag];
         _trackingRectTag = 0;
     }
