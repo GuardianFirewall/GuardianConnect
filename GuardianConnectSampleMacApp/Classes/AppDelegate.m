@@ -14,7 +14,7 @@
 #import <GuardianConnect/GuardianConnectMac.h>
 #import "GRDEvent.h"
 #import "NSColor+Additions.h"
-
+#import "GRDRegion.h"
 
 @interface AppDelegate ()
 
@@ -30,7 +30,9 @@
 @property GCImageView *imageView;
 @property BOOL expanded;
 @property NSArray *_currentHosts;
-
+@property NSArray *_regions;
+@property NSMenu *regionMenu;
+@property NSArray <GRDRegion *> *regions;
 @end
 
 @implementation AppDelegate
@@ -762,12 +764,28 @@ uint64_t absoluteNanoseconds(void) {
 - (void)populateRegionDataIfNecessary {
     GRDServerManager *serverManager = [GRDServerManager new];
     [serverManager populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-        GRDLog(@"we got these regions man: %@", regions);
+        //GRDLog(@"we got these regions man: %@", regions);
+        __regions = regions;
+        __block NSMutableArray *newRegions = [NSMutableArray new];
+        [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
+            if (region){
+                [newRegions addObject:region];
+            }
+        }];
+        _regions = newRegions;
+        GRDLog(@"newRegions: %@", newRegions);
     }];
-    [serverManager getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
-        GRDLog(@"we got these servers man: %@", servers);
-        __currentHosts = servers;
-    }];
+    
+    GRDRegion *firstRegion = [_regions firstObject];
+    if (firstRegion){
+        GRDLog(@"first region: %@", firstRegion);
+        [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+            if (success){
+                GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
+            }
+        }];
+    }
     
 }
 
