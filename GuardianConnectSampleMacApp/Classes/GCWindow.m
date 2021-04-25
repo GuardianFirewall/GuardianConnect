@@ -59,13 +59,14 @@
 }
 
 -(void)stopMouseTracking {
-    if (_trackingRectTag != 0  ) {
+    if (  _trackingRectTag != 0  ) {
         [[self contentView] removeTrackingRect: _trackingRectTag];
         _trackingRectTag = 0;
     }
 }
 
 - (void)closeViaButton {
+    self.shownManually = false;
     [self close];
 }
 /*

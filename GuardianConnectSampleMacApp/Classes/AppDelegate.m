@@ -187,7 +187,7 @@
 }
 
 -(BOOL)mouseIsInsideAnyView {
-    return _mouseIsInStatusWindow || _mouseIsInMainIcon;
+    return _mouseIsInStatusWindow || _mouseIsInMainIcon || self.alertsWindow.shownManually;
 }
 
 uint64_t nowAbsoluteNanoseconds(void) {
@@ -425,7 +425,8 @@ uint64_t nowAbsoluteNanoseconds(void) {
         //return;
     }
     if (sender != nil){
-        //self.alertsWindow.shownManually = true;
+        NSLog(@"we got a sender, shown manually!");
+        self.alertsWindow.shownManually = true;
     }
     [self.alertsWindow makeKeyAndOrderFront:nil];
     [self updateAlertWindow];
