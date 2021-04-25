@@ -762,6 +762,14 @@ uint64_t absoluteNanoseconds(void) {
 
 /// Populate region data for region selection
 - (void)populateRegionDataIfNecessary {
+    
+    [[GRDHousekeepingAPI new] requestTimeZonesForRegionsWithTimestamp:[NSNumber numberWithInt:0] completion:^(NSArray * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode) {
+        if (success){
+            NSLog(@"got timezones: %@", timeZones);
+            [[NSUserDefaults standardUserDefaults] setObject:timeZones forKey:kKnownHousekeepingTimeZonesForRegions];
+        }
+    }];
+    
     GRDServerManager *serverManager = [GRDServerManager new];
     [serverManager populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
         //GRDLog(@"we got these regions man: %@", regions);
