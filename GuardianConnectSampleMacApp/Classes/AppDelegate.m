@@ -782,11 +782,11 @@ uint64_t absoluteNanoseconds(void) {
                     }
                 }];
                 _regions = newRegions;
-                
-                GRDRegion *firstRegion = [_regions firstObject];
-                if (firstRegion){
-                    GRDLog(@"first region: %@", firstRegion);
-                    [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+                GRDRegion *local = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"regionName == '%@'", localRegion]] firstObject];
+                //GRDRegion *firstRegion = [_regions firstObject];
+                if (local){
+                    GRDLog(@"first region: %@", local);
+                    [local _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
                         if (success){
                             GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
                         }
