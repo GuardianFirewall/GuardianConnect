@@ -53,6 +53,8 @@
 		329C526F26315073003B78D8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 329C526E26315073003B78D8 /* main.m */; };
 		329C5279263151A6003B78D8 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E92C02262A1B3D00A3202C /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		329C527B26315721003B78D8 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329C527A26315721003B78D8 /* NetworkExtension.framework */; };
+		32ABCF53263540300030B258 /* GCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF52263540300030B258 /* GCImageView.m */; };
+		32ABCF56263547960030B258 /* GCWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF55263547960030B258 /* GCWindow.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */; };
@@ -168,6 +170,10 @@
 		329C526E26315073003B78D8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GuardianConnectSampleMacApp.entitlements; sourceTree = "<group>"; };
 		329C527A26315721003B78D8 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/NetworkExtension.framework; sourceTree = DEVELOPER_DIR; };
+		32ABCF51263540300030B258 /* GCImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCImageView.h; sourceTree = "<group>"; };
+		32ABCF52263540300030B258 /* GCImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCImageView.m; sourceTree = "<group>"; };
+		32ABCF54263547960030B258 /* GCWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCWindow.h; sourceTree = "<group>"; };
+		32ABCF55263547960030B258 /* GCWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCWindow.m; sourceTree = "<group>"; };
 		32E92C02262A1B3D00A3202C /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnectMac.h; sourceTree = "<group>"; };
 		32E92C05262A1B3D00A3202C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -242,6 +248,10 @@
 			children = (
 				329C526526315071003B78D8 /* AppDelegate.h */,
 				329C526626315071003B78D8 /* AppDelegate.m */,
+				32ABCF54263547960030B258 /* GCWindow.h */,
+				32ABCF55263547960030B258 /* GCWindow.m */,
+				32ABCF51263540300030B258 /* GCImageView.h */,
+				32ABCF52263540300030B258 /* GCImageView.m */,
 				325583E02634D2420015DEE3 /* GRDEvent.h */,
 				325583E12634D2420015DEE3 /* GRDEvent.m */,
 				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
@@ -571,9 +581,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32ABCF53263540300030B258 /* GCImageView.m in Sources */,
 				325583E22634D2420015DEE3 /* GRDEvent.m in Sources */,
 				329C526F26315073003B78D8 /* main.m in Sources */,
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
+				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
 			);

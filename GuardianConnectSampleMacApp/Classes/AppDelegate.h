@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import "GCSubscriptionManager.h"
+#import "GCImageView.h"
+#import "GCWindow.h"
 
 typedef NS_ENUM(NSInteger, GRDButtonType) {
     GRDButtonTypeTotalAlerts = 10,
@@ -18,14 +20,15 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 };
 
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, GCSubscriptionManagerDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate, GCImageViewDelegate, GCWindowDelegate>
 
 @property (nonatomic, strong) NSStatusItem *item;
+@property (nonatomic, strong) NSMenu *menu;
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
 @property (weak) IBOutlet NSButton *onDemandCheckbox;
 @property (nonatomic, strong) NSTimer *eventRefreshTimer;
-@property (weak) IBOutlet NSWindow *alertsWindow;
+@property (weak) IBOutlet GCWindow *alertsWindow;
 @property (weak) IBOutlet NSButton *dataTrackerButton;
 @property (weak) IBOutlet NSButton *locationTrackerButton;
 @property (weak) IBOutlet NSButton *mailTrackerButton;
@@ -33,6 +36,9 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (weak) IBOutlet NSButton *totalAlertsButton;
 @property (weak) IBOutlet NSArrayController *alertsArrayController;
 @property (weak) IBOutlet NSTableView *alertsTableView;
+@property BOOL              mouseIsInMainIcon;            // Indicates that the mouse is over the Tunnelblick (not tracked unless preference says to)
+@property BOOL              mouseIsInStatusWindow;        // Indicates that the mouse is over the icon or a status wind
+@property BOOL menuIsOpen;
 
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;

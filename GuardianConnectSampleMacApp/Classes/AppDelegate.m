@@ -8,11 +8,13 @@
 
 //how often event API gets hit, currently just on an 30 second interval loop
 #define EVENT_REFRESH_INTERVAL 30.0
+#define ALERTS_DISPLAY_DELAY 0.5
 
 #import "AppDelegate.h"
 #import <GuardianConnect/GuardianConnectMac.h>
 #import "GRDEvent.h"
 #import "NSColor+Additions.h"
+
 
 @interface AppDelegate ()
 
@@ -25,6 +27,7 @@
 @property NSInteger _pageTotal;
 @property NSInteger _locationTotal;
 @property NSPredicate *filterPredicate;
+@property GCImageView *imageView;
 
 @end
 
@@ -35,6 +38,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
+    _menuIsOpen = false;
     [[GRDVPNHelper sharedInstance] _loadCredentialsFromKeychain];
     
     // This needs to be done as early as possible in the application lifecycle, why not now? :)
@@ -52,13 +56,32 @@
     }
     [self.totalAlertsButton setState:NSControlStateValueOn];
     [self updateAlertWindow];
+    self.alertsWindow.acceptsMouseMovedEvents = true;
+    self.alertsWindow.appDelegate = self;
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
 }
 
+- (void)menuWillOpen:(NSMenu *)menu {
+    if (menu == _menu){
+        _menuIsOpen = true;
+    }
+}
+
+- (void)menuDidClose:(NSMenu *)menu {
+    if (menu == _menu){
+        _menuIsOpen = false;
+    }
+}
+
 #pragma mark Misc
+
+/// triple click opens preferences, we dont have one yet
+-(void)openPreferences {
+    LOG_SELF;
+}
 
 /// whether or not the OS is currently in darkMode
 - (BOOL)darkMode {
@@ -85,6 +108,120 @@
 }
 
 #pragma mark Menu Management
+
+-(void)mouseEntered:(NSEvent *)theEvent{
+  
+    [self mouseEnteredMainIcon:self event:theEvent];
+}
+
+-(void)mouseExited:(NSEvent *)theEvent {
+
+    [self mouseExitedMainIcon:self event:theEvent];
+}
+
+-(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
+    _mouseIsInMainIcon = TRUE;
+    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
+                                       selector: @selector(showAlertsWindowsTimerHandler:)];
+     
+}
+
+-(void)mouseExitedMainIcon: (id) control event: (NSEvent *)theEvent {
+    _mouseIsInMainIcon = FALSE;
+    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
+                                       selector: @selector(hideStatisticsWindowsTimerHandler:)];
+    
+}
+
+-(void)showAlertsWindowsTimerHandler:(NSTimer *)theTimer {
+    if ([self mouseIsInsideAnyView]) {
+        [self performSelectorOnMainThread: @selector(showAlertsWindow) withObject: nil waitUntilDone: NO];
+        //GRDLog(@"showStatisticsWindowsTimerHandler: mouse still inside a view; queueing showStatisticsWindows");
+    } else {
+        //GRDLog(@"showStatisticsWindowsTimerHandler: mouse no longer inside a view; NOT queueing showStatisticsWindows");
+    }
+}
+
+-(void)hideStatisticsWindowsTimerHandler:(NSTimer *)theTimer {
+
+    if (![self mouseIsInsideAnyView]) {
+        [self performSelectorOnMainThread: @selector(hideStatisticsWindows) withObject: nil waitUntilDone: NO];
+        //GRDLog(@"hideStatisticsWindowsTimerHandler: mouse NOT back inside a view; queueing hideStatisticsWindows");
+    } else {
+        //GRDLog(@"hideStatisticsWindowsTimerHandler: mouse is back inside a view; NOT queueing hideStatisticsWindows");
+    }
+}
+
+-(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent  {
+    _mouseIsInStatusWindow = TRUE;
+    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
+                                       selector: @selector(showAlertsWindowsTimerHandler:)];
+    
+}
+
+-(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent {
+    _mouseIsInStatusWindow = FALSE;
+    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+                                  fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
+                                       selector: @selector(hideStatisticsWindowsTimerHandler:)];
+    
+}
+
+-(void)alertsWindowShow:(BOOL) show {
+    if (show){
+        [self showAlertsWindow:nil];
+    } else {
+        [self.alertsWindow close];
+    }
+}
+
+-(void)showAlertsWindow {
+    [self alertsWindowShow:YES];
+}
+
+-(void)hideStatisticsWindows {
+    [self alertsWindowShow:NO];
+}
+
+-(BOOL)mouseIsInsideAnyView {
+    return _mouseIsInStatusWindow || _mouseIsInMainIcon;
+}
+
+uint64_t nowAbsoluteNanoseconds(void) {
+    // The next three lines were adapted from http://shiftedbits.org/2008/10/01/mach_absolute_time-on-the-iphone/
+    mach_timebase_info_data_t info;
+    mach_timebase_info(&info);
+    uint64_t nowNs = (unsigned long long)mach_absolute_time() * (unsigned long long)info.numer / (unsigned long long)info.denom;
+    return nowNs;
+}
+
+-(void)showOrHideStatisticsWindowsAfterDelay:(NSTimeInterval)delay
+                                fromTimestamp:(NSTimeInterval)timestamp
+                                     selector:(SEL)selector {
+    NSTimeInterval timeUntilAct;
+    if (timestamp == 0.0) {
+        timeUntilAct = 0.1;
+    } else {
+        uint64_t nowNanoseconds = nowAbsoluteNanoseconds();
+        NSTimeInterval nowTimeInterval = (  ((NSTimeInterval) nowNanoseconds) / 1.0e9  );
+        timeUntilAct = timestamp + delay - nowTimeInterval;
+        //GRDLog(@"showOrHideStatisticsWindowsAfterDelay: delay = %f; timestamp = %f; nowNanoseconds = %llu; nowTimeInterval = %f; timeUntilAct = %f", delay, timestamp, (unsigned long long) nowNanoseconds, nowTimeInterval, timeUntilAct);
+        if (timeUntilAct < 0.1) {
+            timeUntilAct = 0.1;
+        }
+    }
+    
+    //GRDLog(@"Queueing %s in %f seconds", sel_getName(selector), timeUntilAct);
+    NSTimer * timer = [NSTimer scheduledTimerWithTimeInterval: timeUntilAct
+                                                       target: self
+                                                     selector: selector
+                                                     userInfo: nil
+                                                      repeats: NO];
+    [timer setTolerance: -1.0];
+}
 
 /// Title for the VPN connection menu item
 - (NSString *)connectButtonTitle {
@@ -118,28 +255,36 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    self.item.image = image;
+    self.imageView.image = image;
 #pragma clang diagnostic pop
+}
+
+- (void)refreshMenu {
+    self.menu = [self freshMenu];
+    self.item.menu = self.menu;
 }
 
 /// Create the actual menu, this is recreated routinely to refresh the contents, could probably be done more 'properly' but this will do for now.
 - (void)createMenu {
     if (self.item){
-        self.item.menu = [self freshMenu];
+        [self refreshMenu];
         [self updateMenuImage];
         return;
     }
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
-    //NSMenu *menu = [NSMenu new];
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
-    NSMenu *menu = [self freshMenu];
-    self.item.menu = menu;
+    self.imageView = [[GCImageView alloc] initWithFrame: NSMakeRect(0.0, 0.0, 24.0, 22.0)];
+    self.imageView.appDelegate = self;
+    [self.item setView:self.imageView];
+    [self.imageView setupTrackingRect];
+    [self refreshMenu];
     [self updateMenuImage];
 }
 
 - (NSMenu *)freshMenu {
     [self createAlertTotals];
     NSMenu *menu = [NSMenu new];
+    menu.delegate = self;
     NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
     [menu addItem:proLogin];
     if ([GRDVPNHelper isPayingUser]){
@@ -264,7 +409,6 @@
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
     [self clearLocalCache];
-    
 }
 
 /// An alert that is shown if we are on mojave or lower, can't work until DeviceCheck gets the heave-ho.
@@ -277,6 +421,9 @@
 
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id)sender {
+    if (![self isConnected]){
+        return;
+    }
     [self.alertsWindow makeKeyAndOrderFront:nil];
     [self updateAlertWindow];
 }
