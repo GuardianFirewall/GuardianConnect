@@ -308,15 +308,7 @@
 			isa = PBXGroup;
 			children = (
 				325583E62634D6690015DEE3 /* Classes */,
-				329C526826315073003B78D8 /* Assets.xcassets */,
-				329C526A26315073003B78D8 /* MainMenu.xib */,
-				3218DB24263277BE005DD56B /* Little_G_Dark.png */,
-				3218DB23263277BE005DD56B /* Little_G_Pro_Dark.png */,
-				3218DB2126326D66005DD56B /* White_G.png */,
-				3218DB1F26326A4D005DD56B /* Little_G.png */,
-				329C526D26315073003B78D8 /* Info.plist */,
-				329C526E26315073003B78D8 /* main.m */,
-				329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */,
+				32ABCF4E263526320030B258 /* Supporting Files */,
 			);
 			path = GuardianConnectSampleMacApp;
 			sourceTree = "<group>";
@@ -327,6 +319,22 @@
 				329C527A26315721003B78D8 /* NetworkExtension.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		32ABCF4E263526320030B258 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				329C526826315073003B78D8 /* Assets.xcassets */,
+				329C526A26315073003B78D8 /* MainMenu.xib */,
+				3218DB24263277BE005DD56B /* Little_G_Dark.png */,
+				3218DB23263277BE005DD56B /* Little_G_Pro_Dark.png */,
+				3218DB2126326D66005DD56B /* White_G.png */,
+				3218DB1F26326A4D005DD56B /* Little_G.png */,
+				329C526D26315073003B78D8 /* Info.plist */,
+				329C526E26315073003B78D8 /* main.m */,
+				329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		32E92C03262A1B3D00A3202C /* GuardianConnectMac */ = {

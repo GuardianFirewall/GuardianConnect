@@ -36,7 +36,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 
 - (IBAction)login:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
-- (IBAction)clearKeychain:(id)sender;
+- (IBAction)clearVPNSettings:(id)sender;
 - (IBAction)spoofReceiptData:(id)sender;
 - (IBAction)refreshEventData:(id)sender;
 - (IBAction)showAlertsWindow:(id)sender;
