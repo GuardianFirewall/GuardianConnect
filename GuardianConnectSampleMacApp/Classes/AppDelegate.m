@@ -124,7 +124,7 @@
 
 -(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
     _mouseIsInMainIcon = TRUE;
-    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
                                   fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
                                        selector: @selector(showAlertsWindowsTimerHandler:)];
      
@@ -132,34 +132,34 @@
 
 -(void)mouseExitedMainIcon: (id) control event: (NSEvent *)theEvent {
     _mouseIsInMainIcon = FALSE;
-    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
                                   fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(hideStatisticsWindowsTimerHandler:)];
+                                       selector: @selector(hideAlertsWindowsTimerHandler:)];
     
 }
 
 -(void)showAlertsWindowsTimerHandler:(NSTimer *)theTimer {
     if ([self mouseIsInsideAnyView]) {
         [self performSelectorOnMainThread: @selector(showAlertsWindow) withObject: nil waitUntilDone: NO];
-        //GRDLog(@"showStatisticsWindowsTimerHandler: mouse still inside a view; queueing showStatisticsWindows");
+        //GRDLog(@"showAlertsWindowsTimerHandler: mouse still inside a view; queueing showAlertsWindows");
     } else {
-        //GRDLog(@"showStatisticsWindowsTimerHandler: mouse no longer inside a view; NOT queueing showStatisticsWindows");
+        //GRDLog(@"showAlertsWindowsTimerHandler: mouse no longer inside a view; NOT queueing showAlertsWindows");
     }
 }
 
--(void)hideStatisticsWindowsTimerHandler:(NSTimer *)theTimer {
+-(void)hideAlertsWindowsTimerHandler:(NSTimer *)theTimer {
 
     if (![self mouseIsInsideAnyView]) {
-        [self performSelectorOnMainThread: @selector(hideStatisticsWindows) withObject: nil waitUntilDone: NO];
-        //GRDLog(@"hideStatisticsWindowsTimerHandler: mouse NOT back inside a view; queueing hideStatisticsWindows");
+        [self performSelectorOnMainThread: @selector(hideAlertsWindow) withObject: nil waitUntilDone: NO];
+        //GRDLog(@"hideAlertsWindowsTimerHandler: mouse NOT back inside a view; queueing hideAlertsWindows");
     } else {
-        //GRDLog(@"hideStatisticsWindowsTimerHandler: mouse is back inside a view; NOT queueing hideStatisticsWindows");
+        //GRDLog(@"hideAlertsWindowsTimerHandler: mouse is back inside a view; NOT queueing hideAlertsWindows");
     }
 }
 
 -(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent  {
     _mouseIsInStatusWindow = TRUE;
-    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
                                   fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
                                        selector: @selector(showAlertsWindowsTimerHandler:)];
     
@@ -167,9 +167,9 @@
 
 -(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent {
     _mouseIsInStatusWindow = FALSE;
-    [self showOrHideStatisticsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
+    [self showOrHideAlertsWindowsAfterDelay: ALERTS_DISPLAY_DELAY
                                   fromTimestamp: ( theEvent ? [theEvent timestamp] : 0.0)
-                                       selector: @selector(hideStatisticsWindowsTimerHandler:)];
+                                       selector: @selector(hideAlertsWindowsTimerHandler:)];
     
 }
 
@@ -185,7 +185,7 @@
     [self alertsWindowShow:YES];
 }
 
--(void)hideStatisticsWindows {
+-(void)hideAlertsWindow {
     [self alertsWindowShow:NO];
 }
 
@@ -201,7 +201,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
     return nowNs;
 }
 
--(void)showOrHideStatisticsWindowsAfterDelay:(NSTimeInterval)delay
+-(void)showOrHideAlertsWindowsAfterDelay:(NSTimeInterval)delay
                                 fromTimestamp:(NSTimeInterval)timestamp
                                      selector:(SEL)selector {
     NSTimeInterval timeUntilAct;
@@ -211,7 +211,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
         uint64_t nowNanoseconds = nowAbsoluteNanoseconds();
         NSTimeInterval nowTimeInterval = (  ((NSTimeInterval) nowNanoseconds) / 1.0e9  );
         timeUntilAct = timestamp + delay - nowTimeInterval;
-        //GRDLog(@"showOrHideStatisticsWindowsAfterDelay: delay = %f; timestamp = %f; nowNanoseconds = %llu; nowTimeInterval = %f; timeUntilAct = %f", delay, timestamp, (unsigned long long) nowNanoseconds, nowTimeInterval, timeUntilAct);
+        //GRDLog(@"showOrHideAlertsWindowsAfterDelay: delay = %f; timestamp = %f; nowNanoseconds = %llu; nowTimeInterval = %f; timeUntilAct = %f", delay, timestamp, (unsigned long long) nowNanoseconds, nowTimeInterval, timeUntilAct);
         if (timeUntilAct < 0.1) {
             timeUntilAct = 0.1;
         }
