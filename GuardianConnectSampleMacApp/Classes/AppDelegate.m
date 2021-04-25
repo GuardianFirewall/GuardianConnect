@@ -128,43 +128,6 @@
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     //NSMenu *menu = [NSMenu new];
     self.item = [[NSStatusBar systemStatusBar] statusItemWithLength:thickness];
-    /*
-    NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
-    [menu addItem:proLogin];
-    if ([GRDVPNHelper isPayingUser]){
-        //Only add the settings to enable the VPN if we are currently a paying user
-        NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
-        [menu addItem:enableVPN];
-        NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearVPNSettings:) keyEquivalent:@""];
-        [menu addItem:clearVPNSettings];
-    }
-    NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
-    [menu addItem:spoofReceipt];
-    
-    NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
-    [menu addItem:quitApplication];
-    [menu addItem:[NSMenuItem separatorItem]];
-    self.item.menu = menu;
-    if ([self isConnected]){
-        
-        //Only add the total alerts menu if we are currently connected
-        NSString *totalString = [NSString stringWithFormat:@"Total Alerts: %lu", __alertTotal];
-        NSString *dataTrackerString = [NSString stringWithFormat:@" %lu", __dataTotal];
-        NSString *locationTrackerString = [NSString stringWithFormat:@" %lu", __locationTotal];
-        NSString *mailTrackerString = [NSString stringWithFormat:@" %lu", __mailTotal];
-        NSString *pageHijackerString = [NSString stringWithFormat:@" %lu", __pageTotal];
-        [self.dataTrackerButton setTitle:dataTrackerString];
-        [self.locationTrackerButton setTitle:locationTrackerString];
-        [self.pageHijackerButton setTitle:pageHijackerString];
-        [self.mailTrackerButton setTitle:mailTrackerString];
-        [self.totalAlertsButton setTitle:totalString];
-        NSMenuItem *totalAlertsBlocked = [[NSMenuItem alloc] initWithTitle:totalString action:nil keyEquivalent:@""];
-        [menu addItem:totalAlertsBlocked];
-        NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
-        [menu addItem:alertsView];
-
-    }
-     */
     NSMenu *menu = [self freshMenu];
     self.item.menu = menu;
     [self updateMenuImage];
