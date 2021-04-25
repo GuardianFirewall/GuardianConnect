@@ -60,6 +60,7 @@
     [self updateAlertWindow];
     self.alertsWindow.acceptsMouseMovedEvents = true;
     self.alertsWindow.appDelegate = self;
+    [self toggleExpandedManually:false];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -504,25 +505,37 @@ uint64_t nowAbsoluteNanoseconds(void) {
 
 #pragma mark Alert window management
 
-- (void)toggleExpanded {
+- (void)toggleExpandedManually:(BOOL)manually {
+    NSRect screenFrame = [[NSScreen mainScreen] frame];
     NSRect windowFrame = self.alertsWindow.frame;
     if (_expanded){
+        windowFrame.origin.x = 1590;
+        windowFrame.origin.y = 1000;
         windowFrame.size.width = 300;
         windowFrame.size.height = 200;
+        [self.tableContainerView setHidden:true];
+        [self.tableContainerView setAlphaValue:0.0];
         _expanded = false;
     } else {
-        windowFrame.size.width = 690;
+        windowFrame.origin.x = 1271;
+        windowFrame.origin.y = 724;
+        windowFrame.size.width = 619;
         windowFrame.size.height = 356;
         _expanded = true;
+        [self.tableContainerView setHidden:false];
+        [self.tableContainerView setAlphaValue:1.0];
     }
+    CGFloat width = screenFrame.size.width - windowFrame.origin.x;
+    CGFloat height = screenFrame.size.height - windowFrame.origin.y;
+    NSLog(@"width: %.1f height: %.1f", width, height);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.alertsWindow setFrame:windowFrame display:true];
-        self.alertsWindow.shownManually = true;
+        self.alertsWindow.shownManually = manually;
     });
 }
 
 - (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
-    [self toggleExpanded];
+    [self toggleExpandedManually:true];
 }
 
 /// Array of buttons on alertWindow used to invert button state when choosing each respective button

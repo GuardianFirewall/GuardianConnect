@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (weak) IBOutlet NSButton *totalAlertsButton;
 @property (weak) IBOutlet NSArrayController *alertsArrayController;
 @property (weak) IBOutlet NSTableView *alertsTableView;
+@property (weak) IBOutlet NSScrollView *tableContainerView;
 @property BOOL              mouseIsInMainIcon;            // Indicates that the mouse is over the Tunnelblick (not tracked unless preference says to)
 @property BOOL              mouseIsInStatusWindow;        // Indicates that the mouse is over the icon or a status wind
 @property BOOL menuIsOpen;
