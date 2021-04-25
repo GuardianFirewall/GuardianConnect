@@ -213,7 +213,7 @@
         if ([GRDVPNHelper proMode]){
             if (self.regionMenu){
                 NSMenuItem *regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
-                [regionPickerMenuItem setMenu:self.regionMenu];
+                [[regionPickerMenuItem submenu] setItemArray:self.regionMenu.itemArray];
                 [menu addItem:regionPickerMenuItem];
             }
         }
