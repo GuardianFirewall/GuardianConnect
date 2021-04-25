@@ -762,7 +762,7 @@ uint64_t absoluteNanoseconds(void) {
 
 /// Populate region data for region selection
 - (void)populateRegionDataIfNecessary {
-    
+    __block NSString *localRegion = nil;
     [[GRDHousekeepingAPI new] requestTimeZonesForRegionsWithTimestamp:[NSNumber numberWithInt:0] completion:^(NSArray * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success){
             NSLog(@"got timezones: %@", timeZones);
@@ -770,32 +770,34 @@ uint64_t absoluteNanoseconds(void) {
             NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
             NSString *regionName = region[@"name"];
             NSLog(@"local region: %@", regionName);
+            localRegion = regionName;
+            [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+                //GRDLog(@"we got these regions man: %@", regions);
+                __regions = regions;
+                __block NSMutableArray *newRegions = [NSMutableArray new];
+                [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
+                    if (region){
+                        [newRegions addObject:region];
+                    }
+                }];
+                _regions = newRegions;
+                
+                GRDRegion *firstRegion = [_regions firstObject];
+                if (firstRegion){
+                    GRDLog(@"first region: %@", firstRegion);
+                    [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+                        if (success){
+                            GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
+                        }
+                    }];
+                }
+            }];
+            
         }
     }];
     
-    GRDServerManager *serverManager = [GRDServerManager new];
-    [serverManager populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-        //GRDLog(@"we got these regions man: %@", regions);
-        __regions = regions;
-        __block NSMutableArray *newRegions = [NSMutableArray new];
-        [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
-            if (region){
-                [newRegions addObject:region];
-            }
-        }];
-        _regions = newRegions;
-        GRDRegion *firstRegion = [_regions firstObject];
-           if (firstRegion){
-               GRDLog(@"first region: %@", firstRegion);
-               [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-                   if (success){
-                       GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
-                   }
-               }];
-           }
-    }];
-    
+        
    
     
 }
