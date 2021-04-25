@@ -519,7 +519,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
 }
 
 - (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
-    [self toggleExpandedManually:false];
+    [self toggleExpandedManually:true];
 }
 
 /// Array of buttons on alertWindow used to invert button state when choosing each respective button
