@@ -765,11 +765,9 @@ uint64_t absoluteNanoseconds(void) {
     __block NSString *localRegion = nil;
     [[GRDHousekeepingAPI new] requestTimeZonesForRegionsWithTimestamp:[NSNumber numberWithInt:0] completion:^(NSArray * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success){
-            NSLog(@"got timezones: %@", timeZones);
             [[NSUserDefaults standardUserDefaults] setObject:timeZones forKey:kKnownHousekeepingTimeZonesForRegions];
             NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
             NSString *regionName = region[@"name"];
-            NSLog(@"local region: %@", regionName);
             localRegion = regionName;
             [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
                 //GRDLog(@"we got these regions man: %@", regions);
@@ -783,12 +781,9 @@ uint64_t absoluteNanoseconds(void) {
                 }];
                 _regions = newRegions;
                 NSPredicate *pred = [NSPredicate predicateWithFormat:@"regionName == %@", localRegion];
-                NSLog(@"pred: %@", pred);
                 GRDRegion *local = [[_regions filteredArrayUsingPredicate:pred] firstObject];
-                NSLog(@"_regions: %@ local: %@", _regions, local);
-                //GRDRegion *firstRegion = [_regions firstObject];
                 if (local){
-                    GRDLog(@"first region: %@", local);
+                    GRDLog(@"local region: %@", local);
                     [local _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
                         if (success){
                             GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
