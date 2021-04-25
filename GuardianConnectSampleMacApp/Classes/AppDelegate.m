@@ -29,6 +29,7 @@
 @property NSPredicate *filterPredicate;
 @property GCImageView *imageView;
 @property BOOL expanded;
+@property NSArray *_currentHosts;
 
 @end
 
@@ -759,9 +760,15 @@ uint64_t absoluteNanoseconds(void) {
 
 /// Populate region data for region selection
 - (void)populateRegionDataIfNecessary {
-    [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+    GRDServerManager *serverManager = [GRDServerManager new];
+    [serverManager populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
         GRDLog(@"we got these regions man: %@", regions);
     }];
+    [serverManager getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
+        GRDLog(@"we got these servers man: %@", servers);
+        __currentHosts = servers;
+    }];
+    
 }
 
 @end
