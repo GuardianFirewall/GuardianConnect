@@ -783,6 +783,7 @@ uint64_t absoluteNanoseconds(void) {
                 }];
                 _regions = newRegions;
                 GRDRegion *local = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"regionName == '%@'", localRegion]] firstObject];
+                NSLog(@"_regions: %@ local: %@", _regions, local);
                 //GRDRegion *firstRegion = [_regions firstObject];
                 if (local){
                     GRDLog(@"first region: %@", local);
