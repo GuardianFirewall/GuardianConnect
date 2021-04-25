@@ -775,17 +775,18 @@ uint64_t absoluteNanoseconds(void) {
         }];
         _regions = newRegions;
         GRDLog(@"newRegions: %@", newRegions);
+        GRDRegion *firstRegion = [_regions firstObject];
+           if (firstRegion){
+               GRDLog(@"first region: %@", firstRegion);
+               [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+                   if (success){
+                       GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
+                   }
+               }];
+           }
     }];
     
-    GRDRegion *firstRegion = [_regions firstObject];
-    if (firstRegion){
-        GRDLog(@"first region: %@", firstRegion);
-        [firstRegion _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-            if (success){
-                GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
-            }
-        }];
-    }
+   
     
 }
 
