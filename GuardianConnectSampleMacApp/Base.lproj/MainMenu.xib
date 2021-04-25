@@ -854,7 +854,7 @@
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="8op-pX-yCU"/>
                                                             <connections>
-                                                                <binding destination="QWR-TK-AtJ" name="data" keyPath="objectValue.image" id="9fq-uI-WgI"/>
+                                                                <binding destination="QWR-TK-AtJ" name="value" keyPath="objectValue.image" id="pES-R7-JQN"/>
                                                             </connections>
                                                         </imageView>
                                                     </subviews>
