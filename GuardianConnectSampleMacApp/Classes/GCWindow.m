@@ -31,6 +31,7 @@
 
 - (void)close {
     [self stopTracking];
+    [_appDelegate removeAlertObserver];
     [super close];
 }
 
@@ -87,6 +88,14 @@
 - (void)closeViaButton {
     self.shownManually = false;
     [self close];
+}
+
+- (void)hideExpandText {
+    self.expandTextField.alphaValue = 0.0;
+}
+
+- (void)showExpandText {
+    self.expandTextField.alphaValue = 1.0;
 }
 
 @end

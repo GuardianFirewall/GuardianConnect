@@ -408,7 +408,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id)sender {
     if (![self isConnected]){
-        return;
+        //return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");
@@ -416,6 +416,36 @@ uint64_t nowAbsoluteNanoseconds(void) {
     }
     [self.alertsWindow makeKeyAndOrderFront:nil];
     [self updateAlertWindow];
+    [self addAlertObserver];
+}
+
+- (void)removeAlertObserver {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:self.alertsWindow.contentView];
+}
+
+- (void)addAlertObserver {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSViewFrameDidChangeNotification object:self.alertsWindow.contentView];
+}
+
+- (void)windowResized:(NSNotification *)n {
+    NSView *view = (NSView *)[n object];
+    CGFloat height = [view frame].size.height;
+    if (height <= 240){
+        [self hideAlertsTableView];
+    } else {
+        [self showAlertsTableView];
+    }
+}
+
+- (void)hideAlertsTableView {
+    [self.tableContainerView setHidden:true];
+    [self.tableContainerView setAlphaValue:0.0];
+}
+
+- (void)showAlertsTableView {
+    [self.tableContainerView setHidden:false];
+    [self.tableContainerView setAlphaValue:1.0];
+    [self.alertsWindow hideExpandText];
 }
 
 /// Action called when '[Dis]connect VPN' menu item is chosen
@@ -497,8 +527,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
         windowFrame.origin.y = screenFrame.size.height - 200;//1000;
         windowFrame.size.width = 300;
         windowFrame.size.height = 200;
-        [self.tableContainerView setHidden:true];
-        [self.tableContainerView setAlphaValue:0.0];
+        [self hideAlertsTableView];
         _expanded = false;
     } else {
         windowFrame.origin.x = screenFrame.size.width - 649 - padding;//1271;
@@ -506,8 +535,8 @@ uint64_t nowAbsoluteNanoseconds(void) {
         windowFrame.size.width = 619;
         windowFrame.size.height = 356;
         _expanded = true;
-        [self.tableContainerView setHidden:false];
-        [self.tableContainerView setAlphaValue:1.0];
+        [self showAlertsTableView];
+        [self.alertsWindow hideExpandText];
     }
     CGFloat width = screenFrame.size.width - windowFrame.origin.x;
     CGFloat height = screenFrame.size.height - windowFrame.origin.y;

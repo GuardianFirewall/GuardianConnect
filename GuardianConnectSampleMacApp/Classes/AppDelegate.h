@@ -48,5 +48,6 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (IBAction)refreshEventData:(id)sender;
 - (IBAction)showAlertsWindow:(id)sender;
 - (IBAction)toggleAlertFilter:(id)sender;
+- (void)removeAlertObserver;
 @end
 
