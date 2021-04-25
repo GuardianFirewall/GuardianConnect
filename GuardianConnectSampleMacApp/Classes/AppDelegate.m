@@ -112,103 +112,6 @@
 
 #pragma mark Menu Management
 
--(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
-    _mouseIsInMainIcon = TRUE;
-    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(showAlertsWindowsTimerHandler:)];
-     
-}
-
--(void)mouseExitedMainIcon:(id)control event:(NSEvent *)theEvent {
-    _mouseIsInMainIcon = FALSE;
-    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(hideAlertsWindowsTimerHandler:)];
-    
-}
-
--(void)showAlertsWindowsTimerHandler:(NSTimer *)theTimer {
-    if ([self mouseIsInsideAnyView]) {
-        [self performSelectorOnMainThread: @selector(showAlertsWindow) withObject: nil waitUntilDone: NO];
-    }
-}
-
--(void)hideAlertsWindowsTimerHandler:(NSTimer *)theTimer {
-
-    if (![self mouseIsInsideAnyView]) {
-        [self performSelectorOnMainThread: @selector(hideAlertsWindow) withObject: nil waitUntilDone: NO];
-    }
-}
-
--(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent  {
-    _mouseIsInStatusWindow = TRUE;
-    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(showAlertsWindowsTimerHandler:)];
-    
-}
-
--(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent {
-    _mouseIsInStatusWindow = FALSE;
-    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(hideAlertsWindowsTimerHandler:)];
-    
-}
-
--(void)alertsWindowShow:(BOOL) show {
-    if (show){
-        [self showAlertsWindow:nil];
-    } else {
-        [self.alertsWindow close];
-    }
-}
-
--(void)showAlertsWindow {
-    [self alertsWindowShow:YES];
-}
-
--(void)hideAlertsWindow {
-    [self alertsWindowShow:NO];
-}
-
--(BOOL)mouseIsInsideAnyView {
-    return _mouseIsInStatusWindow || _mouseIsInMainIcon || self.alertsWindow.shownManually;
-}
-
-uint64_t nowAbsoluteNanoseconds(void) {
-    // The next three lines were adapted from http://shiftedbits.org/2008/10/01/mach_absolute_time-on-the-iphone/
-    mach_timebase_info_data_t info;
-    mach_timebase_info(&info);
-    uint64_t nowNs = (unsigned long long)mach_absolute_time() * (unsigned long long)info.numer / (unsigned long long)info.denom;
-    return nowNs;
-}
-
--(void)showOrHideAlertsWindowsAfterDelay:(NSTimeInterval)delay
-                           fromTimestamp:(NSTimeInterval)timestamp
-                                selector:(SEL)selector {
-    NSTimeInterval triggerTimeInterval;
-    if (timestamp == 0.0) {
-        triggerTimeInterval = 0.1;
-    } else {
-        uint64_t nowNanoseconds = nowAbsoluteNanoseconds();
-        NSTimeInterval nowTimeInterval = (  ((NSTimeInterval) nowNanoseconds) / 1.0e9  );
-        triggerTimeInterval = timestamp + delay - nowTimeInterval;
-        if (triggerTimeInterval < 0.1) {
-            triggerTimeInterval = 0.1;
-        }
-    }
-    
-    //GRDLog(@"Queueing %s in %f seconds", sel_getName(selector), timeUntilAct);
-    NSTimer * timer = [NSTimer scheduledTimerWithTimeInterval: triggerTimeInterval
-                                                       target: self
-                                                     selector: selector
-                                                     userInfo: nil
-                                                      repeats: NO];
-    [timer setTolerance: -1.0];
-}
-
 /// Title for the VPN connection menu item
 - (NSString *)connectButtonTitle {
     if ([self isConnected]){
@@ -286,7 +189,6 @@ uint64_t nowAbsoluteNanoseconds(void) {
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [menu addItem:quitApplication];
     [menu addItem:[NSMenuItem separatorItem]];
-    //self.item.menu = menu;
     if ([self isConnected]){
         
         //Only add the total alerts menu if we are currently connected
@@ -304,19 +206,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
         [menu addItem:totalAlertsBlocked];
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
-        
-        /*
-        NSMenuItem *dataTrackerBlocked = [[NSMenuItem alloc] initWithTitle:dataTrackerString action:nil keyEquivalent:@""];
-        [menu addItem:dataTrackerBlocked];
-        NSMenuItem *locationTrackerBlocked = [[NSMenuItem alloc] initWithTitle:locationTrackerString action:nil keyEquivalent:@""];
-        [menu addItem:locationTrackerBlocked];
-        NSMenuItem *mailTrackerBlocked = [[NSMenuItem alloc] initWithTitle:mailTrackerString action:nil keyEquivalent:@""];
-        [menu addItem:mailTrackerBlocked];
-        NSMenuItem *pageHijackerBlocked = [[NSMenuItem alloc] initWithTitle:pageHijackerString action:nil keyEquivalent:@""];
-        [menu addItem:pageHijackerBlocked];
-         */
     }
-    
     return menu;
 }
 
@@ -341,7 +231,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
             } else { //we were successful saving the token
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                    [GRDVPNHelper setIsPayingUser:YES];
+                    [GRDVPNHelper setIsPayingUser:TRUE];
                     [defaults setObject:[response objectForKey:@"type"] forKey:kSubscriptionPlanTypeStr];
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
@@ -408,7 +298,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id)sender {
     if (![self isConnected]){
-        return;
+        //return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");
@@ -623,6 +513,106 @@ uint64_t nowAbsoluteNanoseconds(void) {
     self.pageHijackerButton.contentTintColor = [NSColor pageHijackerPurpleSelected:self.pageHijackerButton.state];
 }
 
+#pragma UI / Mouse management
+
+/// Called from GCImageView mouseEntered. Traced via event tracking in said class
+-(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
+    _isMouseOverStatusIcon = TRUE;
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(showAlertsFromTimerOnMainThread)];
+     
+}
+
+/// Called from GCImageView mouseExited. Traced via event tracking in said class
+-(void)mouseExitedMainIcon:(id)control event:(NSEvent *)theEvent {
+    _isMouseOverStatusIcon = FALSE;
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(hideAlertsFromTimerOnMainThread)];
+    
+}
+
+/// Called for both the GCImageView and GCWindow to show alerts based on mouseEnter/exit events to show the Alerts Window
+-(void)showAlertsFromTimerOnMainThread {
+    if ([self isMouseOverAnyView]) {
+        [self performSelectorOnMainThread:@selector(showAlertsWindow) withObject:nil waitUntilDone:FALSE];
+    }
+}
+
+/// Called for both the GCImageView and GCWindow to show alerts based on mouseEnter/exit events to hide the Alerts Window
+-(void)hideAlertsFromTimerOnMainThread {
+
+    if (![self isMouseOverAnyView]) {
+        [self performSelectorOnMainThread:@selector(hideAlertsWindow) withObject:nil waitUntilDone:FALSE];
+    }
+}
+
+/// Called from GCWindow when the mouse enters the AlertsWindow, serves to keep it visible as necessary
+-(void)mouseEnteredAlertsWindow:(id)control event:(NSEvent *)theEvent  {
+    _isMouseOverAlertsWindow = TRUE;
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(showAlertsFromTimerOnMainThread)];
+    
+}
+
+/// Called from GCWindow when the mouse enters the AlertsWindow, serves to hide it as necessary
+-(void)mouseExitedAlertsWindow:(id)control event:(NSEvent *)theEvent {
+    _isMouseOverAlertsWindow = FALSE;
+    [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
+                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                       selector:@selector(hideAlertsFromTimerOnMainThread)];
+    
+}
+
+/// Method for showing the alert from the mouse event code
+-(void)showAlertsWindow {
+    [self showAlertsWindow:nil];
+}
+
+/// Method for hiding the alert from the mouse event code
+-(void)hideAlertsWindow {
+    [self.alertsWindow close];
+}
+
+/// Detects whether or not the mouse is over the G status bar image OR the Alerts Window, OR if the Alerts window has been 'shown manually' ie selected from the NSMenu status item.
+-(BOOL)isMouseOverAnyView {
+    return _isMouseOverAlertsWindow || _isMouseOverStatusIcon || self.alertsWindow.shownManually;
+}
+
+/// Function to get absolute nano seconds from our current time
+uint64_t absoluteNanoseconds(void) {
+    mach_timebase_info_data_t iData;
+    mach_timebase_info(&iData);
+    uint64_t currentNs = (unsigned long long)mach_absolute_time() * (unsigned long long)iData.numer / (unsigned long long)iData.denom;
+    return currentNs;
+}
+
+/// The actual function that shows or hides our alert view from the mouse event methods & delegates.
+-(void)showOrHideAlertsWindowsAfterDelay:(NSTimeInterval)delay
+                           fromTimestamp:(NSTimeInterval)timestamp
+                                selector:(SEL)selector {
+    NSTimeInterval triggerTimeInterval;
+    if (timestamp == 0.0) {
+        triggerTimeInterval = 0.1;
+    } else {
+        uint64_t currentNanoseconds = absoluteNanoseconds();
+        NSTimeInterval currentTimeInterval = (  ((NSTimeInterval) currentNanoseconds) / 1.0e9);
+        triggerTimeInterval = timestamp + delay - currentTimeInterval;
+        if (triggerTimeInterval < 0.1) {
+            triggerTimeInterval = 0.1;
+        }
+    }
+    
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:triggerTimeInterval
+                                                       target:self
+                                                     selector:selector
+                                                     userInfo:nil
+                                                      repeats:FALSE];
+    [timer setTolerance: -1.0];
+}
+
 #pragma mark GCSubscriberManager delegate
 - (void)handleValidationSuccess {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -632,6 +622,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
 
 #pragma mark VPN & UI state management
 
+/// Observes VPN connectivity to show different UI states as applicable
 - (void)addVPNObserver {
     [[NSNotificationCenter defaultCenter] addObserverForName:NEVPNStatusDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *notif) {
         if ([notif.object isMemberOfClass:NEVPNConnection.class]){
@@ -640,6 +631,7 @@ uint64_t nowAbsoluteNanoseconds(void) {
     }];
 }
 
+/// Matches the NEVPNStatus to the relevant connection state UI method
 - (void)handleConnectionStatus:(NEVPNStatus)status {
     dispatch_async(dispatch_get_main_queue(), ^{
         switch (status) {
@@ -668,12 +660,15 @@ uint64_t nowAbsoluteNanoseconds(void) {
     });
 }
 
+/// We are connected, currently don't tweak the UI, just fetch data and start the necessary timers
 - (void)showConnectedStateUI {
+    [self populateRegionDataIfNecessary]; // for region selection, currently unused.
     [self fetchEventData]; //get data immediately, then start the timeer
     [self startEventRefreshTimer];
     [self createMenu];
 }
 
+/// Stop refresh timers and refresh the menu
 - (void)showDisconnectedStateUI {
     [self stopEventRefreshTimer];
     [self createMenu];
@@ -758,6 +753,15 @@ uint64_t nowAbsoluteNanoseconds(void) {
         }];
          
     }
+}
+
+#pragma mark Region Selection
+
+/// Populate region data for region selection
+- (void)populateRegionDataIfNecessary {
+    [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+        GRDLog(@"we got these regions man: %@", regions);
+    }];
 }
 
 @end
