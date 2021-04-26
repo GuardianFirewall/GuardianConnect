@@ -844,7 +844,7 @@ uint64_t absoluteNanoseconds(void) {
     GRDLog(@"found region: %@", region);
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
-    [region _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+    [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
         if (success){
             [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                 GRDLog(@"success: %d", success);
@@ -875,7 +875,7 @@ uint64_t absoluteNanoseconds(void) {
     if (local){
         __localRegion = local;
         GRDLog(@"local region: %@", local);
-        [local _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+        [local findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
             if (success){
                 GRDLog(@"found best server: %@ loc: %@", server, serverLocation);
             }

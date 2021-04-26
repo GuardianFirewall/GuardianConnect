@@ -27,13 +27,21 @@
     return [NSString stringWithFormat:@"%@: regionName: %@ displayName: %@", sup, _regionName, _displayName];
 }
 
--(void)_findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))block {
+//overriding equality check because we MIGHT be missint contitent if we are recreated by GRDVPNHelper during credential loading.
+- (BOOL)isEqual:(id)object {
+    if (![object isKindOfClass:self.class]){
+        return false;
+    }
+    return (self.regionName == [object regionName] && self.displayName == [object displayName]);
+}
+
+-(void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))block {
     [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
         if (!error){
             if (block){
                 block(host, hostLocation, true);
-                _bestHost = host;
-                _bestHostLocation = hostLocation;
+                self.bestHost = host;
+                self.bestHostLocation = hostLocation;
             }
         } else {
             if (block){
@@ -43,9 +51,13 @@
     }];
 }
 
-+ (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray *)regions {
++ (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {
     __block NSMutableArray *newRegions = [NSMutableArray new];
-    [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    NSArray *_theRegions = regions;
+    if (_theRegions){
+        _theRegions = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianAllRegions];
+    }
+    [_theRegions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
         if (region){
             [newRegions addObject:region];
