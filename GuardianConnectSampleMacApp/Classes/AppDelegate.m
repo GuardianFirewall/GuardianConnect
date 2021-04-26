@@ -119,10 +119,19 @@
 
 #pragma mark Menu Management
 
+- (NSString *)currentDisplayHostname {
+    GRDRegion *selected = [[GRDVPNHelper sharedInstance] selectedRegion];
+    if (selected){
+        return selected.displayName;
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDVPNHostLocation];
+    }
+}
+
 /// Title for the VPN connection menu item
 - (NSString *)connectButtonTitle {
     if ([self isConnected]){
-            return @"Disconnect VPN";
+        return [NSString stringWithFormat:@"Disconnect (%@) VPN", [self currentDisplayHostname]];
     }
     return @"Connect VPN";
 }
