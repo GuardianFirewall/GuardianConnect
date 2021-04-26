@@ -212,6 +212,7 @@
         [menu addItem:totalAlertsBlocked];
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [menu addItem:alertsView];
+        
         if ([GRDVPNHelper proMode]){
             if (self.regionMenuItems && !self.regionPickerMenuItem){
                 self.regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
@@ -219,6 +220,7 @@
                 [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
                 [menu addItem:self.regionPickerMenuItem];
             } else if (self.regionPickerMenuItem){
+                [self.item.menu removeItem:self.regionPickerMenuItem];
                 [menu addItem:self.regionPickerMenuItem];
             }
         }
