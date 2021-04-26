@@ -26,6 +26,7 @@
 		32855B1A263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
 		32855B1B263640B90088086E /* GRDRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = 32855B18263640B90088086E /* GRDRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32855B1C263640B90088086E /* GRDRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = 32855B18263640B90088086E /* GRDRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B1E2636767F0088086E /* NSObject+Extras.m */; };
 		32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */; };
 		32939A6D26167D0E007A4DFA /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -142,6 +143,8 @@
 		325583E42634D65F0015DEE3 /* NSColor+Additions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSColor+Additions.m"; sourceTree = "<group>"; };
 		32855B17263640B90088086E /* GRDRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDRegion.m; sourceTree = "<group>"; };
 		32855B18263640B90088086E /* GRDRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDRegion.h; sourceTree = "<group>"; };
+		32855B1D2636767F0088086E /* NSObject+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+Extras.h"; sourceTree = "<group>"; };
+		32855B1E2636767F0088086E /* NSObject+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Extras.m"; sourceTree = "<group>"; };
 		32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Additions.m"; sourceTree = "<group>"; };
 		32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Additions.h"; sourceTree = "<group>"; };
 		32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
@@ -264,6 +267,8 @@
 				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
 				325583E32634D65F0015DEE3 /* NSColor+Additions.h */,
 				325583E42634D65F0015DEE3 /* NSColor+Additions.m */,
+				32855B1D2636767F0088086E /* NSObject+Extras.h */,
+				32855B1E2636767F0088086E /* NSObject+Extras.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -598,6 +603,7 @@
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
 				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
+				32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

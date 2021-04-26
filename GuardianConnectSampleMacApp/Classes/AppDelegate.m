@@ -15,6 +15,7 @@
 #import "GRDEvent.h"
 #import "NSColor+Additions.h"
 #import "GRDRegion.h"
+#import "NSObject+Extras.h"
 
 @interface AppDelegate () {
     BOOL _addedRegionMenuItems; //dont do this more than once
@@ -786,6 +787,7 @@ uint64_t absoluteNanoseconds(void) {
     [menuItems addObject:[NSMenuItem separatorItem]];
     [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
+        [currentRegion setAssociatedValue:obj];
         [menuItems addObject:currentRegion];
     }];
     return menuItems;
@@ -800,7 +802,7 @@ uint64_t absoluteNanoseconds(void) {
         }];
         return;
     }
-    GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", title]] firstObject];
+    GRDRegion *region = (GRDRegion *)[sender associatedValue];//[[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", title]] firstObject];
     GRDLog(@"found region: %@", region);
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
@@ -816,10 +818,7 @@ uint64_t absoluteNanoseconds(void) {
     }];
 }
 
-#pragma mark Region Selection
-
-/// Populate region data for region selection
-- (void)populateRegionDataIfNecessary {
+- (void)_getLocalRegion {
     __block NSString *localRegion = nil;
     [[GRDHousekeepingAPI new] requestTimeZonesForRegionsWithTimestamp:[NSNumber numberWithInt:0] completion:^(NSArray * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success){
@@ -827,26 +826,9 @@ uint64_t absoluteNanoseconds(void) {
             NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
             NSString *regionName = region[@"name"];
             localRegion = regionName;
-            [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-                //GRDLog(@"we got these regions man: %@", regions);
-                __regions = regions;
-                __block NSMutableArray *newRegions = [NSMutableArray new];
-                [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
-                    if (region){
-                        [newRegions addObject:region];
-                    }
-                }];
-                _regions = [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self _createRegionMenu];
-                });
-                //[self identifyLocalRegionIfNecessary:localRegion];
-            }];
-            
+            [self identifyLocalRegionIfNecessary:localRegion];
         }
     }];
-    
 }
 
 - (void)identifyLocalRegionIfNecessary:(NSString *)localRegion { //for now just always locate it.
@@ -862,5 +844,30 @@ uint64_t absoluteNanoseconds(void) {
         }];
     }
 }
+
+#pragma mark Region Selection
+
+/// Populate region data for region selection
+- (void)populateRegionDataIfNecessary {
+    @weakify(self);
+    [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+        //GRDLog(@"we got these regions: %@", regions);
+        self_weak_._regions = regions;
+        __block NSMutableArray *newRegions = [NSMutableArray new];
+        [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
+            if (region){
+                [newRegions addObject:region];
+            }
+        }];
+        self_weak_.regions = [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _createRegionMenu];
+        });
+    }];
+    
+}
+
+
 
 @end
