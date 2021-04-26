@@ -25,7 +25,7 @@
     return self;
 }
 
-- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable, NSString * _Nullable, NSString * _Nullable errorMessage))completion {
+- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion {
     GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"selectGuardianHostWithCompletion"];
     [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
         [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion completion handler"];
@@ -60,7 +60,7 @@
     }];
 }
 
-- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable, NSString * _Nullable))completion {
+- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"getGuardianHostsWithCompletion"];
     
