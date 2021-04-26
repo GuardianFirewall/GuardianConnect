@@ -16,7 +16,7 @@
     }
     
     NSTimeInterval thisTime = [theEvent timestamp];
-    if ((mainIconLastClickTime + 1.0) > thisTime) {
+    if ((iconLastClickTime + 1.0) > thisTime) {
         [_appDelegate openPreferences];
     } else {
         NSStatusItem * statusI = [_appDelegate item];
@@ -26,14 +26,14 @@
         [statusI popUpStatusItemMenu: menu];
 #pragma clang diagnostic pop
     }
-    mainIconLastClickTime = thisTime;
+    iconLastClickTime = thisTime;
 }
 
 -(void)removeTrackingRect {
     
-    if (mainIconTrackingRectTagIsValid ) {
-        [self removeTrackingRect: mainIconTrackingRectTag];
-        mainIconTrackingRectTagIsValid = FALSE;
+    if (iconTrackingRectTagIsValid ) {
+        [self removeTrackingRect: iconTrackingRectTag];
+        iconTrackingRectTagIsValid = FALSE;
     }
 }
 
@@ -41,11 +41,11 @@
     [self removeTrackingRect];
     NSRect frame = [self frame];
     NSRect trackingRect = NSMakeRect(frame.origin.x + 1.0f, frame.origin.y, frame.size.width - 1.0f, frame.size.height);
-    mainIconTrackingRectTag = [self addTrackingRect: trackingRect
+    iconTrackingRectTag = [self addTrackingRect: trackingRect
                                               owner: self
                                            userData: nil
                                        assumeInside: NO];
-    mainIconTrackingRectTagIsValid = TRUE;
+    iconTrackingRectTagIsValid = TRUE;
 }
 
 -(void)drawRect:(NSRect)rect {
@@ -63,7 +63,7 @@
     
     self = [super initWithFrame: frame];
     if (self) {
-        mainIconTrackingRectTagIsValid = FALSE;
+        iconTrackingRectTagIsValid = FALSE;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [self registerForDraggedTypes: [NSArray arrayWithObject: NSFilenamesPboardType]];

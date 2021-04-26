@@ -797,6 +797,8 @@ uint64_t absoluteNanoseconds(void) {
         NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
         if ([obj.regionName isEqualToString:selectedRegion.regionName]){
             [currentRegion setState:NSControlStateValueOn];
+        } else {
+            [currentRegion setState:NSControlStateValueOff];
         }
         [currentRegion setAssociatedValue:obj];
         [menuItems addObject:currentRegion];
@@ -804,16 +806,19 @@ uint64_t absoluteNanoseconds(void) {
     return menuItems;
 }
 
-- (void)selectRegion:(NSMenuItem *)sender {
-    NSString *title = sender.title;
-    [sender setState:NSControlStateValueOn];
+- (void)deselectInverseItems:(NSMenuItem *)sender {
     NSArray <NSMenuItem*> *parentArray = [sender parentItem].submenu.itemArray;
     [parentArray enumerateObjectsUsingBlock:^(NSMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (obj != sender){
             [obj setState:NSControlStateValueOff];
         }
     }];
-    GRDLog(@"parentArray: %@", parentArray);
+}
+
+- (void)selectRegion:(NSMenuItem *)sender {
+    NSString *title = sender.title;
+    [sender setState:NSControlStateValueOn];
+    [self deselectInverseItems:sender];
     if ([title isEqualToString:@"Automatic"]){
         [[GRDVPNHelper sharedInstance] selectRegion:nil];
         [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
@@ -821,7 +826,7 @@ uint64_t absoluteNanoseconds(void) {
         }];
         return;
     }
-    GRDRegion *region = (GRDRegion *)[sender associatedValue];//[[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", title]] firstObject];
+    GRDRegion *region = (GRDRegion *)[sender associatedValue];
     GRDLog(@"found region: %@", region);
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
@@ -886,7 +891,5 @@ uint64_t absoluteNanoseconds(void) {
     }];
     
 }
-
-
 
 @end
