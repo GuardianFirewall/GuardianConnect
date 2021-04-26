@@ -220,7 +220,9 @@
                 [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
                 [menu addItem:self.regionPickerMenuItem];
             } else if (self.regionPickerMenuItem){
-                [self.item.menu removeItem:self.regionPickerMenuItem];
+                if ([self.item.menu.itemArray containsObject:self.regionPickerMenuItem]){
+                    [self.item.menu removeItem:self.regionPickerMenuItem];
+                }
                 [menu addItem:self.regionPickerMenuItem];
             }
         }
@@ -792,6 +794,8 @@ uint64_t absoluteNanoseconds(void) {
     GRDLog(@"sender: %@", sender.title);
     GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", sender.title]] firstObject];
     GRDLog(@"found region: %@", region);
+    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
+    [GRDVPNHelper clearVpnConfiguration];
     [region _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
         if (success){
             [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
