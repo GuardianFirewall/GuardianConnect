@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *bestHostLocation; //defaults to nil, is populated upon get server detail completion
 -(instancetype)initWithDictionary:(NSDictionary *)regionDict;
 -(void)_findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))block;
+
+/// Convenience method to convert timezones from the server into more useful GRDRegion instances, handy for region picker views
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray *)timezones;
 @end
 

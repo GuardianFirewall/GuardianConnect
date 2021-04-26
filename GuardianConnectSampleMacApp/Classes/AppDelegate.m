@@ -891,16 +891,6 @@ uint64_t absoluteNanoseconds(void) {
     [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
         //GRDLog(@"we got these regions: %@", regions);
         self_weak_._regions = regions;
-        /*
-        __block NSMutableArray *newRegions = [NSMutableArray new];
-        [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
-            if (region){
-                [newRegions addObject:region];
-            }
-        }];
-        self_weak_.regions = [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
-         */
         self_weak_.regions = [GRDRegion regionsFromTimezones:regions];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self _createRegionMenu];
