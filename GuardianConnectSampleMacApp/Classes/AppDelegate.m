@@ -807,6 +807,13 @@ uint64_t absoluteNanoseconds(void) {
 - (void)selectRegion:(NSMenuItem *)sender {
     NSString *title = sender.title;
     [sender setState:NSControlStateValueOn];
+    NSArray <NSMenuItem*> *parentArray = [sender parentItem].submenu.itemArray;
+    [parentArray enumerateObjectsUsingBlock:^(NSMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (obj != sender){
+            [obj setState:NSControlStateValueOff];
+        }
+    }];
+    GRDLog(@"parentArray: %@", parentArray);
     if ([title isEqualToString:@"Automatic"]){
         [[GRDVPNHelper sharedInstance] selectRegion:nil];
         [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
