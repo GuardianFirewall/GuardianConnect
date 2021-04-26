@@ -22,7 +22,10 @@
 		3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3249771326325929008ABFDB /* GCSubscriptionManager.m */; };
 		325583E22634D2420015DEE3 /* GRDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E12634D2420015DEE3 /* GRDEvent.m */; };
 		325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E42634D65F0015DEE3 /* NSColor+Additions.m */; };
-		32855B1226362A380088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B1126362A380088086E /* GRDRegion.m */; };
+		32855B19263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
+		32855B1A263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
+		32855B1B263640B90088086E /* GRDRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = 32855B18263640B90088086E /* GRDRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32855B1C263640B90088086E /* GRDRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = 32855B18263640B90088086E /* GRDRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */; };
 		32939A6D26167D0E007A4DFA /* NSPredicate+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -137,8 +140,8 @@
 		325583E12634D2420015DEE3 /* GRDEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDEvent.m; sourceTree = "<group>"; };
 		325583E32634D65F0015DEE3 /* NSColor+Additions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSColor+Additions.h"; sourceTree = "<group>"; };
 		325583E42634D65F0015DEE3 /* NSColor+Additions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSColor+Additions.m"; sourceTree = "<group>"; };
-		32855B1026362A380088086E /* GRDRegion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDRegion.h; sourceTree = "<group>"; };
-		32855B1126362A380088086E /* GRDRegion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDRegion.m; sourceTree = "<group>"; };
+		32855B17263640B90088086E /* GRDRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDRegion.m; sourceTree = "<group>"; };
+		32855B18263640B90088086E /* GRDRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDRegion.h; sourceTree = "<group>"; };
 		32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Additions.m"; sourceTree = "<group>"; };
 		32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Additions.h"; sourceTree = "<group>"; };
 		32939A6626167D0E007A4DFA /* EXTRuntimeExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTRuntimeExtensions.h; sourceTree = "<group>"; };
@@ -251,8 +254,6 @@
 			children = (
 				329C526526315071003B78D8 /* AppDelegate.h */,
 				329C526626315071003B78D8 /* AppDelegate.m */,
-				32855B1026362A380088086E /* GRDRegion.h */,
-				32855B1126362A380088086E /* GRDRegion.m */,
 				32ABCF54263547960030B258 /* GCWindow.h */,
 				32ABCF55263547960030B258 /* GCWindow.m */,
 				32ABCF51263540300030B258 /* GCImageView.h */,
@@ -364,6 +365,8 @@
 				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
 				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
 				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
+				32855B18263640B90088086E /* GRDRegion.h */,
+				32855B17263640B90088086E /* GRDRegion.m */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -402,6 +405,7 @@
 				3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */,
 				3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */,
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
+				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
 				321BA148261404A100E876CB /* GuardianConnect.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -428,6 +432,7 @@
 				32E92C1B262A1BA700A3202C /* GRDDebugHelper.h in Headers */,
 				32E92C25262A1BB600A3202C /* NSPredicate+Additions.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
+				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
 				32E92C28262A1BC500A3202C /* EXTScope.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -568,6 +573,7 @@
 				32939A8826167D20007A4DFA /* GRDServerManager.m in Sources */,
 				32939A9426167D20007A4DFA /* GRDDebugHelper.m in Sources */,
 				32939A7026167D0E007A4DFA /* EXTScope.m in Sources */,
+				32855B19263640B90088086E /* GRDRegion.m in Sources */,
 				3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */,
 				32939A8B26167D20007A4DFA /* GRDVPNHelper.m in Sources */,
 				32939A8526167D20007A4DFA /* GRDHousekeepingAPI.m in Sources */,
@@ -593,7 +599,6 @@
 				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
-				32855B1226362A380088086E /* GRDRegion.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,6 +609,7 @@
 				32E92C17262A1B6100A3202C /* GRDVPNHelper.m in Sources */,
 				32E92C15262A1B6100A3202C /* GRDServerManager.m in Sources */,
 				32E92C0C262A1B5400A3202C /* EXTScope.m in Sources */,
+				32855B1A263640B90088086E /* GRDRegion.m in Sources */,
 				32E92C14262A1B6100A3202C /* GRDKeychain.m in Sources */,
 				32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */,
 				32E92C12262A1B6100A3202C /* GRDGatewayAPIResponse.m in Sources */,

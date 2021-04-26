@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
 #import <GuardianConnect/GRDDebugHelper.h>

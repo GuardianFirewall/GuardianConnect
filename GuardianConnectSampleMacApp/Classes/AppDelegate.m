@@ -790,8 +790,6 @@ uint64_t absoluteNanoseconds(void) {
 }
 
 - (void)selectRegion:(NSMenuItem *)sender {
-    LOG_SELF;
-    GRDLog(@"sender: %@", sender.title);
     GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", sender.title]] firstObject];
     GRDLog(@"found region: %@", region);
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
