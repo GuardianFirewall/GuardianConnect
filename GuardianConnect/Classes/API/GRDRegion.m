@@ -43,4 +43,15 @@
     }];
 }
 
++ (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray *)regions {
+    __block NSMutableArray *newRegions = [NSMutableArray new];
+    [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
+        if (region){
+            [newRegions addObject:region];
+        }
+    }];
+    return [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
+}
+
 @end
