@@ -179,23 +179,28 @@
 
 - (NSMenu *)freshMenu {
     [self createAlertTotals];
-    NSMenu *menu = [NSMenu new];
-    menu.delegate = self;
+    if (!self.menu){
+        self.menu = [NSMenu new];
+    } else {
+        [self.menu removeAllItems];
+    }
+    //NSMenu *menu = [NSMenu new];
+    self.menu.delegate = self;
     NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
-    [menu addItem:proLogin];
+    [self.menu addItem:proLogin];
     if ([GRDVPNHelper isPayingUser]){
         //Only add the settings to enable the VPN if we are currently a paying user
         NSMenuItem *enableVPN = [[NSMenuItem alloc] initWithTitle:[self connectButtonTitle] action:@selector(createVPNConnection:) keyEquivalent:@""];
-        [menu addItem:enableVPN];
+        [self.menu addItem:enableVPN];
         NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearVPNSettings:) keyEquivalent:@""];
-        [menu addItem:clearVPNSettings];
+        [self.menu addItem:clearVPNSettings];
     }
     NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
-    [menu addItem:spoofReceipt];
+    [self.menu addItem:spoofReceipt];
     
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
-    [menu addItem:quitApplication];
-    [menu addItem:[NSMenuItem separatorItem]];
+    [self.menu addItem:quitApplication];
+    [self.menu addItem:[NSMenuItem separatorItem]];
     if ([self isConnected]){
         
         //Only add the total alerts menu if we are currently connected
@@ -210,25 +215,25 @@
         [self.mailTrackerButton setTitle:mailTrackerString];
         [self.totalAlertsButton setTitle:totalString];
         NSMenuItem *totalAlertsBlocked = [[NSMenuItem alloc] initWithTitle:totalString action:nil keyEquivalent:@""];
-        [menu addItem:totalAlertsBlocked];
+        [self.menu addItem:totalAlertsBlocked];
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
-        [menu addItem:alertsView];
+        [self.menu addItem:alertsView];
         
         if ([GRDVPNHelper proMode]){
             if (self.regionMenuItems && !self.regionPickerMenuItem){
                 self.regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
                 [self.regionPickerMenuItem setSubmenu:[NSMenu new]];
                 [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
-                [menu addItem:self.regionPickerMenuItem];
+                [self.menu addItem:self.regionPickerMenuItem];
             } else if (self.regionPickerMenuItem){
-                if ([self.item.menu.itemArray containsObject:self.regionPickerMenuItem]){
-                    [self.item.menu removeItem:self.regionPickerMenuItem];
+                if ([self.menu.itemArray containsObject:self.regionPickerMenuItem]){
+                    [self.menu removeItem:self.regionPickerMenuItem];
                 }
-                [menu addItem:self.regionPickerMenuItem];
+                [self.menu addItem:self.regionPickerMenuItem];
             }
         }
     }
-    return menu;
+    return self.menu;
 }
 
 #pragma mark Menu Actions
@@ -319,7 +324,7 @@
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id)sender {
     if (![self isConnected]){
-        //return;
+        return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");
