@@ -795,6 +795,7 @@ uint64_t absoluteNanoseconds(void) {
 
 - (void)selectRegion:(NSMenuItem *)sender {
     NSString *title = sender.title;
+    [sender setState:NSControlStateValueOn];
     if ([title isEqualToString:@"Automatic"]){
         [[GRDVPNHelper sharedInstance] selectRegion:nil];
         [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
