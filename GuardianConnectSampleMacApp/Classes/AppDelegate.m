@@ -813,7 +813,7 @@ uint64_t absoluteNanoseconds(void) {
                         [newRegions addObject:region];
                     }
                 }];
-                _regions = newRegions;
+                _regions = [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self _createRegionMenu];
                 });
