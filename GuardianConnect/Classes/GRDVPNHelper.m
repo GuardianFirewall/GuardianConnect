@@ -209,6 +209,21 @@
     }];
 }
 
+- (void)selectRegion:(GRDRegion * _Nullable)selectedRegion {
+    _selectedRegion = selectedRegion;
+    NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+    if (selectedRegion){
+        [def setBool:true forKey:kGuardianUseFauxTimeZone];
+        [def setObject:selectedRegion.regionName forKey:kGuardianFauxTimeZone];
+        [def setObject:selectedRegion.displayName forKey:kGuardianFauxTimeZonePretty];
+    } else {
+        //resetting the value to nil, (Automatic)
+        [def setBool:false forKey:kGuardianUseFauxTimeZone];
+        [def removeObjectForKey:kGuardianFauxTimeZone];
+        [def removeObjectForKey:kGuardianFauxTimeZonePretty];
+    }
+}
+
 /// retrieves values out of the system keychain and stores them in the sharedAPI singleton object in memory for other functions to use in the future
 - (void)_loadCredentialsFromKeychain {
     [self setMainCredential:[GRDCredentialManager mainCredentials]];

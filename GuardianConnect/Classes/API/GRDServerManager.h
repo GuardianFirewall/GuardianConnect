@@ -10,7 +10,6 @@
 
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDServerManager : NSObject

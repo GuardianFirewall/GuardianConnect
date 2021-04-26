@@ -15,6 +15,8 @@
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
+#import <GuardianConnect/GRDRegion.h>
+
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
 #endif
@@ -22,6 +24,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
+
+@property (nullable) GRDRegion *selectedRegion; //experimental
 
 @property (nullable) NEProxySettings *proxySettings;
 @property (nullable) GRDCredential *mainCredential;
@@ -116,6 +120,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Doesn't appear to ever be used... obsolete code?
 - (void)setRetryCount:(NSInteger)retryCount;
 - (NSInteger)retryCount;
+
+/// Call this to properly assign a GRDRegion to all GRDServerManager instances
+- (void)selectRegion:(GRDRegion * _Nullable)region;
 
 #pragma mark Shared Framework Code
 

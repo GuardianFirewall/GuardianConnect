@@ -782,6 +782,8 @@ uint64_t absoluteNanoseconds(void) {
 
 - (NSArray *)_theRegionMenuItems {
     __block NSMutableArray *menuItems = [NSMutableArray new];
+    [menuItems addObject:[[NSMenuItem alloc] initWithTitle:@"Automatic" action:@selector(selectRegion:) keyEquivalent:@""]];
+    [menuItems addObject:[NSMenuItem separatorItem]];
     [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
         [menuItems addObject:currentRegion];
@@ -790,7 +792,15 @@ uint64_t absoluteNanoseconds(void) {
 }
 
 - (void)selectRegion:(NSMenuItem *)sender {
-    GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", sender.title]] firstObject];
+    NSString *title = sender.title;
+    if ([title isEqualToString:@"Automatic"]){
+        [[GRDVPNHelper sharedInstance] selectRegion:nil];
+        [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+            
+        }];
+        return;
+    }
+    GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", title]] firstObject];
     GRDLog(@"found region: %@", region);
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
@@ -798,6 +808,9 @@ uint64_t absoluteNanoseconds(void) {
         if (success){
             [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                 GRDLog(@"success: %d", success);
+                if (success){
+                    [[GRDVPNHelper sharedInstance] selectRegion:region];
+                }
             }];
         }
     }];
