@@ -9,7 +9,7 @@
 //experimental, should probably end up being a framework class
 
 #import "GRDRegion.h"
-#import <GuardianConnect/GuardianConnectMac.h>
+#import <GuardianConnect/GRDServerManager.h>
 @implementation GRDRegion
 
 -(instancetype)initWithDictionary:(NSDictionary *)regionDict {
