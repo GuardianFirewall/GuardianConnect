@@ -787,9 +787,18 @@ uint64_t absoluteNanoseconds(void) {
     return menuItems;
 }
 
-- (void)selectRegion:(id)sender {
+- (void)selectRegion:(NSMenuItem *)sender {
     LOG_SELF;
-    GRDLog(@"sender: %@", sender);
+    GRDLog(@"sender: %@", sender.title);
+    GRDRegion *region = [[_regions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"displayName == %@", sender.title]] firstObject];
+    GRDLog(@"found region: %@", region);
+    [region _findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+        if (success){
+            [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+                GRDLog(@"success: %d", success);
+            }];
+        }
+    }];
 }
 
 #pragma mark Region Selection
