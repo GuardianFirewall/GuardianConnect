@@ -15,13 +15,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GRDServerManager : NSObject
 
 /// Used to find and return the VPN server node we will connect to based on the results of a call to 'getGuardianHostsWithCompletion:"
-/// @param block Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
+/// @param completion Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
 - (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion;
 
 /// Used to get available VPN server nodes based on NSUserDefault settings OR the users time zone. Explained further below.
 /// if kGuardianUseFauxTimeZone is true kGuardianFauxTimeZone and kGuardianFauxTimeZonePretty will be used to find our host (this is how region selection works)
 /// If kGuardianUseFauxTimeZone is nil or false we will automatically choose the best host based on the users timezone.
-/// @param block Completion block with an NSArray of full server address nodes OR an error message if the call fails.
+/// @param completion Completion block with an NSArray of full server address nodes OR an error message if the call fails.
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion;
 
 /// Used to automatically find and connect to a VPN server node & create the connection, handy to use for 'Automatic' selection in region picker views.
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used to find the best VPN server node in a specified region, useful if you want to get VPN server node & its host location without creating a VPN connection.
 /// @param regionName NSString. The region we want to find the best available VPN node in.
-/// @param completion block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
+/// @param block block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
 - (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))block;
 
 /// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
