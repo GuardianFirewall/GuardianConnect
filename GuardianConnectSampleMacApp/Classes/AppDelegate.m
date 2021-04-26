@@ -841,7 +841,7 @@ uint64_t absoluteNanoseconds(void) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self _createRegionMenu];
                 });
-                [self identifyLocalRegionIfNecessary:localRegion];
+                //[self identifyLocalRegionIfNecessary:localRegion];
             }];
             
         }
