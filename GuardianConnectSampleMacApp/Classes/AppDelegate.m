@@ -783,10 +783,21 @@ uint64_t absoluteNanoseconds(void) {
 
 - (NSArray *)_theRegionMenuItems {
     __block NSMutableArray *menuItems = [NSMutableArray new];
-    [menuItems addObject:[[NSMenuItem alloc] initWithTitle:@"Automatic" action:@selector(selectRegion:) keyEquivalent:@""]];
+    GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
+    GRDLog(@"selected region: %@", selectedRegion);
+    NSMenuItem *automaticItem = [[NSMenuItem alloc] initWithTitle:@"Automatic" action:@selector(selectRegion:) keyEquivalent:@""];
+    if (!selectedRegion){
+        [automaticItem setState:NSControlStateValueOn];
+    } else {
+        [automaticItem setState:NSControlStateValueOff];
+    }
+    [menuItems addObject:automaticItem];
     [menuItems addObject:[NSMenuItem separatorItem]];
     [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
+        if ([obj.regionName isEqualToString:selectedRegion.regionName]){
+            [currentRegion setState:NSControlStateValueOn];
+        }
         [currentRegion setAssociatedValue:obj];
         [menuItems addObject:currentRegion];
     }];

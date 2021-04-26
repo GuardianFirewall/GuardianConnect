@@ -227,6 +227,13 @@
 /// retrieves values out of the system keychain and stores them in the sharedAPI singleton object in memory for other functions to use in the future
 - (void)_loadCredentialsFromKeychain {
     [self setMainCredential:[GRDCredentialManager mainCredentials]];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if([defaults boolForKey:kGuardianUseFauxTimeZone]) {
+        GRDRegion *region = [[GRDRegion alloc] init];
+        region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
+        region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
+        _selectedRegion = region;
+    }
 }
 
 //trying to make configureAndConnectVPNWithCompletion a bit smaller and more manageable, DONT CALL DIRECTLY.
