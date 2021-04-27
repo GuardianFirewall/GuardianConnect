@@ -26,7 +26,6 @@
 @property NSInteger _locationTotal;
 @property NSPredicate *filterPredicate;
 @property GCImageView *imageView;
-@property BOOL expanded;
 @property NSArray *_currentHosts;
 @property NSArray *_regions;
 @property NSArray *regionMenuItems;
@@ -421,7 +420,7 @@
 /// Action called when 'Show alerts' menu item is chosen
 - (void)showAlertsWindow:(id _Nullable)sender {
     if (![self isConnected]){
-        return;
+        //return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");
@@ -541,7 +540,7 @@
 }
 
 - (void)openPreferences {
-    
+    LOG_SELF;
 }
 
 
@@ -623,7 +622,7 @@
 
 /// Called from GCWindow when double click action is triggered.
 - (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
-    [self toggleExpandedManually:true];
+    [self toggleExpandedManually:false];
 }
 
 /// Method for showing the alert from the mouse event code

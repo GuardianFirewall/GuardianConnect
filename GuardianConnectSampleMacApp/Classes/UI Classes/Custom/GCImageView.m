@@ -10,13 +10,12 @@
 
 @implementation GCImageView
 
--(void)mouseDownMainThread:(NSEvent *) theEvent {
+-(void)mouseDownInMainThread:(NSEvent *)theEvent {
     if (_appDelegate){
         [_appDelegate createMenu];
     }
-    
-    NSTimeInterval thisTime = [theEvent timestamp];
-    if ((iconLastClickTime + 1.0) > thisTime) {
+    NSLog(@"click count: %lu", theEvent.clickCount);
+    if (theEvent.clickCount == 3) {
         [_appDelegate openPreferences];
     } else {
         NSStatusItem * statusI = [_appDelegate item];
@@ -32,7 +31,6 @@
         [statusI popUpStatusItemMenu: menu];
 #pragma clang diagnostic pop
     }
-    iconLastClickTime = thisTime;
 }
 
 -(void)removeTrackingRect {
@@ -42,6 +40,8 @@
         iconTrackingRectTagIsValid = FALSE;
     }
 }
+
+//TODO: update to use NSTrackingArea instead, supported all the way back to 10.5
 
 -(void)createTrackingRect {
     [self removeTrackingRect];
@@ -101,7 +101,7 @@
 
 -(void)mouseDown:(NSEvent *)theEvent {
     
-    [self performSelectorOnMainThread: @selector(mouseDownMainThread:) withObject: theEvent waitUntilDone: NO];
+    [self performSelectorOnMainThread: @selector(mouseDownInMainThread:) withObject: theEvent waitUntilDone: NO];
     [super mouseDown:theEvent];
 }
 

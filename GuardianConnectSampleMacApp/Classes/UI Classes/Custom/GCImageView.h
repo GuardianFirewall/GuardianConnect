@@ -21,8 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GCImageView : NSImageView {
     
-    NSTrackingRectTag      iconTrackingRectTag; // Used to track mouseEntered and mouseExited events for alerts display
-    NSTimeInterval         iconLastClickTime;   // Timestamp of last click (used to detect double-click)
+    NSTrackingRectTag      iconTrackingRectTag; 
     BOOL                   iconTrackingRectTagIsValid;
 }
 @property (weak) id <GCImageViewDelegate> appDelegate;

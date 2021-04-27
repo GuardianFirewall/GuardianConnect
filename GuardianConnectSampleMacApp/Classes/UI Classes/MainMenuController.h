@@ -38,6 +38,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property BOOL isMouseOverStatusIcon;
 @property BOOL isMouseOverAlertsWindow;
 @property BOOL menuIsOpen;
+@property BOOL expanded;
 
 @property (weak) IBOutlet NSButton *dataTrackerButton;
 @property (weak) IBOutlet NSButton *locationTrackerButton;

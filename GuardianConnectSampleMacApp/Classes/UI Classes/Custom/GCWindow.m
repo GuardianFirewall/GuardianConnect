@@ -45,6 +45,7 @@
     [super mouseExited:event];
 }
 
+//TODO: update to use NSTrackingArea instead, supported all the way back to 10.5
 
 -(void)startTracking {
     if (_trackingRectTag == 0) {
@@ -66,15 +67,9 @@
 }
 
 -(void)mouseDown:(NSEvent *)event {
-    NSTimeInterval thisTime = [event timestamp];
-    if ((_windowLastClickTime + 1.0) > thisTime) {
-        _windowLastClickTime = 0;
+    if (event.clickCount == 2){
         [_appDelegate doubleClickTriggered:self event:event];
-        return;
-    } else {
-        
     }
-    _windowLastClickTime = thisTime;
     [super mouseDown:event];
 }
 

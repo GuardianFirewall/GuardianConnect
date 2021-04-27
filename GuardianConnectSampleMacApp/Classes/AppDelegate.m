@@ -51,6 +51,7 @@
     [self.mainMenuController.totalAlertsButton setState:NSControlStateValueOn];
     [self.mainMenuController updateAlertWindow];
     self.mainMenuController.alertsWindow.appDelegate = self.mainMenuController;
+    self.mainMenuController.expanded = true;
     [self.mainMenuController toggleExpandedManually:false];
 }
 
