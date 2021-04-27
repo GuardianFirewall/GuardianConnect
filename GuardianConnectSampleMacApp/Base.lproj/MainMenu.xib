@@ -15,22 +15,27 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
-                <outlet property="alertsArrayController" destination="XIQ-t8-o1I" id="m2e-Id-gHZ"/>
-                <outlet property="alertsTableView" destination="CpU-wA-S77" id="9lI-8S-n8P"/>
-                <outlet property="alertsWindow" destination="qtz-nh-7s2" id="cJb-FG-AZi"/>
-                <outlet property="dataTrackerButton" destination="PqU-g6-oZt" id="I9e-a1-uKm"/>
-                <outlet property="locationTrackerButton" destination="0Zf-cS-Ydb" id="alb-tB-9ae"/>
-                <outlet property="mailTrackerButton" destination="NVv-O0-Krv" id="DmR-OB-r8b"/>
-                <outlet property="onDemandCheckbox" destination="YFL-Vd-Qu1" id="H5n-G4-I0K"/>
-                <outlet property="pageHijackerButton" destination="99H-ov-vM9" id="Z4l-rl-Z4a"/>
-                <outlet property="passwordField" destination="yjl-Tt-EyZ" id="fOz-kH-bVA"/>
-                <outlet property="tableContainerView" destination="a0Y-Qr-fsh" id="QjZ-xL-pE4"/>
-                <outlet property="totalAlertsButton" destination="Jfx-WV-dfV" id="0ta-zg-RZq"/>
-                <outlet property="usernameField" destination="DIG-kD-qOb" id="xf9-wH-z36"/>
-                <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
+                <outlet property="mainMenuController" destination="UIE-mv-2Dw" id="hDu-wX-0BM"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
+        <objectController id="UIE-mv-2Dw" customClass="MainMenuController">
+            <connections>
+                <outlet property="alertsArrayController" destination="XIQ-t8-o1I" id="Jg5-7S-1K6"/>
+                <outlet property="alertsTableView" destination="CpU-wA-S77" id="Aav-uR-1kG"/>
+                <outlet property="alertsWindow" destination="qtz-nh-7s2" id="dWB-QA-Ryx"/>
+                <outlet property="dataTrackerButton" destination="PqU-g6-oZt" id="ukn-po-Swk"/>
+                <outlet property="locationTrackerButton" destination="0Zf-cS-Ydb" id="e3O-bZ-0FX"/>
+                <outlet property="mailTrackerButton" destination="NVv-O0-Krv" id="tvf-o8-A1I"/>
+                <outlet property="onDemandCheckbox" destination="YFL-Vd-Qu1" id="F8r-Of-5Ff"/>
+                <outlet property="pageHijackerButton" destination="99H-ov-vM9" id="M4f-Sd-5v5"/>
+                <outlet property="passwordField" destination="yjl-Tt-EyZ" id="91A-Ys-Rgk"/>
+                <outlet property="tableContainerView" destination="a0Y-Qr-fsh" id="MuU-8k-e7x"/>
+                <outlet property="totalAlertsButton" destination="Jfx-WV-dfV" id="pBG-Qc-s32"/>
+                <outlet property="usernameField" destination="DIG-kD-qOb" id="ZTX-4R-aeg"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="nFw-40-VXs"/>
+            </connections>
+        </objectController>
         <arrayController objectClassName="GRDEvent" id="XIQ-t8-o1I">
             <declaredKeys>
                 <string>category</string>
@@ -733,7 +738,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="login:" target="Voe-Tx-rLC" id="v2H-tA-DRA"/>
+                            <action selector="login:" target="UIE-mv-2Dw" id="fEp-qB-s6A"/>
                         </connections>
                     </button>
                     <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yjl-Tt-EyZ">
@@ -788,7 +793,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="j9U-UT-rB9"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="eN9-hl-tDZ"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
@@ -798,7 +803,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="T3R-iB-3U8"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="oi8-pn-fo4"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
@@ -808,7 +813,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="0Yu-E6-WL9"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="pAs-Wq-TLk"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
@@ -818,7 +823,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="gUy-ig-dIH"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="ZSv-RU-Pv2"/>
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
@@ -1056,7 +1061,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="42I-hN-gNJ"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="jCf-cM-wM9"/>
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="A4g-uZ-SJw">

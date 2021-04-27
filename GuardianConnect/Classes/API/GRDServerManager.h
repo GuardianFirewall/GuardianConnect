@@ -10,6 +10,7 @@
 
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDRegion.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDServerManager : NSObject
@@ -23,10 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// If kGuardianUseFauxTimeZone is nil or false we will automatically choose the best host based on the users timezone.
 /// @param completion Completion block with an NSArray of full server address nodes OR an error message if the call fails.
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion;
-
-/// Used to automatically find and connect to a VPN server node & create the connection, handy to use for 'Automatic' selection in region picker views.
-/// @param block Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
-- (void)findSuitableHostAndConnectWithCompletion:(void(^)(NSString *errorMessage, BOOL success))block; //FIXME: this might be redudant, since findBestHostInRegion: can receive a 'nil' value for host and that defaults to 'Automatic' behavior, that could be used instead.
 
 /// Used to find and connect to a VPN server node in 'regionName' specified & create the connection, handy to use in the region picker view for specified regionName
 /// @param regionName NSString The region we want to specify, if null it will defer to 'Automatic' selection.
@@ -44,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
 /// @param timezones NSArray of timezones that is from GRDHousekeepingAPI 'requestTimeZonesForRegionsWithTimestamp:' method
-/// @return NSDictictionary of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
-+ (NSDictionary *)localRegionFromTimezones:(NSArray *)timezones;
+/// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
++ (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
 /// Used to register for device push notifications if applicable. will be innocuous if 'application: didRegisterForRemoteNotificationsWithDeviceToken:' isn't implemented in your app delegate.
 /// We specifically use it to sync our push notification settings to the current server we are associated with.

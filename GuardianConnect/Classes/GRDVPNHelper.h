@@ -129,6 +129,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 + (GRDPlanDetailType)subscriptionTypeFromDefaults;
 + (BOOL)proMode;
+- (void)clearLocalCache;
 
 #if !TARGET_OS_OSX
 - (void)startBackgroundTaskIfNecessary;

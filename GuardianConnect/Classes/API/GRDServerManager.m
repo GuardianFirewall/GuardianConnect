@@ -45,7 +45,7 @@
         if ([availableServers count] < 2) {
             // take full list of servers returned by housekeeping and use them
             availableServers = servers;
-            NSLog(@"[selectGuardianHostWithCompletion] less than 2 low cap servers available, so not limiting list");
+            GRDLog(@"[selectGuardianHostWithCompletion] less than 2 low cap servers available, so not limiting list");
         }
         [debugHelper logTimeWithMessage:@"created availableServers array"];
         
@@ -75,12 +75,12 @@
     [self.housekeeping requestTimeZonesForRegionsWithTimestamp:timestamp completion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
         [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block start"];
         if (success == NO) {
-            NSLog(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
+            GRDLog(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
             
             // In case housekeeping goes down try to grab the cached hosts
             NSArray *knownServersForRegion = [defaults objectForKey:kKnownGuardianHosts];
             if (knownServersForRegion != nil) {
-                NSLog(@"Found cached array of servers");
+                GRDLog(@"Found cached array of servers");
                 if (completion) completion(knownServersForRegion, nil);
                 return;
             } else {
@@ -105,30 +105,34 @@
         NSTimeInterval nowUnix = [[NSDate date] timeIntervalSince1970];
         [defaults setObject:[NSNumber numberWithInt:nowUnix] forKey:housekeepingTimezonesTimestamp];
         
-        NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
-        NSString *regionName = region[@"name"];
-        NSLog(@"[DEBUG] found region: %@", regionName);
+        GRDRegion *region = [GRDServerManager localRegionFromTimezones:timeZones];
+        NSString *regionName = region.regionName;
+        GRDLog(@"[DEBUG] found region: %@", regionName);
         NSTimeZone *local = [NSTimeZone localTimeZone];
-        NSLog(@"[DEBUG] real local time zone: %@", local);
-        if ([defaults boolForKey:kGuardianUseFauxTimeZone]){
-            NSLog(@"[DEBUG] using faux timezone: %@", [defaults valueForKey:kGuardianFauxTimeZone]);
-            regionName = [defaults valueForKey:kGuardianFauxTimeZone];
+        GRDLog(@"[DEBUG] real local time zone: %@", local);
+        
+        // This is how region / server selection works, if the selected credential isnt nil, we are using a custom region.
+        
+        GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
+        if (selectedRegion) {
+            GRDLog(@"[DEBUG] using custom selected region: %@", selectedRegion.regionName);
+            regionName = selectedRegion.regionName;
         }
         // This is only meant as a fallback to have something
         // when absolutely everything seems to have fallen apart
         if (regionName == nil) {
-            NSLog(@"[getGuardianHostsWithCompletion] Failed to find time zone: %@", local);
-            NSLog(@"[getGuardianHostsWithCompletion] Setting time zone to us-east");
+            GRDLog(@"[getGuardianHostsWithCompletion] Failed to find time zone: %@", local);
+            GRDLog(@"[getGuardianHostsWithCompletion] Setting time zone to us-east");
             regionName = @"us-east";
         }
         
         [self.housekeeping requestServersForRegion:regionName completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
-                NSLog(@"[getGuardianHostsWithCompletion] Failed to get servers for region");
+                GRDLog(@"[getGuardianHostsWithCompletion] Failed to get servers for region");
                 if (completion) completion(nil, @"Failed to request list of servers.");
                 return;
             } else {
-                //NSLog(@"servers: %@", servers);
+                //GRDLog(@"servers: %@", servers);
                 [defaults setObject:servers forKey:kKnownGuardianHosts];
                 if (completion) completion(servers, nil);
             }
@@ -173,7 +177,7 @@
                 NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
                 NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
                 NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
-                NSLog(@"Selected host: %@", guardianHost);
+                GRDLog(@"Selected host: %@", guardianHost);
                 if(block){
                     dispatch_async(dispatch_get_main_queue(), ^{
                         block(guardianHost, guardianHostLocation, nil);
@@ -198,7 +202,7 @@
             } else {
                 NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
                 if (availableServers.count < 2){
-                    NSLog(@"[DEBUG] less than 2 low capacity servers: %@", availableServers);
+                    GRDLog(@"[DEBUG] less than 2 low capacity servers: %@", availableServers);
                     availableServers = servers;
                 }
                 
@@ -216,7 +220,7 @@
                             });
                         }
                     } else {
-                        NSLog(@"[DEBUG] configured first time user successfully!");
+                        GRDLog(@"[DEBUG] configured first time user successfully!");
                         [self bindPushToken];
                         if (block){
                             dispatch_async(dispatch_get_main_queue(), ^{
@@ -228,39 +232,6 @@
             }
         }];
     });
-}
-
-- (void)findSuitableHostAndConnectWithCompletion:(void(^)(NSString *errorMessage, BOOL success))block {
-    [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (errorMessage != nil) {
-                if (block){
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        block(errorMessage,FALSE);
-                    });
-                }
-            } else { //no error occured
-                GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
-                [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
-                    if (!success){
-                        if (block){
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                block(errorMessage,FALSE);
-                            });
-                        }
-                    } else { //success!
-                        [self bindPushToken];
-                        if (block){
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                block(nil,TRUE);
-                            });
-                        }
-                        NSLog(@"[DEBUG] configured first time user successfully!");
-                    }
-                }];
-            }
-        });
-    }];
 }
 
 - (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))block {
@@ -290,9 +261,9 @@
     }
 }
 
-+ (NSDictionary *)localRegionFromTimezones:(NSArray *)timezones {
++ (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones {
     NSDictionary *found = [[timezones filteredArrayUsingPredicate:[NSPredicate timezonePredicate]] lastObject];
-    return found;
+    return [[GRDRegion alloc] initWithDictionary:found];
     
 }
 

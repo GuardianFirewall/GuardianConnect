@@ -552,6 +552,18 @@
 
 #pragma mark shared framework code
 
+- (void)clearLocalCache {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:kKnownGuardianHosts];
+    [defaults removeObjectForKey:housekeepingTimezonesTimestamp];
+    [defaults removeObjectForKey:kKnownHousekeepingTimeZonesForRegions];
+    [defaults removeObjectForKey:kGuardianAllRegions];
+    [defaults removeObjectForKey:kGuardianAllRegionsTimeStamp];;
+    [defaults removeObjectForKey:kGRDEAPSharedHostname];
+    [GRDKeychain removeGuardianKeychainItems];
+    [GRDKeychain removeSubscriberCredentialWithRetries:3];
+}
+
 + (GRDPlanDetailType)subscriptionTypeFromDefaults {
     NSString *subscriptionTypeStr = [[NSUserDefaults standardUserDefaults] objectForKey:kSubscriptionPlanTypeStr];
     NSArray *essSubTypes = @[kGuardianSubscriptionDayPass,
