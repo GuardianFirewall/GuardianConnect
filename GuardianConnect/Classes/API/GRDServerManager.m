@@ -230,39 +230,6 @@
     });
 }
 
-- (void)findSuitableHostAndConnectWithCompletion:(void(^)(NSString *errorMessage, BOOL success))block {
-    [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (errorMessage != nil) {
-                if (block){
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        block(errorMessage,FALSE);
-                    });
-                }
-            } else { //no error occured
-                GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
-                [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
-                    if (!success){
-                        if (block){
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                block(errorMessage,FALSE);
-                            });
-                        }
-                    } else { //success!
-                        [self bindPushToken];
-                        if (block){
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                block(nil,TRUE);
-                            });
-                        }
-                        NSLog(@"[DEBUG] configured first time user successfully!");
-                    }
-                }];
-            }
-        });
-    }];
-}
-
 - (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))block {
     __block NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     NSNumber *timestamp = [ud objectForKey:kGuardianAllRegionsTimeStamp];

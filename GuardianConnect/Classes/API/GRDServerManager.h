@@ -24,10 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion Completion block with an NSArray of full server address nodes OR an error message if the call fails.
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion;
 
-/// Used to automatically find and connect to a VPN server node & create the connection, handy to use for 'Automatic' selection in region picker views.
-/// @param block Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
-- (void)findSuitableHostAndConnectWithCompletion:(void(^)(NSString *errorMessage, BOOL success))block; //FIXME: this might be redudant, since findBestHostInRegion: can receive a 'nil' value for host and that defaults to 'Automatic' behavior, that could be used instead.
-
 /// Used to find and connect to a VPN server node in 'regionName' specified & create the connection, handy to use in the region picker view for specified regionName
 /// @param regionName NSString The region we want to specify, if null it will defer to 'Automatic' selection.
 /// @param block Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
