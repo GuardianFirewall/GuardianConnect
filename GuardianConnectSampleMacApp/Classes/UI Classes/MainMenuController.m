@@ -452,7 +452,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 /// Action called when 'Show alerts' menu item is chosen
 - (IBAction)showAlertsWindow:(id _Nullable)sender {
     if (![self isConnected]){
-        //return;
+        return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");

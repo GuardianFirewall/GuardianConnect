@@ -71,56 +71,6 @@
     // Insert code here to tear down your application
 }
 
-
-#pragma mark VPN Management
-
-/// whether or not the user is logged in to a pro account
-- (BOOL)isLoggedIn {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"userLoggedIn"];
-}
-
-/// Is there an active VPN connection open
-- (BOOL)isConnected {
-    NEVPNStatus status = [[[NEVPNManager sharedManager] connection] status];
-    return (status == NEVPNStatusConnected);
-}
-
-#pragma mark Menu Management
-
-- (NSString *)currentDisplayHostname {
-    GRDRegion *selected = [[GRDVPNHelper sharedInstance] selectedRegion];
-    if (selected){
-        return selected.displayName;
-    } else {
-        return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDVPNHostLocation];
-    }
-}
-
-/// Title for the VPN connection menu item
-- (NSString *)connectButtonTitle {
-    if ([self isConnected]){
-        return [NSString stringWithFormat:@"Disconnect (%@) VPN", [self currentDisplayHostname]];
-    }
-    return @"Connect VPN";
-}
-
-/// Title of the pro menu item
-- (NSString *)proMenuTitle {
-    if ([self isLoggedIn]){
-        return @"Pro Logout";
-    }
-    return @"Pro Login";
-}
-
-
-/// An alert that is shown if we are on mojave or lower, can't work until DeviceCheck gets the heave-ho.
-- (void)showMojaveIncompatibleAlert {
-    NSAlert *alert = [NSAlert new];
-    alert.messageText = @"Error";
-    alert.informativeText = @"Catalina or newer is required to use the DeviceCheck framework, currently this version of macOS is unsupported.";
-    [alert runModal];
-}
-
 #pragma mark VPN & UI state management
 
 /// Observes VPN connectivity to show different UI states as applicable
