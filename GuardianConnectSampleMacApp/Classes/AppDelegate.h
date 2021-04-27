@@ -8,18 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "GCSubscriptionManager.h"
-#import "GCImageView.h"
-#import "GCWindow.h"
 #import "MainMenuController.h"
-
-typedef NS_ENUM(NSInteger, GRDButtonType) {
-    GRDButtonTypeTotalAlerts = 10,
-    GRDButtonTypeDataTracker,
-    GRDButtonTypeLocationTracker,
-    GRDButtonTypeMailTracker,
-    GRDButtonTypePageHijacker,
-};
-
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
