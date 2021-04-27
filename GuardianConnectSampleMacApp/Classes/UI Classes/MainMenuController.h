@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
 @property (weak) IBOutlet NSButton *onDemandCheckbox;
-@property (nonatomic, strong) NSTimer *eventRefreshTimer;
+@property (nullable, nonatomic, strong) NSTimer *eventRefreshTimer;
 @property (nonatomic, strong) NSStatusItem *item;
 @property (nonatomic, strong) NSMenu *menu;
 @property (weak) IBOutlet NSTableView *alertsTableView;
@@ -37,16 +37,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSButton *totalAlertsButton;
 
 - (IBAction)login:(id)sender;
+- (void)showLoginWindow:(id)sender;
 - (IBAction)createVPNConnection:(id)sender;
 - (IBAction)clearVPNSettings:(id)sender;
 - (IBAction)spoofReceiptData:(id)sender;
 - (IBAction)refreshEventData:(id)sender;
-- (IBAction)showAlertsWindow:(id)sender;
+- (void)selectRegion:(NSMenuItem *)sender;
+- (IBAction)showAlertsWindow:(id _Nullable)sender;
 - (IBAction)toggleAlertFilter:(id)sender;
 - (void)removeAlertObserver;
 - (void)createMenu;
 - (void)clearLocalCache;
-
+- (void)startEventRefreshTimer;
+- (void)stopEventRefreshTimer;
+- (void)updateAlertWindow;
+- (void)toggleExpandedManually:(BOOL)manually;
+- (void)populateRegionDataIfNecessary;
+- (void)fetchEventData;
+- (void)quit:(id)send;
 @end
 
 NS_ASSUME_NONNULL_END

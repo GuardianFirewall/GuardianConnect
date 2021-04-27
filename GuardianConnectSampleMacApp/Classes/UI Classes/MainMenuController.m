@@ -237,7 +237,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
         [self.menu removeAllItems];
     }
     //NSMenu *menu = [NSMenu new];
-    self.menu.delegate = self;
+    //self.menu.delegate = self;
     NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
     [self.menu addItem:proLogin];
     if ([GRDVPNHelper isPayingUser]){
@@ -450,7 +450,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 }
 
 /// Action called when 'Show alerts' menu item is chosen
-- (IBAction)showAlertsWindow:(id)sender {
+- (IBAction)showAlertsWindow:(id _Nullable)sender {
     if (![self isConnected]){
         //return;
     }
@@ -753,6 +753,22 @@ uint64_t ourAbsoluteNanoseconds(void) {
                                                     userInfo:nil
                                                      repeats:FALSE];
     [timer setTolerance: -1.0];
+}
+
+#pragma mark Region Selection
+
+/// Populate region data for region selection
+- (void)populateRegionDataIfNecessary {
+    @weakify(self);
+    [[GRDServerManager new] populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+        //GRDLog(@"we got these regions: %@", regions);
+        self_weak_._regions = regions;
+        self_weak_.regions = [GRDRegion regionsFromTimezones:regions];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _createRegionMenu];
+        });
+    }];
+    
 }
 
 @end

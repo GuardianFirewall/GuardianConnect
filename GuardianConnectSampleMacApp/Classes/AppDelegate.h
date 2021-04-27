@@ -21,36 +21,11 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 };
 
 
-@interface AppDelegate : NSObject <NSApplicationDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate, GCImageViewDelegate, GCWindowDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, strong) NSStatusItem *item;
-@property (nonatomic, strong) NSMenu *menu;
-@property (weak) IBOutlet NSTextField *usernameField;
-@property (weak) IBOutlet NSTextField *passwordField;
-@property (weak) IBOutlet NSButton *onDemandCheckbox;
-@property (nonatomic, strong) NSTimer *eventRefreshTimer;
-@property (weak) IBOutlet GCWindow *alertsWindow;
-@property (weak) IBOutlet NSButton *dataTrackerButton;
-@property (weak) IBOutlet NSButton *locationTrackerButton;
-@property (weak) IBOutlet NSButton *mailTrackerButton;
-@property (weak) IBOutlet NSButton *pageHijackerButton;
-@property (weak) IBOutlet NSButton *totalAlertsButton;
-@property (weak) IBOutlet NSArrayController *alertsArrayController;
-@property (weak) IBOutlet NSTableView *alertsTableView;
-@property (weak) IBOutlet NSScrollView *tableContainerView;
 @property (weak) IBOutlet MainMenuController *mainMenuController;
-@property NSMenuItem *regionPickerMenuItem;
-@property BOOL isMouseOverStatusIcon;
-@property BOOL isMouseOverAlertsWindow;
-@property BOOL menuIsOpen;
 
-- (IBAction)login:(id)sender;
-- (IBAction)createVPNConnection:(id)sender;
-- (IBAction)clearVPNSettings:(id)sender;
-- (IBAction)spoofReceiptData:(id)sender;
 - (IBAction)refreshEventData:(id)sender;
-- (IBAction)showAlertsWindow:(id)sender;
-- (IBAction)toggleAlertFilter:(id)sender;
-- (void)removeAlertObserver;
+
 @end
 
