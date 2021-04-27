@@ -31,6 +31,7 @@
                 <outlet property="pageHijackerButton" destination="99H-ov-vM9" id="M4f-Sd-5v5"/>
                 <outlet property="passwordField" destination="yjl-Tt-EyZ" id="91A-Ys-Rgk"/>
                 <outlet property="tableContainerView" destination="a0Y-Qr-fsh" id="MuU-8k-e7x"/>
+                <outlet property="totalAlertsButton" destination="Jfx-WV-dfV" id="pBG-Qc-s32"/>
                 <outlet property="usernameField" destination="DIG-kD-qOb" id="ZTX-4R-aeg"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="nFw-40-VXs"/>
             </connections>
