@@ -157,6 +157,9 @@
     }
 }
 
+// This is a bit of ugly glue code, when creating the MainMenuController NSMenuItem's and setting their actions its assuming by default
+// that the actions are inside here, in the meantime, listen for them in here and forward them to the mainMenuController instance.
+
 - (void)showLoginWindow:(id)sender {
     [self.mainMenuController showLoginWindow:sender];
 }
