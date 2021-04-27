@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property NSArray *regionMenuItems;
 @property NSArray <GRDRegion *> *regions;
 @property GRDRegion *_localRegion;
-@property (weak) IBOutlet NSWindow *window;
+
 @end
 
 @implementation MainMenuController

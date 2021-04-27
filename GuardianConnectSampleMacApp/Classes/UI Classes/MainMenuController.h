@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MainMenuController : NSObjectController <GCImageViewDelegate, GCWindowDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate>
 
+@property (weak) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSScrollView *tableContainerView;
 @property (weak) IBOutlet GCWindow *alertsWindow;
 @property (weak) IBOutlet NSTextField *usernameField;

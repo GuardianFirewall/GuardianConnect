@@ -17,21 +17,8 @@
 #import "GRDRegion.h"
 #import "NSObject+Extras.h"
 
-@interface AppDelegate () {
-    BOOL _addedRegionMenuItems; //dont do this more than once
-}
+@interface AppDelegate ()
 
-@property (weak) IBOutlet NSWindow *window;
-@property (nonatomic, strong) NSDictionary *_latestStats;
-@property (nonatomic, strong) NSArray *_events;
-@property NSInteger _alertTotal;
-@property NSInteger _dataTotal;
-@property NSInteger _mailTotal;
-@property NSInteger _pageTotal;
-@property NSInteger _locationTotal;
-@property NSPredicate *filterPredicate;
-@property GCImageView *imageView;
-@property BOOL expanded;
 @property NSArray *_currentHosts;
 @property NSArray *_regions;
 @property NSArray *regionMenuItems;
@@ -59,7 +46,7 @@
     }];
     [self.mainMenuController createMenu];
     if (![GRDVPNHelper isPayingUser]){
-        [self.window makeKeyAndOrderFront:nil];
+        [self.mainMenuController.window makeKeyAndOrderFront:nil];
     }
     [self.mainMenuController.totalAlertsButton setState:NSControlStateValueOn];
     [self.mainMenuController updateAlertWindow];
