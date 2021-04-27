@@ -10,6 +10,7 @@
 
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDRegion.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDServerManager : NSObject
@@ -40,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
 /// @param timezones NSArray of timezones that is from GRDHousekeepingAPI 'requestTimeZonesForRegionsWithTimestamp:' method
-/// @return NSDictictionary of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
-+ (NSDictionary *)localRegionFromTimezones:(NSArray *)timezones;
+/// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
++ (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
 /// Used to register for device push notifications if applicable. will be innocuous if 'application: didRegisterForRemoteNotificationsWithDeviceToken:' isn't implemented in your app delegate.
 /// We specifically use it to sync our push notification settings to the current server we are associated with.
