@@ -66,7 +66,9 @@
     [self.totalAlertsButton setState:NSControlStateValueOn];
     [self updateAlertWindow];
     self.alertsWindow.acceptsMouseMovedEvents = true;
-    self.alertsWindow.appDelegate = self;
+    //self.alertsWindow.appDelegate = self;
+    self.mainMenuController.alertsWindow.appDelegate = self.mainMenuController;
+    //self.alertsWindow.appDelegate = self.mainMenuController;
     [self toggleExpandedManually:false];
 }
 
@@ -168,6 +170,8 @@
 
 /// Create the actual menu, this is recreated routinely to refresh the contents, could probably be done more 'properly' but this will do for now.
 - (void)createMenu {
+    [_mainMenuController createMenu];
+    return;
     if (self.item){
         [self refreshMenu];
         [self updateMenuImage];
@@ -401,6 +405,8 @@
     }
 }
 
+
+
 /// Kill the application, note, this will NOT kill the VPN connection.
 - (void)quit:(id)sender {
     exit(0);
@@ -471,6 +477,8 @@
         self.alertsWindow.shownManually = manually;
     });
 }
+
+#pragma mark Alert window management
 
 - (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
     [self toggleExpandedManually:true];

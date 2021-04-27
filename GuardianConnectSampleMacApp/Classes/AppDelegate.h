@@ -10,6 +10,7 @@
 #import "GCSubscriptionManager.h"
 #import "GCImageView.h"
 #import "GCWindow.h"
+#import "MainMenuController.h"
 
 typedef NS_ENUM(NSInteger, GRDButtonType) {
     GRDButtonTypeTotalAlerts = 10,
@@ -37,6 +38,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (weak) IBOutlet NSArrayController *alertsArrayController;
 @property (weak) IBOutlet NSTableView *alertsTableView;
 @property (weak) IBOutlet NSScrollView *tableContainerView;
+@property (weak) IBOutlet MainMenuController *mainMenuController;
 @property NSMenuItem *regionPickerMenuItem;
 @property BOOL isMouseOverStatusIcon;
 @property BOOL isMouseOverAlertsWindow;

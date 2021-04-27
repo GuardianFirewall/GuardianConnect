@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		320358D326379754005CD7CB /* MainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 320358D226379754005CD7CB /* MainMenuController.m */; };
 		3218DB2026326A4D005DD56B /* Little_G.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB1F26326A4D005DD56B /* Little_G.png */; };
 		3218DB2226326D66005DD56B /* White_G.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB2126326D66005DD56B /* White_G.png */; };
 		3218DB25263277BF005DD56B /* Little_G_Pro_Dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB23263277BE005DD56B /* Little_G_Pro_Dark.png */; };
@@ -120,6 +121,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		320358D126379754005CD7CB /* MainMenuController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainMenuController.h; sourceTree = "<group>"; };
+		320358D226379754005CD7CB /* MainMenuController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainMenuController.m; sourceTree = "<group>"; };
 		3218DB1F26326A4D005DD56B /* Little_G.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Little_G.png; sourceTree = "<group>"; };
 		3218DB2126326D66005DD56B /* White_G.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = White_G.png; sourceTree = "<group>"; };
 		3218DB23263277BE005DD56B /* Little_G_Pro_Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Little_G_Pro_Dark.png; sourceTree = "<group>"; };
@@ -216,6 +219,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		320358CB2637963B005CD7CB /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				325583E32634D65F0015DEE3 /* NSColor+Additions.h */,
+				325583E42634D65F0015DEE3 /* NSColor+Additions.m */,
+				32855B1D2636767F0088086E /* NSObject+Extras.h */,
+				32855B1E2636767F0088086E /* NSObject+Extras.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		320358CC26379650005CD7CB /* UI Classes */ = {
+			isa = PBXGroup;
+			children = (
+				320358D126379754005CD7CB /* MainMenuController.h */,
+				320358D226379754005CD7CB /* MainMenuController.m */,
+				320358D426379768005CD7CB /* Custom */,
+			);
+			path = "UI Classes";
+			sourceTree = "<group>";
+		};
+		320358CD263796D0005CD7CB /* Event and Subscription */ = {
+			isa = PBXGroup;
+			children = (
+				325583E02634D2420015DEE3 /* GRDEvent.h */,
+				325583E12634D2420015DEE3 /* GRDEvent.m */,
+				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
+				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
+			);
+			path = "Event and Subscription";
+			sourceTree = "<group>";
+		};
+		320358D426379768005CD7CB /* Custom */ = {
+			isa = PBXGroup;
+			children = (
+				32ABCF54263547960030B258 /* GCWindow.h */,
+				32ABCF55263547960030B258 /* GCWindow.m */,
+				32ABCF51263540300030B258 /* GCImageView.h */,
+				32ABCF52263540300030B258 /* GCImageView.m */,
+			);
+			path = Custom;
+			sourceTree = "<group>";
+		};
 		321BA139261404A100E876CB = {
 			isa = PBXGroup;
 			children = (
@@ -257,18 +303,9 @@
 			children = (
 				329C526526315071003B78D8 /* AppDelegate.h */,
 				329C526626315071003B78D8 /* AppDelegate.m */,
-				32ABCF54263547960030B258 /* GCWindow.h */,
-				32ABCF55263547960030B258 /* GCWindow.m */,
-				32ABCF51263540300030B258 /* GCImageView.h */,
-				32ABCF52263540300030B258 /* GCImageView.m */,
-				325583E02634D2420015DEE3 /* GRDEvent.h */,
-				325583E12634D2420015DEE3 /* GRDEvent.m */,
-				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
-				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
-				325583E32634D65F0015DEE3 /* NSColor+Additions.h */,
-				325583E42634D65F0015DEE3 /* NSColor+Additions.m */,
-				32855B1D2636767F0088086E /* NSObject+Extras.h */,
-				32855B1E2636767F0088086E /* NSObject+Extras.m */,
+				320358CD263796D0005CD7CB /* Event and Subscription */,
+				320358CB2637963B005CD7CB /* Categories */,
+				320358CC26379650005CD7CB /* UI Classes */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -598,6 +635,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32ABCF53263540300030B258 /* GCImageView.m in Sources */,
+				320358D326379754005CD7CB /* MainMenuController.m in Sources */,
 				325583E22634D2420015DEE3 /* GRDEvent.m in Sources */,
 				329C526F26315073003B78D8 /* main.m in Sources */,
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
