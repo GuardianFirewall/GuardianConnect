@@ -13,6 +13,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, GRDButtonType) {
+    GRDButtonTypeTotalAlerts = 10,
+    GRDButtonTypeDataTracker,
+    GRDButtonTypeLocationTracker,
+    GRDButtonTypeMailTracker,
+    GRDButtonTypePageHijacker,
+};
+
 @interface MainMenuController : NSObjectController <GCImageViewDelegate, GCWindowDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate>
 
 @property (weak) IBOutlet NSWindow *window;
@@ -48,7 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)toggleAlertFilter:(id)sender;
 - (void)removeAlertObserver;
 - (void)createMenu;
-- (void)clearLocalCache;
 - (void)startEventRefreshTimer;
 - (void)stopEventRefreshTimer;
 - (void)updateAlertWindow;

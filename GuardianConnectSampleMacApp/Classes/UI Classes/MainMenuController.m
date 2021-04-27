@@ -15,15 +15,6 @@
 #import "GRDEvent.h"
 #import "NSObject+Extras.h"
 
-
-typedef NS_ENUM(NSInteger, GRDButtonType) {
-    GRDButtonTypeTotalAlerts = 10,
-    GRDButtonTypeDataTracker,
-    GRDButtonTypeLocationTracker,
-    GRDButtonTypeMailTracker,
-    GRDButtonTypePageHijacker,
-};
-
 @interface MainMenuController ()
 
 @property (nonatomic, strong) NSDictionary *_latestStats;
