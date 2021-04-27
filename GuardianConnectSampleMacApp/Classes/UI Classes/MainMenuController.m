@@ -46,12 +46,16 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 
 @implementation MainMenuController
 
+#pragma mark NSMenu delegate methods
+
+/// Called when our menu will open, lets us track whether its open or closed.
 - (void)menuWillOpen:(NSMenu *)menu {
     if (menu == _menu){
         _menuIsOpen = true;
     }
 }
 
+/// Called when our menu did close, lets us track whether its open or closed.
 - (void)menuDidClose:(NSMenu *)menu {
     if (menu == _menu){
         _menuIsOpen = false;
@@ -78,54 +82,17 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     }];
 }
 
-
-/// Action triggered when any of the buttons are selected on the Alerts Window
-- (IBAction)toggleAlertFilter:(NSButton *)sender {
-    @weakify(self);
-    GRDButtonType type = [sender tag];
-    switch (type) {
-        case GRDButtonTypeTotalAlerts:
-            _filterPredicate = nil;
-            break;
-        
-        case GRDButtonTypeDataTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Data Tracker'"];
-            break;
-            
-        case GRDButtonTypeMailTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Mail Tracker'"];
-            break;
-        
-        case GRDButtonTypeLocationTracker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Location Tracker'"];
-            break;
-            
-        case GRDButtonTypePageHijacker:
-            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Page Hijacker'"];
-            break;
-            
-        default:
-            break;
-    }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self invertButtons:sender];
-        if (self_weak_.filterPredicate){
-            [self.alertsArrayController setContent:[self_weak_._events filteredArrayUsingPredicate:self_weak_.filterPredicate]];
-        } else {
-            [self.alertsArrayController setContent:self_weak_._events];
-        }
-        [self updateAlertWindow];
-    });
-}
-
-- (void)removeAlertObserver {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:self.alertsWindow.contentView];
-}
-
+/// Adds observer for frame changes to the contentView of alertsWindow
 - (void)addAlertObserver {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSViewFrameDidChangeNotification object:self.alertsWindow.contentView];
 }
 
+/// Removes observer for frame changes to the contentView of alertsWindow
+- (void)removeAlertObserver {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:self.alertsWindow.contentView];
+}
+
+/// Function called when the window resizes
 - (void)windowResized:(NSNotification *)n {
     NSView *view = (NSView *)[n object];
     CGFloat height = [view frame].size.height;
@@ -134,33 +101,22 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     } else {
         [self showAlertsTableView];
     }
+    [self.alertsWindow restartTracking];
 }
 
-- (void)hideAlertsTableView {
-    [self.tableContainerView setHidden:true];
-    [self.tableContainerView setAlphaValue:0.0];
-}
 
-- (void)showAlertsTableView {
-    [self.tableContainerView setHidden:false];
-    [self.tableContainerView setAlphaValue:1.0];
-    [self.alertsWindow hideExpandText];
-}
-
+#pragma mark Menu Management
 
 /// whether or not the user is logged in to a pro account
 - (BOOL)isLoggedIn {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"userLoggedIn"];
 }
 
-
 /// Is there an active VPN connection open
 - (BOOL)isConnected {
     NEVPNStatus status = [[[NEVPNManager sharedManager] connection] status];
     return (status == NEVPNStatusConnected);
 }
-
-#pragma mark Menu Management
 
 - (NSString *)currentDisplayHostname {
     GRDRegion *selected = [[GRDVPNHelper sharedInstance] selectedRegion];
@@ -201,7 +157,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     }
     NSImage *image = [NSImage imageNamed:defaultImageName];
     self.imageView.image = image;
-
+    
 }
 
 - (void)refreshMenu {
@@ -236,8 +192,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     } else {
         [self.menu removeAllItems];
     }
-    //NSMenu *menu = [NSMenu new];
-    //self.menu.delegate = self;
+    
     NSMenuItem *proLogin = [[NSMenuItem alloc] initWithTitle:[self proMenuTitle] action:@selector(showLoginWindow:) keyEquivalent:@""];
     [self.menu addItem:proLogin];
     if ([GRDVPNHelper isPayingUser]){
@@ -271,25 +226,24 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
         NSMenuItem *alertsView = [[NSMenuItem alloc] initWithTitle:@"Show Alerts" action:@selector(showAlertsWindow:) keyEquivalent:@""];
         [self.menu addItem:alertsView];
         
-        if ([GRDVPNHelper proMode]){
-            if (self.regionMenuItems && !self.regionPickerMenuItem){
-                self.regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
-                [self.regionPickerMenuItem setSubmenu:[NSMenu new]];
-                [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
-                [self.menu addItem:self.regionPickerMenuItem];
-            } else if (self.regionPickerMenuItem){
-                if ([self.menu.itemArray containsObject:self.regionPickerMenuItem]){
-                    [self.menu removeItem:self.regionPickerMenuItem];
-                }
-                [self.menu addItem:self.regionPickerMenuItem];
+        /// Add region picker menu if necessary.
+        if (self.regionMenuItems && !self.regionPickerMenuItem){
+            self.regionPickerMenuItem = [[NSMenuItem alloc] initWithTitle:@"Region Selection" action:nil keyEquivalent:@""];
+            [self.regionPickerMenuItem setSubmenu:[NSMenu new]];
+            [[self.regionPickerMenuItem submenu] setItemArray:self.regionMenuItems];
+            [self.menu addItem:self.regionPickerMenuItem];
+        } else if (self.regionPickerMenuItem){
+            if ([self.menu.itemArray containsObject:self.regionPickerMenuItem]){
+                [self.menu removeItem:self.regionPickerMenuItem];
             }
+            [self.menu addItem:self.regionPickerMenuItem];
         }
     }
     return self.menu;
 }
 
 /// Can be used to 'spoof' receipt data from the iOS app, a way to login without a pro account and to also test/audit some of that workflow.
-- (IBAction)spoofReceiptData:(id)sender {
+- (void)spoofReceiptData:(id)sender {
     NSOpenPanel *op = [NSOpenPanel openPanel];
     [op setMessage:@"This receipt data will be sent in place of our actual app store receipt data to attempt to create a VPN connection.\nUsing active iOS details for further POC"];
     [op setCanChooseFiles:TRUE];
@@ -306,7 +260,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
         [[GCSubscriptionManager sharedInstance]setDelegate:self];
         [[GCSubscriptionManager sharedInstance] verifyReceipt];
     }
-
+    
 }
 
 #pragma mark GCSubscriberManager delegate
@@ -319,8 +273,47 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 
 #pragma mark Menu Actions
 
+/// Action triggered when any of the buttons are selected on the Alerts Window
+- (IBAction)toggleAlertFilter:(NSButton *)sender {
+    @weakify(self);
+    GRDButtonType type = [sender tag];
+    switch (type) {
+        case GRDButtonTypeTotalAlerts:
+            _filterPredicate = nil;
+            break;
+            
+        case GRDButtonTypeDataTracker:
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Data Tracker'"];
+            break;
+            
+        case GRDButtonTypeMailTracker:
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Mail Tracker'"];
+            break;
+            
+        case GRDButtonTypeLocationTracker:
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Location Tracker'"];
+            break;
+            
+        case GRDButtonTypePageHijacker:
+            _filterPredicate = [NSPredicate predicateWithFormat:@"title == 'Page Hijacker'"];
+            break;
+            
+        default:
+            break;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self invertButtons:sender];
+        if (self_weak_.filterPredicate){
+            [self.alertsArrayController setContent:[self_weak_._events filteredArrayUsingPredicate:self_weak_.filterPredicate]];
+        } else {
+            [self.alertsArrayController setContent:self_weak_._events];
+        }
+        [self updateAlertWindow];
+    });
+}
+
 /// Action called when '[Dis]connect VPN' menu item is chosen
-- (IBAction)createVPNConnection:(id)sender {
+- (void)createVPNConnection:(id)sender {
     
     if (kCFCoreFoundationVersionNumber <= 1575.401){
         [self showMojaveIncompatibleAlert];
@@ -367,7 +360,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 }
 
 /// Make and process API calls necessary to log in to the a pro account
-- (IBAction)login:(id)sender {
+- (void)login:(id)sender {
     [[GRDHousekeepingAPI new] loginUserWithEMail:self.usernameField.stringValue password:self.passwordField.stringValue completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
         if (success){
             [GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -379,7 +372,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
                     alert.messageText = @"Error";
                     alert.informativeText = @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.";
                     [alert runModal];
-                   
+                    
                 });
                 
             } else { //we were successful saving the token
@@ -409,36 +402,21 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     }];
 }
 
-/// Clear local cache of currentl VPN data
-- (void)clearLocalCache {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults removeObjectForKey:kKnownGuardianHosts];
-    [defaults removeObjectForKey:housekeepingTimezonesTimestamp];
-    [defaults removeObjectForKey:kKnownHousekeepingTimeZonesForRegions];
-    [defaults removeObjectForKey:kGuardianAllRegions];
-    [defaults removeObjectForKey:kGuardianAllRegionsTimeStamp];;
-    [defaults removeObjectForKey:kGRDEAPSharedHostname];
-    //[defaults removeObjectForKey:kGuardianEAPExpirationDate];
-    [GRDKeychain removeGuardianKeychainItems];
-    [GRDKeychain removeSubscriberCredentialWithRetries:3];
-}
-
 /// Completely log out a pro user
 - (void)logOutUser {
-    [self clearLocalCache];
+    [[GRDVPNHelper sharedInstance] clearLocalCache];
     [GRDVPNHelper setIsPayingUser:false];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults removeObjectForKey:kSubscriptionPlanTypeStr];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
     [[NSUserDefaults standardUserDefaults] setBool:false forKey:@"userLoggedIn"];
-    
 }
 
 /// Action called when Clear VPN Settings menu item is chosen
-- (IBAction)clearVPNSettings:(id)sender {
+- (void)clearVPNSettings:(id)sender {
     [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
     [GRDVPNHelper clearVpnConfiguration];
-    [self clearLocalCache];
+    [[GRDVPNHelper sharedInstance] clearLocalCache];
 }
 
 /// An alert that is shown if we are on mojave or lower, can't work until DeviceCheck gets the heave-ho.
@@ -450,7 +428,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 }
 
 /// Action called when 'Show alerts' menu item is chosen
-- (IBAction)showAlertsWindow:(id _Nullable)sender {
+- (void)showAlertsWindow:(id _Nullable)sender {
     if (![self isConnected]){
         return;
     }
@@ -482,7 +460,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 }
 
 /// Currently unimplemented, an IBAction that can be utilized to force a data refresh
-- (IBAction)refreshEventData:(id)sender {
+- (void)refreshEventData:(id)sender {
     [self fetchEventData];
 }
 
@@ -499,7 +477,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (NSArray *)processedEvents:(NSArray *)events {
     __block NSMutableArray *processed = [NSMutableArray new];
     [events enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-       
+        
         GRDEvent *newEvent = [[GRDEvent alloc] initWithDictionary:obj];
         [processed addObject:newEvent];
     }];
@@ -534,77 +512,11 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
             }
             //GRDLog(@"events: %@", response);
         }];
-         
+        
     }
 }
 
-- (void)_createRegionMenu {
-    self.regionMenuItems = [self _theRegionMenuItems];
-    [self createMenu];
-}
-
-- (NSArray *)_theRegionMenuItems {
-    __block NSMutableArray *menuItems = [NSMutableArray new];
-    GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
-    GRDLog(@"selected region: %@", selectedRegion);
-    NSMenuItem *automaticItem = [[NSMenuItem alloc] initWithTitle:@"Automatic" action:@selector(selectRegion:) keyEquivalent:@""];
-    if (!selectedRegion){
-        [automaticItem setState:NSControlStateValueOn];
-    } else {
-        [automaticItem setState:NSControlStateValueOff];
-    }
-    [menuItems addObject:automaticItem];
-    [menuItems addObject:[NSMenuItem separatorItem]];
-    [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
-        if ([obj.regionName isEqualToString:selectedRegion.regionName]){
-            [currentRegion setState:NSControlStateValueOn];
-        } else {
-            [currentRegion setState:NSControlStateValueOff];
-        }
-        [currentRegion setAssociatedValue:obj];
-        [menuItems addObject:currentRegion];
-    }];
-    return menuItems;
-}
-
-- (void)deselectInverseItems:(NSMenuItem *)sender {
-    NSArray <NSMenuItem*> *parentArray = [sender parentItem].submenu.itemArray;
-    [parentArray enumerateObjectsUsingBlock:^(NSMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (obj != sender){
-            [obj setState:NSControlStateValueOff];
-        }
-    }];
-}
-
-- (void)selectRegion:(NSMenuItem *)sender {
-    NSString *title = sender.title;
-    [sender setState:NSControlStateValueOn];
-    [self deselectInverseItems:sender];
-    if ([title isEqualToString:@"Automatic"]){
-        [[GRDVPNHelper sharedInstance] selectRegion:nil];
-        [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
-            
-        }];
-        return;
-    }
-    GRDRegion *region = (GRDRegion *)[sender associatedValue];
-    GRDLog(@"found region: %@", region);
-    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
-    [GRDVPNHelper clearVpnConfiguration];
-    [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-        if (success){
-            [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
-                GRDLog(@"success: %d", success);
-                if (success){
-                    [[GRDVPNHelper sharedInstance] selectRegion:region];
-                }
-            }];
-        }
-    }];
-}
-
-/// Handle tint color changes whenever any of the vires buttons are selected
+/// Handle tint color changes whenever any of the Alert view's buttons are selected
 - (void)updateAlertWindow {
     CGFloat alpha = 1.0;
     if (self.totalAlertsButton.state == NSControlStateValueOff){
@@ -623,17 +535,17 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 -(void)mouseEnteredMainIcon:(id)control event:(NSEvent *)theEvent {
     _isMouseOverStatusIcon = TRUE;
     [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(showAlertsFromTimerOnMainThread)];
-     
+                              fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                   selector:@selector(showAlertsFromTimerOnMainThread)];
+    
 }
 
 /// Called from GCImageView mouseExited. Traced via event tracking in said class
 -(void)mouseExitedMainIcon:(id)control event:(NSEvent *)theEvent {
     _isMouseOverStatusIcon = FALSE;
     [self showOrHideAlertsWindowsAfterDelay:ALERTS_DISPLAY_DELAY
-                                  fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
-                                       selector:@selector(hideAlertsFromTimerOnMainThread)];
+                              fromTimestamp:(theEvent ? [theEvent timestamp] : 0.0)
+                                   selector:@selector(hideAlertsFromTimerOnMainThread)];
     
 }
 
@@ -675,35 +587,50 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     
 }
 
+/// Hides the UIScrollView that contains the UITableView
+- (void)hideAlertsTableView {
+    [self.tableContainerView setHidden:true];
+    [self.tableContainerView setAlphaValue:0.0];
+}
+
+/// Shows the UIScrollView that contains the UITableView
+- (void)showAlertsTableView {
+    [self.tableContainerView setHidden:false];
+    [self.tableContainerView setAlphaValue:1.0];
+    [self.alertsWindow hideExpandText];
+}
+
+/// This toggles whether or not the alerts view is in 'expanded' mode, if its toggled manually the view is kept visible until closed manually.
+/// This is triggered when the alertsView is double clicked anywhere on the view.
 - (void)toggleExpandedManually:(BOOL)manually {
     NSRect screenFrame = [[NSScreen mainScreen] frame];
     NSRect windowFrame = self.alertsWindow.frame;
     CGFloat padding = 40;
     if (_expanded){
-        windowFrame.origin.x = screenFrame.size.width - 330 - padding;//1590;
-        windowFrame.origin.y = screenFrame.size.height - 200;//1000;
+        windowFrame.origin.x = screenFrame.size.width - 330 - padding;
+        windowFrame.origin.y = screenFrame.size.height - 200;
         windowFrame.size.width = 300;
         windowFrame.size.height = 200;
         [self hideAlertsTableView];
         _expanded = false;
     } else {
-        windowFrame.origin.x = screenFrame.size.width - 649 - padding;//1271;
-        windowFrame.origin.y = screenFrame.size.height - 356;//724;
+        windowFrame.origin.x = screenFrame.size.width - 649 - padding;
+        windowFrame.origin.y = screenFrame.size.height - 356;
         windowFrame.size.width = 619;
         windowFrame.size.height = 356;
         _expanded = true;
         [self showAlertsTableView];
         [self.alertsWindow hideExpandText];
     }
-    CGFloat width = screenFrame.size.width - windowFrame.origin.x;
-    CGFloat height = screenFrame.size.height - windowFrame.origin.y;
-    NSLog(@"width: %.1f height: %.1f", width, height);
+    //CGFloat width = screenFrame.size.width - windowFrame.origin.x;
+    //CGFloat height = screenFrame.size.height - windowFrame.origin.y;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.alertsWindow setFrame:windowFrame display:true];
         self.alertsWindow.shownManually = manually;
     });
 }
 
+/// Called from GCWindow when double click action is triggered.
 - (void)doubleClickTriggered:(id)control event:(NSEvent *)theEvent {
     [self toggleExpandedManually:true];
 }
@@ -718,7 +645,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     [self.alertsWindow close];
 }
 
-/// Detects whether or not the mouse is over the G status bar image OR the Alerts Window, OR if the Alerts window has been 'shown manually' ie selected from the NSMenu status item.
+/// Detects whether or not the mouse is over the G status bar image OR the Alerts Window, OR if the Alerts window has been 'shown manually' i.e. selected from the NSMenu status item.
 -(BOOL)isMouseOverAnyView {
     return _isMouseOverAlertsWindow || _isMouseOverStatusIcon || self.alertsWindow.shownManually;
 }
@@ -757,6 +684,78 @@ uint64_t ourAbsoluteNanoseconds(void) {
 
 #pragma mark Region Selection
 
+/// Creates the NSArray 'regionMenuItems' full of NSMenuItem's correlating to our list of regions
+- (void)_createRegionMenu {
+    self.regionMenuItems = [self _theRegionMenuItems];
+    [self createMenu];
+}
+
+/// Where the NSArray is created for 'regionMenuItems' to populate the submenu of the 'Region Selection' menu item.
+- (NSArray *)_theRegionMenuItems {
+    __block NSMutableArray *menuItems = [NSMutableArray new];
+    GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
+    GRDLog(@"selected region: %@", selectedRegion);
+    NSMenuItem *automaticItem = [[NSMenuItem alloc] initWithTitle:@"Automatic" action:@selector(selectRegion:) keyEquivalent:@""];
+    if (!selectedRegion) { //if we don't have a selected region, we are in 'Automatic' mode.
+        [automaticItem setState:NSControlStateValueOn];
+    } else {
+        [automaticItem setState:NSControlStateValueOff];
+    }
+    [menuItems addObject:automaticItem];
+    [menuItems addObject:[NSMenuItem separatorItem]];
+    [_regions enumerateObjectsUsingBlock:^(GRDRegion * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        // create our submeu items for the region selection and toggle the selected region (if applicable) to NSControlStateValueOn
+        NSMenuItem *currentRegion = [[NSMenuItem alloc] initWithTitle:obj.displayName action:@selector(selectRegion:) keyEquivalent:@""];
+        if ([obj.regionName isEqualToString:selectedRegion.regionName]){
+            [currentRegion setState:NSControlStateValueOn];
+        } else {
+            [currentRegion setState:NSControlStateValueOff];
+        }
+        [currentRegion setAssociatedValue:obj]; // some associated object chicanery added through NSObject category, allows us to easily retreieve the related region from the NSMenuItem directly! :)
+        [menuItems addObject:currentRegion];
+    }];
+    return menuItems;
+}
+
+/// Selects the inverse of our current item (deselects everything that isn't sender for their NSMenuItem's)
+- (void)deselectInverseItems:(NSMenuItem *)sender {
+    NSArray <NSMenuItem*> *parentArray = [sender parentItem].submenu.itemArray;
+    [parentArray enumerateObjectsUsingBlock:^(NSMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (obj != sender){
+            [obj setState:NSControlStateValueOff];
+        }
+    }];
+}
+
+- (void)selectRegion:(NSMenuItem *)sender {
+    NSString *title = sender.title;
+    [sender setState:NSControlStateValueOn]; //add a check mark for our selected region to the NSMenuItem
+    [self deselectInverseItems:sender]; //deselect everyone else.
+    if ([title isEqualToString:@"Automatic"]) { //Automatic was selected, clear our selected region and create a new set of credentials & VPN session.
+        [[GRDVPNHelper sharedInstance] selectRegion:nil];
+        [[GRDVPNHelper sharedInstance] configureFirstTimeUserPostCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+            
+        }];
+        return;
+    }
+    //If we got this far then a custom region should've been selected, retrieve the GRDRegion from 'associatedValue' of NSMenuItem (added via afformentied NSObject category)
+    GRDRegion *region = (GRDRegion *)[sender associatedValue];
+    GRDLog(@"found region: %@", region);
+    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
+    [GRDVPNHelper clearVpnConfiguration];
+    // find the best host in our selected region and create the VPN connection.
+    [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+        if (success){
+            [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+                GRDLog(@"success: %d", success);
+                if (success){
+                    [[GRDVPNHelper sharedInstance] selectRegion:region]; //upon success update GRDVPNHelper to know we have selected the new region, this should probably be automated in framework somehow.
+                }
+            }];
+        }
+    }];
+}
+
 /// Populate region data for region selection
 - (void)populateRegionDataIfNecessary {
     @weakify(self);
@@ -770,5 +769,6 @@ uint64_t ourAbsoluteNanoseconds(void) {
     }];
     
 }
+
 
 @end

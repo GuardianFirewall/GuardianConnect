@@ -78,6 +78,11 @@
     [super mouseDown:event];
 }
 
+-(void)restartTracking {
+    [self stopTracking];
+    [self startTracking];
+}
+
 -(void)stopTracking {
     if (_trackingRectTag != 0) {
         [[self contentView] removeTrackingRect: _trackingRectTag];

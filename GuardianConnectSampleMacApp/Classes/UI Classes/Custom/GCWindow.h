@@ -27,6 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSTextField *expandTextField;
 -(void)showExpandText;
 -(void)hideExpandText;
+
+-(void)restartTracking;
+-(void)startTracking;
+-(void)stopTracking;
 @end
 
 NS_ASSUME_NONNULL_END

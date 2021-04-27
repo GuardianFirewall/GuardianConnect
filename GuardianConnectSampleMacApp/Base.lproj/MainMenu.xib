@@ -793,7 +793,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="j9U-UT-rB9"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="eN9-hl-tDZ"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="11" translatesAutoresizingMaskIntoConstraints="NO" id="PqU-g6-oZt">
@@ -803,7 +803,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="T3R-iB-3U8"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="oi8-pn-fo4"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="12" translatesAutoresizingMaskIntoConstraints="NO" id="0Zf-cS-Ydb">
@@ -813,7 +813,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="0Yu-E6-WL9"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="pAs-Wq-TLk"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" tag="13" translatesAutoresizingMaskIntoConstraints="NO" id="NVv-O0-Krv">
@@ -823,7 +823,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="gUy-ig-dIH"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="ZSv-RU-Pv2"/>
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0Y-Qr-fsh">
@@ -1061,7 +1061,7 @@
                             <font key="font" metaFont="system" size="24"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleAlertFilter:" target="Voe-Tx-rLC" id="42I-hN-gNJ"/>
+                            <action selector="toggleAlertFilter:" target="UIE-mv-2Dw" id="jCf-cM-wM9"/>
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="A4g-uZ-SJw">

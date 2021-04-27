@@ -23,10 +23,12 @@
         NSMenu       * menu    = [_appDelegate menu];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        /*
         [[menu itemArray] enumerateObjectsUsingBlock:^(NSMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             //[obj setTarget:_appDelegate];
             NSLog(@"sel: %@ target: %@", NSStringFromSelector(obj.action), obj.target);
         }];
+         */
         [statusI popUpStatusItemMenu: menu];
 #pragma clang diagnostic pop
     }

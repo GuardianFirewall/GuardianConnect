@@ -135,8 +135,8 @@
     [[GRDHousekeepingAPI new] requestTimeZonesForRegionsWithTimestamp:[NSNumber numberWithInt:0] completion:^(NSArray * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success){
             [[NSUserDefaults standardUserDefaults] setObject:timeZones forKey:kKnownHousekeepingTimeZonesForRegions];
-            NSDictionary *region = [GRDServerManager localRegionFromTimezones:timeZones];
-            NSString *regionName = region[@"name"];
+            GRDRegion *region = [GRDServerManager localRegionFromTimezones:timeZones];
+            NSString *regionName = region.regionName;
             localRegion = regionName;
             [self identifyLocalRegionIfNecessary:localRegion];
         }

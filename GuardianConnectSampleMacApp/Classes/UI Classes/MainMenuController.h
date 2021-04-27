@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MainMenuController : NSObjectController <GCImageViewDelegate, GCWindowDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate>
 
 @property (weak) IBOutlet NSWindow *window;
-@property (weak) IBOutlet NSScrollView *tableContainerView;
+@property (weak) IBOutlet NSScrollView *tableContainerView; //used to hide/show the table view as applicable
 @property (weak) IBOutlet GCWindow *alertsWindow;
 @property (weak) IBOutlet NSTextField *usernameField;
 @property (weak) IBOutlet NSTextField *passwordField;
@@ -37,14 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak) IBOutlet NSButton *pageHijackerButton;
 @property (weak) IBOutlet NSButton *totalAlertsButton;
 
-- (IBAction)login:(id)sender;
+- (void)login:(id)sender;
 - (void)showLoginWindow:(id)sender;
-- (IBAction)createVPNConnection:(id)sender;
-- (IBAction)clearVPNSettings:(id)sender;
-- (IBAction)spoofReceiptData:(id)sender;
-- (IBAction)refreshEventData:(id)sender;
+- (void)createVPNConnection:(id)sender;
+- (void)clearVPNSettings:(id)sender;
+- (void)spoofReceiptData:(id)sender;
+- (void)refreshEventData:(id)sender;
 - (void)selectRegion:(NSMenuItem *)sender;
-- (IBAction)showAlertsWindow:(id _Nullable)sender;
+- (void)showAlertsWindow:(id _Nullable)sender;
 - (IBAction)toggleAlertFilter:(id)sender;
 - (void)removeAlertObserver;
 - (void)createMenu;
