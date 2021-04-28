@@ -72,7 +72,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 
 - (IBAction)cancel:(id)sender;
 - (IBAction)connect:(id)sender;
-
+- (void)showManualServerList:(id)sender;
 @end
 
 NS_ASSUME_NONNULL_END

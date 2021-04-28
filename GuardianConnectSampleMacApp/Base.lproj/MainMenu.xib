@@ -1157,6 +1157,13 @@
                                                     </subviews>
                                                 </tableCellView>
                                             </prototypeCellViews>
+                                            <connections>
+                                                <binding destination="T6B-TF-vqD" name="value" keyPath="arrangedObjects.display-name" id="2ro-CU-lR3">
+                                                    <dictionary key="options">
+                                                        <bool key="NSValidatesImmediately" value="YES"/>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
                                         </tableColumn>
                                         <tableColumn width="228" minWidth="40" maxWidth="1000" id="LjE-H8-WsM">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="hostname">
@@ -1189,6 +1196,13 @@
                                                     </connections>
                                                 </tableCellView>
                                             </prototypeCellViews>
+                                            <connections>
+                                                <binding destination="T6B-TF-vqD" name="value" keyPath="arrangedObjects.hostname" id="e66-BZ-YDr">
+                                                    <dictionary key="options">
+                                                        <bool key="NSValidatesImmediately" value="YES"/>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
                                         </tableColumn>
                                     </tableColumns>
                                 </tableView>
