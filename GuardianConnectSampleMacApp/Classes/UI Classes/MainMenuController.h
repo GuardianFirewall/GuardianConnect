@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "GCImageView.h"
 #import "GCWindow.h"
-#import "GCSubscriptionManager.h"
+//#import "GCSubscriptionManager.h"
+#import <StoreKit/StoreKit.h>
+#import "GRDSubscriptionManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +23,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
     GRDButtonTypePageHijacker,
 };
 
-@interface MainMenuController : NSObjectController <GCImageViewDelegate, GCWindowDelegate, GCSubscriptionManagerDelegate, NSMenuDelegate>
+@interface MainMenuController : NSObjectController <GCImageViewDelegate, GCWindowDelegate, NSMenuDelegate, SKProductsRequestDelegate, GRDSubscriptionDelegate>
 
 @property (weak) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSScrollView *tableContainerView; //used to hide/show the table view as applicable
@@ -41,6 +43,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property BOOL isMouseOverAlertsWindow;
 @property BOOL menuIsOpen;
 @property BOOL expanded;
+@property (weak) IBOutlet NSWindow *subscriptionWindow;
 
 @property (weak) IBOutlet NSButton *dataTrackerButton;
 @property (weak) IBOutlet NSButton *locationTrackerButton;
@@ -70,10 +73,13 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 -(void)showDeveloperItems;
 -(void)hideDeveloperItems;
 
-- (void)openPreferences:(id)sender;
+- (void)openPreferences:(id _Nullable)sender;
 - (IBAction)cancel:(id)sender;
 - (IBAction)connect:(id)sender;
 - (void)showManualServerList:(id)sender;
+- (void)showSubscriptionsView:(id)sender;
+- (IBAction)subscribe:(id)sender;
+- (IBAction)planSelected:(NSButton *)sender;
 @end
 
 NS_ASSUME_NONNULL_END

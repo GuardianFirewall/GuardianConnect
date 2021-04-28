@@ -53,6 +53,9 @@
     self.mainMenuController.alertsWindow.appDelegate = self.mainMenuController;
     self.mainMenuController.expanded = true;
     [self.mainMenuController toggleExpandedManually:false];
+    //if ([GRDVPNHelper isPayingUser]){
+        [[GRDSubscriptionManager sharedManager] verifyReceipt];
+    //}
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -195,6 +198,10 @@
 
 - (void)openPreferences:(id)sender {
     [self.mainMenuController openPreferences:sender];
+}
+
+- (void)showSubscriptionsView:(id)sender {
+    [self.mainMenuController showSubscriptionsView:sender];
 }
 
 @end

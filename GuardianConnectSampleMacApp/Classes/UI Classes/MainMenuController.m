@@ -17,6 +17,7 @@
 #import <Carbon/Carbon.h>
 #import "GRDPrefsWindowController.h"
 
+
 @interface MainMenuController ()
 
 @property (nonatomic, strong) NSDictionary *_latestStats;
@@ -35,6 +36,10 @@
 @property GRDRegion *_localRegion;
 @property NSMenuItem *spoofReceipt;
 @property NSMenuItem *manualRegionSelection;
+
+@property NSLocale *subscriptionLocale;
+@property SKProduct *selectedProduct;
+@property NSMutableArray<SKProduct *> *sortedProductOfferings;
 
 @end
 
@@ -225,6 +230,9 @@
     NSMenuItem *prefs = [[NSMenuItem alloc] initWithTitle:@"Settings" action:@selector(openPreferences:) keyEquivalent:@""];
     [self.menu addItem:prefs];
     
+    NSMenuItem *subscribe = [[NSMenuItem alloc] initWithTitle:@"Subscribe" action:@selector(showSubscriptionsView:) keyEquivalent:@""];
+    [self.menu addItem:subscribe];
+    
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
     [self.menu addItem:[NSMenuItem separatorItem]];
@@ -279,8 +287,8 @@
         //self.textView.string = receiptString;
         //[self validateReceiptPressed:nil];
         [[NSUserDefaults standardUserDefaults] setValue:receiptData forKey:@"spoofedReceiptData"];
-        [[GCSubscriptionManager sharedInstance]setDelegate:self];
-        [[GCSubscriptionManager sharedInstance] verifyReceipt];
+        //[[GCSubscriptionManager sharedInstance]setDelegate:self];
+        //[[GCSubscriptionManager sharedInstance] verifyReceipt];
     }
     
 }
@@ -801,13 +809,16 @@ uint64_t ourAbsoluteNanoseconds(void) {
     }
     NSMutableArray *serverArray = [NSMutableArray new];
     NSDictionary *franceBox = @{@"display-name": @"Frankfurt, Germany",
-                                @"hostname": @"sandbox-fra-1.sudosecuritygroup.com"
+                                @"hostname": @"sandbox-fra-1.sudosecuritygroup.com",
+                                @"offline": @0
     };
     NSDictionary *nySandbox = @{@"display-name": @"New York City, USA",
-                                @"hostname": @"sandbox-nyc-1.sudosecuritygroup.com"
+                                @"hostname": @"sandbox-nyc-1.sudosecuritygroup.com",
+                                @"offline": @0
     };
     NSDictionary *nySJ = @{@"display-name": @"San Jose, USA",
-                                @"hostname": @"sandbox-sjc-1b.sudosecuritygroup.com"
+                                @"hostname": @"sandbox-sjc-1b.sudosecuritygroup.com",
+                                @"offline": @0
     };
     
     [serverArray addObject:franceBox];
@@ -855,6 +866,146 @@ uint64_t ourAbsoluteNanoseconds(void) {
         }
          
     }];
+}
+
+#pragma mark StoreKit stuff
+
+#pragma mark - StoreKit IAP Info Requests
+
+- (void)getGuardianPremiumSubscriptions {
+    self.sortedProductOfferings = [NSMutableArray new];
+    SKProductsRequest *productsRequest = [[SKProductsRequest alloc]
+        initWithProductIdentifiers:[NSSet setWithObjects:kGuardianSubscriptionMonthly, kGuardianSubscriptionAnnual, kGuardianSubscriptionDayPassAlt, kGuardianSubscriptionTypeProfessionalIAP, nil]];
+    productsRequest.delegate = self;
+    [productsRequest start];
+}
+
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
+    if (response.products.count > 0) {
+        GRDLog(@"product count: %lu", response.products.count);
+        GRDLog(@"products: %@", response.products);
+        self.subscriptionLocale = response.products[0].priceLocale;
+        
+        for (SKProduct *prod in response.products) {
+            [self.sortedProductOfferings addObject:prod];
+            GRDLog(@"prod name: %@ id: %@", prod.localizedTitle, prod.productIdentifier);
+        }
+        
+        for (NSString *invalidIdentifier in response.invalidProductIdentifiers) {
+            NSLog(@"invalid id: %@", invalidIdentifier);
+        }
+        
+        
+        NSSortDescriptor *priceDescriptor = [[NSSortDescriptor alloc] initWithKey:@"price" ascending:YES];
+        [self.sortedProductOfferings sortUsingDescriptors:@[priceDescriptor]];
+        GRDLog(@"sorted offerings: %@", self.sortedProductOfferings);
+        @weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            /*
+            [self.activityIndicator stopAnimating];
+            [self.activityIndicator removeFromSuperview];
+            [self setupLayout];
+            [self setLayoutConstraints];
+            [self generatePlanDetails];
+            if (self_weak_.shouldSelectPro) {
+                [self.subscriptionPlanPicker setSelectedSegmentIndex:1];
+                [self professionalSelected];
+                
+            } else {
+                [self essentialsSelected];
+            }
+             */
+            NSButton *one = [self.subscriptionWindow.contentView viewWithTag:1];
+            [self planSelected:one];
+        });
+        
+    } else {
+        GRDLog(@"response.products.count is not greater than 0 !!!");
+    }
+}
+
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error {
+    GRDLog(@"Failed to retrieve IAP objects: %@", [error localizedDescription]);
+}
+
+- (void)showSubscriptionsView:(id)sender {
+    [self getGuardianPremiumSubscriptions];
+    [self.subscriptionWindow makeKeyAndOrderFront:nil];
+    
+    
+}
+
+- (IBAction)subscribe:(id)sender {
+    LOG_SELF;
+    GRDLog(@"selected product: %@", self.selectedProduct);
+    [[GRDSubscriptionManager sharedManager] setDelegate:self];
+    [[SKPaymentQueue defaultQueue] addPayment:[SKPayment paymentWithProduct:self.selectedProduct]];
+    //[[GRDSubscriptionManager sharedManager] setDelegate:self];
+    
+}
+
+- (void)deselectButtonWithTag:(NSInteger)tag {
+    NSButton *button = [self.subscriptionWindow.contentView viewWithTag:tag];
+    [button setState:NSControlStateValueOff];
+}
+
+- (void)deselectOthers:(NSInteger)tag {
+    switch (tag) {
+        case 1:
+            [self deselectButtonWithTag:2];
+            [self deselectButtonWithTag:3];
+            [self deselectButtonWithTag:4];
+            break;
+            
+        case 2:
+            [self deselectButtonWithTag:1];
+            [self deselectButtonWithTag:3];
+            [self deselectButtonWithTag:4];
+            break;
+            
+        case 3:
+            [self deselectButtonWithTag:1];
+            [self deselectButtonWithTag:2];
+            [self deselectButtonWithTag:4];
+            break;
+            
+        case 4:
+            [self deselectButtonWithTag:1];
+            [self deselectButtonWithTag:2];
+            [self deselectButtonWithTag:3];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (IBAction)planSelected:(NSButton *)sender {
+    NSInteger tag = sender.tag;
+    [self deselectOthers:tag];
+    [sender setState:NSControlStateValueOn];
+    self.selectedProduct = self.sortedProductOfferings[tag-1];
+    GRDLog(@"selected product: %@ at index: %lu", self.selectedProduct.localizedTitle, tag-1);
+}
+
+- (void)receiptInvalid {
+    LOG_SELF;
+}
+
+- (void)validatingReceipt {
+    LOG_SELF;
+}
+- (void)subscribedSuccessfully {
+    LOG_SELF;
+}
+- (void)subscriptionDeferred {
+    LOG_SELF;
+}
+- (void)subscriptionFailed {
+    LOG_SELF;
+}
+- (void)subscriptionRestored {
+    LOG_SELF;
 }
 
 @end

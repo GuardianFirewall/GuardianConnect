@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "GCSubscriptionManager.h"
+//#import "GCSubscriptionManager.h"
 #import "MainMenuController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>

@@ -62,6 +62,8 @@
 		32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4026393B2800D15910 /* DBPrefsWindowController.m */; };
 		32A49C4526393B6700D15910 /* GRDPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4426393B6700D15910 /* GRDPrefsWindowController.m */; };
 		32A49C4726393BB400D15910 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32A49C4626393BB400D15910 /* Preferences.xib */; };
+		32A49C49263944C700D15910 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A49C48263944C700D15910 /* StoreKit.framework */; };
+		32A49C4C263951E100D15910 /* GRDSubscriptionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */; };
 		32ABCF53263540300030B258 /* GCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF52263540300030B258 /* GCImageView.m */; };
 		32ABCF56263547960030B258 /* GCWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF55263547960030B258 /* GCWindow.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -191,6 +193,9 @@
 		32A49C4326393B6700D15910 /* GRDPrefsWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDPrefsWindowController.h; sourceTree = "<group>"; };
 		32A49C4426393B6700D15910 /* GRDPrefsWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDPrefsWindowController.m; sourceTree = "<group>"; };
 		32A49C4626393BB400D15910 /* Preferences.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
+		32A49C48263944C700D15910 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		32A49C4A263951E000D15910 /* GRDSubscriptionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSubscriptionManager.h; sourceTree = "<group>"; };
+		32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSubscriptionManager.m; sourceTree = "<group>"; };
 		32ABCF51263540300030B258 /* GCImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCImageView.h; sourceTree = "<group>"; };
 		32ABCF52263540300030B258 /* GCImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCImageView.m; sourceTree = "<group>"; };
 		32ABCF54263547960030B258 /* GCWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCWindow.h; sourceTree = "<group>"; };
@@ -213,6 +218,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32A49C49263944C700D15910 /* StoreKit.framework in Frameworks */,
 				32F79426263386DD006A77CF /* GuardianConnect.framework in Frameworks */,
 				329C527B26315721003B78D8 /* NetworkExtension.framework in Frameworks */,
 			);
@@ -259,6 +265,8 @@
 				325583E12634D2420015DEE3 /* GRDEvent.m */,
 				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
 				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
+				32A49C4A263951E000D15910 /* GRDSubscriptionManager.h */,
+				32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */,
 			);
 			path = "Event and Subscription";
 			sourceTree = "<group>";
@@ -372,6 +380,7 @@
 		329C5278263151A6003B78D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32A49C48263944C700D15910 /* StoreKit.framework */,
 				329C527A26315721003B78D8 /* NetworkExtension.framework */,
 			);
 			name = Frameworks;
@@ -666,6 +675,7 @@
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
 				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
+				32A49C4C263951E100D15910 /* GRDSubscriptionManager.m in Sources */,
 				32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */,
 				32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
