@@ -15,6 +15,7 @@
 #import "GRDEvent.h"
 #import "NSObject+Extras.h"
 #import <Carbon/Carbon.h>
+#import "GRDPrefsWindowController.h"
 
 @interface MainMenuController ()
 
@@ -33,6 +34,7 @@
 @property NSArray <GRDRegion *> *regions;
 @property GRDRegion *_localRegion;
 @property NSMenuItem *spoofReceipt;
+@property NSMenuItem *manualRegionSelection;
 
 @end
 
@@ -162,14 +164,21 @@
 }
 
 -(void)showDeveloperItems {
-    if(![self.menu.itemArray containsObject:self.spoofReceipt]){
+    NSArray *itemArray = self.menu.itemArray;
+    if(![itemArray containsObject:self.spoofReceipt]){
         [self.menu insertItem:self.spoofReceipt atIndex:3];
+    }
+    if(![itemArray containsObject:self.manualRegionSelection]){
+        [self.menu addItem:self.manualRegionSelection];
     }
 }
 
 -(void)hideDeveloperItems {
     if([self.menu.itemArray containsObject:self.spoofReceipt]){
         [self.menu removeItem:self.spoofReceipt];
+    }
+    if([self.menu.itemArray containsObject:self.manualRegionSelection]){
+        [self.menu removeItem:self.manualRegionSelection];
     }
 }
 
@@ -246,8 +255,8 @@
             }
             [self.menu addItem:self.regionPickerMenuItem];
         }
-        NSMenuItem *manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
-        [self.menu addItem:manualRegionSelection];
+        self.manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
+        //[self.menu addItem:self.manualRegionSelection];
     }
     return self.menu;
 }
@@ -561,6 +570,7 @@
 
 - (void)openPreferences {
     LOG_SELF;
+    [[GRDPrefsWindowController sharedPrefsWindowController] showWindow:nil];
 }
 
 

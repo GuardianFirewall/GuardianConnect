@@ -59,6 +59,9 @@
 		329C526F26315073003B78D8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 329C526E26315073003B78D8 /* main.m */; };
 		329C5279263151A6003B78D8 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E92C02262A1B3D00A3202C /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		329C527B26315721003B78D8 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329C527A26315721003B78D8 /* NetworkExtension.framework */; };
+		32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4026393B2800D15910 /* DBPrefsWindowController.m */; };
+		32A49C4526393B6700D15910 /* GRDPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4426393B6700D15910 /* GRDPrefsWindowController.m */; };
+		32A49C4726393BB400D15910 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32A49C4626393BB400D15910 /* Preferences.xib */; };
 		32ABCF53263540300030B258 /* GCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF52263540300030B258 /* GCImageView.m */; };
 		32ABCF56263547960030B258 /* GCWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF55263547960030B258 /* GCWindow.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -183,6 +186,11 @@
 		329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GuardianConnectSampleMacApp.entitlements; sourceTree = "<group>"; };
 		329C527A26315721003B78D8 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/NetworkExtension.framework; sourceTree = DEVELOPER_DIR; };
 		32A49C3D263900E100D15910 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		32A49C4026393B2800D15910 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DBPrefsWindowController.m; path = GuardianConnectSampleMacApp/Classes/DBPrefsWindowController.m; sourceTree = SOURCE_ROOT; };
+		32A49C4126393B2900D15910 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DBPrefsWindowController.h; path = GuardianConnectSampleMacApp/Classes/DBPrefsWindowController.h; sourceTree = SOURCE_ROOT; };
+		32A49C4326393B6700D15910 /* GRDPrefsWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDPrefsWindowController.h; sourceTree = "<group>"; };
+		32A49C4426393B6700D15910 /* GRDPrefsWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDPrefsWindowController.m; sourceTree = "<group>"; };
+		32A49C4626393BB400D15910 /* Preferences.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
 		32ABCF51263540300030B258 /* GCImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCImageView.h; sourceTree = "<group>"; };
 		32ABCF52263540300030B258 /* GCImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCImageView.m; sourceTree = "<group>"; };
 		32ABCF54263547960030B258 /* GCWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCWindow.h; sourceTree = "<group>"; };
@@ -234,9 +242,12 @@
 		320358CC26379650005CD7CB /* UI Classes */ = {
 			isa = PBXGroup;
 			children = (
+				32A49C3F26393B0C00D15910 /* 3rd Party */,
 				320358D126379754005CD7CB /* MainMenuController.h */,
 				320358D226379754005CD7CB /* MainMenuController.m */,
 				320358D426379768005CD7CB /* Custom */,
+				32A49C4326393B6700D15910 /* GRDPrefsWindowController.h */,
+				32A49C4426393B6700D15910 /* GRDPrefsWindowController.m */,
 			);
 			path = "UI Classes";
 			sourceTree = "<group>";
@@ -366,6 +377,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		32A49C3F26393B0C00D15910 /* 3rd Party */ = {
+			isa = PBXGroup;
+			children = (
+				32A49C4126393B2900D15910 /* DBPrefsWindowController.h */,
+				32A49C4026393B2800D15910 /* DBPrefsWindowController.m */,
+			);
+			path = "3rd Party";
+			sourceTree = "<group>";
+		};
 		32ABCF4E263526320030B258 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -378,6 +398,7 @@
 				329C526D26315073003B78D8 /* Info.plist */,
 				329C526E26315073003B78D8 /* main.m */,
 				329C527026315073003B78D8 /* GuardianConnectSampleMacApp.entitlements */,
+				32A49C4626393BB400D15910 /* Preferences.xib */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -591,6 +612,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32A49C4726393BB400D15910 /* Preferences.xib in Resources */,
 				3218DB25263277BF005DD56B /* Little_G_Pro_Dark.png in Resources */,
 				3218DB26263277BF005DD56B /* Little_G_Dark.png in Resources */,
 				3218DB2026326A4D005DD56B /* Little_G.png in Resources */,
@@ -637,6 +659,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32ABCF53263540300030B258 /* GCImageView.m in Sources */,
+				32A49C4526393B6700D15910 /* GRDPrefsWindowController.m in Sources */,
 				320358D326379754005CD7CB /* MainMenuController.m in Sources */,
 				325583E22634D2420015DEE3 /* GRDEvent.m in Sources */,
 				329C526F26315073003B78D8 /* main.m in Sources */,
@@ -644,6 +667,7 @@
 				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
 				32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */,
+				32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */,
 				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

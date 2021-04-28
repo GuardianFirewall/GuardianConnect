@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.3"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="GRDPrefsWindowController">
+            <connections>
+                <outlet property="advancedPreferenceView" destination="2ko-Fo-coO" id="TtJ-wW-QtG"/>
+                <outlet property="blocklistPreferenceView" destination="h5s-Ls-pu0" id="2im-8Q-UFX"/>
+                <outlet property="exceptionsPreferencesView" destination="664-Pd-9j9" id="cIr-ER-m8d"/>
+                <outlet property="generalPreferenceView" destination="Oav-hj-Vth" id="wQx-Ft-VS5"/>
+                <outlet property="notificationsPreferencesView" destination="9o4-gn-kdG" id="2dj-4L-TZ0"/>
+                <outlet property="updatesPreferenceView" destination="Xfy-tm-j3Q" id="6o2-sz-bAz"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Oav-hj-Vth" userLabel="General">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="246"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="-131" y="-123"/>
+        </customView>
+        <customView id="h5s-Ls-pu0" userLabel="Blocklist">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="116"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="358" y="-188"/>
+        </customView>
+        <customView id="664-Pd-9j9" userLabel="Exceptions">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="250"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="-131.5" y="179"/>
+        </customView>
+        <customView id="9o4-gn-kdG" userLabel="Notifications">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="163"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="358" y="21"/>
+        </customView>
+        <customView id="Xfy-tm-j3Q" userLabel="Updates">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="120"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="358" y="244"/>
+        </customView>
+        <customView id="2ko-Fo-coO" userLabel="Advanced">
+            <rect key="frame" x="0.0" y="0.0" width="436" height="159"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <point key="canvasLocation" x="-127.5" y="455.5"/>
+        </customView>
+    </objects>
+</document>
