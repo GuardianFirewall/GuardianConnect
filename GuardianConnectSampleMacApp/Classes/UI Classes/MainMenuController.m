@@ -780,34 +780,12 @@ uint64_t ourAbsoluteNanoseconds(void) {
     
 }
 
-- (void)showManualServerSelectionPopup {
-    /*
-    __block UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Select Server" message:@"Choose a Guardian Firewall server from this list in order to register and connect. In Production builds, the server is automatically selected based on system time zone." preferredStyle:UIAlertControllerStyleAlert];
+- (void)populateManualServersIfNecessary {
     
-    UIAlertAction *customServerAction = [UIAlertAction actionWithTitle:@"Custom" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
-        UIAlertController *hostAlert = [UIAlertController alertControllerWithTitle:@"Enter Custom Hostname" message:@"This hostname will be used for both API calls and VPN connectivity." preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *customHostAction = [UIAlertAction actionWithTitle:@"Set Custom Hostname" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
-            [self setCustomHostnameFromField];
-        }];
-        
-        [hostAlert addTextFieldWithConfigurationHandler:^(UITextField *tField) {
-            tField.delegate = self;
-            tField.spellCheckingType = UITextSpellCheckingTypeNo;
-            tField.keyboardType = UIKeyboardTypeURL;
-            [tField becomeFirstResponder];
-            self.customHostTextField = tField;
-        }];
-        
-        [hostAlert addAction:customHostAction];
-        [self safePresentViewController:hostAlert];
-    }];
-    
-    [alert addAction:customServerAction];
-    */
-    // START PRIVATE NODES
-    // Further testing needed before public can use
-    // Anything here is NOT to be included within the production 'proximate server' logic
-    
+    if (self.serversArrayController.content != nil){
+        GRDLog(@"dont need to fetch them again!");
+        return;
+    }
     NSMutableArray *serverArray = [NSMutableArray new];
     NSDictionary *franceBox = @{@"display-name": @"Frankfurt, Germany",
                                 @"hostname": @"sandbox-fra-1.sudosecuritygroup.com"
@@ -838,21 +816,6 @@ uint64_t ourAbsoluteNanoseconds(void) {
                 [serverArray addObjectsFromArray:allServers];
                 NSLog(@"new server array: %@", serverArray);
                 [self.serversArrayController setContent:serverArray];
-                /*
-                for (NSDictionary *serverObj in allServers) {
-                    NSString *hostname = [serverObj objectForKey:@"hostname"];
-                    NSString *locationDisplayName = [serverObj objectForKey:@"display-name"];
-                    BOOL offline = [[serverObj objectForKey:@"offline"] boolValue];
-                    
-                    NSString *server = [[hostname componentsSeparatedByString:@"."] objectAtIndex:0];
-                    if (offline == true) {
-                        server = [server stringByAppendingString:@" ❌"];
-                        
-                    } else {
-                        server = [server stringByAppendingString:@" ✅"];
-                    }
-                }
-                */
             }
             
         });
@@ -860,7 +823,7 @@ uint64_t ourAbsoluteNanoseconds(void) {
 }
 
 - (void)showManualServerList:(id)sender {
-    [self showManualServerSelectionPopup];
+    [self populateManualServersIfNecessary];
     [self.serverSelectionWindow makeKeyAndOrderFront:nil];
 }
 
