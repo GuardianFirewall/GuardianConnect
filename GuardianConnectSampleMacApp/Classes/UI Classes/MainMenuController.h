@@ -33,7 +33,9 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (nonatomic, strong) NSStatusItem *item;
 @property (nonatomic, strong) NSMenu *menu;
 @property (weak) IBOutlet NSTableView *alertsTableView;
+@property (weak) IBOutlet NSTableView *serverTableView;
 @property (weak) IBOutlet NSArrayController *alertsArrayController;
+@property (weak) IBOutlet NSArrayController *serversArrayController;
 @property NSMenuItem *regionPickerMenuItem;
 @property BOOL isMouseOverStatusIcon;
 @property BOOL isMouseOverAlertsWindow;
@@ -45,6 +47,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 @property (weak) IBOutlet NSButton *mailTrackerButton;
 @property (weak) IBOutlet NSButton *pageHijackerButton;
 @property (weak) IBOutlet NSButton *totalAlertsButton;
+@property (weak) IBOutlet NSWindow *serverSelectionWindow;
 
 - (void)login:(id)sender;
 - (void)showLoginWindow:(id)sender;
@@ -66,6 +69,10 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (void)quit:(id)send;
 -(void)showDeveloperItems;
 -(void)hideDeveloperItems;
+
+- (IBAction)cancel:(id)sender;
+- (IBAction)connect:(id)sender;
+
 @end
 
 NS_ASSUME_NONNULL_END
