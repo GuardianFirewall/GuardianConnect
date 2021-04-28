@@ -19,7 +19,6 @@
     if (_appDelegate){
         [_appDelegate createMenu];
     }
-    NSLog(@"click count: %lu", theEvent.clickCount);
     if (theEvent.clickCount == 3) {
         [_appDelegate openPreferences];
     } else {

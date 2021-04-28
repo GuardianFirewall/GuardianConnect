@@ -211,7 +211,7 @@
         [self.menu addItem:clearVPNSettings];
     }
     self.spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
-    [self.menu addItem:self.spoofReceipt];
+    //[self.menu addItem:self.spoofReceipt];
     
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
