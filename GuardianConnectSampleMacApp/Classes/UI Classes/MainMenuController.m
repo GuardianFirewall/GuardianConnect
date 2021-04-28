@@ -233,6 +233,9 @@
     NSMenuItem *subscribe = [[NSMenuItem alloc] initWithTitle:@"Subscribe" action:@selector(showSubscriptionsView:) keyEquivalent:@""];
     [self.menu addItem:subscribe];
     
+    NSMenuItem *restore = [[NSMenuItem alloc] initWithTitle:@"Restore Subscription" action:@selector(restoreSubscription:) keyEquivalent:@""];
+    [self.menu addItem:restore];
+    
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
     [self.menu addItem:[NSMenuItem separatorItem]];
@@ -929,11 +932,12 @@ uint64_t ourAbsoluteNanoseconds(void) {
 }
 
 - (void)showSubscriptionsView:(id)sender {
+    [self getGuardianPremiumSubscriptions];
+    [self.subscriptionWindow makeKeyAndOrderFront:nil];
+}
+
+- (void)restoreSubscription:(id)sender {
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
-    //[self getGuardianPremiumSubscriptions];
-    //[self.subscriptionWindow makeKeyAndOrderFront:nil];
-    
-    
 }
 
 - (IBAction)subscribe:(id)sender {

@@ -78,6 +78,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (IBAction)connect:(id)sender;
 - (void)showManualServerList:(id)sender;
 - (void)showSubscriptionsView:(id)sender;
+- (void)restoreSubscription:(id)sender;
 - (IBAction)subscribe:(id)sender;
 - (IBAction)planSelected:(NSButton *)sender;
 @end

@@ -205,4 +205,8 @@
     [self.mainMenuController showSubscriptionsView:sender];
 }
 
+- (void)restoreSubscription:(id)sender {
+    [self.mainMenuController restoreSubscription:sender];
+}
+
 @end
