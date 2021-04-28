@@ -237,7 +237,7 @@
 }
 
 - (NSString *)currentDisplayHostname {
-    GRDRegion *selected = [[GRDVPNHelper sharedInstance] selectedRegion];
+    GRDRegion *selected = [self selectedRegion];
     if (selected){
         return selected.displayName;
     } else {
