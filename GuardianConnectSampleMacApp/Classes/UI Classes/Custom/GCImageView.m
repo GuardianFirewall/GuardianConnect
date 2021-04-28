@@ -20,7 +20,7 @@
         [_appDelegate createMenu];
     }
     if (theEvent.clickCount == 3) {
-        [_appDelegate openPreferences];
+        [_appDelegate openPreferences:nil];
     } else {
         NSStatusItem * statusI = [_appDelegate item];
         NSMenu       * menu    = [_appDelegate menu];

@@ -222,6 +222,9 @@
     self.spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
     //[self.menu addItem:self.spoofReceipt];
     
+    NSMenuItem *prefs = [[NSMenuItem alloc] initWithTitle:@"Settings" action:@selector(openPreferences:) keyEquivalent:@""];
+    [self.menu addItem:prefs];
+    
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
     [self.menu addItem:[NSMenuItem separatorItem]];
@@ -568,7 +571,7 @@
     
 }
 
-- (void)openPreferences {
+- (void)openPreferences:(id)sender {
     LOG_SELF;
     [[GRDPrefsWindowController sharedPrefsWindowController] showWindow:nil];
 }

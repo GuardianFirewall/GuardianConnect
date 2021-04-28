@@ -70,6 +70,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 -(void)showDeveloperItems;
 -(void)hideDeveloperItems;
 
+- (void)openPreferences:(id)sender;
 - (IBAction)cancel:(id)sender;
 - (IBAction)connect:(id)sender;
 - (void)showManualServerList:(id)sender;

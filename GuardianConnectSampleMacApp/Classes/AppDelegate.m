@@ -193,4 +193,8 @@
     [self.mainMenuController showManualServerList:sender];
 }
 
+- (void)openPreferences:(id)sender {
+    [self.mainMenuController openPreferences:sender];
+}
+
 @end

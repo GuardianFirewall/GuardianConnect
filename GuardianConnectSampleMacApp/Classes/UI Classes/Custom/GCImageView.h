@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSStatusItem *)item;
 -(NSMenu *)menu;
 -(BOOL)menuIsOpen;
--(void)openPreferences;
+-(void)openPreferences:(id _Nullable)sender;
 -(void)showDeveloperItems;
 -(void)hideDeveloperItems;
 @end
