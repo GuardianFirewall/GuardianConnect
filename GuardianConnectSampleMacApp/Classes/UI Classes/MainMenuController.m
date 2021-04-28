@@ -929,8 +929,9 @@ uint64_t ourAbsoluteNanoseconds(void) {
 }
 
 - (void)showSubscriptionsView:(id)sender {
-    [self getGuardianPremiumSubscriptions];
-    [self.subscriptionWindow makeKeyAndOrderFront:nil];
+    [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+    //[self getGuardianPremiumSubscriptions];
+    //[self.subscriptionWindow makeKeyAndOrderFront:nil];
     
     
 }
@@ -938,7 +939,7 @@ uint64_t ourAbsoluteNanoseconds(void) {
 - (IBAction)subscribe:(id)sender {
     LOG_SELF;
     GRDLog(@"selected product: %@", self.selectedProduct);
-    [[GRDSubscriptionManager sharedManager] setDelegate:self];
+    
     [[SKPaymentQueue defaultQueue] addPayment:[SKPayment paymentWithProduct:self.selectedProduct]];
     //[[GRDSubscriptionManager sharedManager] setDelegate:self];
     
