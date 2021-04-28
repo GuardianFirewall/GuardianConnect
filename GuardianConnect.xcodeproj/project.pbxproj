@@ -20,7 +20,6 @@
 		3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9EF2628F252007D4E7E /* GRDCredential.m */; };
 		3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3249771326325929008ABFDB /* GCSubscriptionManager.m */; };
 		325583E22634D2420015DEE3 /* GRDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E12634D2420015DEE3 /* GRDEvent.m */; };
 		325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E42634D65F0015DEE3 /* NSColor+Additions.m */; };
 		32855B19263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
@@ -143,8 +142,6 @@
 		3247E9EF2628F252007D4E7E /* GRDCredential.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDCredential.m; sourceTree = "<group>"; };
 		3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Extras.m"; sourceTree = "<group>"; };
 		3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Extras.h"; sourceTree = "<group>"; };
-		3249771226325929008ABFDB /* GCSubscriptionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCSubscriptionManager.h; sourceTree = "<group>"; };
-		3249771326325929008ABFDB /* GCSubscriptionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCSubscriptionManager.m; sourceTree = "<group>"; };
 		325583E02634D2420015DEE3 /* GRDEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDEvent.h; sourceTree = "<group>"; };
 		325583E12634D2420015DEE3 /* GRDEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDEvent.m; sourceTree = "<group>"; };
 		325583E32634D65F0015DEE3 /* NSColor+Additions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSColor+Additions.h"; sourceTree = "<group>"; };
@@ -263,8 +260,6 @@
 			children = (
 				325583E02634D2420015DEE3 /* GRDEvent.h */,
 				325583E12634D2420015DEE3 /* GRDEvent.m */,
-				3249771226325929008ABFDB /* GCSubscriptionManager.h */,
-				3249771326325929008ABFDB /* GCSubscriptionManager.m */,
 				32A49C4A263951E000D15910 /* GRDSubscriptionManager.h */,
 				32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */,
 			);
@@ -678,7 +673,6 @@
 				32A49C4C263951E100D15910 /* GRDSubscriptionManager.m in Sources */,
 				32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */,
 				32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */,
-				3249771426325929008ABFDB /* GCSubscriptionManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
