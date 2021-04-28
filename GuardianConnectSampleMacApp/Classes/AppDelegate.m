@@ -189,10 +189,6 @@
     [self.mainMenuController quit:sender];
 }
 
-- (void)spoofReceiptData:(id)sender {
-    [self.mainMenuController spoofReceiptData:sender];
-}
-
 - (void)showManualServerList:(id)sender {
     [self.mainMenuController showManualServerList:sender];
 }

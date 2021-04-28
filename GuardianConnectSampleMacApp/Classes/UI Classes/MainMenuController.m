@@ -34,7 +34,6 @@
 @property NSArray *regionMenuItems;
 @property NSArray <GRDRegion *> *regions;
 @property GRDRegion *_localRegion;
-@property NSMenuItem *spoofReceipt;
 @property NSMenuItem *manualRegionSelection;
 
 @property NSLocale *subscriptionLocale;
@@ -170,18 +169,13 @@
 
 -(void)showDeveloperItems {
     NSArray *itemArray = self.menu.itemArray;
-    if(![itemArray containsObject:self.spoofReceipt]){
-        [self.menu insertItem:self.spoofReceipt atIndex:3];
-    }
-    if(![itemArray containsObject:self.manualRegionSelection]){
+    GRDLog(@"self.manualRegionSelection: %@", self.manualRegionSelection);
+    if(![itemArray containsObject:self.manualRegionSelection] && self.manualRegionSelection){
         [self.menu addItem:self.manualRegionSelection];
     }
 }
 
 -(void)hideDeveloperItems {
-    if([self.menu.itemArray containsObject:self.spoofReceipt]){
-        [self.menu removeItem:self.spoofReceipt];
-    }
     if([self.menu.itemArray containsObject:self.manualRegionSelection]){
         [self.menu removeItem:self.manualRegionSelection];
     }
@@ -224,8 +218,6 @@
         NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearVPNSettings:) keyEquivalent:@""];
         [self.menu addItem:clearVPNSettings];
     }
-    self.spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
-    //[self.menu addItem:self.spoofReceipt];
     
     NSMenuItem *prefs = [[NSMenuItem alloc] initWithTitle:@"Settings" action:@selector(openPreferences:) keyEquivalent:@""];
     [self.menu addItem:prefs];
@@ -275,26 +267,6 @@
     return self.menu;
 }
 
-/// Can be used to 'spoof' receipt data from the iOS app, a way to login without a pro account and to also test/audit some of that workflow.
-- (void)spoofReceiptData:(id)sender {
-    NSOpenPanel *op = [NSOpenPanel openPanel];
-    [op setMessage:@"This receipt data will be sent in place of our actual app store receipt data to attempt to create a VPN connection.\nUsing active iOS details for further POC"];
-    [op setCanChooseFiles:TRUE];
-    [op setCanChooseDirectories:FALSE];
-    [op setAllowsMultipleSelection:FALSE];
-    if ([op runModal] == NSModalResponseOK)
-    {
-        NSURL* fileNameOpened = [[op URLs] objectAtIndex:0];
-        NSData *receiptData = [NSData dataWithContentsOfURL:fileNameOpened];
-        //NSString *receiptString = [receiptData base64EncodedStringWithOptions:0];
-        //self.textView.string = receiptString;
-        //[self validateReceiptPressed:nil];
-        [[NSUserDefaults standardUserDefaults] setValue:receiptData forKey:@"spoofedReceiptData"];
-        //[[GCSubscriptionManager sharedInstance]setDelegate:self];
-        //[[GCSubscriptionManager sharedInstance] verifyReceipt];
-    }
-    
-}
 
 #pragma mark GCSubscriberManager delegate
 - (void)handleValidationSuccess {

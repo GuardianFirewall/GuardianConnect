@@ -56,7 +56,6 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (void)showLoginWindow:(id)sender;
 - (void)createVPNConnection:(id)sender;
 - (void)clearVPNSettings:(id)sender;
-- (void)spoofReceiptData:(id)sender;
 - (void)refreshEventData:(id)sender;
 - (void)selectRegion:(NSMenuItem *)sender;
 - (void)showAlertsWindow:(id _Nullable)sender;

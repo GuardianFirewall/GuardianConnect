@@ -56,22 +56,10 @@
         NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
         if (receiptData == nil) {
             NSLog(@"[DEBUG][validate receipt] receiptData == nil");
-            #if !TARGET_OS_OSX
             if (completion) {
                 completion(nil, NO, @"No App Store receipt data present");
             }
             return;
-            #else
-            //check spoofed user defaults for it
-            NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-            receiptData = [def valueForKey:@"spoofedReceiptData"];
-            if (!receiptData){ // its still nil
-                if (completion) {
-                    completion(nil, NO, @"No App Store receipt data present");
-                }
-                return;
-            }
-            #endif
         }
         
         NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0], @"device-check-token": deviceCheckToken} options:0 error:nil];
@@ -150,22 +138,10 @@
                 return;
                  */
                 NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
-                #if !TARGET_OS_OSX
                 if (completion) {
                     completion(nil, NO, @"AppStore receipt missing");
                 }
                 return;
-                #else
-                //check spoofed user defaults for it
-                NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-                receiptData = [def valueForKey:@"spoofedReceiptData"];
-                if (!receiptData){ // its still nil
-                    if (completion) {
-                        completion(nil, NO, @"AppStore receipt missing");
-                    }
-                    return;
-                }
-                #endif
             }
             
             NSString *appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
@@ -266,29 +242,11 @@
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
     if (receiptData == nil) {
         GRDLog(@"receiptData == nil");
-        /*if (completion) {
+        if (completion) {
             completion(nil, NO, @"No App Store receipt data present");
         }
         return;
-         */
-        #if !TARGET_OS_OSX
-        if (completion) {
-            completion(nil, NO, @"AppStore receipt missing");
-        }
-        return;
-        #else
-        //check spoofed user defaults for it
-        NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-        receiptData = [def valueForKey:@"spoofedReceiptData"];
-        if (!receiptData){ // its still nil
-            if (completion) {
-                completion(nil, NO, @"No App Store receipt data present");
-            }
-            return;
-        }
-        #endif
     }
-    
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
