@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(NSMenu *)menu;
 -(BOOL)menuIsOpen;
 -(void)openPreferences;
+-(void)showDeveloperItems;
+-(void)hideDeveloperItems;
 @end
 
 @interface GCImageView : NSImageView {

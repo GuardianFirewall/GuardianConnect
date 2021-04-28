@@ -7,8 +7,13 @@
 //
 
 #import "GCImageView.h"
+#import <Carbon/Carbon.h>
 
 @implementation GCImageView
+
+- (BOOL)optionKeyIsDown {
+    return (GetCurrentKeyModifiers() & optionKey) != 0;
+}
 
 -(void)mouseDownInMainThread:(NSEvent *)theEvent {
     if (_appDelegate){
@@ -28,6 +33,11 @@
             NSLog(@"sel: %@ target: %@", NSStringFromSelector(obj.action), obj.target);
         }];
          */
+        if ([self optionKeyIsDown]){
+            [_appDelegate showDeveloperItems];
+        } else {
+            [_appDelegate hideDeveloperItems];
+        }
         [statusI popUpStatusItemMenu: menu];
 #pragma clang diagnostic pop
     }

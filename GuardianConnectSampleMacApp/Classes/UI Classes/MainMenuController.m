@@ -14,6 +14,7 @@
 #import "NSColor+Additions.h"
 #import "GRDEvent.h"
 #import "NSObject+Extras.h"
+#import <Carbon/Carbon.h>
 
 @interface MainMenuController ()
 
@@ -31,12 +32,17 @@
 @property NSArray *regionMenuItems;
 @property NSArray <GRDRegion *> *regions;
 @property GRDRegion *_localRegion;
+@property NSMenuItem *spoofReceipt;
 
 @end
 
 @implementation MainMenuController
 
 #pragma mark NSMenu delegate methods
+
+- (BOOL)optionKeyIsDown {
+    return (GetCurrentKeyModifiers() & optionKey) != 0;
+}
 
 /// Called when our menu will open, lets us track whether its open or closed.
 - (void)menuWillOpen:(NSMenu *)menu {
@@ -155,6 +161,18 @@
     self.item.menu = self.menu;
 }
 
+-(void)showDeveloperItems {
+    if(![self.menu.itemArray containsObject:self.spoofReceipt]){
+        [self.menu insertItem:self.spoofReceipt atIndex:3];
+    }
+}
+
+-(void)hideDeveloperItems {
+    if([self.menu.itemArray containsObject:self.spoofReceipt]){
+        [self.menu removeItem:self.spoofReceipt];
+    }
+}
+
 /// Create the actual menu, this is recreated routinely to refresh the contents, could probably be done more 'properly' but this will do for now.
 - (void)createMenu {
     if (self.item){
@@ -192,8 +210,8 @@
         NSMenuItem *clearVPNSettings = [[NSMenuItem alloc] initWithTitle:@"Clear VPN Settings" action:@selector(clearVPNSettings:) keyEquivalent:@""];
         [self.menu addItem:clearVPNSettings];
     }
-    NSMenuItem *spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
-    [self.menu addItem:spoofReceipt];
+    self.spoofReceipt = [[NSMenuItem alloc] initWithTitle:@"Spoof Receipt" action:@selector(spoofReceiptData:) keyEquivalent:@""];
+    [self.menu addItem:self.spoofReceipt];
     
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
@@ -420,7 +438,7 @@
 /// Action called when 'Show alerts' menu item is chosen
 - (void)showAlertsWindow:(id _Nullable)sender {
     if (![self isConnected]){
-        //return;
+        return;
     }
     if (sender != nil){
         NSLog(@"we got a sender, shown manually!");

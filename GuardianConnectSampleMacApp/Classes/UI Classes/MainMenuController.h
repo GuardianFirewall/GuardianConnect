@@ -64,6 +64,8 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (void)populateRegionDataIfNecessary;
 - (void)fetchEventData;
 - (void)quit:(id)send;
+-(void)showDeveloperItems;
+-(void)hideDeveloperItems;
 @end
 
 NS_ASSUME_NONNULL_END
