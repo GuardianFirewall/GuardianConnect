@@ -813,10 +813,10 @@ uint64_t ourAbsoluteNanoseconds(void) {
                                 @"hostname": @"sandbox-fra-1.sudosecuritygroup.com"
     };
     NSDictionary *nySandbox = @{@"display-name": @"sandbox-nyc-1",
-                                @"host": @"sandbox-nyc-1.sudosecuritygroup.com"
+                                @"hostname": @"sandbox-nyc-1.sudosecuritygroup.com"
     };
     NSDictionary *nySJ = @{@"display-name": @"sandbox-sjc-1b",
-                                @"host": @"sandbox-sjc-1b.sudosecuritygroup.com"
+                                @"hostname": @"sandbox-sjc-1b.sudosecuritygroup.com"
     };
     
     [serverArray addObject:franceBox];
