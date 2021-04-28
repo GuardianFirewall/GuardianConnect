@@ -784,7 +784,6 @@ uint64_t ourAbsoluteNanoseconds(void) {
     
     NSArray *content = self.serversArrayController.content;
     if (content.count > 0){
-        GRDLog(@"dont need to fetch them again: %@", self.serversArrayController.content);
         return;
     }
     NSMutableArray *serverArray = [NSMutableArray new];
@@ -815,7 +814,6 @@ uint64_t ourAbsoluteNanoseconds(void) {
             } else {
                 
                 [serverArray addObjectsFromArray:allServers];
-                NSLog(@"new server array: %@", serverArray);
                 [self.serversArrayController setContent:serverArray];
             }
             
