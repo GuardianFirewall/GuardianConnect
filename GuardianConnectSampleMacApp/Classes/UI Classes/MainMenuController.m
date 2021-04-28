@@ -834,7 +834,13 @@ uint64_t ourAbsoluteNanoseconds(void) {
     NSLog(@"selected item: %@", selectedItem);
     [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:selectedItem[@"hostname"] andHostLocation:selectedItem[@"display-name"] completion:^(BOOL success, NSString * _Nonnull errorMessage) {
         //TODO: need to update region selection to accomodate for this...
-        
+        if (success){
+            [[GRDVPNHelper sharedInstance] selectRegion:nil]; //defers back to 'automatic' and UI updates properly.
+            GRDLog(@"connected successfully!");
+        } else {
+            GRDLog(@"an error occured: %@", errorMessage);
+        }
+         
     }];
 }
 
