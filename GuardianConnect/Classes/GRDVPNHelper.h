@@ -16,7 +16,7 @@
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 #import <GuardianConnect/GRDRegion.h>
-#import "Shared.h"
+#import <GuardianConnect/Shared.h>
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
