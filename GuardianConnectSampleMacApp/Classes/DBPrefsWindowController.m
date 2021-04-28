@@ -60,9 +60,9 @@
     // in Interface Builder, it gets replaced with this one.
     NSWindow *window = 
     [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,1000,1000)
-                                styleMask:(NSTitledWindowMask |
-                                           NSClosableWindowMask |
-                                           NSMiniaturizableWindowMask)
+                                styleMask:(NSWindowStyleMaskTitled |
+                                           NSWindowStyleMaskClosable |
+                                           NSWindowStyleMaskMiniaturizable)
                                   backing:NSBackingStoreBuffered
                                     defer:YES];
     [self setWindow:window];
@@ -70,6 +70,7 @@
     [self.contentSubview setAutoresizingMask:(NSViewMinYMargin | NSViewWidthSizable)];
     [[[self window] contentView] addSubview:self.contentSubview];
     [[self window] setShowsToolbarButton:NO];
+    self.window.level = NSStatusWindowLevel;
 }
 
 
@@ -231,7 +232,7 @@
 - (void)crossFadeView:(NSView *)oldView withView:(NSView *)newView{
     [self.viewAnimation stopAnimation];
 
-    if([self shiftSlowsAnimation] && [[[self window] currentEvent] modifierFlags] & NSShiftKeyMask){
+    if([self shiftSlowsAnimation] && [[[self window] currentEvent] modifierFlags] & NSEventModifierFlagShift){
         [self.viewAnimation setDuration:1.25];
     }else{
         [self.viewAnimation setDuration:0.25];
@@ -297,7 +298,7 @@
 // Close the window with cmd+w incase the app doesn't have an app menu
 - (void)keyDown:(NSEvent *)theEvent{
     NSString *key = [theEvent charactersIgnoringModifiers];
-    if(([theEvent modifierFlags] & NSCommandKeyMask) && [key isEqualToString:@"w"]){
+    if(([theEvent modifierFlags] & NSEventModifierFlagCommand) && [key isEqualToString:@"w"]){
         [self close];
     }else{
         [super keyDown:theEvent];
