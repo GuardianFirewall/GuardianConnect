@@ -236,6 +236,15 @@
     }
 }
 
+- (NSString *)currentDisplayHostname {
+    GRDRegion *selected = [[GRDVPNHelper sharedInstance] selectedRegion];
+    if (selected){
+        return selected.displayName;
+    } else {
+        return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDVPNHostLocation];
+    }
+}
+
 //trying to make configureAndConnectVPNWithCompletion a bit smaller and more manageable, DONT CALL DIRECTLY.
 
 - (void)_createVPNConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
@@ -251,7 +260,7 @@
             NSData *eapPassword = self.mainCredential.passwordRef;
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
-            vpnManager.localizedDescription = @"Guardian Firewall";
+            vpnManager.localizedDescription = [NSString stringWithFormat:@"Guardian Firewall: %@", [self currentDisplayHostname]];//@"Guardian Firewall";
             if ([self onDemand]) { //This defaults to YES
                 vpnManager.onDemandEnabled = YES;
                 vpnManager.onDemandRules = [GRDVPNHelper vpnOnDemandRules];
