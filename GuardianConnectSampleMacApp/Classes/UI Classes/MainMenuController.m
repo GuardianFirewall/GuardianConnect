@@ -783,8 +783,8 @@ uint64_t ourAbsoluteNanoseconds(void) {
 - (void)populateManualServersIfNecessary {
     
     if (self.serversArrayController.content != nil){
-        GRDLog(@"dont need to fetch them again!");
-        return;
+        GRDLog(@"dont need to fetch them again: %@", self.serversArrayController.content);
+        //return;
     }
     NSMutableArray *serverArray = [NSMutableArray new];
     NSDictionary *franceBox = @{@"display-name": @"Frankfurt, Germany",
