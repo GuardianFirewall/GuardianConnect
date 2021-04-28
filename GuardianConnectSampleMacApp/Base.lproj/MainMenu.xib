@@ -1155,18 +1155,8 @@
                                                             </textFieldCell>
                                                         </textField>
                                                     </subviews>
-                                                    <connections>
-                                                        <outlet property="textField" destination="1Da-Ov-aOo" id="D8d-x7-LTq"/>
-                                                    </connections>
                                                 </tableCellView>
                                             </prototypeCellViews>
-                                            <connections>
-                                                <binding destination="T6B-TF-vqD" name="value" keyPath="arrangedObjects.display-name" id="i3W-fi-13b">
-                                                    <dictionary key="options">
-                                                        <bool key="NSValidatesImmediately" value="YES"/>
-                                                    </dictionary>
-                                                </binding>
-                                            </connections>
                                         </tableColumn>
                                         <tableColumn width="228" minWidth="40" maxWidth="1000" id="LjE-H8-WsM">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="hostname">
@@ -1191,13 +1181,6 @@
                                                                 <font key="font" metaFont="system"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                                <connections>
-                                                                    <binding destination="sgf-No-1Ie" name="value" keyPath="objectValue.hostname" id="k1G-gK-Uln">
-                                                                        <dictionary key="options">
-                                                                            <bool key="NSValidatesImmediately" value="YES"/>
-                                                                        </dictionary>
-                                                                    </binding>
-                                                                </connections>
                                                             </textFieldCell>
                                                         </textField>
                                                     </subviews>
@@ -1206,13 +1189,6 @@
                                                     </connections>
                                                 </tableCellView>
                                             </prototypeCellViews>
-                                            <connections>
-                                                <binding destination="XIQ-t8-o1I" name="value" keyPath="arrangedObjects.hostname" id="1fi-Ka-hRP">
-                                                    <dictionary key="options">
-                                                        <bool key="NSValidatesImmediately" value="YES"/>
-                                                    </dictionary>
-                                                </binding>
-                                            </connections>
                                         </tableColumn>
                                     </tableColumns>
                                 </tableView>
