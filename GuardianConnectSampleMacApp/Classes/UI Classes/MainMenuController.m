@@ -809,13 +809,13 @@ uint64_t ourAbsoluteNanoseconds(void) {
     // Anything here is NOT to be included within the production 'proximate server' logic
     
     NSMutableArray *serverArray = [NSMutableArray new];
-    NSDictionary *franceBox = @{@"display-name": @"sandbox-fra-1",
+    NSDictionary *franceBox = @{@"display-name": @"Frankfurt, Germany",
                                 @"hostname": @"sandbox-fra-1.sudosecuritygroup.com"
     };
-    NSDictionary *nySandbox = @{@"display-name": @"sandbox-nyc-1",
+    NSDictionary *nySandbox = @{@"display-name": @"New York City, USA",
                                 @"hostname": @"sandbox-nyc-1.sudosecuritygroup.com"
     };
-    NSDictionary *nySJ = @{@"display-name": @"sandbox-sjc-1b",
+    NSDictionary *nySJ = @{@"display-name": @"San Jose, USA",
                                 @"hostname": @"sandbox-sjc-1b.sudosecuritygroup.com"
     };
     
@@ -870,6 +870,10 @@ uint64_t ourAbsoluteNanoseconds(void) {
 - (IBAction)connect:(id)sender {
     NSDictionary *selectedItem = self.serversArrayController.selectedObjects.firstObject;
     NSLog(@"selected item: %@", selectedItem);
+    [[GRDVPNHelper sharedInstance] configureFirstTimeUserForHostname:selectedItem[@"hostname"] andHostLocation:selectedItem[@"display-name"] completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+        //TODO: need to update region selection to accomodate for this...
+        
+    }];
 }
 
 @end
