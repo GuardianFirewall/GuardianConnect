@@ -1271,7 +1271,12 @@ Gw
             </view>
             <point key="canvasLocation" x="-43" y="847"/>
         </window>
-        <arrayController id="T6B-TF-vqD" userLabel="Server Array Controller"/>
+        <arrayController id="T6B-TF-vqD" userLabel="Server Array Controller">
+            <declaredKeys>
+                <string>display-name</string>
+                <string>hostname</string>
+            </declaredKeys>
+        </arrayController>
     </objects>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
