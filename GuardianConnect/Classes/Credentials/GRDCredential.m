@@ -65,24 +65,6 @@
     return self;
 }
 
-- (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname validFor:(NSInteger)validForDays displayHostname:(NSString *)displayHostName {
-    self = [super init];
-    if (self){
-        _identifier = [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
-        _username = credDict[kKeychainStr_EapUsername];
-        _password = credDict[kKeychainStr_EapPassword];
-        _apiAuthToken = credDict[kKeychainStr_APIAuthToken];
-        _hostname = hostname;
-        _expirationDate = [[NSDate date] dateByAddingDays:validForDays];
-        _hostnameDisplayValue = displayHostName;
-        _name = [self defaultFileName];
-        _checkedExpiration = false;
-        _expired = false;
-        [self _checkExpiration];
-    }
-    return self;
-}
-
 - (void)_checkExpiration {
     if([[NSDate date] compare:_expirationDate] == NSOrderedDescending){
         _expired = true;

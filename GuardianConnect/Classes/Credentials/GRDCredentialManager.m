@@ -34,7 +34,10 @@
                
                 if (!errorMessage){
                     //we got a hostname & credentials, got all we need!
-                    GRDCredential *credential = [[GRDCredential alloc] initWithDictionary:creds hostname:host validFor:numberOfDays displayHostname:hostLocation];
+                    NSMutableDictionary *credCopy = [creds mutableCopy];
+                    credCopy[kGRDHostnameOverride] = host;
+                    credCopy[kGRDVPNHostLocation] = hostLocation;
+                    GRDCredential *credential = [[GRDCredential alloc] initWithFullDictionary:creds validFor:numberOfDays isMain:mainCredential];
                     OSStatus keychainSaving = [credential saveToKeychain];
                     if (keychainSaving == errSecSuccess){
                         if (block){

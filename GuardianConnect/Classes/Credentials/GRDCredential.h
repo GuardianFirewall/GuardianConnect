@@ -26,7 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;
 - (id)initWithFullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
-- (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname validFor:(NSInteger)validForDays displayHostname:(NSString *)displayHostName ;
 - (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate;
 - (void)updateWithItem:(GRDCredential *)cred;
 - (OSStatus)saveToKeychain;
