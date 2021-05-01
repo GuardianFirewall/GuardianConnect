@@ -37,7 +37,7 @@
                     NSMutableDictionary *credCopy = [creds mutableCopy];
                     credCopy[kGRDHostnameOverride] = host;
                     credCopy[kGRDVPNHostLocation] = hostLocation;
-                    GRDCredential *credential = [[GRDCredential alloc] initWithFullDictionary:creds validFor:numberOfDays isMain:mainCredential];
+                    GRDCredential *credential = [[GRDCredential alloc] initWithFullDictionary:credCopy validFor:numberOfDays isMain:mainCredential];
                     OSStatus keychainSaving = [credential saveToKeychain];
                     if (keychainSaving == errSecSuccess){
                         if (block){
