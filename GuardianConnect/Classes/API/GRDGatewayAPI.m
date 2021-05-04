@@ -599,7 +599,7 @@
     return [NSArray arrayWithArray:fakeAlerts];
 }
 
-- (void)setAlertsDownloadTimestamp:(NSInteger)timestamp completion:(void (^)(BOOL, NSString * _Nullable))completion {
+- (void)setAlertsDownloadTimestampWithCompletion:(void (^)(BOOL, NSString * _Nullable))completion {
     if ([self _canMakeApiRequests] == NO) {
         GRDLog(@"Cannot make API requests !!! won't continue");
         if (completion) completion(NO, @"cant make API requests");
@@ -612,7 +612,13 @@
         return;
     }
     
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: [self apiAuthToken], @"timestamp": [NSNumber numberWithInteger:timestamp]} options:0 error:nil];
+    NSError *jsonEncodeErr;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: [self apiAuthToken]} options:0 error:&jsonEncodeErr];
+    if (jsonEncodeErr != nil) {
+        GRDLog(@"Failed to encode JSON: %@", jsonEncodeErr);
+        if (completion) completion(NO, NSLocalizedString(@"Failed to encode JSON", nil));
+        return;
+    }
     
     NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/set-alerts-download-timestamp", [self deviceIdentifier]] andPostRequestData:jsonData];
     
