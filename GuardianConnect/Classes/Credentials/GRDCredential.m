@@ -128,6 +128,7 @@
     cred.expirationDate = self.expirationDate;
     cred.hostnameDisplayValue = self.hostnameDisplayValue;
     cred.apiAuthToken = self.apiAuthToken;
+    cred.mainCredential = self.mainCredential;
     return cred;
 }
 
