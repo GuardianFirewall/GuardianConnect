@@ -126,9 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getEvents:(void (^)(NSDictionary *response, BOOL success, NSString *error))completion;
 
 /// endpoint: /api/v1.2/device/<eap-username>/set-alerts-download-timestamp
-/// @param timestamp Unix timestamp in seconds to indicate which alerts have already been downloaded
 /// @param completion completion block indicating a successful API request or an error message with detailed information
-- (void)setAlertsDownloadTimestamp:(NSInteger) timestamp completion:(void(^)(BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)setAlertsDownloadTimestampWithCompletion:(void(^)(BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1.2/device/<eap-username>/alert-totals
 /// @param completion completion block indicating a successful API request, if successful a dictionary with the alert totals per alert category or an error message
