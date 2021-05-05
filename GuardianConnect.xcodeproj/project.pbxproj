@@ -570,7 +570,7 @@
 		321BA13A261404A100E876CB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1170;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
 					321BA142261404A100E876CB = {
