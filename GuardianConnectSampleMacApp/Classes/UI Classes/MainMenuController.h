@@ -71,7 +71,7 @@ typedef NS_ENUM(NSInteger, GRDButtonType) {
 - (void)quit:(id)send;
 -(void)showDeveloperItems;
 -(void)hideDeveloperItems;
-
+-(void)fetchBlacklistItems;
 - (void)openPreferences:(id _Nullable)sender;
 - (IBAction)cancel:(id)sender;
 - (IBAction)connect:(id)sender;

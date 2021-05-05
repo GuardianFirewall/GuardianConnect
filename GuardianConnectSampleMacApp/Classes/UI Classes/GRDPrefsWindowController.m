@@ -7,6 +7,8 @@
 //
 
 #import "GRDPrefsWindowController.h"
+#import "GRDSettingsController.h"
+#import <GuardianConnect/Shared.h>
 
 @implementation GRDPrefsWindowController
 
@@ -22,6 +24,17 @@
     // Optional configuration settings.
     [self setCrossFade:[[NSUserDefaults standardUserDefaults] boolForKey:@"fade"]];
     [self setShiftSlowsAnimation:[[NSUserDefaults standardUserDefaults] boolForKey:@"shiftSlowsAnimation"]];
+}
+
+- (void)fetchBlacklistItems {
+    [[GRDSettingsController sharedInstance] updateServerBlocklistWithItemProgress:^(GRDBlacklistGroupItem * _Nonnull item) {
+        GRDLog(@"item: %@", item);
+    } completion:^(BOOL success) {
+        if (success){
+            GRDLog(@"got all the items!");
+            self.blacklistTreeController.content = [[GRDSettingsController sharedInstance] blacklistGroups];
+        }
+    }];
 }
 
 @end

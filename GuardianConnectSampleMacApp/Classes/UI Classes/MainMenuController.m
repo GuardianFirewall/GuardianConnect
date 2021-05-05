@@ -985,4 +985,8 @@ uint64_t ourAbsoluteNanoseconds(void) {
     LOG_SELF;
 }
 
+-(void)fetchBlacklistItems {
+    [(GRDPrefsWindowController*)[GRDPrefsWindowController sharedPrefsWindowController] fetchBlacklistItems];
+}
+
 @end
