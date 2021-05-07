@@ -141,7 +141,7 @@
     }];
 }
 
-- (void)findBestHostInRegion:( NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))block {
+- (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))block {
     if (regionName == nil){ //if the region is nil, use the current one
         GRDLog(@"[DEBUG] nil region, use the default!");
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
@@ -152,11 +152,25 @@
             host = [creds hostname];
             hl = [creds hostnameDisplayValue];
         }
-        if(block){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                block(host, hl, nil);
-            });
+        if (host && hl){
+            if(block){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    block(host, hl, nil);
+                });
+            }
+        } else {
+            //we dont have a host and hostlocation yet.
+            GRDLog(@"we dont have a host or host location yet");
+            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+                if(block){
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, errorMessage);
+                        block(guardianHost, guardianHostLocation, errorMessage);
+                    });
+                }
+            }];
         }
+        
         return;
     }
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
