@@ -327,7 +327,7 @@
     }
     
     NEProxySettings *prox = [GRDSettingsController proxySettings];
-    GRDLog(@"prox: %@", prox);
+    GRDLog(@"prox: %@", prox.proxyAutoConfigurationJavaScript);
     
     [[GRDVPNHelper sharedInstance] setProxySettings:prox];
     
