@@ -10,7 +10,7 @@
             <connections>
                 <outlet property="advancedPreferenceView" destination="2ko-Fo-coO" id="TtJ-wW-QtG"/>
                 <outlet property="blacklistOutlineView" destination="u73-ac-Xzk" id="EBL-V9-xkc"/>
-                <outlet property="blacklistTreeController" destination="moF-ei-Hc8" id="ZZ5-HD-ZSm"/>
+                <outlet property="blacklistTreeController" destination="moF-ei-Hc8" id="reC-zv-hmz"/>
                 <outlet property="blocklistPreferenceView" destination="h5s-Ls-pu0" id="2im-8Q-UFX"/>
                 <outlet property="exceptionsPreferencesView" destination="664-Pd-9j9" id="cIr-ER-m8d"/>
                 <outlet property="generalPreferenceView" destination="Oav-hj-Vth" id="wQx-Ft-VS5"/>
@@ -114,6 +114,8 @@
                                             <bool key="NSValidatesImmediately" value="YES"/>
                                         </dictionary>
                                     </binding>
+                                    <outlet property="dataSource" destination="-2" id="OKQ-AX-hA5"/>
+                                    <outlet property="delegate" destination="-2" id="gCs-89-dEF"/>
                                 </connections>
                             </outlineView>
                         </subviews>
@@ -154,6 +156,10 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <point key="canvasLocation" x="-127.5" y="455.5"/>
         </customView>
-        <treeController objectClassName="GRDBlacklistGroupItem" childrenKeyPath="items" countKeyPath="items.count" id="moF-ei-Hc8"/>
+        <treeController objectClassName="GRDBlacklistGroupItem" childrenKeyPath="items" leafKeyPath="isLeaf" id="moF-ei-Hc8">
+            <connections>
+                <binding destination="-2" name="contentArray" keyPath="self.contents" id="ifB-v5-gXr"/>
+            </connections>
+        </treeController>
     </objects>
 </document>

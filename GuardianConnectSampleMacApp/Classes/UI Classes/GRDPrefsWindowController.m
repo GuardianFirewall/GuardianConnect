@@ -13,6 +13,7 @@
 @implementation GRDPrefsWindowController
 
 - (void)setupToolbar{
+    _contents = [NSMutableArray new];
     [self addView:self.generalPreferenceView label:@"General"];
     [self addView:self.blocklistPreferenceView label:@"Blocklist"];
     [self addView:self.exceptionsPreferencesView label:@"Exceptions"];
@@ -27,14 +28,34 @@
 }
 
 - (void)fetchBlacklistItems {
+    if (!_contents){
+        _contents = [NSMutableArray new];
+    }
     [[GRDSettingsController sharedInstance] updateServerBlocklistWithItemProgress:^(GRDBlacklistGroupItem * _Nonnull item) {
-        GRDLog(@"item: %@", item);
+        //GRDLog(@"item: %@", item);
     } completion:^(BOOL success) {
         if (success){
-            GRDLog(@"got all the items!");
-            self.blacklistTreeController.content = [[GRDSettingsController sharedInstance] blacklistGroups];
+            [_contents addObjectsFromArray:[[GRDSettingsController sharedInstance] blacklistGroups]];
+            //self.blacklistTreeController.content = [[GRDSettingsController sharedInstance] blacklistGroups];
+            //GRDBlacklistGroupItem *testItem = [[[GRDSettingsController sharedInstance] blacklistGroups] firstObject];
+            //[self.blacklistTreeController insertObject:testItem atArrangedObjectIndexPath:[NSIndexPath indexPathWithIndex:0]];
+            GRDLog(@"contents: %@", _contents);
+            GRDLog(@"treeController arranged objects: %@", self.blacklistTreeController.arrangedObjects);
+            
         }
     }];
+}
+
+// -------------------------------------------------------------------------------
+//    viewForTableColumn:tableColumn:item
+// -------------------------------------------------------------------------------
+- (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+    NSTableCellView *result = [outlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    
+    GRDBlacklistGroupItem *node = [item representedObject];
+    result.textField.stringValue = node.title;
+    GRDLog(@"result: %@", result);
+    return result;
 }
 
 @end

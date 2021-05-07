@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) IBOutlet NSView *advancedPreferenceView;
 @property (strong, nonatomic) IBOutlet NSTreeController *blacklistTreeController;
 @property (strong, nonatomic) IBOutlet NSOutlineView *blacklistOutlineView;
+@property (nonatomic, strong) NSMutableArray *contents;
 - (void)fetchBlacklistItems;
 
 @end
