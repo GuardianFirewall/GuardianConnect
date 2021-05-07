@@ -9,7 +9,7 @@
 #import "GRDPrefsWindowController.h"
 #import "GRDSettingsController.h"
 #import <GuardianConnect/Shared.h>
-
+#import "NSObject+Extras.h"
 @implementation GRDPrefsWindowController
 
 - (void)setupToolbar{
@@ -36,14 +36,19 @@
     } completion:^(BOOL success) {
         if (success){
             [_contents addObjectsFromArray:[[GRDSettingsController sharedInstance] blacklistGroups]];
-            //self.blacklistTreeController.content = [[GRDSettingsController sharedInstance] blacklistGroups];
-            //GRDBlacklistGroupItem *testItem = [[[GRDSettingsController sharedInstance] blacklistGroups] firstObject];
-            //[self.blacklistTreeController insertObject:testItem atArrangedObjectIndexPath:[NSIndexPath indexPathWithIndex:0]];
-            GRDLog(@"contents: %@", _contents);
-            GRDLog(@"treeController arranged objects: %@", self.blacklistTreeController.arrangedObjects);
-            
         }
     }];
+}
+
+- (void)check:(id)sender {
+    LOG_SELF;
+    GRDBlacklistGroupItem *group = (GRDBlacklistGroupItem*)[sender associatedValue];
+    if ([group allEnabled]){
+        [group setAllDisabled:true];
+    } else {
+        [group setAllEnabled:true];
+    }
+    [group saveChanges];
 }
 
 // -------------------------------------------------------------------------------
@@ -53,8 +58,20 @@
     NSTableCellView *result = [outlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
     
     GRDBlacklistGroupItem *node = [item representedObject];
-    result.textField.stringValue = node.title;
-    GRDLog(@"result: %@", result);
+    
+    if ([tableColumn.identifier isEqualToString:@"AutomaticTableColumnIdentifier.0"]){
+        NSButton *check = [NSButton checkboxWithTitle:@"" target:self action:@selector(check:)];
+        [check setAssociatedValue:node];
+        [result addSubview:check];
+        if (node.allEnabled){
+            check.state = NSControlStateValueOn;
+        } else {
+            check.state = NSControlStateValueOff;
+        }
+    } else {
+        result.textField.stringValue = node.title;
+    }
+    GRDLog(@"tableColumn: %@", tableColumn);
     return result;
 }
 

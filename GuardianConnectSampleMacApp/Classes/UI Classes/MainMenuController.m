@@ -16,6 +16,7 @@
 #import "NSObject+Extras.h"
 #import <Carbon/Carbon.h>
 #import "GRDPrefsWindowController.h"
+#import "GRDSettingsController.h"
 
 
 @interface MainMenuController ()
@@ -324,6 +325,12 @@
         [self showMojaveIncompatibleAlert];
         return;
     }
+    
+    NEProxySettings *prox = [GRDSettingsController proxySettings];
+    GRDLog(@"prox: %@", prox);
+    
+    [[GRDVPNHelper sharedInstance] setProxySettings:prox];
+    
     // If we are already connected, disconnect and return
     if ([self isConnected]){
         [[GRDVPNHelper sharedInstance] disconnectVPN];
