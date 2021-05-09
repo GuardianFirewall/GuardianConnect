@@ -26,6 +26,9 @@ typedef NS_ENUM(NSInteger, GRDBlacklistGroupType) {
 @property GRDBlacklistGroupType groupType;
 @property BOOL allEnabled; //may be an easier way to track prior states rather than disabling/enabling all
 @property BOOL allDisabled;//ditto
+
+- (BOOL)anyDisabled;
+- (BOOL)anyEnabled; //for mixed state
 - (BOOL)isLeaf;
 - (void)addOrUpdateItem:(GRDBlacklistItem *)item;
 - (void)enableAll;

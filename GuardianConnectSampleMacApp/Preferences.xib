@@ -119,7 +119,6 @@
                                             <bool key="NSValidatesImmediately" value="YES"/>
                                         </dictionary>
                                     </binding>
-                                    <outlet property="dataSource" destination="-2" id="OKQ-AX-hA5"/>
                                     <outlet property="delegate" destination="-2" id="gCs-89-dEF"/>
                                 </connections>
                             </outlineView>

@@ -19,7 +19,7 @@
 }
 
 - (BOOL)isLeaf {
-    return FALSE;
+    return TRUE;
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)aDecoder {
@@ -32,6 +32,10 @@
         self.enabled = [aDecoder decodeBoolForKey:@"enabled"];
     }
     return self;
+}
+
+- (NSString *)title {
+    return _label;
 }
 
 - (instancetype)init {
@@ -68,7 +72,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"GRDBlacklistItem: label: %@ id: %@", self.label, self.identifier];
+    return [NSString stringWithFormat:@"GRDBlacklistItem: label: %@ id: %@ enabled: %d", self.label, self.identifier, self.enabled];
 }
 
 @end

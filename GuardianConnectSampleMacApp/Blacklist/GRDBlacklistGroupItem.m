@@ -23,7 +23,7 @@
 @implementation GRDBlacklistGroupItem
 
 - (BOOL)isLeaf {
-    return TRUE;
+    return FALSE;
 }
 
 + (NSString *)randomNewIdentifier {
@@ -209,6 +209,23 @@
     
     GRDSettingsController *settingsController = [GRDSettingsController sharedInstance];
     [settingsController updateOrAddGroup:self];
+}
+
+- (BOOL)anyEnabled {
+    id enabledItem = [[self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", true]] lastObject];
+    if (enabledItem){
+        return true;
+    }
+    return false;
+}
+
+- (BOOL)anyDisabled {
+    id enabledItem = [[self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", false]] lastObject];
+    NSLog(@"disabledItem: %@", enabledItem);
+    if (enabledItem){
+        return true;
+    }
+    return false;
 }
 
 - (void)enableAll {

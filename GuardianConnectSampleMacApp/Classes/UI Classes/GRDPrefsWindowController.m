@@ -34,21 +34,40 @@
     [[GRDSettingsController sharedInstance] updateServerBlocklistWithItemProgress:^(GRDBlacklistGroupItem * _Nonnull item) {
         //GRDLog(@"item: %@", item);
     } completion:^(BOOL success) {
+        
         if (success){
             [_contents addObjectsFromArray:[[GRDSettingsController sharedInstance] blacklistGroups]];
+            [_contents enumerateObjectsUsingBlock:^(GRDBlacklistGroupItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [obj.items enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [item setGroup:obj];
+                }];
+            }];
         }
     }];
 }
 
 - (void)check:(id)sender {
     LOG_SELF;
-    GRDBlacklistGroupItem *group = (GRDBlacklistGroupItem*)[sender associatedValue];
-    if ([group allEnabled]){
-        [group setAllDisabled:true];
+    GRDLog(@"sender: %@", sender);
+    GRDBlacklistGroupItem *item = (GRDBlacklistGroupItem*)[sender associatedValue];
+    if ([item respondsToSelector:@selector(allEnabled)]){
+        if ([item allEnabled]){
+            [item setAllDisabled:true];
+            [item setAllEnabled:false];
+        } else {
+            [item setAllEnabled:true];
+        }
+         [item saveChanges];
     } else {
-        [group setAllEnabled:true];
+        if ([item enabled]){
+            [item setEnabled:false];
+        } else {
+            [item setEnabled:true];
+        }
+        [[(GRDBlacklistItem *)item group] saveChanges];
+        
     }
-    [group saveChanges];
+    [self.blacklistOutlineView reloadData];
 }
 
 // -------------------------------------------------------------------------------
@@ -63,15 +82,27 @@
         NSButton *check = [NSButton checkboxWithTitle:@"" target:self action:@selector(check:)];
         [check setAssociatedValue:node];
         [result addSubview:check];
-        if (node.allEnabled){
-            check.state = NSControlStateValueOn;
+        if ([node respondsToSelector:@selector(allEnabled)]){
+            check.allowsMixedState = true;
+        
+            if (!node.anyDisabled){
+                check.state = NSControlStateValueOn;
+            } else if ([node anyEnabled]){
+                check.state = NSControlStateValueMixed;
+            } else {
+                check.state = NSControlStateValueOff;
+            }
         } else {
-            check.state = NSControlStateValueOff;
+            if (node.enabled){
+                check.state = NSControlStateValueOn;
+            } else {
+                check.state = NSControlStateValueOff;
+            }
         }
     } else {
         result.textField.stringValue = node.title;
     }
-    GRDLog(@"tableColumn: %@", tableColumn);
+    //GRDLog(@"tableColumn: %@", tableColumn);
     return result;
 }
 
