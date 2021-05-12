@@ -1,11 +1,25 @@
 #!/bin/bash
 
+# search for 'xcpretty' will make the build output much tinier and easier to read / digest.
+XCP=$(which xcpretty)
+echo $XCP
+
 # clear previous build folder if it exist
 rm -rf build
 
 # build simulator and iphoneos frameworks
-xcodebuild -sdk iphonesimulator
-xcodebuild -sdk iphoneos
+
+# -z checks to see if a value is empty, if xcpretty is not found, build normally, if it is found then use it to clean up our output.
+if [ -z $XCP ]; then
+    echo ""
+    echo "xcpretty was not found, recommending its installion to clean up this build script output! 'gem install xcpretty' to install it!"
+    echo ""
+    xcodebuild -sdk iphonesimulator
+    xcodebuild -sdk iphoneos
+else
+    xcodebuild -sdk iphonesimulator | $XCP
+    xcodebuild -sdk iphoneos | $XCP
+fi
 
 # keep track of our current working directory
 pwd=$(pwd)

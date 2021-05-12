@@ -125,6 +125,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 - (void)selectRegion:(GRDRegion * _Nullable)region;
 
+/// There should be no need to call this directly, this is for internal use only.
+- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *credential, NSString *error))block;
+
 #pragma mark Shared Framework Code
 
 + (GRDPlanDetailType)subscriptionTypeFromDefaults;
