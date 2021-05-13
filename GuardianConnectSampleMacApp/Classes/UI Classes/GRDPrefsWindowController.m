@@ -93,10 +93,17 @@
     
     GRDBlacklistGroupItem *node = [item representedObject];
     
-    if ([tableColumn.identifier isEqualToString:@"AutomaticTableColumnIdentifier.0"]){
-        NSButton *check = [NSButton checkboxWithTitle:@"" target:self action:@selector(check:)];
-        [check setAssociatedValue:node];
-        [result addSubview:check];
+    if ([tableColumn.identifier isEqualToString:@"check"]){
+        NSButton *check = nil;
+        if (result.subviews.count == 1){
+            check = [NSButton checkboxWithTitle:@"" target:self action:@selector(check:)];
+            [check setAssociatedValue:node];
+            [result addSubview:check];
+        } else {
+            check = (NSButton*)result.subviews.lastObject;
+            [check setAssociatedValue:node];
+        }
+        
         if ([node respondsToSelector:@selector(allEnabled)]){
             check.allowsMixedState = true;
         
