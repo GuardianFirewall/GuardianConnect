@@ -237,7 +237,6 @@
 
 - (BOOL)anyDisabled {
     GRDBlacklistItem *enabledItem = [[self disabledItems] lastObject];
-    NSLog(@"disabledItem: %@", enabledItem);
     if (enabledItem){
         return true;
     }
@@ -248,11 +247,9 @@
     NSArray *_enabledItems = [self enabledItems];
     NSArray *_disabledItems = [self disabledItems];
     [_enabledItems enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSLog(@"enabled obj: %@", obj);
         [obj setEnabled:false];
     }];
     [_disabledItems enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            NSLog(@"disabled obj: %@", obj);
            [obj setEnabled:true];
        }];
     [self saveChanges];
