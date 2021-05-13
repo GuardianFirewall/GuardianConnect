@@ -983,7 +983,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -1009,7 +1009,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;

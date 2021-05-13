@@ -96,7 +96,7 @@
     if ([tableColumn.identifier isEqualToString:@"check"]){
         NSButton *check = nil;
         if (result.subviews.count == 1){
-            check = [NSButton checkboxWithTitle:@"" target:self action:@selector(check:)];
+            check = [NSButton checkboxWithTitle:node.title target:self action:@selector(check:)];
             [check setAssociatedValue:node];
             [result addSubview:check];
         } else {

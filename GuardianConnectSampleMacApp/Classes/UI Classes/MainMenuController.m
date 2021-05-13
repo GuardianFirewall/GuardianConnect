@@ -232,6 +232,8 @@
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
     [self.menu addItem:[NSMenuItem separatorItem]];
+    self.manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
+    
     if ([self isConnected]){
         
         //Only add the total alerts menu if we are currently connected
@@ -262,7 +264,6 @@
             }
             [self.menu addItem:self.regionPickerMenuItem];
         }
-        self.manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
         //[self.menu addItem:self.manualRegionSelection];
     }
     return self.menu;
@@ -322,8 +323,8 @@
 - (void)createVPNConnection:(id)sender {
     
     if (kCFCoreFoundationVersionNumber <= 1575.401){
-        [self showMojaveIncompatibleAlert];
-        return;
+        //[self showMojaveIncompatibleAlert];
+        //return;
     }
     
     NEProxySettings *prox = [GRDSettingsController proxySettings];
