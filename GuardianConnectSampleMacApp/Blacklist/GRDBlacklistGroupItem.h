@@ -41,6 +41,9 @@ typedef NS_ENUM(NSInteger, GRDBlacklistGroupType) {
 - (void)removeItem:(GRDBlacklistItem *)item;
 - (void)saveChanges;
 - (GRDBlacklistGroupItem *)updateIfNeeded:(GRDBlacklistGroupItem *)group;
+- (void)selectInverse;
+- (BOOL)allReallyOff;
+- (BOOL)allReallyOn;
 @end
 
 NS_ASSUME_NONNULL_END

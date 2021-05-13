@@ -50,6 +50,20 @@
     LOG_SELF;
     GRDLog(@"sender: %@", sender);
     GRDBlacklistGroupItem *item = (GRDBlacklistGroupItem*)[sender associatedValue];
+    if ([item isLeaf]){ //were an item not a group
+        GRDBlacklistItem *blItem = (GRDBlacklistItem *)item;
+        if ([blItem enabled]){
+            [blItem setEnabled:false];
+        } else {
+            [blItem setEnabled:true];
+        }
+        [[blItem group] saveChanges];
+    } else { //we are indeed a group
+        [item selectInverse];
+    }
+     [self.blacklistOutlineView reloadData];
+    /*
+    
     if ([item respondsToSelector:@selector(allEnabled)]){
         if ([item allEnabled]){
             [item setAllDisabled:true];
@@ -68,6 +82,7 @@
         
     }
     [self.blacklistOutlineView reloadData];
+     */
 }
 
 // -------------------------------------------------------------------------------
@@ -93,6 +108,7 @@
                 check.state = NSControlStateValueOff;
             }
         } else {
+            check.allowsMixedState = false;
             if (node.enabled){
                 check.state = NSControlStateValueOn;
             } else {

@@ -212,20 +212,50 @@
 }
 
 - (BOOL)anyEnabled {
-    id enabledItem = [[self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", true]] lastObject];
+    GRDBlacklistItem *enabledItem = [[self enabledItems] lastObject];
     if (enabledItem){
         return true;
     }
     return false;
 }
 
+- (NSArray <GRDBlacklistItem *> *)enabledItems {
+    return [self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", true]];
+}
+
+- (NSArray <GRDBlacklistItem *> *)disabledItems {
+    return [self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", false]];
+}
+
+- (BOOL)allReallyOn {
+    return ([self anyDisabled] == false);
+}
+
+- (BOOL)allReallyOff {
+    return ([self anyEnabled] == false);
+}
+
 - (BOOL)anyDisabled {
-    id enabledItem = [[self.items filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == %d", false]] lastObject];
+    GRDBlacklistItem *enabledItem = [[self disabledItems] lastObject];
     NSLog(@"disabledItem: %@", enabledItem);
     if (enabledItem){
         return true;
     }
     return false;
+}
+
+- (void)selectInverse {
+    NSArray *_enabledItems = [self enabledItems];
+    NSArray *_disabledItems = [self disabledItems];
+    [_enabledItems enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSLog(@"enabled obj: %@", obj);
+        [obj setEnabled:false];
+    }];
+    [_disabledItems enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            NSLog(@"disabled obj: %@", obj);
+           [obj setEnabled:true];
+       }];
+    [self saveChanges];
 }
 
 - (void)enableAll {

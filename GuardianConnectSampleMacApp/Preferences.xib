@@ -26,24 +26,24 @@
             <point key="canvasLocation" x="-131" y="-123"/>
         </customView>
         <customView id="h5s-Ls-pu0" userLabel="Blocklist">
-            <rect key="frame" x="0.0" y="0.0" width="436" height="246"/>
+            <rect key="frame" x="0.0" y="0.0" width="436" height="352"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vJm-qW-hJ4">
-                    <rect key="frame" x="0.0" y="0.0" width="436" height="218"/>
+                    <rect key="frame" x="0.0" y="0.0" width="436" height="352"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" id="bNi-qP-agF">
-                        <rect key="frame" x="1" y="0.0" width="434" height="217"/>
+                        <rect key="frame" x="1" y="1" width="434" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="30R-VU-XjM" viewBased="YES" indentationPerLevel="16" outlineTableColumn="my0-RC-wQ3" id="u73-ac-Xzk">
-                                <rect key="frame" x="0.0" y="0.0" width="434" height="192"/>
+                            <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="my0-RC-wQ3" id="u73-ac-Xzk">
+                                <rect key="frame" x="0.0" y="0.0" width="434" height="350"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn width="40" minWidth="40" maxWidth="1000" id="my0-RC-wQ3">
+                                    <tableColumn width="80" minWidth="40" maxWidth="1000" id="my0-RC-wQ3">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -56,11 +56,11 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView id="tZx-2r-lSJ">
-                                                <rect key="frame" x="1" y="1" width="40" height="17"/>
+                                                <rect key="frame" x="1" y="1" width="80" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GkP-tf-t5d">
-                                                        <rect key="frame" x="0.0" y="0.0" width="40" height="17"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="80" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" id="pm3-l9-wib">
                                                             <font key="font" metaFont="system"/>
@@ -75,7 +75,7 @@
                                             </tableCellView>
                                         </prototypeCellViews>
                                     </tableColumn>
-                                    <tableColumn width="388" minWidth="40" maxWidth="1000" id="RbY-m5-maK">
+                                    <tableColumn width="348" minWidth="40" maxWidth="1000" id="RbY-m5-maK">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -88,11 +88,11 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView id="gik-Ct-b0Y">
-                                                <rect key="frame" x="44" y="1" width="388" height="17"/>
+                                                <rect key="frame" x="84" y="1" width="348" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NJp-pc-qb1">
-                                                        <rect key="frame" x="0.0" y="0.0" width="388" height="17"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="348" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="9AE-BI-vr2">
                                                             <font key="font" metaFont="system"/>
@@ -128,17 +128,13 @@
                         <rect key="frame" x="1" y="119" width="223" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="gMR-EF-wmS">
+                    <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="gMR-EF-wmS">
                         <rect key="frame" x="224" y="17" width="15" height="102"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
-                    <tableHeaderView key="headerView" id="30R-VU-XjM">
-                        <rect key="frame" x="0.0" y="0.0" width="434" height="25"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </tableHeaderView>
                 </scrollView>
             </subviews>
-            <point key="canvasLocation" x="358" y="-123"/>
+            <point key="canvasLocation" x="358" y="-70"/>
         </customView>
         <customView id="664-Pd-9j9" userLabel="Exceptions">
             <rect key="frame" x="0.0" y="0.0" width="436" height="250"/>
