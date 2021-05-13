@@ -101,7 +101,11 @@
             [result addSubview:check];
         } else {
             check = (NSButton*)result.subviews.lastObject;
+            check.title = node.title;
             [check setAssociatedValue:node];
+            NSRect frame = check.frame;
+            frame.size.width = 500; //just to make sure its okay for now since these cells get re-used.
+            check.frame = frame;
         }
         
         if ([node respondsToSelector:@selector(allEnabled)]){
