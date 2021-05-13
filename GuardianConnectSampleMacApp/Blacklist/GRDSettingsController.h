@@ -40,20 +40,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (GRDNotificationMode)notificationMode;
 
+#if !TARGET_OS_OSX
+
 /**
 Update a day pass share item.
 
 @param link The blacklist item to store.
 */
 
-//- (void)updateShareLink:(GRDDayPassShare *)link;
+- (void)updateShareLink:(GRDDayPassShare *)link;
 
 /**
  Stores a day pass share item.
 
  @param dayPassItem The blacklist item to store.
  */
-//- (void)addShareLink:(GRDDayPassShare *)dayPassItem;
+- (void)addShareLink:(GRDDayPassShare *)dayPassItem;
 
 /**
  Removes a blacklist item from the store.
@@ -66,7 +68,9 @@ Update a day pass share item.
 Returns all day pass share items added by a user.
 */
 
-//- (NSArray<GRDDayPassShare *> *)dayPassItems;
+- (NSArray<GRDDayPassShare *> *)dayPassItems;
+
+#endif
 
 /**
  Returns all blacklist items added by a user.
@@ -135,12 +139,13 @@ Returns all day pass share items added by a user.
 
 - (void)clearBlocklistData;
 
+#if !TARGET_OS_OSX
 /**
 Clears out all cached / stored day pass share link data, mainly for debug purposes
 */
 
 - (void)clearShareLinkData;
-
+#endif
 /**
  Updates blocklist data from the server
  */

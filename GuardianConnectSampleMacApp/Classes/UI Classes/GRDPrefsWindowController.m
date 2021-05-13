@@ -36,8 +36,8 @@
     } completion:^(BOOL success) {
         
         if (success){
-            [_contents addObjectsFromArray:[[GRDSettingsController sharedInstance] blacklistGroups]];
-            [_contents enumerateObjectsUsingBlock:^(GRDBlacklistGroupItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self.contents addObjectsFromArray:[[GRDSettingsController sharedInstance] blacklistGroups]];
+            [self.contents enumerateObjectsUsingBlock:^(GRDBlacklistGroupItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                 [obj.items enumerateObjectsUsingBlock:^(GRDBlacklistItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
                     [item setGroup:obj];
                 }];

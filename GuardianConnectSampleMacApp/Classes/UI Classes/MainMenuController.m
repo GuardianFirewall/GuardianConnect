@@ -882,22 +882,8 @@ uint64_t ourAbsoluteNanoseconds(void) {
         NSSortDescriptor *priceDescriptor = [[NSSortDescriptor alloc] initWithKey:@"price" ascending:YES];
         [self.sortedProductOfferings sortUsingDescriptors:@[priceDescriptor]];
         GRDLog(@"sorted offerings: %@", self.sortedProductOfferings);
-        @weakify(self);
+        //@weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
-            /*
-            [self.activityIndicator stopAnimating];
-            [self.activityIndicator removeFromSuperview];
-            [self setupLayout];
-            [self setLayoutConstraints];
-            [self generatePlanDetails];
-            if (self_weak_.shouldSelectPro) {
-                [self.subscriptionPlanPicker setSelectedSegmentIndex:1];
-                [self professionalSelected];
-                
-            } else {
-                [self essentialsSelected];
-            }
-             */
             NSButton *one = [self.subscriptionWindow.contentView viewWithTag:1];
             [self planSelected:one];
         });

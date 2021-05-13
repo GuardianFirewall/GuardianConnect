@@ -162,11 +162,13 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
     }
     return proxSettings;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (NSArray<GRDBlacklistItem *> *)blacklistItems {
     NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlacklistItems];
     NSMutableArray<GRDBlacklistItem*> *blacklistItems = [NSMutableArray array];
     for (NSData *item in items) {
+
         GRDBlacklistItem *blacklistItem = [NSKeyedUnarchiver unarchiveObjectWithData:item];
         [blacklistItems addObject:blacklistItem];
     }
@@ -196,7 +198,6 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
     return enabledItems;
 }
 
-
 - (void)addBlacklistGroup:(GRDBlacklistGroupItem *)blacklistGroupItem {
     if (!blacklistGroupItem) { return; }
     NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlacklistGroups];
@@ -204,6 +205,7 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
     if (!blacklistGroups.count) {
         blacklistGroups = [NSMutableArray array];
     }
+
     [blacklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blacklistGroupItem] atIndex:0];
     [[NSUserDefaults standardUserDefaults] setValue:blacklistGroups forKey:kGRDBlacklistGroups];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -234,6 +236,7 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
     }
     return blacklistGroups;
 }
+
 
 - (void)mergeOrAddGroup:(GRDBlacklistGroupItem *)group {
     
@@ -277,6 +280,8 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
     _enableBlacklistCache = nil;
     
 }
+
+#pragma clang diagnostic pop
 
 - (GRDBlacklistGroupItem *)groupWithIdentifier:(NSString *)groupIdentifier {
     NSArray <GRDBlacklistGroupItem*> *groups = [self blacklistGroups];
