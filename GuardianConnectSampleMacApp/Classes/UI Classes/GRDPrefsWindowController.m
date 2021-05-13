@@ -47,8 +47,6 @@
 }
 
 - (void)check:(id)sender {
-    LOG_SELF;
-    GRDLog(@"sender: %@", sender);
     GRDBlacklistGroupItem *item = (GRDBlacklistGroupItem*)[sender associatedValue];
     if ([item isLeaf]){ //were an item not a group
         GRDBlacklistItem *blItem = (GRDBlacklistItem *)item;
@@ -62,27 +60,6 @@
         [item selectInverse];
     }
      [self.blacklistOutlineView reloadData];
-    /*
-    
-    if ([item respondsToSelector:@selector(allEnabled)]){
-        if ([item allEnabled]){
-            [item setAllDisabled:true];
-            [item setAllEnabled:false];
-        } else {
-            [item setAllEnabled:true];
-        }
-         [item saveChanges];
-    } else {
-        if ([item enabled]){
-            [item setEnabled:false];
-        } else {
-            [item setEnabled:true];
-        }
-        [[(GRDBlacklistItem *)item group] saveChanges];
-        
-    }
-    [self.blacklistOutlineView reloadData];
-     */
 }
 
 // -------------------------------------------------------------------------------
