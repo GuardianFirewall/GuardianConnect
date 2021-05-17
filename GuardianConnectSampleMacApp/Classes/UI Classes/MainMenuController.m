@@ -328,7 +328,7 @@
     }
     
     NEProxySettings *prox = [GRDSettingsController proxySettings];
-    GRDLog(@"prox: %@", prox.proxyAutoConfigurationJavaScript);
+    //GRDLog(@"prox: %@", prox.proxyAutoConfigurationJavaScript);
     
     [[GRDVPNHelper sharedInstance] setProxySettings:prox];
     
@@ -340,7 +340,7 @@
     
     if ([GRDVPNHelper activeConnectionPossible]){
         GRDLog(@"activeConnectionPossible!!");
-        [[GRDVPNHelper sharedInstance] setOnDemand:self.onDemandCheckbox.state];
+          [[GRDVPNHelper sharedInstance] setOnDemand:self.onDemandCheckbox.state];
         [[GRDVPNHelper sharedInstance] configureAndConnectVPNWithCompletion:^(NSString * _Nullable message, GRDVPNHelperStatusCode status) {
             GRDLog(@"message: %@", message);
         }];
