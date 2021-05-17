@@ -16,6 +16,7 @@
 #import "NSObject+Extras.h"
 #import <Carbon/Carbon.h>
 #import "GRDPrefsWindowController.h"
+#import "GRDSettingsController.h"
 
 
 @interface MainMenuController ()
@@ -231,6 +232,8 @@
     NSMenuItem *quitApplication = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quit:) keyEquivalent:@""];
     [self.menu addItem:quitApplication];
     [self.menu addItem:[NSMenuItem separatorItem]];
+    self.manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
+    
     if ([self isConnected]){
         
         //Only add the total alerts menu if we are currently connected
@@ -261,7 +264,6 @@
             }
             [self.menu addItem:self.regionPickerMenuItem];
         }
-        self.manualRegionSelection = [[NSMenuItem alloc] initWithTitle:@"Manual Selection" action:@selector(showManualServerList:) keyEquivalent:@""];
         //[self.menu addItem:self.manualRegionSelection];
     }
     return self.menu;
@@ -321,9 +323,15 @@
 - (void)createVPNConnection:(id)sender {
     
     if (kCFCoreFoundationVersionNumber <= 1575.401){
-        [self showMojaveIncompatibleAlert];
-        return;
+        //[self showMojaveIncompatibleAlert];
+        //return;
     }
+    
+    NEProxySettings *prox = [GRDSettingsController proxySettings];
+    //GRDLog(@"prox: %@", prox.proxyAutoConfigurationJavaScript);
+    
+    [[GRDVPNHelper sharedInstance] setProxySettings:prox];
+    
     // If we are already connected, disconnect and return
     if ([self isConnected]){
         [[GRDVPNHelper sharedInstance] disconnectVPN];
@@ -332,7 +340,7 @@
     
     if ([GRDVPNHelper activeConnectionPossible]){
         GRDLog(@"activeConnectionPossible!!");
-        [[GRDVPNHelper sharedInstance] setOnDemand:self.onDemandCheckbox.state];
+          [[GRDVPNHelper sharedInstance] setOnDemand:self.onDemandCheckbox.state];
         [[GRDVPNHelper sharedInstance] configureAndConnectVPNWithCompletion:^(NSString * _Nullable message, GRDVPNHelperStatusCode status) {
             GRDLog(@"message: %@", message);
         }];
@@ -874,22 +882,8 @@ uint64_t ourAbsoluteNanoseconds(void) {
         NSSortDescriptor *priceDescriptor = [[NSSortDescriptor alloc] initWithKey:@"price" ascending:YES];
         [self.sortedProductOfferings sortUsingDescriptors:@[priceDescriptor]];
         GRDLog(@"sorted offerings: %@", self.sortedProductOfferings);
-        @weakify(self);
+        //@weakify(self);
         dispatch_async(dispatch_get_main_queue(), ^{
-            /*
-            [self.activityIndicator stopAnimating];
-            [self.activityIndicator removeFromSuperview];
-            [self setupLayout];
-            [self setLayoutConstraints];
-            [self generatePlanDetails];
-            if (self_weak_.shouldSelectPro) {
-                [self.subscriptionPlanPicker setSelectedSegmentIndex:1];
-                [self professionalSelected];
-                
-            } else {
-                [self essentialsSelected];
-            }
-             */
             NSButton *one = [self.subscriptionWindow.contentView viewWithTag:1];
             [self planSelected:one];
         });
@@ -983,6 +977,10 @@ uint64_t ourAbsoluteNanoseconds(void) {
 }
 - (void)subscriptionRestored {
     LOG_SELF;
+}
+
+-(void)fetchBlacklistItems {
+    [(GRDPrefsWindowController*)[GRDPrefsWindowController sharedPrefsWindowController] fetchBlacklistItems];
 }
 
 @end

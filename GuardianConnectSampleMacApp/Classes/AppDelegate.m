@@ -16,6 +16,7 @@
 #import "NSColor+Additions.h"
 #import "GRDRegion.h"
 #import "NSObject+Extras.h"
+#import "GRDSettingsController.h"
 
 @interface AppDelegate ()
 
@@ -57,6 +58,20 @@
     //if ([GRDVPNHelper isPayingUser]){
         [[GRDSubscriptionManager sharedManager] verifyReceipt];
     //}
+    [self attemptBlacklistFetch];
+}
+
+- (void)attemptBlacklistFetch {
+   /*
+    [[GRDSettingsController sharedInstance] updateServerBlocklistWithItemProgress:^(GRDBlacklistGroupItem * _Nonnull item) {
+        GRDLog(@"item: %@", item);
+    } completion:^(BOOL success) {
+        if (success){
+            GRDLog(@"got all the items!");
+        }
+    }];
+    */
+    [self.mainMenuController fetchBlacklistItems];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

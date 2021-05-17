@@ -20,8 +20,8 @@
 #define kNotificationFreeTrialEligibilityChanged @"notifFreeTrialEligibilityChanged"
 #define kNotificationSubscriptionInactive @"notifSubscriptionInactive"
 
-static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
-static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
+static NSString * _Nonnull const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
+static NSString * _Nonnull const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 
 //#import "GRDHousekeepingAPI+Private.h"
 

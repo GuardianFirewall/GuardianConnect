@@ -14,6 +14,9 @@
 		3218DB26263277BF005DD56B /* Little_G_Dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 3218DB24263277BE005DD56B /* Little_G_Dark.png */; };
 		321BA148261404A100E876CB /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321D57BB26424FE2005AF203 /* GRDSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57B426424FE2005AF203 /* GRDSettingsController.m */; };
+		321D57BC26424FE2005AF203 /* GRDBlacklistItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57B526424FE2005AF203 /* GRDBlacklistItem.m */; };
+		321D57BD26424FE2005AF203 /* GRDBlacklistGroupItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57BA26424FE2005AF203 /* GRDBlacklistGroupItem.m */; };
 		3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3247E9F12628F253007D4E7E /* GRDCredentialManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */; };
 		3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EE2628F252007D4E7E /* GRDCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -136,6 +139,13 @@
 		321BA147261404A100E876CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		321BA1972614070F00E876CB /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		321BA19F261408B800E876CB /* Shared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shared.h; sourceTree = "<group>"; };
+		321D57B426424FE2005AF203 /* GRDSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSettingsController.m; sourceTree = "<group>"; };
+		321D57B526424FE2005AF203 /* GRDBlacklistItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDBlacklistItem.m; sourceTree = "<group>"; };
+		321D57B626424FE2005AF203 /* GRDBlacklistGroupItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlacklistGroupItem.h; sourceTree = "<group>"; };
+		321D57B726424FE2005AF203 /* GRDBlacklistType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlacklistType.h; sourceTree = "<group>"; };
+		321D57B826424FE2005AF203 /* GRDBlacklistItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlacklistItem.h; sourceTree = "<group>"; };
+		321D57B926424FE2005AF203 /* GRDSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSettingsController.h; sourceTree = "<group>"; };
+		321D57BA26424FE2005AF203 /* GRDBlacklistGroupItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDBlacklistGroupItem.m; sourceTree = "<group>"; };
 		3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDCredentialManager.h; sourceTree = "<group>"; };
 		3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDCredentialManager.m; sourceTree = "<group>"; };
 		3247E9EE2628F252007D4E7E /* GRDCredential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDCredential.h; sourceTree = "<group>"; };
@@ -314,11 +324,27 @@
 			path = GuardianConnect;
 			sourceTree = "<group>";
 		};
+		321D57B326424FE2005AF203 /* Blacklist */ = {
+			isa = PBXGroup;
+			children = (
+				321D57B626424FE2005AF203 /* GRDBlacklistGroupItem.h */,
+				321D57BA26424FE2005AF203 /* GRDBlacklistGroupItem.m */,
+				321D57B826424FE2005AF203 /* GRDBlacklistItem.h */,
+				321D57B526424FE2005AF203 /* GRDBlacklistItem.m */,
+				321D57B726424FE2005AF203 /* GRDBlacklistType.h */,
+				321D57B926424FE2005AF203 /* GRDSettingsController.h */,
+				321D57B426424FE2005AF203 /* GRDSettingsController.m */,
+			);
+			name = Blacklist;
+			path = GuardianConnectSampleMacApp/Blacklist;
+			sourceTree = SOURCE_ROOT;
+		};
 		325583E62634D6690015DEE3 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
 				329C526526315071003B78D8 /* AppDelegate.h */,
 				329C526626315071003B78D8 /* AppDelegate.m */,
+				321D57B326424FE2005AF203 /* Blacklist */,
 				320358CD263796D0005CD7CB /* Event and Subscription */,
 				320358CB2637963B005CD7CB /* Categories */,
 				320358CC26379650005CD7CB /* UI Classes */,
@@ -666,12 +692,15 @@
 				32A49C4526393B6700D15910 /* GRDPrefsWindowController.m in Sources */,
 				320358D326379754005CD7CB /* MainMenuController.m in Sources */,
 				325583E22634D2420015DEE3 /* GRDEvent.m in Sources */,
+				321D57BD26424FE2005AF203 /* GRDBlacklistGroupItem.m in Sources */,
 				329C526F26315073003B78D8 /* main.m in Sources */,
 				329C526726315071003B78D8 /* AppDelegate.m in Sources */,
 				32ABCF56263547960030B258 /* GCWindow.m in Sources */,
 				325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */,
+				321D57BB26424FE2005AF203 /* GRDSettingsController.m in Sources */,
 				32A49C4C263951E100D15910 /* GRDSubscriptionManager.m in Sources */,
 				32855B1F2636767F0088086E /* NSObject+Extras.m in Sources */,
+				321D57BC26424FE2005AF203 /* GRDBlacklistItem.m in Sources */,
 				32A49C4226393B2900D15910 /* DBPrefsWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -954,7 +983,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -980,7 +1009,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;

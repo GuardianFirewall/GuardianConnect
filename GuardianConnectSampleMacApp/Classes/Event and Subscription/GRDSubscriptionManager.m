@@ -56,6 +56,8 @@
 	return self;
 }
 
+#if !TARGET_OS_OSX
+
 - (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product {
     GRDLog(@"[DEBUG][delegate/shouldAddStorePayment] payment == %@", payment);
     GRDLog(@"[DEBUG][delegate/shouldAddStorePayment] product == %@", product);
@@ -63,6 +65,8 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotficationPurchaseInAppStore object:nil];
     return YES;
 }
+
+#endif
 
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
     GRDLog(@"[DEBUG][paymentQueueRestoreCompletedTransactionsFinished] queue == %@", queue);

@@ -177,7 +177,7 @@
         }
         
         // Setting DeviceCheck Token for all requests for the time being
-        [jsonDict setObject:deviceCheckToken forKey:@"device-check-token"];
+        //[jsonDict setObject:deviceCheckToken forKey:@"device-check-token"];
                 
         [request setHTTPMethod:@"POST"];
         [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
