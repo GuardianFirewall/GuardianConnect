@@ -167,6 +167,9 @@ class ViewController: UIViewController {
                     GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
                         print(success)
                         print(error)
+                        if (success){
+                            GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
+                        }
                     }
                 }
             }
