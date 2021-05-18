@@ -17,6 +17,11 @@
 		321D57BB26424FE2005AF203 /* GRDSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57B426424FE2005AF203 /* GRDSettingsController.m */; };
 		321D57BC26424FE2005AF203 /* GRDBlacklistItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57B526424FE2005AF203 /* GRDBlacklistItem.m */; };
 		321D57BD26424FE2005AF203 /* GRDBlacklistGroupItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D57BA26424FE2005AF203 /* GRDBlacklistGroupItem.m */; };
+		3224BC1526531A5E00E5B4AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3224BC1426531A5E00E5B4AD /* AppDelegate.swift */; };
+		3224BC1726531A5E00E5B4AD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3224BC1626531A5E00E5B4AD /* ViewController.swift */; };
+		3224BC1A26531A5E00E5B4AD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3224BC1826531A5E00E5B4AD /* Main.storyboard */; };
+		3224BC1C26531A5F00E5B4AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3224BC1B26531A5F00E5B4AD /* Assets.xcassets */; };
+		3224BC1F26531A5F00E5B4AD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3224BC1D26531A5F00E5B4AD /* LaunchScreen.storyboard */; };
 		3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3247E9F12628F253007D4E7E /* GRDCredentialManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */; };
 		3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EE2628F252007D4E7E /* GRDCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -66,6 +71,8 @@
 		32A49C4726393BB400D15910 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32A49C4626393BB400D15910 /* Preferences.xib */; };
 		32A49C49263944C700D15910 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A49C48263944C700D15910 /* StoreKit.framework */; };
 		32A49C4C263951E100D15910 /* GRDSubscriptionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */; };
+		32A664B326531C34008277E0 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 321BA143261404A100E876CB /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		32ABCF53263540300030B258 /* GCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF52263540300030B258 /* GCImageView.m */; };
 		32ABCF56263547960030B258 /* GCWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF55263547960030B258 /* GCWindow.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -112,9 +119,26 @@
 			remoteGlobalIDString = 32E92C01262A1B3D00A3202C;
 			remoteInfo = GuardianConnectMac;
 		};
+		32A664B026531C15008277E0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321BA13A261404A100E876CB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 321BA142261404A100E876CB;
+			remoteInfo = GuardianConnect;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		32A664B226531C20008277E0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				32A664B326531C34008277E0 /* GuardianConnect.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		32F79425263386CA006A77CF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,6 +170,13 @@
 		321D57B826424FE2005AF203 /* GRDBlacklistItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlacklistItem.h; sourceTree = "<group>"; };
 		321D57B926424FE2005AF203 /* GRDSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSettingsController.h; sourceTree = "<group>"; };
 		321D57BA26424FE2005AF203 /* GRDBlacklistGroupItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDBlacklistGroupItem.m; sourceTree = "<group>"; };
+		3224BC1226531A5E00E5B4AD /* iOSSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3224BC1426531A5E00E5B4AD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3224BC1626531A5E00E5B4AD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		3224BC1926531A5E00E5B4AD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		3224BC1B26531A5F00E5B4AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3224BC1E26531A5F00E5B4AD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		3224BC2026531A5F00E5B4AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDCredentialManager.h; sourceTree = "<group>"; };
 		3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDCredentialManager.m; sourceTree = "<group>"; };
 		3247E9EE2628F252007D4E7E /* GRDCredential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDCredential.h; sourceTree = "<group>"; };
@@ -203,6 +234,8 @@
 		32A49C48263944C700D15910 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 		32A49C4A263951E000D15910 /* GRDSubscriptionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSubscriptionManager.h; sourceTree = "<group>"; };
 		32A49C4B263951E100D15910 /* GRDSubscriptionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSubscriptionManager.m; sourceTree = "<group>"; };
+		32A664BA26532583008277E0 /* iOSSampleApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSSampleApp.entitlements; sourceTree = "<group>"; };
+		32A664BB26532583008277E0 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		32ABCF51263540300030B258 /* GCImageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCImageView.h; sourceTree = "<group>"; };
 		32ABCF52263540300030B258 /* GCImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCImageView.m; sourceTree = "<group>"; };
 		32ABCF54263547960030B258 /* GCWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCWindow.h; sourceTree = "<group>"; };
@@ -218,6 +251,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3224BC0F26531A5E00E5B4AD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +336,7 @@
 				321BA145261404A100E876CB /* GuardianConnect */,
 				32E92C03262A1B3D00A3202C /* GuardianConnectMac */,
 				329C526426315071003B78D8 /* GuardianConnectSampleMacApp */,
+				3224BC1326531A5E00E5B4AD /* iOSSampleApp */,
 				321BA144261404A100E876CB /* Products */,
 				329C5278263151A6003B78D8 /* Frameworks */,
 			);
@@ -306,6 +348,7 @@
 				321BA143261404A100E876CB /* GuardianConnect.framework */,
 				32E92C02262A1B3D00A3202C /* GuardianConnect.framework */,
 				329C526326315071003B78D8 /* Guardian.app */,
+				3224BC1226531A5E00E5B4AD /* iOSSampleApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -338,6 +381,20 @@
 			name = Blacklist;
 			path = GuardianConnectSampleMacApp/Blacklist;
 			sourceTree = SOURCE_ROOT;
+		};
+		3224BC1326531A5E00E5B4AD /* iOSSampleApp */ = {
+			isa = PBXGroup;
+			children = (
+				32A664BA26532583008277E0 /* iOSSampleApp.entitlements */,
+				3224BC1426531A5E00E5B4AD /* AppDelegate.swift */,
+				3224BC1626531A5E00E5B4AD /* ViewController.swift */,
+				3224BC1826531A5E00E5B4AD /* Main.storyboard */,
+				3224BC1B26531A5F00E5B4AD /* Assets.xcassets */,
+				3224BC1D26531A5F00E5B4AD /* LaunchScreen.storyboard */,
+				3224BC2026531A5F00E5B4AD /* Info.plist */,
+			);
+			path = iOSSampleApp;
+			sourceTree = "<group>";
 		};
 		325583E62634D6690015DEE3 /* Classes */ = {
 			isa = PBXGroup;
@@ -401,6 +458,7 @@
 		329C5278263151A6003B78D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32A664BB26532583008277E0 /* NetworkExtension.framework */,
 				32A49C48263944C700D15910 /* StoreKit.framework */,
 				329C527A26315721003B78D8 /* NetworkExtension.framework */,
 			);
@@ -553,6 +611,25 @@
 			productReference = 321BA143261404A100E876CB /* GuardianConnect.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		3224BC1126531A5E00E5B4AD /* iOSSampleApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3224BC2326531A5F00E5B4AD /* Build configuration list for PBXNativeTarget "iOSSampleApp" */;
+			buildPhases = (
+				3224BC0E26531A5E00E5B4AD /* Sources */,
+				3224BC0F26531A5E00E5B4AD /* Frameworks */,
+				3224BC1026531A5E00E5B4AD /* Resources */,
+				32A664B226531C20008277E0 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				32A664B126531C15008277E0 /* PBXTargetDependency */,
+			);
+			name = iOSSampleApp;
+			productName = iOSSampleApp;
+			productReference = 3224BC1226531A5E00E5B4AD /* iOSSampleApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		329C526226315071003B78D8 /* Guardian */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 329C527326315073003B78D8 /* Build configuration list for PBXNativeTarget "Guardian" */;
@@ -596,11 +673,15 @@
 		321BA13A261404A100E876CB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1010;
 				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
 					321BA142261404A100E876CB = {
 						CreatedOnToolsVersion = 11.7;
+					};
+					3224BC1126531A5E00E5B4AD = {
+						CreatedOnToolsVersion = 10.1;
 					};
 					329C526226315071003B78D8 = {
 						CreatedOnToolsVersion = 11.7;
@@ -626,6 +707,7 @@
 				321BA142261404A100E876CB /* GuardianConnect */,
 				32E92C01262A1B3D00A3202C /* GuardianConnectMac */,
 				329C526226315071003B78D8 /* Guardian */,
+				3224BC1126531A5E00E5B4AD /* iOSSampleApp */,
 			);
 		};
 /* End PBXProject section */
@@ -635,6 +717,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3224BC1026531A5E00E5B4AD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3224BC1F26531A5F00E5B4AD /* LaunchScreen.storyboard in Resources */,
+				3224BC1C26531A5F00E5B4AD /* Assets.xcassets in Resources */,
+				3224BC1A26531A5E00E5B4AD /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -681,6 +773,15 @@
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
 				32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3224BC0E26531A5E00E5B4AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3224BC1726531A5E00E5B4AD /* ViewController.swift in Sources */,
+				3224BC1526531A5E00E5B4AD /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,9 +836,30 @@
 			target = 32E92C01262A1B3D00A3202C /* GuardianConnectMac */;
 			targetProxy = 329C527626315181003B78D8 /* PBXContainerItemProxy */;
 		};
+		32A664B126531C15008277E0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 321BA142261404A100E876CB /* GuardianConnect */;
+			targetProxy = 32A664B026531C15008277E0 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		3224BC1826531A5E00E5B4AD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3224BC1926531A5E00E5B4AD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		3224BC1D26531A5F00E5B4AD /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3224BC1E26531A5F00E5B4AD /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 		329C526A26315073003B78D8 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -919,6 +1041,52 @@
 			};
 			name = Release;
 		};
+		3224BC2126531A5F00E5B4AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9EUFEA5U7G;
+				INFOPLIST_FILE = iOSSampleApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3224BC2226531A5F00E5B4AD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9EUFEA5U7G;
+				INFOPLIST_FILE = iOSSampleApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		329C527126315073003B78D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1034,6 +1202,15 @@
 			buildConfigurations = (
 				321BA14C261404A100E876CB /* Debug */,
 				321BA14D261404A100E876CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3224BC2326531A5F00E5B4AD /* Build configuration list for PBXNativeTarget "iOSSampleApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3224BC2126531A5F00E5B4AD /* Debug */,
+				3224BC2226531A5F00E5B4AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
