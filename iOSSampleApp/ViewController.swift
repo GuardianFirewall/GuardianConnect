@@ -28,7 +28,7 @@ class ViewController: UIViewController {
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         NEVPNManager.shared().loadFromPreferences { (error) in
             if (error != nil) {
-                print(error)
+                print(error as Any)
             } else {
                 self.observeVPNConnection()
             }
@@ -63,7 +63,7 @@ class ViewController: UIViewController {
                 let def = UserDefaults.standard
                 def.set(resp["type"], forKey: kSubscriptionPlanTypeStr)
                 let petExpires = resp["pet-expires"] as! NSNumber
-                let expireDate = TimeInterval(petExpires)
+                let expireDate = TimeInterval(truncating: petExpires)
                 def.set(Date(timeIntervalSince1970: expireDate), forKey: kGuardianPETokenExpirationDate)
                 def.set(true, forKey: "userLoggedIn") //just for POC purposes, can track this in more intelligent ways.
                 DispatchQueue.main.async {
@@ -121,7 +121,7 @@ class ViewController: UIViewController {
         
         if GRDVPNHelper.activeConnectionPossible() {
             GRDVPNHelper.sharedInstance().configureAndConnectVPN { (error, status) in
-                print(error)
+                print(error as Any)
                 print(status)
             }
         } else {
@@ -144,7 +144,7 @@ class ViewController: UIViewController {
         GRDServerManager().populateTimezonesIfNecessary { (regions) in
             self.rawRegions = regions
             self.regions = GRDRegion.regions(fromTimezones: regions)
-            print(self.regions)
+            print(self.regions as Any)
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
@@ -166,7 +166,7 @@ class ViewController: UIViewController {
                 if success {
                     GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
                         print(success)
-                        print(error)
+                        print(error as Any)
                         if (success){
                             GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
                         }
@@ -178,6 +178,22 @@ class ViewController: UIViewController {
         
     }
     
+    
+}
+
+extension ViewController: UITextFieldDelegate {
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.resignFirstResponder()
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
     
 }
 
