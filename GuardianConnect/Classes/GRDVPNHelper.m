@@ -499,7 +499,7 @@
     }];
 }
 
-- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
     [[GRDServerManager new] selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
         if (!errorMessage){
             [self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:block];
@@ -507,15 +507,23 @@
             if (block){
                 block(false,errorMessage);
             }
+            if (block){
+                block(false,errorMessage);
+            }
         }
     }];
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block {
+- (void)configureFirstTimeUserWithRegion:(GRDRegion *)region completion:(StandardBlock)block {
+    GRDLog(@"configure with region: %@ loc: %@", region.bestHost, region.bestHostLocation);
+    [self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
+}
+
+- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(StandardBlock)block {
     [self configureFirstTimeUserForHostname:host andHostLocation:hostLocation postCredential:nil completion:block];
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block {
+- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];

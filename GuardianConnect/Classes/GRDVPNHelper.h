@@ -24,6 +24,8 @@
 #import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
+
 @interface GRDVPNHelper : NSObject
 
 @property (nullable) GRDRegion *selectedRegion; //experimental
@@ -83,20 +85,25 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block;
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block;
+
+/// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
+/// @param region GRDRegion, the region to create fresh VPN connection to.
+/// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
+- (void)configureFirstTimeUserWithRegion:(GRDRegion *)region completion:(StandardBlock)block;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
 /// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^)(BOOL success, NSString *errorMessage))block;
+- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location and a completion block.
 /// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
 /// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
 /// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(void(^)(BOOL success, NSString *errorMessage))block;
+- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(StandardBlock)block;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.

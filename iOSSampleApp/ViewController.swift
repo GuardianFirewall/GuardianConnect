@@ -14,12 +14,18 @@ class ViewController: UIViewController {
     @IBOutlet var usernameTextField: UITextField!
     @IBOutlet var passwordTextField: UITextField!
     @IBOutlet var createVPNButton: UIButton!
+    @IBOutlet var selectRegionButton: UIButton!
     @IBOutlet var hostnameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
+    @IBOutlet var tableView: UITableView!
     
+    var rawRegions: [Any]!
+    var regions: [GRDRegion]!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         NEVPNManager.shared().loadFromPreferences { (error) in
             if (error != nil) {
                 print(error)
@@ -30,6 +36,7 @@ class ViewController: UIViewController {
         GRDVPNHelper.sharedInstance().validateCurrentEAPCredentials { (success, error) in
             if (success) {
                 print("we have valid EAP credentials!");
+                self.populateRegionDataIfNecessary()
                 DispatchQueue.main.async {
                     self.createVPNButton.isEnabled = true
                 }
@@ -123,14 +130,26 @@ class ViewController: UIViewController {
             }) { (success, error) in
                 if (success){
                     print("created a VPN connection successfully!");
+                    self.populateRegionDataIfNecessary()
                     
                 } else {
                     print ("VPN creation failed")
                 }
             }
         }
-        
-        
+    }
+    
+    
+    func populateRegionDataIfNecessary () {
+        GRDServerManager().populateTimezonesIfNecessary { (regions) in
+            self.rawRegions = regions
+            self.regions = GRDRegion.regions(fromTimezones: regions)
+            print(self.regions)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+            
+        }
     }
     
     @IBAction func clearKeychain() {
@@ -138,5 +157,47 @@ class ViewController: UIViewController {
         GRDKeychain.removeSubscriberCredential(withRetries: 3)
     }
     
+    @IBAction func connectHost() {
+        let indexPath = self.tableView.indexPathForSelectedRow
+        if (indexPath != nil) {
+            let currentItem = self.regions[indexPath!.row]
+            print(currentItem)
+            currentItem.findBestServer { (server, hostname, success) in
+                if success {
+                    GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
+                        print(success)
+                        print(error)
+                    }
+                }
+            }
+            
+        }
+        
+    }
+    
+    
 }
 
+extension ViewController: UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if (self.regions != nil){
+            return self.regions.count;
+        }
+        return 0
+    }
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let tableCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        
+        let currentItem = self.regions[indexPath.row]
+        
+        tableCell.textLabel?.text = currentItem.displayName
+        
+        return tableCell
+    }
+}

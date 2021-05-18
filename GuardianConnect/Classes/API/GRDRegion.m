@@ -39,9 +39,9 @@
     [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
         if (!error){
             if (block){
-                block(host, hostLocation, true);
                 self.bestHost = host;
                 self.bestHostLocation = hostLocation;
+                block(host, hostLocation, true);
             }
         } else {
             if (block){
