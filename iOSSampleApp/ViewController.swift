@@ -26,6 +26,9 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        // its important to do this as early as possible
+        
         NEVPNManager.shared().loadFromPreferences { (error) in
             if (error != nil) {
                 print(error as Any)
@@ -33,9 +36,12 @@ class ViewController: UIViewController {
                 self.observeVPNConnection()
             }
         }
+        
+        // can use this as an early validation upon launch to make sure EAP credentials are still valid
         GRDVPNHelper.sharedInstance().validateCurrentEAPCredentials { (success, error) in
             if (success) {
                 print("we have valid EAP credentials!");
+                //populate the region selection data
                 self.populateRegionDataIfNecessary()
                 DispatchQueue.main.async {
                     self.createVPNButton.isEnabled = true
@@ -44,13 +50,12 @@ class ViewController: UIViewController {
         }
     }
     
-    
+    /// track current status of the VPN, this should never be invalid since loadFromPreferences is called so early in the lifecycle.
     func vpnStatus() -> NEVPNStatus {
-        
         return NEVPNManager.shared().connection.status
     }
     
-    //i force unwrap everything, i dont have time for swift's nonsense.
+    //NOTE: I force unwrap everything, I dont have time for Swift's "safety" nonsense.
     
     @IBAction func attemptLogin() {
         GRDHousekeepingAPI().loginUser(withEMail: usernameTextField.text!, password: passwordTextField.text!) { (response, errorMessage, success) in
@@ -81,9 +86,8 @@ class ViewController: UIViewController {
         vpnConfigChanged() //janky stopgap to keep track for now.
     }
     
+    /// This should be more elegant, just a rough example
     @objc func vpnConfigChanged() {
-        
-        print("vpnConfigChanged")
         switch vpnStatus() {
         case .connected:
             DispatchQueue.main.async {
@@ -103,11 +107,13 @@ class ViewController: UIViewController {
     func observeVPNConnection() {
         NotificationCenter.default.addObserver(self, selector: #selector(vpnConfigChanged),
                                                name: .NEVPNStatusDidChange, object: nil)
-        vpnConfigChanged()
+        vpnConfigChanged() //call it once manually upon view loading so we know the current state of the UI is tracked accurately if they are already connected
     }
     
+    /// called to create OR disconnect the VPN depending on its current state.
     @IBAction func createVPNConnection() {
         
+        // already connected, we want to disconnect in this case.
         if (vpnStatus() == .connected){
             
             GRDVPNHelper.sharedInstance().disconnectVPN()
@@ -118,14 +124,21 @@ class ViewController: UIViewController {
             return
         }
         
+        // do they have EAP creds
         if GRDVPNHelper.activeConnectionPossible() {
+            // just configure & connect, no need for 'first user' setup
             GRDVPNHelper.sharedInstance().configureAndConnectVPN { (error, status) in
                 print(error as Any)
                 print(status)
             }
         } else {
+            
+            // first time user, OR recently cleared VPN creds
             GRDVPNHelper.sharedInstance().configureFirstTimeUserPostCredential({
                 //no op
+                
+                // post credential block is optional and can be used as a midway point to update the UI if necessary
+                
             }) { (success, error) in
                 if (success){
                     print("created a VPN connection successfully!");
@@ -138,6 +151,7 @@ class ViewController: UIViewController {
         }
     }
     
+    /// populate region selection data
     func populateRegionDataIfNecessary () {
         GRDServerManager().populateTimezonesIfNecessary { (regions) in
             self.rawRegions = regions
@@ -155,11 +169,14 @@ class ViewController: UIViewController {
         GRDKeychain.removeSubscriberCredential(withRetries: 3)
     }
     
+    /// region selection, called upon the 'select region' button being pressed.
     @IBAction func connectHost() {
         let indexPath = self.tableView.indexPathForSelectedRow
         if (indexPath != nil) {
             let currentItem = self.regions[indexPath!.row]
             print(currentItem)
+            
+            // find the best server for the selected region first
             currentItem.findBestServer { (server, hostname, success) in
                 if success {
                     GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
@@ -167,8 +184,12 @@ class ViewController: UIViewController {
                         print(error as Any)
                         if (success){
                             GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
+                        } else {
+                            //handle error for first time config failure
                         }
                     }
+                } else {
+                    //handle error here for no 'best' server being found in the selected region
                 }
             }
         }
