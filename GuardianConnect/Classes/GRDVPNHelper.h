@@ -28,7 +28,9 @@ typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 
 @interface GRDVPNHelper : NSObject
 
-@property (nullable) GRDRegion *selectedRegion; //experimental
+@property (nullable) GRDRegion *selectedRegion;
+@property BOOL vpnLoaded; ///whether load from preferences was successfull upon init
+@property (nullable) NSString *lastErrorMessage;
 
 @property (nullable) NEProxySettings *proxySettings;
 @property (nullable) GRDCredential *mainCredential;
@@ -138,6 +140,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Verify that current EAP credentials are valid if applicable
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block;
+
+/// Convenience function for logging in a pro user
+- (void)proLoginWithEmail:(NSString *)email password:(NSString *)password completion:(StandardBlock)block;
 
 #pragma mark Shared Framework Code
 

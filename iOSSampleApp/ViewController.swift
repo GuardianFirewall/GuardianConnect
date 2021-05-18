@@ -58,23 +58,13 @@ class ViewController: UIViewController {
     //NOTE: I force unwrap everything, I dont have time for Swift's "safety" nonsense.
     
     @IBAction func attemptLogin() {
-        GRDHousekeepingAPI().loginUser(withEMail: usernameTextField.text!, password: passwordTextField.text!) { (response, errorMessage, success) in
-            
-            if (success){
-                let resp: Dictionary = response! as! Dictionary<String, AnyObject>
-                print(response ?? [:])
-                GRDKeychain.storePassword(resp[kKeychainStr_PEToken] as? String, forAccount: kKeychainStr_PEToken)
-                GRDVPNHelper.setIsPayingUser(true)
-                let def = UserDefaults.standard
-                def.set(resp["type"], forKey: kSubscriptionPlanTypeStr)
-                let petExpires = resp["pet-expires"] as! NSNumber
-                let expireDate = TimeInterval(truncating: petExpires)
-                def.set(Date(timeIntervalSince1970: expireDate), forKey: kGuardianPETokenExpirationDate)
-                def.set(true, forKey: "userLoggedIn") //just for POC purposes, can track this in more intelligent ways.
+        
+        GRDVPNHelper.sharedInstance().proLogin(withEmail: usernameTextField.text!, password: passwordTextField.text!) { (success, errorMessage) in
+            if success {
                 DispatchQueue.main.async {
                     self.createVPNButton.isEnabled = true
-                    self.createVPNButton.setTitle("Disconnect VPN", for: .normal)
                 }
+                UserDefaults.standard.set(true, forKey: "userLoggedIn")
             } else {
                 print(errorMessage ?? "no error")
             }

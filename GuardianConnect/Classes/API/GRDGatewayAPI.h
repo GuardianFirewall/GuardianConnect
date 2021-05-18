@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDDebugHelper.h>
+#import <GuardianConnect/GRDCredential.h>
 
 #define kSGAPI_ValidateReceipt_APIv1 @"/api/v1/verify-receipt"
 
@@ -88,6 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// A Subscriber Crednetial is required to prevent broad abuse of the endpoint, thought it is not required to provide the same Subscriber Credential which was initially used to generate the EAP credentials in the past. Any valid Subscriber Credential will be accepted
 - (void)verifyEAPCredentialsUsername:(NSString *)eapUsername apiToken:(NSString *)apiToken andSubscriberCredential:(NSString *)subscriberCredential forVPNNode:(NSString *)vpnNode completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
 
+/// endpoint: /api/v1.2/device/<eap-username>/verify-credentials
+/// Validates the existence of the current actively used EAP credentials with the VPN server. If a VPN server has been reset or the EAP credentials have been invalided and/or deleted the app needs to migrate to a new host and obtain new EAP credentials
+/// A Subscriber Credential is required to prevent broad abuse of the endpoint, thought it is not required to provide the same Subscriber Credential which was initially used to generate the EAP credentials in the past. Any valid Subscriber Credential will be accepted
+- (void)verifyEAPCredentials:(GRDCredential *)credentials completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
+
 /// endpoint: /api/v1.1/register-and-create
 /// @param subscriberCredential JWT token obtained from housekeeping
 /// @param validFor integer informing the API how long the EAP credentials should be valid for. A value of 30 indicated 30 days starting right now (eg. 30 days * 24 hours worth of service)
@@ -107,6 +113,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param apiToken the API token for the EAP username to invalidate
 /// @param completion completion block indicating a successfull API call or returning an error message
 - (void)invalidateEAPCredentials:(NSString *)eapUsername andAPIToken:(NSString *)apiToken completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+
+/// endpoint: /api/v1.2/device/<eap-username>/invalidate-credentials
+/// @param credentials GRDCredentials to invalidate
+/// @param completion completion block indicating a successfull API call or returning an error message
+- (void)invalidateEAPCredentials:(GRDCredential *)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion;
 
 /// endpoint: /api/v1.1/<device_token>/set-push-token
 /// @param pushToken APNS push token sent to VPN server

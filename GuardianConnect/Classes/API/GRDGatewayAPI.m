@@ -186,6 +186,11 @@
     [task resume];
 }
 
+- (void)verifyEAPCredentials:(GRDCredential *)credentials completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion {
+    GRDSubscriberCredential *crds = [GRDSubscriberCredential currentSubscriberCredential];
+    [self verifyEAPCredentialsUsername:credentials.username apiToken:credentials.apiAuthToken andSubscriberCredential:crds.subscriberCredential forVPNNode:credentials.hostname completion:completion];
+}
+
 - (void)verifyEAPCredentialsUsername:(NSString *)eapUsername apiToken:(NSString *)apiToken andSubscriberCredential:(NSString *)subscriberCredential forVPNNode:(NSString *)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.2/device/%@/verify-credentials", vpnNode, eapUsername]]];
     
@@ -304,6 +309,10 @@
 
 - (void)registerAndCreateWithSubscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
     [self registerAndCreateWithHostname:[self baseHostname] subscriberCredential:subscriberCredential validForDays:validFor completion:completion];
+}
+
+- (void)invalidateEAPCredentials:(GRDCredential *)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion {
+    [self invalidateEAPCredentials:credentials.username andAPIToken:credentials.apiAuthToken completion:completion];
 }
 
 - (void)invalidateEAPCredentials:(NSString *)eapUsername andAPIToken:(NSString *)apiToken completion:(void (^)(BOOL, NSString * _Nullable))completion {

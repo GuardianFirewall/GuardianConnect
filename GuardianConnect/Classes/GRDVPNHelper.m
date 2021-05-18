@@ -25,6 +25,14 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = true;
+        [[NEVPNManager sharedManager] loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+            if (error){
+                shared.vpnLoaded = false;
+                shared.lastErrorMessage = error.localizedDescription;
+            } else {
+                shared.vpnLoaded = true;
+            }
+        }];
         [shared _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
     });
     return shared;
@@ -234,6 +242,11 @@
         region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
         region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
         _selectedRegion = region;
+        [self validateCurrentEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nonnull errorMessage) {
+            if (valid){
+                
+            }
+        }];
     }
 }
 
@@ -597,7 +610,7 @@
         }
     } else { //got em both, vaidate them.
         
-        [[GRDGatewayAPI new] verifyEAPCredentialsUsername:creds.username apiToken:creds.apiAuthToken andSubscriberCredential:subCred.subscriberCredential forVPNNode:creds.hostname completion:^(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid) {
+        [[GRDGatewayAPI new] verifyEAPCredentials:creds completion:^(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid) {
             if (success) {
                 if (subCredInvalid) { //if this is invalid, remove it regardless of anything else.
                     [GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -623,6 +636,46 @@
         }];
     }
 }
+
+- (void)proLoginWithEmail:(NSString *)email password:(NSString *)password completion:(StandardBlock)block {
+    [[GRDHousekeepingAPI new] loginUserWithEMail:email password:password completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
+        if (success){
+            [GRDKeychain removeSubscriberCredentialWithRetries:3];
+            OSStatus saveStatus = [GRDKeychain storePassword:response[kKeychainStr_PEToken] forAccount:kKeychainStr_PEToken];
+            if (saveStatus != errSecSuccess) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSLog(@"[authenticateUser] Failed to store PET. Aborting");
+                    if (block){
+                        block(false, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
+                    }
+                });
+                
+            } else { //we were successful saving the token
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                    [GRDVPNHelper setIsPayingUser:TRUE];
+                    [defaults setObject:[response objectForKey:@"type"] forKey:kSubscriptionPlanTypeStr];
+                    [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
+                    [defaults removeObjectForKey:kKnownGuardianHosts];
+                    //[[NSUserDefaults standardUserDefaults] setBool:true forKey:@"userLoggedIn"];
+                    if (block){
+                        block(true, nil);
+                    }
+                });
+            }
+        } else { //the login failed :(
+            GRDLog(@"Login failed with error: %@", errorMessage);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (block){
+                    block(false, errorMessage);
+                }
+            });
+        }
+        GRDLog(@"response: %@", response);
+        
+    }];
+}
+
 
 #pragma mark shared framework code
 
