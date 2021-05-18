@@ -88,20 +88,28 @@ class ViewController: UIViewController {
     
     /// This should be more elegant, just a rough example
     @objc func vpnConfigChanged() {
-        switch vpnStatus() {
-        case .connected:
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            let creds = GRDCredentialManager.mainCredentials()
+            switch self.vpnStatus() {
+            case .connected:
                 self.createVPNButton.setTitle("Disconnect VPN", for: .normal)
-                let creds = GRDCredentialManager.mainCredentials()
                 self.hostnameLabel.text = creds.hostname
                 self.statusLabel.text = "Connected"
-            }
-        default:
-            DispatchQueue.main.async {
+                
+            case .connecting:
+                self.hostnameLabel.text = creds.hostname
+                self.statusLabel.text = "Connecting..."
+                
+            case .disconnecting:
+                self.hostnameLabel.text = creds.hostname
+                self.statusLabel.text = "Disconnecting..."
+                
+            default:
                 self.createVPNButton.setTitle("Connect VPN", for: .normal)
                 self.statusLabel.text = "Disconnected"
             }
         }
+        
     }
     
     func observeVPNConnection() {
@@ -176,20 +184,13 @@ class ViewController: UIViewController {
             let currentItem = self.regions[indexPath!.row]
             print(currentItem)
             
-            // find the best server for the selected region first
-            currentItem.findBestServer { (server, hostname, success) in
-                if success {
-                    GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
-                        print(success)
-                        print(error as Any)
-                        if (success){
-                            GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
-                        } else {
-                            //handle error for first time config failure
-                        }
-                    }
+            GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
+                print(success)
+                print(error as Any)
+                if (success){
+                    //GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
                 } else {
-                    //handle error here for no 'best' server being found in the selected region
+                    //handle error for first time config failure
                 }
             }
         }

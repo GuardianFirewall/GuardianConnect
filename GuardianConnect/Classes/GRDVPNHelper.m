@@ -123,7 +123,7 @@
     if (proxSettings){
         protocolConfig.proxySettings = proxSettings;
     }
-
+    
     protocolConfig.useConfigurationAttributeInternalIPSubnet = false;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
@@ -333,7 +333,7 @@
     }
     
     [[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
-    
+        
         //NSLog(@"[DEBUG] APIResponse: %@", apiResponse);
         if (apiResponse.responseStatus == GRDGatewayAPIServerOK) {
             NSString *apiAuthToken = [self.mainCredential apiAuthToken];
@@ -516,7 +516,22 @@
 
 - (void)configureFirstTimeUserWithRegion:(GRDRegion *)region completion:(StandardBlock)block {
     GRDLog(@"configure with region: %@ loc: %@", region.bestHost, region.bestHostLocation);
-    [self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
+    if (!region.bestHost && !region.bestHostLocation){
+        [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+            if (success){
+                [self selectRegion:region];
+                [self configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:block];
+            } else {
+                if (block){
+                    block(false, [NSString stringWithFormat:@"Failed to find a host location for region: %@", region.displayName]);
+                }
+            }
+        }];
+    } else {
+        [self selectRegion:region];
+        [self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
+    }
+    
 }
 
 - (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(StandardBlock)block {
@@ -662,11 +677,11 @@
     }
     @weakify(self);
     UIApplication *app = [UIApplication sharedApplication];
-       self.bgTask = [app beginBackgroundTaskWithName:@"Guardian VPN Connection" expirationHandler:^{
-           NSLog(@"[DEBUG] bg task expired!");
-           [app endBackgroundTask:self_weak_.bgTask];
-           self_weak_.bgTask = UIBackgroundTaskInvalid;
-       }];
+    self.bgTask = [app beginBackgroundTaskWithName:@"Guardian VPN Connection" expirationHandler:^{
+        NSLog(@"[DEBUG] bg task expired!");
+        [app endBackgroundTask:self_weak_.bgTask];
+        self_weak_.bgTask = UIBackgroundTaskInvalid;
+    }];
 }
 
 - (void)endBackgroundTask {
