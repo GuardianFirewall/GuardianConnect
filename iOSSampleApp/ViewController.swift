@@ -98,7 +98,6 @@ class ViewController: UIViewController {
                 self.statusLabel.text = "Disconnected"
             }
         }
-        
     }
     
     func observeVPNConnection() {
@@ -139,7 +138,6 @@ class ViewController: UIViewController {
         }
     }
     
-    
     func populateRegionDataIfNecessary () {
         GRDServerManager().populateTimezonesIfNecessary { (regions) in
             self.rawRegions = regions
@@ -173,12 +171,8 @@ class ViewController: UIViewController {
                     }
                 }
             }
-            
         }
-        
     }
-    
-    
 }
 
 extension ViewController: UITextFieldDelegate {
@@ -212,11 +206,8 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        
         let currentItem = self.regions[indexPath.row]
-        
         tableCell.textLabel?.text = currentItem.displayName
-        
         return tableCell
     }
 }
