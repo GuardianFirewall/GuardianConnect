@@ -72,6 +72,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Sets our kGRDHostnameOverride variable in NSUserDefaults
 + (void)saveAllInOneBoxHostname:(NSString *)host;
 
+
 /// Used to prepare NEVPNProtocolIKEv2 profile with our currrent server, eap-username, eap-password and certificate type.
 /// @param server NSString value that contains the current server name ie. saopaulo-ipsec-4.sudosecuritygroup.com
 /// @param user NSString value of an eap-username to authenticate with the specified server
@@ -99,7 +100,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
-- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString *_Nullable message, GRDVPNHelperStatusCode status))completion;
+- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString *_Nullable error, GRDVPNHelperStatusCode status))completion;
 
 /// Used to disconnect from the current VPN node.
 - (void)disconnectVPN;
@@ -127,6 +128,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// There should be no need to call this directly, this is for internal use only.
 - (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *credential, NSString *error))block;
+
+/// Verify that current EAP credentials are valid if applicable
+- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block;
 
 #pragma mark Shared Framework Code
 

@@ -25,7 +25,7 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = true;
-        [self _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
+        [shared _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
     });
     return shared;
 }
@@ -297,7 +297,7 @@
     }];
 }
 
-- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
+- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode statusCode))completion {
     __block NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     __block NSString *vpnServer = [defaults objectForKey:kGRDHostnameOverride];
     
@@ -562,6 +562,43 @@
             
         }
     }];
+}
+
+- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block {
+    GRDCredential *creds = [GRDCredentialManager mainCredentials];
+    GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+    NSLog(@"subcred: %@", creds);
+    if (!creds && !subCred){
+        if (block){
+            block(FALSE, @"No valid EAP Credentials or subscriber credentials found");
+        }
+    } else { //got em both, vaidate them.
+        
+        [[GRDGatewayAPI new] verifyEAPCredentialsUsername:creds.username apiToken:creds.apiAuthToken andSubscriberCredential:subCred.subscriberCredential forVPNNode:creds.hostname completion:^(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid) {
+            if (success) {
+                if (subCredInvalid) { //if this is invalid, remove it regardless of anything else.
+                    [GRDKeychain removeSubscriberCredentialWithRetries:3];
+                }
+                if (stillValid) {
+                    if (block) {
+                        block(TRUE, nil);
+                    }
+                    
+                } else { //successful API return, EAP creds are currently invalid.
+                    
+                    //TODO: should this be handled differently? if they have an active VPN connection but invalid creds, should we create a fresh connection on a new host?
+                    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
+                    [GRDVPNHelper clearVpnConfiguration];
+                }
+                
+                
+            } else { //success is false
+                if (block) {
+                    block(FALSE, errorMessage);
+                }
+            }
+        }];
+    }
 }
 
 #pragma mark shared framework code

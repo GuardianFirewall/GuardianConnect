@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDSubscriberCredential : NSObject
 
-@property (nonatomic, strong) NSString *subscriberCredential;
+@property (nonatomic, strong) NSString *subscriberCredential; //for sending to API endpoints
 @property (nonatomic, strong) NSString *subscriptionType;
 @property (nonatomic, strong) NSString *subscriptionTypePretty;
 @property (nonatomic) NSInteger tokenExpirationDate;
@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) BOOL tokenExpired;
 
+/// current subscriber credential if applicable
++ (GRDSubscriberCredential * _Nullable)currentSubscriberCredential;
 
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential;
 - (void)processSubscriberCredentialInformation;

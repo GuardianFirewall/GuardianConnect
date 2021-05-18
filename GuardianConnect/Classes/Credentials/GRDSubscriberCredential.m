@@ -10,6 +10,11 @@
 
 @implementation GRDSubscriberCredential
 
++ (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
+    NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
+    return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
+}
+
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential {
     if (!self) {
         self = [super init];
