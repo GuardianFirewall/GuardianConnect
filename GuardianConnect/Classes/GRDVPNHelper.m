@@ -25,6 +25,7 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = true;
+        [self _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
     });
     return shared;
 }
