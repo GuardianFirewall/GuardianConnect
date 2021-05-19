@@ -19,6 +19,12 @@ class ViewController: UIViewController {
     @IBOutlet var statusLabel: UILabel!
     @IBOutlet var tableView: UITableView!
     
+    @IBOutlet var dataTrackerLabel: UILabel!
+    @IBOutlet var mailTrackerLabel: UILabel!
+    @IBOutlet var locationTrackerLabel: UILabel!
+    @IBOutlet var pageHijackerLabel: UILabel!
+    var timer: Timer!
+    
     var rawRegions: [Any]!
     var regions: [GRDRegion]!
     override func viewDidLoad() {
@@ -41,6 +47,9 @@ class ViewController: UIViewController {
             DispatchQueue.main.async {
                 self.createVPNButton.isEnabled = true
                 self.signInButton.setTitle("Sign Out", for: .normal)
+                if self.vpnStatus() == .connected {
+                    self.startRefreshTimer()
+                }
             }
         }
         
@@ -54,6 +63,38 @@ class ViewController: UIViewController {
                     self.createVPNButton.isEnabled = true
                 }
             }
+        }
+    }
+    
+    func startRefreshTimer() {
+        
+        self.stopRefreshTimer()
+        timer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true, block: { (timer) in
+            GRDGatewayAPI().getAlertTotals { (results, success, errorMessage) in
+                if (success){
+                    let resp: Dictionary = results! as! Dictionary<String, AnyObject>
+                    //print(resp)
+                    //["page-hijacker-total": 0, "data-tracker-total": 0, "location-tracker-total": 0, "mail-tracker-total": 0]
+                    let pht = "Page Hijackers: \(resp["page-hijacker-total"] ?? "0" as AnyObject)"
+                    let dtt = "Data Trackers: \(resp["data-tracker-total"] ?? "0" as AnyObject)"
+                    let ltt = "Location Trackers: \(resp["location-tracker-total"] ?? "0" as AnyObject)"
+                    let mtt = "Mail Trackers: \(resp["mail-tracker-total"] ?? "0" as AnyObject)"
+                    DispatchQueue.main.async {
+                        self.dataTrackerLabel.text = dtt
+                        self.pageHijackerLabel.text = pht
+                        self.locationTrackerLabel.text = ltt
+                        self.mailTrackerLabel.text = mtt
+                    }
+                }
+                
+            }
+        })
+    }
+    
+    func stopRefreshTimer() {
+        if (timer != nil){
+            timer.invalidate()
+            timer = nil
         }
     }
     
@@ -108,6 +149,7 @@ class ViewController: UIViewController {
                 self.createVPNButton.setTitle("Disconnect VPN", for: .normal)
                 self.hostnameLabel.text = creds.hostname
                 self.statusLabel.text = "Connected"
+                self.startRefreshTimer()
                 
             case .connecting:
                 self.hostnameLabel.text = creds.hostname
@@ -116,6 +158,11 @@ class ViewController: UIViewController {
             case .disconnecting:
                 self.hostnameLabel.text = creds.hostname
                 self.statusLabel.text = "Disconnecting..."
+                
+            case .disconnected:
+                self.stopRefreshTimer()
+                self.createVPNButton.setTitle("Connect VPN", for: .normal)
+                self.statusLabel.text = "Disconnected"
                 
             default:
                 self.createVPNButton.setTitle("Connect VPN", for: .normal)
