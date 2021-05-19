@@ -161,6 +161,7 @@ class ViewController: UIViewController {
                 
             case .disconnected:
                 self.stopRefreshTimer()
+                self.hostnameLabel.text = creds.hostname
                 self.createVPNButton.setTitle("Connect VPN", for: .normal)
                 self.statusLabel.text = "Disconnected"
                 
