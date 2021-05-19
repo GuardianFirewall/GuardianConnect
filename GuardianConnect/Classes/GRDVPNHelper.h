@@ -144,6 +144,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Convenience function for logging in a pro user
 - (void)proLoginWithEmail:(NSString *)email password:(NSString *)password completion:(StandardBlock)block;
 
+/// Convenience function for logging out a pro user
+- (void)logoutCurrentProUser;
+
 #pragma mark Shared Framework Code
 
 + (GRDPlanDetailType)subscriptionTypeFromDefaults;

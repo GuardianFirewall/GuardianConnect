@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet var usernameTextField: UITextField!
     @IBOutlet var passwordTextField: UITextField!
     @IBOutlet var createVPNButton: UIButton!
-    @IBOutlet var selectRegionButton: UIButton!
+    @IBOutlet var signInButton: UIButton!
     @IBOutlet var hostnameLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
     @IBOutlet var tableView: UITableView!
@@ -37,6 +37,13 @@ class ViewController: UIViewController {
             }
         }
         
+        if isSignedIn() {
+            DispatchQueue.main.async {
+                self.createVPNButton.isEnabled = true
+                self.signInButton.setTitle("Sign Out", for: .normal)
+            }
+        }
+        
         // can use this as an early validation upon launch to make sure EAP credentials are still valid
         GRDVPNHelper.sharedInstance().validateCurrentEAPCredentials { (success, error) in
             if (success) {
@@ -50,6 +57,10 @@ class ViewController: UIViewController {
         }
     }
     
+    func isSignedIn() -> Bool {
+        return UserDefaults.standard.bool(forKey: "userLoggedIn")
+    }
+    
     /// track current status of the VPN, this should never be invalid since loadFromPreferences is called so early in the lifecycle.
     func vpnStatus() -> NEVPNStatus {
         return NEVPNManager.shared().connection.status
@@ -59,10 +70,22 @@ class ViewController: UIViewController {
     
     @IBAction func attemptLogin() {
         
+        if isSignedIn() {
+            GRDVPNHelper.sharedInstance().logoutCurrentProUser()
+            GRDVPNHelper.sharedInstance().forceDisconnectVPNIfNecessary()
+            UserDefaults.standard.removeObject(forKey: "userLoggedIn")
+            DispatchQueue.main.async {
+                self.createVPNButton.isEnabled = false
+                self.signInButton.setTitle("Sign In", for: .normal)
+            }
+            return
+        }
+        
         GRDVPNHelper.sharedInstance().proLogin(withEmail: usernameTextField.text!, password: passwordTextField.text!) { (success, errorMessage) in
             if success {
                 DispatchQueue.main.async {
                     self.createVPNButton.isEnabled = true
+                    self.signInButton.setTitle("Sign Out", for: .normal)
                 }
                 UserDefaults.standard.set(true, forKey: "userLoggedIn")
             } else {
@@ -128,6 +151,7 @@ class ViewController: UIViewController {
             GRDVPNHelper.sharedInstance().configureAndConnectVPN { (error, status) in
                 print(error as Any)
                 print(status)
+                self.populateRegionDataIfNecessary()
             }
         } else {
             

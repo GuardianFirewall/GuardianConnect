@@ -677,6 +677,14 @@
     }];
 }
 
+- (void)logoutCurrentProUser {
+    [self clearLocalCache];
+    [GRDVPNHelper setIsPayingUser:false];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:kSubscriptionPlanTypeStr];
+    [[GRDVPNHelper sharedInstance] setMainCredential:nil];
+}
+
 
 #pragma mark shared framework code
 

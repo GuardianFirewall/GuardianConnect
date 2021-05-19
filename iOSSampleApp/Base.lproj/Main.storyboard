@@ -144,6 +144,7 @@
                         <outlet property="createVPNButton" destination="LEq-vt-NGP" id="snj-Mn-VOH"/>
                         <outlet property="hostnameLabel" destination="t6c-hU-whB" id="dPz-P8-hDB"/>
                         <outlet property="passwordTextField" destination="BkM-rl-eNY" id="KKO-9N-EYh"/>
+                        <outlet property="signInButton" destination="FnR-rE-gFy" id="xsO-gV-kj6"/>
                         <outlet property="statusLabel" destination="952-ns-dEy" id="zQR-ig-Cky"/>
                         <outlet property="tableView" destination="SCV-kq-M9I" id="ZCB-Nm-Lu1"/>
                         <outlet property="usernameTextField" destination="MpM-Xt-4Pb" id="aIw-h2-XNU"/>
