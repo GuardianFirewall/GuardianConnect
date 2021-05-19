@@ -243,7 +243,7 @@
 		32E92C02262A1B3D00A3202C /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnectMac.h; sourceTree = "<group>"; };
 		32E92C05262A1B3D00A3202C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		32E92C62262F3F3800A3202C /* build_ios_framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_ios_framework.sh; sourceTree = "<group>"; };
+		32E92C62262F3F3800A3202C /* build_framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_framework.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -332,7 +332,7 @@
 			isa = PBXGroup;
 			children = (
 				32A49C3D263900E100D15910 /* README.md */,
-				32E92C62262F3F3800A3202C /* build_ios_framework.sh */,
+				32E92C62262F3F3800A3202C /* build_framework.sh */,
 				321BA145261404A100E876CB /* GuardianConnect */,
 				32E92C03262A1B3D00A3202C /* GuardianConnectMac */,
 				329C526426315071003B78D8 /* GuardianConnectSampleMacApp */,
