@@ -527,9 +527,9 @@
     }];
 }
 
-- (void)configureFirstTimeUserWithRegion:(GRDRegion *)region completion:(StandardBlock)block {
+- (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)block {
     GRDLog(@"configure with region: %@ loc: %@", region.bestHost, region.bestHostLocation);
-    if (!region.bestHost && !region.bestHostLocation){
+    if (!region.bestHost && !region.bestHostLocation && region){
         [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
             if (success){
                 [self selectRegion:region];
@@ -542,7 +542,8 @@
         }];
     } else {
         [self selectRegion:region];
-        [self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
+        [self configureFirstTimeUserPostCredential:nil completion:block];
+        //[self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
     }
     
 }

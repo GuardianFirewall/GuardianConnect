@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
+- (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))block;
+
 /// Used to register for device push notifications if applicable. will be innocuous if 'application: didRegisterForRemoteNotificationsWithDeviceToken:' isn't implemented in your app delegate.
 /// We specifically use it to sync our push notification settings to the current server we are associated with.
 - (void)bindPushToken;

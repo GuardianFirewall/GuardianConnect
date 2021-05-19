@@ -281,6 +281,14 @@
     
 }
 
+- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nonnull regions))block {
+    [self populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
+        if (block){
+            block([GRDRegion regionsFromTimezones:regions]);
+        }
+    }];
+}
+
 /**
  
  the logic for this is simple, we need a delay to make sure we are actually connected to the server so the details get synced properly

@@ -90,9 +90,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
-/// @param region GRDRegion, the region to create fresh VPN connection to.
+/// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
 /// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserWithRegion:(GRDRegion *)region completion:(StandardBlock)block;
+- (void)configureFirstTimeUserWithRegion:(GRDRegion *_Nullable)region completion:(StandardBlock)block;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com

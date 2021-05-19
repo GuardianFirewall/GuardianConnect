@@ -288,7 +288,8 @@
             
         } else if (statusCode == 402) {
             NSLog(@"Free user trying to connect to a paid only server");
-            if (completion) completion(nil, NO, @"Trying to connect to a premium server as a free user");
+            [GRDKeychain removeSubscriberCredentialWithRetries:3];
+            if (completion) completion(nil, NO, @"Trying to connect to a premium server as a free user, invalidating subscriber credential");
             return;
         } else if (statusCode == 200) {
             NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];

@@ -151,14 +151,12 @@ class ViewController: UIViewController {
     
     /// populate region selection data
     func populateRegionDataIfNecessary () {
-        GRDServerManager().populateTimezonesIfNecessary { (regions) in
-            self.rawRegions = regions
-            self.regions = GRDRegion.regions(fromTimezones: regions)
-            print(self.regions as Any)
+        
+        GRDServerManager().getRegionsWithCompletion { (regions) in
+            self.regions = regions;
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
-            
         }
     }
     
@@ -169,19 +167,21 @@ class ViewController: UIViewController {
     
     /// region selection, called upon the 'select region' button being pressed.
     @IBAction func connectHost() {
+        var currentItem: GRDRegion? = nil
         let indexPath = self.tableView.indexPathForSelectedRow
         if (indexPath != nil) {
-            let currentItem = self.regions[indexPath!.row]
-            print(currentItem)
-            
-            GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
-                print(success)
-                print(error as Any)
-                if (success){
-                    //GRDVPNHelper.sharedInstance().select(currentItem) //NOTE: CRUCIAL TO MAKE REGION SELECTION WORK PROPERLY!!!!
-                } else {
-                    //handle error for first time config failure
-                }
+            if indexPath?.section == 1 {
+                currentItem = self.regions[indexPath!.row]
+            }
+        }
+        GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
+            print(success)
+            print(error as Any)
+            if (success){
+                print("connected successfully!")
+            } else {
+                //handle error for first time config failure
+                print("connection failed: \(String(describing: error))")
             }
         }
     }
@@ -203,12 +203,25 @@ extension ViewController: UITextFieldDelegate {
     
 }
 
+extension ViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //if indexPath.section == 0 {
+            self.connectHost()
+        //}
+    }
+    
+}
+
 extension ViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0{
+            return 1
+        }
         if (self.regions != nil){
             return self.regions.count;
         }
@@ -216,10 +229,18 @@ extension ViewController: UITableViewDataSource {
     }
     
     
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let currentItem = self.regions[indexPath.row]
-        tableCell.textLabel?.text = currentItem.displayName
+        if indexPath.section == 0 {
+            tableCell.textLabel?.text = "Automatic"
+        } else {
+            let currentItem = self.regions[indexPath.row]
+            tableCell.textLabel?.text = currentItem.displayName
+            
+        }
         return tableCell
     }
+    
+    
 }

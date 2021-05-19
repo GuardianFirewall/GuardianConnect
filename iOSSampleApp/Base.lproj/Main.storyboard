@@ -12,7 +12,7 @@
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="iOSSampleApp" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="8bC-Xf-vdC">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -101,34 +101,20 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="SCV-kq-M9I">
-                                <rect key="frame" x="0.0" y="504" width="414" height="274"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="SCV-kq-M9I">
+                                <rect key="frame" x="0.0" y="445" width="414" height="333"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="274" id="p7q-uO-Wst"/>
-                                </constraints>
                                 <connections>
                                     <outlet property="dataSource" destination="BYZ-38-t0r" id="blf-LN-mSF"/>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="VgE-wR-AQ4"/>
                                 </connections>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pWY-Vb-imp">
-                                <rect key="frame" x="150" y="449" width="95" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="Py5-x3-VE0"/>
-                                </constraints>
-                                <state key="normal" title="Select Region"/>
-                                <connections>
-                                    <action selector="connectHost" destination="BYZ-38-t0r" eventType="touchUpInside" id="gTJ-bH-F18"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="pWY-Vb-imp" firstAttribute="top" secondItem="952-ns-dEy" secondAttribute="bottom" constant="51" id="5Ar-h6-5Fe"/>
                             <constraint firstItem="OsF-f5-1lf" firstAttribute="top" secondItem="LEq-vt-NGP" secondAttribute="bottom" constant="19" id="6Hf-cK-yJu"/>
                             <constraint firstItem="t6c-hU-whB" firstAttribute="leading" secondItem="952-ns-dEy" secondAttribute="leading" id="FyD-P4-gjD"/>
-                            <constraint firstItem="pWY-Vb-imp" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="150" id="HBO-79-7aD"/>
+                            <constraint firstItem="SCV-kq-M9I" firstAttribute="top" secondItem="952-ns-dEy" secondAttribute="bottom" constant="47" id="G44-jb-6b8"/>
                             <constraint firstItem="eWv-9N-E7P" firstAttribute="top" secondItem="OsF-f5-1lf" secondAttribute="bottom" constant="14" id="HcH-gu-dIl"/>
                             <constraint firstItem="MpM-Xt-4Pb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="37" id="Hux-eK-nDi"/>
                             <constraint firstItem="ZUr-ks-PzS" firstAttribute="top" secondItem="FnR-rE-gFy" secondAttribute="bottom" constant="20" id="KFh-6x-7l0"/>
@@ -149,7 +135,6 @@
                             <constraint firstItem="MpM-Xt-4Pb" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="sTl-zD-3WR"/>
                             <constraint firstItem="ZUr-ks-PzS" firstAttribute="centerX" secondItem="LEq-vt-NGP" secondAttribute="centerX" id="ukA-lT-Dsm"/>
                             <constraint firstItem="952-ns-dEy" firstAttribute="trailing" secondItem="t6c-hU-whB" secondAttribute="trailing" id="v74-XD-AnT"/>
-                            <constraint firstItem="SCV-kq-M9I" firstAttribute="top" secondItem="pWY-Vb-imp" secondAttribute="bottom" constant="20" id="vAU-LO-RmA"/>
                             <constraint firstItem="BkM-rl-eNY" firstAttribute="top" secondItem="MpM-Xt-4Pb" secondAttribute="bottom" constant="14" id="wAs-fN-7YK"/>
                             <constraint firstItem="BkM-rl-eNY" firstAttribute="width" secondItem="MpM-Xt-4Pb" secondAttribute="width" id="xmQ-ZE-Fz3"/>
                         </constraints>
@@ -159,7 +144,6 @@
                         <outlet property="createVPNButton" destination="LEq-vt-NGP" id="snj-Mn-VOH"/>
                         <outlet property="hostnameLabel" destination="t6c-hU-whB" id="dPz-P8-hDB"/>
                         <outlet property="passwordTextField" destination="BkM-rl-eNY" id="KKO-9N-EYh"/>
-                        <outlet property="selectRegionButton" destination="pWY-Vb-imp" id="qek-dA-fGc"/>
                         <outlet property="statusLabel" destination="952-ns-dEy" id="zQR-ig-Cky"/>
                         <outlet property="tableView" destination="SCV-kq-M9I" id="ZCB-Nm-Lu1"/>
                         <outlet property="usernameTextField" destination="MpM-Xt-4Pb" id="aIw-h2-XNU"/>
