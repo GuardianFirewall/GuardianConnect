@@ -434,34 +434,44 @@
     }];
 }
 
-- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *credential, NSString *error))block {
-    __block NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
+/**
+ 
+ Slighty refactored this method to remove the legacy 'free' user logic (less room for weird bugs) Moved the paying user check to the beginning of the function
+ so we can weed them out easily and make sure the API's are never hit with a free user.
+ 
+ */
+
+- (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nonnull, NSString * _Nonnull))block {
     
-    NSCalendar *currentCalendar = [NSCalendar currentCalendar];
-    // Create GRDSubscriberCredential object from string stored in the keychain
-    // Safe with subCredString being nil
-    GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
-    NSTimeInterval safeExpirationDate = [[currentCalendar dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
-    NSTimeInterval subCredExpirationDate = [[NSDate dateWithTimeIntervalSince1970:subCred.tokenExpirationDate] timeIntervalSince1970];
+    if (![GRDVPNHelper isPayingUser]) {
+        if (block){
+            block(nil, @"A paid account is required to create a subscriber credential");
+            return;
+        }
+    }
+    // Use convenience method to get access to our current subscriber cred (if it exists)
+    GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+    __block NSString *subCredString = subCred.subscriberCredential;
     
-    if (safeExpirationDate > subCredExpirationDate || subCredString == nil) {
+    // Moved the expiration logic that WAS here into where it already half-existed inside of GRDSubscriberCredential and if it is expired or nil
+    // Create a fresh new credential
+    
+    if ([subCred tokenExpired] || subCred == nil) {
         // No subscriber credential yet or it is expired. We have to create a new one
         GRDLog(@"No subscriber credential present or it has passed the safe expiration point");
-        GRDHousekeepingValidationMethod valmethod = ValidationMethodInvalid;
         
-        if ([GRDVPNHelper isPayingUser] == true) {
-            /* i don't know this as well, and not sure if we should proceed if we dont have a PEToken when promode or pretrial token are set. but either
-             way we shouldn't proceed with the PEToken validation method if we cant retreive the PEToken! -kevin */
-            NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-            if (([GRDVPNHelper proMode] || [[NSUserDefaults standardUserDefaults] boolForKey:kGuardianFreeTrialPeTokenSet] == YES || [petToken containsString:@"gdp_"]) && petToken.length > 0) {
-                valmethod = ValidationmethodPEToken;
-            } else {
-                valmethod = ValidationMethodAppStoreReceipt;
-            }
+        // Default to AppStoreReceipt now since we don't have a free tier anymore.
+        GRDHousekeepingValidationMethod valmethod = ValidationMethodAppStoreReceipt;
+        
+        // Check to see if we have a PEToken
+        NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+        BOOL preTrialTokenSet = [[NSUserDefaults standardUserDefaults] boolForKey:kGuardianFreeTrialPeTokenSet];
+        
+        if (([GRDVPNHelper proMode] || preTrialTokenSet == YES || [petToken containsString:@"gdp_"]) && petToken.length > 0) {
+            valmethod = ValidationmethodPEToken;
         }
         
-        GRDHousekeepingAPI *housekeeping = [GRDHousekeepingAPI new];
-        [housekeeping createNewSubscriberCredentialWithValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
+        [[GRDHousekeepingAPI new] createNewSubscriberCredentialWithValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
             if (success == NO && errorMessage != nil) {
                 
                 if (block) {
@@ -484,8 +494,11 @@
         }];
         
     } else {
-        block(subCredString, nil);
+        if (block){
+            block(subCredString, nil);
+        }
     }
+    
 }
 
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block {
