@@ -445,7 +445,7 @@
     
     if (![GRDVPNHelper isPayingUser]) {
         if (block){
-            block(nil, @"A paid account is required to create a subscriber credential");
+            block(nil, @"A paid account is required to create a subscriber credential.");
             return;
         }
     }
