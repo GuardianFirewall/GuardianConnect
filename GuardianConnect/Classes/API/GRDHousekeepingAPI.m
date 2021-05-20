@@ -131,12 +131,6 @@
         if (validationMethod == ValidationMethodAppStoreReceipt) {
             NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
             if (receiptData == nil) {
-                /*
-                if (completion) {
-                    completion(nil, NO, @"AppStore receipt missing");
-                }
-                return;
-                 */
                 NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
                 if (completion) {
                     completion(nil, NO, @"AppStore receipt missing");
@@ -167,9 +161,6 @@
         
             [jsonDict setObject:@"promo-code" forKey:@"validation-method"];
             [jsonDict setObject:self.promoCode forKey:@"promo-code"];
-            
-        } else if (validationMethod == ValidationMethodFreeUser) {
-            [jsonDict setObject:@"free-servers" forKey:@"validation-method"];
             
         } else {
             if (completion) completion(nil, NO, @"validation method missing");

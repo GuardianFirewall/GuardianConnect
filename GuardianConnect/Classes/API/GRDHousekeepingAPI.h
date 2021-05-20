@@ -20,10 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Validation Method used to obtain a signed JWT from housekeeping
 typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
+    ValidationMethodInvalid = -1,
     ValidationMethodUsernamePassword,
     ValidationMethodAppStoreReceipt,
     ValidationMethodPromoCode,
-    ValidationMethodFreeUser,
     ValidationmethodPEToken
 };
 

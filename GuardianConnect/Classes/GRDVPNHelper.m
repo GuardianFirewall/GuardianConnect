@@ -447,7 +447,7 @@
     if (safeExpirationDate > subCredExpirationDate || subCredString == nil) {
         // No subscriber credential yet or it is expired. We have to create a new one
         GRDLog(@"No subscriber credential present or it has passed the safe expiration point");
-        GRDHousekeepingValidationMethod valmethod = ValidationMethodFreeUser;
+        GRDHousekeepingValidationMethod valmethod = ValidationMethodInvalid;
         
         if ([GRDVPNHelper isPayingUser] == true) {
             /* i don't know this as well, and not sure if we should proceed if we dont have a PEToken when promode or pretrial token are set. but either
