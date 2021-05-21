@@ -113,7 +113,7 @@
 }
 
 
-- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
+- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
     NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
     protocolConfig.serverAddress = server;
     protocolConfig.serverCertificateCommonName = server;
@@ -242,7 +242,7 @@
         region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
         region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
         _selectedRegion = region;
-        [self validateCurrentEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nonnull errorMessage) {
+        [self validateCurrentEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
             if (valid){
                 
             }
@@ -441,7 +441,7 @@
  
  */
 
-- (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nonnull, NSString * _Nonnull))block {
+- (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nullable credential, NSString * _Nullable errorMessage))block {
     
     if (![GRDVPNHelper isPayingUser]) {
         if (block){
@@ -569,7 +569,7 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
-    [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nonnull errorMessage) {
+    [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
         if (errorMessage != nil){
             GRDLog(@"%@", errorMessage);
             if (block) {
@@ -614,7 +614,7 @@
     }];
 }
 
-- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block {
+- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))block {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
     NSLog(@"subcred: %@", creds);
@@ -651,7 +651,7 @@
     }
 }
 
-- (void)proLoginWithEmail:(NSString *)email password:(NSString *)password completion:(StandardBlock)block {
+- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)block {
     [[GRDHousekeepingAPI new] loginUserWithEMail:email password:password completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
         if (success){
             [GRDKeychain removeSubscriberCredentialWithRetries:3];

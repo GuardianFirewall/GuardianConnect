@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param user NSString value of an eap-username to authenticate with the specified server
 /// @param passRef NSData representation of the eap-password to authenticate with the specified server
 /// @param certType NEVPNIKEv2CertificateType the certificate type required to authenticate with the specified server
-- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString *)server eapUsername:(NSString *)user eapPasswordRef:(NSData *)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType;
+- (NEVPNProtocolIKEv2 *)prepareIKEv2ParametersForServer:(NSString * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType;
 
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
@@ -99,7 +99,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param block block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block;
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location and a completion block.
 /// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
@@ -136,13 +136,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)selectRegion:(GRDRegion * _Nullable)region;
 
 /// There should be no need to call this directly, this is for internal use only.
-- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *credential, NSString *error))block;
+- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *_Nullable credential, NSString *_Nullable error))block;
 
 /// Verify that current EAP credentials are valid if applicable
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block;
 
 /// Convenience function for logging in a pro user
-- (void)proLoginWithEmail:(NSString *)email password:(NSString *)password completion:(StandardBlock)block;
+- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)block;
 
 /// Convenience function for logging out a pro user
 - (void)logoutCurrentProUser;

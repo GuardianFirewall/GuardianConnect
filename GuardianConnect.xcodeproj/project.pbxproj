@@ -28,6 +28,7 @@
 		3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9EF2628F252007D4E7E /* GRDCredential.m */; };
 		3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		324E93A42657600D00237837 /* GuardianConnect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321BA143261404A100E876CB /* GuardianConnect.framework */; };
 		325583E22634D2420015DEE3 /* GRDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E12634D2420015DEE3 /* GRDEvent.m */; };
 		325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E42634D65F0015DEE3 /* NSColor+Additions.m */; };
 		32855B19263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
@@ -258,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324E93A42657600D00237837 /* GuardianConnect.framework in Frameworks */,
 				32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
