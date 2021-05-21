@@ -28,6 +28,9 @@ typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 
 @interface GRDVPNHelper : NSObject
 
+/// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
+@property BOOL dummyDataForDebugging;
+
 @property (nullable) GRDRegion *selectedRegion;
 @property BOOL vpnLoaded; ///whether load from preferences was successfull upon init
 @property (nullable) NSString *lastErrorMessage;
