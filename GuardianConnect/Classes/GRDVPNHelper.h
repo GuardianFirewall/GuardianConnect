@@ -108,7 +108,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
 /// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(StandardBlock)completion;
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation completion:(StandardBlock)completion;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.

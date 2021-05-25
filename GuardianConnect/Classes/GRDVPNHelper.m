@@ -243,8 +243,16 @@
         region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
         _selectedRegion = region;
         [self validateCurrentEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
-            if (valid){
-                
+            /*
+             
+             this is called upon app load in the background and the method already tries to recreate the credentials,
+             if it returns a failure, trying to create new ones failed & there isnt much else that can be done.
+             just log an error for now. - definitely should not surface any error alerts to the user.
+             
+             */
+            
+            if (!valid){
+                GRDLog(@"credentials are invalid and failed to re-create: %@", errorMessage);
             }
         }];
     }
@@ -556,7 +564,6 @@
     } else {
         [self selectRegion:region];
         [self configureFirstTimeUserPostCredential:nil completion:completion];
-        //[self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
     }
     
 }
@@ -580,11 +587,11 @@
                 mid();
             }
             NSMutableDictionary *fullCreds = [creds mutableCopy];
-            GRDLog(@"fullCreds: %@", fullCreds);
+            //GRDLog(@"fullCreds: %@", fullCreds);
             fullCreds[kGRDHostnameOverride] = host;
             fullCreds[kGRDVPNHostLocation] = hostLocation;
             NSInteger adjustedDays = [GRDVPNHelper subCredentialDays];
-            GRDLog(@"AdjustedDays: %lu", adjustedDays);
+            //GRDLog(@"AdjustedDays: %lu", adjustedDays);
             self.mainCredential = [[GRDCredential alloc] initWithFullDictionary:fullCreds validFor:adjustedDays isMain:true];
             [self.mainCredential saveToKeychain];
             [GRDCredentialManager addOrUpdateCredential:self.mainCredential];
@@ -635,9 +642,13 @@
                     
                 } else { //successful API return, EAP creds are currently invalid.
                     
-                    //TODO: should this be handled differently? if they have an active VPN connection but invalid creds, should we create a fresh connection on a new host?
-                    [[GRDVPNHelper sharedInstance] forceDisconnectVPNIfNecessary];
-                    [GRDVPNHelper clearVpnConfiguration];
+                    [self forceDisconnectVPNIfNecessary];
+                    //create a fresh set of credentials (new user) in our current region.
+                    [self configureFirstTimeUserWithRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
+                        if (completion){
+                            completion(success, errorMessage);
+                        }
+                    }];
                 }
                 
                 
