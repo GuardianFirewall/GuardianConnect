@@ -670,7 +670,6 @@
                     [defaults setObject:[response objectForKey:@"type"] forKey:kSubscriptionPlanTypeStr];
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
-                    //[[NSUserDefaults standardUserDefaults] setBool:true forKey:@"userLoggedIn"];
                     if (completion){
                         completion(true, nil);
                     }
