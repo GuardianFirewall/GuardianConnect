@@ -103,7 +103,7 @@
 }
 
 
-- (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat {
+- (NSMutableURLRequest *)_requestWithEndpoint:(NSString *_Nonnull)apiEndpoint andPostRequestData:(NSData *_Nonnull)postRequestDat {
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
 	
@@ -186,7 +186,12 @@
     [task resume];
 }
 
-- (void)verifyEAPCredentialsUsername:(NSString *)eapUsername apiToken:(NSString *)apiToken andSubscriberCredential:(NSString *)subscriberCredential forVPNNode:(NSString *)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
+- (void)verifyEAPCredentials:(GRDCredential *_Nonnull)credentials completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion {
+    GRDSubscriberCredential *crds = [GRDSubscriberCredential currentSubscriberCredential];
+    [self verifyEAPCredentialsUsername:credentials.username apiToken:credentials.apiAuthToken andSubscriberCredential:crds.subscriberCredential forVPNNode:credentials.hostname completion:completion];
+}
+
+- (void)verifyEAPCredentialsUsername:(NSString *_Nonnull)eapUsername apiToken:(NSString *_Nonnull)apiToken andSubscriberCredential:(NSString *_Nonnull)subscriberCredential forVPNNode:(NSString *_Nonnull)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.2/device/%@/verify-credentials", vpnNode, eapUsername]]];
     
     if (eapUsername == nil || apiToken == nil || subscriberCredential == nil || vpnNode == nil) {
@@ -242,7 +247,7 @@
     [task resume];
 }
 
-- (void)registerAndCreateWithHostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
+- (void)registerAndCreateWithHostname:(NSString *_Nonnull)hostname subscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
     NSLog(@"hostname: %@", hostname);
     //we don't need to do [self _canMakeApiRequests] here because that just checks for a hostname, and we get a hostname as one of the parameters.
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/register-and-create", hostname]]];
@@ -283,7 +288,8 @@
             
         } else if (statusCode == 402) {
             NSLog(@"Free user trying to connect to a paid only server");
-            if (completion) completion(nil, NO, @"Trying to connect to a premium server as a free user");
+            [GRDKeychain removeSubscriberCredentialWithRetries:3];
+            if (completion) completion(nil, NO, @"Trying to connect to a premium server as a free user, invalidating subscriber credential");
             return;
         } else if (statusCode == 200) {
             NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -302,11 +308,15 @@
     [task resume];
 }
 
-- (void)registerAndCreateWithSubscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
+- (void)registerAndCreateWithSubscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
     [self registerAndCreateWithHostname:[self baseHostname] subscriberCredential:subscriberCredential validForDays:validFor completion:completion];
 }
 
-- (void)invalidateEAPCredentials:(NSString *)eapUsername andAPIToken:(NSString *)apiToken completion:(void (^)(BOOL, NSString * _Nullable))completion {
+- (void)invalidateEAPCredentials:(GRDCredential *_Nonnull)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion {
+    [self invalidateEAPCredentials:credentials.username andAPIToken:credentials.apiAuthToken completion:completion];
+}
+
+- (void)invalidateEAPCredentials:(NSString *_Nonnull)eapUsername andAPIToken:(NSString *_Nonnull)apiToken completion:(void (^)(BOOL, NSString * _Nullable))completion {
     if ([self _canMakeApiRequests] == NO) {
         GRDLog(@"Cannot make API requests! Aborting");
         if (completion) completion(NO, @"Cannot make API requests");
@@ -357,7 +367,7 @@
 
 // full (prototype) endpoint: "/vpnsrv/api/device/<device_token>/set-push-token"
 // input: "auth-token" and "push-token" (POST format)
-- (void)setPushToken:(NSString *)pushToken andDataTrackersEnabled:(BOOL)dataTrackers locationTrackersEnabled:(BOOL)locationTrackers pageHijackersEnabled:(BOOL)pageHijackers mailTrackersEnabled:(BOOL)mailTrackers completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion {
+- (void)setPushToken:(NSString *_Nonnull)pushToken andDataTrackersEnabled:(BOOL)dataTrackers locationTrackersEnabled:(BOOL)locationTrackers pageHijackersEnabled:(BOOL)pageHijackers mailTrackersEnabled:(BOOL)mailTrackers completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion {
     if ([self _canMakeApiRequests] == NO) {
         NSLog(@"[DEBUG][bindPushToken] cannot make API requests !!! won't continue");
         if (completion){
@@ -479,8 +489,8 @@
     [task resume];
 }
 
-- (void)getEvents:(void(^)(NSDictionary *response, BOOL success, NSString *error))completion {
-    if (self.dummyDataForDebugging == NO) {
+- (void)getEvents:(void(^)(NSDictionary *response, BOOL success, NSString *_Nullable error))completion {
+    if ([GRDVPNHelper sharedInstance].dummyDataForDebugging == NO) {
         if ([self _canMakeApiRequests] == NO) {
             NSLog(@"[DEBUG][getEvents] cannot make API requests !!! won't continue");
             if (completion) completion(nil, NO, @"cant make API requests");
@@ -557,40 +567,33 @@
     for (i = 0; i < 1000; i++){
         [fakeAlerts addObject:@{@"action":@"drop",
                                 @"category":@"privacy-tracker-app",
-                                @"host":@"analytics.localytics.com",
-                                @"message":@"Prevented 'Localytics' from obtaining unknown data from device. Prevented 'Localytics' from obtaining unknown data from device Prevented 'Localytics' from obtaining unknown data from device Prevented 'Localytics' from obtaining unknown",
+                                @"host":@"pippio.com",
+                                @"message":@"'Arbor (pippio.com)' is known to collect device information, occasionally including location data",
                                 @"timestamp":curDateStr,
                                 @"title":@"Data Tracker",
                                 @"uuid":[[NSUUID UUID] UUIDString] }];
         
         [fakeAlerts addObject:@{@"action":@"drop",
                                 @"category":@"privacy-tracker-app-location",
-                                @"host":@"api.beaconsinspace.com",
-                                @"message":@"Prevented 'Beacons In Space' from obtaining unknown data from device",
+                                @"host":@"v1.blueberry.cloud.databerries.com",
+                                @"message":@"'Teemo' is known to collect GPS location information",
                                 @"timestamp":curDateStr,
                                 @"title":@"Location Tracker",
                                 @"uuid":[[NSUUID UUID] UUIDString] }];
         
         [fakeAlerts addObject:@{@"action":@"drop",
                                 @"category":@"privacy-tracker-mail",
-                                @"host":@"api.phishy-mcphishface-thisisanexampleofalonghostname.com",
-                                @"message":@"Prevented 'Phishy McPhishface' from obtaining unknown data from device",
+                                @"host":@"www.responsys.net",
+                                @"message":@"'Oracle Responsys' is known to track your receipt of e-mail messages",
                                 @"timestamp":curDateStr,
                                 @"title":@"Mail Tracker",
                                 @"uuid":[[NSUUID UUID] UUIDString] }];
         
-        [fakeAlerts addObject:@{@"action":@"drop",
-                                @"category":@"encryption-allows-invalid-https",
-                                @"host":@"facebook.com",
-                                @"message":@"Prevented 'Facebook', you're welcome",
-                                @"timestamp":curDateStr,
-                                @"title":@"Blocked MITM",
-                                @"uuid":[[NSUUID UUID] UUIDString] }];
         
         [fakeAlerts addObject:@{@"action":@"drop",
                                 @"category":@"ads/aggressive",
-                                @"host":@"google.com",
-                                @"message":@"Prevented Google from forcing shit you don't need down your throat",
+                                @"host":@"ad.turn.com",
+                                @"message":@"'ad.turn.com' from causing potential forced ad redirect",
                                 @"timestamp":curDateStr,
                                 @"title":@"Page Hijacker",
                                 @"uuid":[[NSUUID UUID] UUIDString] }];

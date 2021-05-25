@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDDebugHelper.h>
+#import <GuardianConnect/GRDCredential.h>
 
 #define kSGAPI_ValidateReceipt_APIv1 @"/api/v1/verify-receipt"
 
@@ -44,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GRDGatewayAPI : NSObject
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debgging purposes
-@property BOOL dummyDataForDebugging;
+@property BOOL dummyDataForDebugging; //obsolete, moved to GRDVPNHelper
 
 /// apiAuthToken is used as a second factor of authentication by the zoe-agent API. zoe-agent expects this value to be sent in the JSON encoded body of the HTTP request for the value 'api-auth-token'
 @property (strong, nonatomic, readonly) NSString *apiAuthToken;
@@ -77,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)baseHostname;
 
 /// convenience method to quickly set various HTTP headers
-- (NSMutableURLRequest *)_requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat;
+- (NSMutableURLRequest *)_requestWithEndpoint:(NSString * _Nonnull)apiEndpoint andPostRequestData:(NSData * _Nonnull)postRequestDat;
 
 /// endpoint: /vpnsrv/api/server-status
 /// hits the endpoint for the current VPN host to check if a VPN connection can be established
@@ -86,13 +87,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// endpoint: /api/v1.2/device/<eap-username>/verify-credentials
 /// Validates the existence of the current actively used EAP credentials with the VPN server. If a VPN server has been reset or the EAP credentials have been invalided and/or deleted the app needs to migrate to a new host and obtain new EAP credentials
 /// A Subscriber Crednetial is required to prevent broad abuse of the endpoint, thought it is not required to provide the same Subscriber Credential which was initially used to generate the EAP credentials in the past. Any valid Subscriber Credential will be accepted
-- (void)verifyEAPCredentialsUsername:(NSString *)eapUsername apiToken:(NSString *)apiToken andSubscriberCredential:(NSString *)subscriberCredential forVPNNode:(NSString *)vpnNode completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
+- (void)verifyEAPCredentialsUsername:(NSString * _Nonnull)eapUsername apiToken:(NSString * _Nonnull)apiToken andSubscriberCredential:(NSString * _Nonnull)subscriberCredential forVPNNode:(NSString * _Nonnull)vpnNode completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
+
+/// endpoint: /api/v1.2/device/<eap-username>/verify-credentials
+/// Validates the existence of the current actively used EAP credentials with the VPN server. If a VPN server has been reset or the EAP credentials have been invalided and/or deleted the app needs to migrate to a new host and obtain new EAP credentials
+/// A Subscriber Credential is required to prevent broad abuse of the endpoint, thought it is not required to provide the same Subscriber Credential which was initially used to generate the EAP credentials in the past. Any valid Subscriber Credential will be accepted
+- (void)verifyEAPCredentials:(GRDCredential * _Nonnull)credentials completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
 
 /// endpoint: /api/v1.1/register-and-create
 /// @param subscriberCredential JWT token obtained from housekeeping
 /// @param validFor integer informing the API how long the EAP credentials should be valid for. A value of 30 indicated 30 days starting right now (eg. 30 days * 24 hours worth of service)
 /// @param completion completion block indicating success, returning EAP Credentials as well as an API auth token or returning an error message for user consumption
-- (void)registerAndCreateWithSubscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)registerAndCreateWithSubscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1.1/register-and-create
 /// @param hostname The host we are creating the credential for
@@ -100,13 +106,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param validFor integer informing the API how long the EAP credentials should be valid for. A value of 30 indicated 30 days starting right now (eg. 30 days * 24 hours worth of service)
 /// @param completion completion block indicating success, returning EAP Credentials as well as an API auth token or returning an error message for user consumption
 
-- (void)registerAndCreateWithHostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion;
+- (void)registerAndCreateWithHostname:(NSString *_Nonnull)hostname subscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion;
 
 /// endpoint: /api/v1.2/device/<eap-username>/invalidate-credentials
 /// @param eapUsername the EAP username to invalidate. Also used as the device ID
 /// @param apiToken the API token for the EAP username to invalidate
 /// @param completion completion block indicating a successfull API call or returning an error message
-- (void)invalidateEAPCredentials:(NSString *)eapUsername andAPIToken:(NSString *)apiToken completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)invalidateEAPCredentials:(NSString *_Nonnull)eapUsername andAPIToken:(NSString *_Nonnull)apiToken completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+
+/// endpoint: /api/v1.2/device/<eap-username>/invalidate-credentials
+/// @param credentials GRDCredentials to invalidate
+/// @param completion completion block indicating a successfull API call or returning an error message
+- (void)invalidateEAPCredentials:(GRDCredential *_Nonnull)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion;
 
 /// endpoint: /api/v1.1/<device_token>/set-push-token
 /// @param pushToken APNS push token sent to VPN server
@@ -115,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param pageHijackers indicator whether or not to send push notifications for page hijackers
 /// @param mailTrackers indicator whether or not to send push notifications for mail trackers
 /// @param completion completion block indicating success, and an error message with information for the user
-- (void)setPushToken:(NSString *)pushToken andDataTrackersEnabled:(BOOL)dataTrackers locationTrackersEnabled:(BOOL)locationTrackers pageHijackersEnabled:(BOOL)pageHijackers mailTrackersEnabled:(BOOL)mailTrackers completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)setPushToken:(NSString *_Nonnull)pushToken andDataTrackersEnabled:(BOOL)dataTrackers locationTrackersEnabled:(BOOL)locationTrackers pageHijackersEnabled:(BOOL)pageHijackers mailTrackersEnabled:(BOOL)mailTrackers completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1.1/device/<device_token>/remove-push-token
 /// @param completion completion block indicating success, and an error message with information for the user
@@ -123,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// endpoint: /api/v1.1/device/<eap-username>/alerts
 /// @param completion De-Serialized JSON from the server containing an array with all alerts
-- (void)getEvents:(void (^)(NSDictionary *response, BOOL success, NSString *error))completion;
+- (void)getEvents:(void (^)(NSDictionary *response, BOOL success, NSString *_Nullable error))completion;
 
 /// endpoint: /api/v1.2/device/<eap-username>/set-alerts-download-timestamp
 /// @param completion completion block indicating a successful API request or an error message with detailed information

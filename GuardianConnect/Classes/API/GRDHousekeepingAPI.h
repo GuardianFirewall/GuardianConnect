@@ -20,10 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Validation Method used to obtain a signed JWT from housekeeping
 typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
+    ValidationMethodInvalid = -1,
     ValidationMethodUsernamePassword,
     ValidationMethodAppStoreReceipt,
     ValidationMethodPromoCode,
-    ValidationMethodFreeUser,
     ValidationmethodPEToken
 };
 
@@ -99,7 +99,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion;
 
-- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block;
+- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion;
 
 @end
 

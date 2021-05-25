@@ -24,7 +24,7 @@
     }
 }
 
-+ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))block {
++ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion {
     //first get a host name
     [[GRDServerManager new] findBestHostInRegion:regionString completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
        
@@ -40,24 +40,24 @@
                     GRDCredential *credential = [[GRDCredential alloc] initWithFullDictionary:credCopy validFor:numberOfDays isMain:mainCredential];
                     OSStatus keychainSaving = [credential saveToKeychain];
                     if (keychainSaving == errSecSuccess){
-                        if (block){
-                            block(credential, nil);
+                        if (completion){
+                            completion(credential, nil);
                         }
                     } else {
-                        if (block){
-                            block(nil, @"Failed to save credential password to the keychain.");
+                        if (completion){
+                            completion(nil, @"Failed to save credential password to the keychain.");
                         }
                     }
                 } else {
-                    if (block){
-                        block(nil,error);
+                    if (completion){
+                        completion(nil,error);
                     }
                 }
                 
             }];
         } else {
-            if (block){
-                block(nil, error);
+            if (completion){
+                completion(nil, error);
             }
         }
     }];

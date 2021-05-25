@@ -10,6 +10,17 @@
 
 @implementation GRDSubscriberCredential
 
++ (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
+    NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
+    return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
+}
+
+- (BOOL)isExpired {
+    NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
+    NSTimeInterval subCredExpirationDate = [[NSDate dateWithTimeIntervalSince1970:self.tokenExpirationDate] timeIntervalSince1970];
+    return (safeExpirationDate > subCredExpirationDate);
+}
+
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential {
     if (!self) {
         self = [super init];
@@ -51,13 +62,19 @@
     self.subscriptionTypePretty = [dict objectForKey:@"subscription-type-pretty"];
     self.subscriptionExpirationDate = [(NSNumber*)[dict objectForKey:@"subscription-expiration-date"] integerValue];
     self.tokenExpirationDate = [(NSNumber*)[dict objectForKey:@"exp"] integerValue];
+    self.tokenExpired = [self isExpired];
     
+    // this code we never used and will be pruned out after review, the logic for expiration check was slightly different in VPNHelper so i adopted that logic instead
+    // and moved it into its own function.
+    
+    /*
     NSInteger nowUnix = [[NSDate date] timeIntervalSince1970];
     if (nowUnix >= self.tokenExpirationDate) {
         self.tokenExpired = YES;
     } else {
         self.tokenExpired = NO;
     }
+     */
 }
 
 @end

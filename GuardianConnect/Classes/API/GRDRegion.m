@@ -35,17 +35,17 @@
     return (self.regionName == [object regionName] && self.displayName == [object displayName]);
 }
 
--(void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))block {
+-(void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
     [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
         if (!error){
-            if (block){
-                block(host, hostLocation, true);
+            if (completion){
                 self.bestHost = host;
                 self.bestHostLocation = hostLocation;
+                completion(host, hostLocation, true);
             }
         } else {
-            if (block){
-                block(nil, nil, false);
+            if (completion){
+                completion(nil, nil, false);
             }
         }
     }];

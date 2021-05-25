@@ -116,6 +116,18 @@
     } else if([error code] == SKErrorPaymentNotAllowed) {
         errorString = @"SKErrorPaymentNotAllowed";
         
+    } else if([error code] == SKErrorStoreProductNotAvailable) {
+        errorString = @"SKErrorStoreProductNotAvailable";
+#if !TARGET_OS_OSX
+    } else if([error code] == SKErrorCloudServicePermissionDenied) {
+        errorString = @"SKErrorCloudServicePermissionDenied";
+        
+    } else if([error code] == SKErrorCloudServiceNetworkConnectionFailed) {
+        errorString = @"SKErrorCloudServiceNetworkConnectionFailed";
+        
+    } else if([error code] == SKErrorCloudServiceRevoked) {
+        errorString = @"SKErrorCloudServiceRevoked";
+#endif
     } else {
         errorString = @"(Undefined Error)";
     }

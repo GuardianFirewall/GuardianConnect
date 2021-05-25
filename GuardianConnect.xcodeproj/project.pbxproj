@@ -28,6 +28,7 @@
 		3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9EF2628F252007D4E7E /* GRDCredential.m */; };
 		3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		324E93A42657600D00237837 /* GuardianConnect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321BA143261404A100E876CB /* GuardianConnect.framework */; };
 		325583E22634D2420015DEE3 /* GRDEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E12634D2420015DEE3 /* GRDEvent.m */; };
 		325583E52634D65F0015DEE3 /* NSColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 325583E42634D65F0015DEE3 /* NSColor+Additions.m */; };
 		32855B19263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
@@ -243,7 +244,7 @@
 		32E92C02262A1B3D00A3202C /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnectMac.h; sourceTree = "<group>"; };
 		32E92C05262A1B3D00A3202C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		32E92C62262F3F3800A3202C /* build_ios_framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_ios_framework.sh; sourceTree = "<group>"; };
+		32E92C62262F3F3800A3202C /* build_framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_framework.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -258,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324E93A42657600D00237837 /* GuardianConnect.framework in Frameworks */,
 				32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -332,7 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				32A49C3D263900E100D15910 /* README.md */,
-				32E92C62262F3F3800A3202C /* build_ios_framework.sh */,
+				32E92C62262F3F3800A3202C /* build_framework.sh */,
 				321BA145261404A100E876CB /* GuardianConnect */,
 				32E92C03262A1B3D00A3202C /* GuardianConnectMac */,
 				329C526426315071003B78D8 /* GuardianConnectSampleMacApp */,
@@ -993,6 +995,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1007,6 +1010,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1019,6 +1023,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1033,6 +1038,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1057,8 +1063,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_DISABLE_SAFETY_CHECKS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1080,7 +1089,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1095,7 +1106,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
@@ -1118,7 +1129,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GuardianConnectSampleMacApp/Info.plist;
@@ -1138,6 +1149,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1152,6 +1164,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -1164,6 +1177,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1178,6 +1192,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
