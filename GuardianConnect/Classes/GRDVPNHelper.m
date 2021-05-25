@@ -525,55 +525,55 @@
     }];
 }
 
-- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
     [[GRDServerManager new] selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
         if (!errorMessage){
-            [self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:block];
+            [self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
         } else {
-            if (block){
-                block(false,errorMessage);
+            if (completion){
+                completion(false,errorMessage);
             }
-            if (block){
-                block(false,errorMessage);
+            if (completion){
+                completion(false,errorMessage);
             }
         }
     }];
 }
 
-- (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)block {
+- (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion {
     GRDLog(@"configure with region: %@ loc: %@", region.bestHost, region.bestHostLocation);
     if (!region.bestHost && !region.bestHostLocation && region){
         [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
             if (success){
                 [self selectRegion:region];
-                [self configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:block];
+                [self configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:completion];
             } else {
-                if (block){
-                    block(false, [NSString stringWithFormat:@"Failed to find a host location for region: %@", region.displayName]);
+                if (completion){
+                    completion(false, [NSString stringWithFormat:@"Failed to find a host location for region: %@", region.displayName]);
                 }
             }
         }];
     } else {
         [self selectRegion:region];
-        [self configureFirstTimeUserPostCredential:nil completion:block];
+        [self configureFirstTimeUserPostCredential:nil completion:completion];
         //[self configureFirstTimeUserForHostname:region.bestHost andHostLocation:region.bestHostLocation completion:block];
     }
     
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation completion:(StandardBlock)block {
-    [self configureFirstTimeUserForHostname:host andHostLocation:hostLocation postCredential:nil completion:block];
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation completion:(StandardBlock)completion {
+    [self configureFirstTimeUserForHostname:host andHostLocation:hostLocation postCredential:nil completion:completion];
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
     [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
         if (errorMessage != nil){
             GRDLog(@"%@", errorMessage);
-            if (block) {
-                block(FALSE, errorMessage);
+            if (completion) {
+                completion(FALSE, errorMessage);
             }
         } else if (creds){
             if (mid){
@@ -593,17 +593,17 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (status == GRDVPNHelperFail) {
                         if (message != nil) {
-                            if (block){
-                                block(FALSE, message);
+                            if (completion){
+                                completion(FALSE, message);
                             }
                         } else {
-                            if (block){
-                                block(FALSE, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
+                            if (completion){
+                                completion(FALSE, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
                             }
                         }
                     } else {
-                        if (block) {
-                            block(TRUE, nil);
+                        if (completion) {
+                            completion(TRUE, nil);
                         }
                     }
                     
@@ -650,7 +650,7 @@
     }
 }
 
-- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)block {
+- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)completion {
     [[GRDHousekeepingAPI new] loginUserWithEMail:email password:password completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
         if (success){
             [GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -658,8 +658,8 @@
             if (saveStatus != errSecSuccess) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     GRDLog(@"Failed to store PET. Aborting");
-                    if (block){
-                        block(false, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
+                    if (completion){
+                        completion(false, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
                     }
                 });
                 
@@ -671,16 +671,16 @@
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
                     //[[NSUserDefaults standardUserDefaults] setBool:true forKey:@"userLoggedIn"];
-                    if (block){
-                        block(true, nil);
+                    if (completion){
+                        completion(true, nil);
                     }
                 });
             }
         } else { //the login failed :(
             GRDLog(@"Login failed with error: %@", errorMessage);
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (block){
-                    block(false, errorMessage);
+                if (completion){
+                    completion(false, errorMessage);
                 }
             });
         }
