@@ -22,20 +22,20 @@
     return request;
 }
 
-- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))block {
+- (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion {
     Class dcDeviceClass = NSClassFromString(@"DCDevice");
     __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulator";
     if (!dcDeviceClass){
-        if (block){
-            block(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
+        if (completion){
+            completion(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
         }
     } else {
         [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
             if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]){
                 defaultDevice = [token base64EncodedStringWithOptions:0];
             }
-            if (block){
-                block(defaultDevice, error);
+            if (completion){
+                completion(defaultDevice, error);
             }
         }];
     }

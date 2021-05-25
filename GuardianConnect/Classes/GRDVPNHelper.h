@@ -123,13 +123,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to create standalone eap-username & eap-password on a specified host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
 /// @param validForDays NSInteger number of days these credentials will be valid for
 /// @param hostname NSString hostname to connect to ie: saopaulo-ipsec-4.sudosecuritygroup.com
-/// @param block block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))block;
+/// @param completion block Completion block that will contain an NSDictionary of credentials upon success
+- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))completion;
 
 /// Used to create standalone eap-username & eap-password on an automatically chosen host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
 /// @param validForDays NSInteger number of days these credentials will be valid for
-/// @param block block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block;
+/// @param completion block Completion block that will contain an NSDictionary of credentials upon success
+- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion;
 
 /// Doesn't appear to ever be used... obsolete code?
 - (void)setRetryCount:(NSInteger)retryCount;
@@ -139,10 +139,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)selectRegion:(GRDRegion * _Nullable)region;
 
 /// There should be no need to call this directly, this is for internal use only.
-- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *_Nullable credential, NSString *_Nullable error))block;
+- (void)getValidSubscriberCredentialWithCompletion:(void(^)(NSString *_Nullable credential, NSString *_Nullable error))completion;
 
 /// Verify that current EAP credentials are valid if applicable
-- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))block;
+- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))completion;
 
 /// Convenience function for logging in a pro user
 - (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)completion;

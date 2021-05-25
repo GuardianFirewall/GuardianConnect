@@ -150,7 +150,7 @@ Clears out all cached / stored day pass share link data, mainly for debug purpos
  Updates blocklist data from the server
  */
 
-- (void)updateServerBlocklistWithItemProgress:(void (^ __nullable)(GRDBlacklistGroupItem *item))progress completion:(void (^ __nullable)(BOOL success))block;
+- (void)updateServerBlocklistWithItemProgress:(void (^ __nullable)(GRDBlacklistGroupItem *item))progress completion:(void (^ __nullable)(BOOL success))completion;
 
 /// endpoint: /api/v1/blocklist/all
 /// @param completion completion block returning an array of all curated blocklist items and indicating request success

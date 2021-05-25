@@ -27,24 +27,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used to find and connect to a VPN server node in 'regionName' specified & create the connection, handy to use in the region picker view for specified regionName
 /// @param regionName NSString The region we want to specify, if null it will defer to 'Automatic' selection.
-/// @param block Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
-- (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))block;
+/// @param completion Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
+- (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion;
 
 /// Used to populate the regions stored in 'kGuardianAllRegions' if necessary. This raw data is used for region selection.
-/// @param block Completion block with an NSArray * of region NSDictionaries upon success, or an empty array upon failure.
-- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))block;
+/// @param completion Completion block with an NSArray * of region NSDictionaries upon success, or an empty array upon failure.
+- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))completion;
 
 /// Used to find the best VPN server node in a specified region, useful if you want to get VPN server node & its host location without creating a VPN connection.
 /// @param regionName NSString. The region we want to find the best available VPN node in.
-/// @param block block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
-- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))block;
+/// @param completion block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
+- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion;
 
 /// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
 /// @param timezones NSArray of timezones that is from GRDHousekeepingAPI 'requestTimeZonesForRegionsWithTimestamp:' method
 /// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
-- (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))block;
+- (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))completion;
 
 /// Used to register for device push notifications if applicable. will be innocuous if 'application: didRegisterForRemoteNotificationsWithDeviceToken:' isn't implemented in your app delegate.
 /// We specifically use it to sync our push notification settings to the current server we are associated with.

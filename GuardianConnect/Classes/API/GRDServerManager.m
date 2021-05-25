@@ -141,7 +141,7 @@
     }];
 }
 
-- (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))block {
+- (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion {
     if (regionName == nil){ //if the region is nil, use the current one
         GRDLog(@"[DEBUG] nil region, use the default!");
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
@@ -153,19 +153,19 @@
             hl = [creds hostnameDisplayValue];
         }
         if (host && hl){
-            if(block){
+            if(completion){
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    block(host, hl, nil);
+                    completion(host, hl, nil);
                 });
             }
         } else {
             //we dont have a host and hostlocation yet.
             GRDLog(@"we dont have a host or host location yet");
             [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
-                if(block){
+                if(completion){
                     dispatch_async(dispatch_get_main_queue(), ^{
                         GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, errorMessage);
-                        block(guardianHost, guardianHostLocation, errorMessage);
+                        completion(guardianHost, guardianHostLocation, errorMessage);
                     });
                 }
             }];
@@ -177,9 +177,9 @@
         GRDHousekeepingAPI *housekeeping = [[GRDHousekeepingAPI alloc] init];
         [housekeeping requestServersForRegion:regionName completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1){
-                if (block){
+                if (completion){
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        block(nil, nil, NSLocalizedString(@"No server found", nil));
+                        completion(nil, nil, NSLocalizedString(@"No server found", nil));
                     });
                 }
             } else {
@@ -192,9 +192,9 @@
                 NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
                 NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
                 GRDLog(@"Selected host: %@", guardianHost);
-                if(block){
+                if(completion){
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        block(guardianHost, guardianHostLocation, nil);
+                        completion(guardianHost, guardianHostLocation, nil);
                     });
                 }
             }
@@ -202,15 +202,15 @@
     });
 }
 
-- (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))block {
+- (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion {
     GRDLog(@"Requested Region: %@", regionName);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         GRDHousekeepingAPI *housekeeping = [[GRDHousekeepingAPI alloc] init];
         [housekeeping requestServersForRegion:regionName completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1){
-                if (block){
+                if (completion){
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        block(NSLocalizedString(@"No server found", nil),FALSE);
+                        completion(NSLocalizedString(@"No server found", nil),FALSE);
                     });
                 }
             } else {
@@ -228,17 +228,17 @@
                 [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                     
                     if (!success){
-                        if (block){
+                        if (completion){
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                block(errorMessage,FALSE);
+                                completion(errorMessage,FALSE);
                             });
                         }
                     } else {
                         GRDLog(@"[DEBUG] configured first time user successfully!");
                         [self bindPushToken];
-                        if (block){
+                        if (completion){
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                block(nil,TRUE);
+                                completion(nil,TRUE);
                             });
                         }
                     }
@@ -248,7 +248,7 @@
     });
 }
 
-- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))block {
+- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))completion {
     __block NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     NSNumber *timestamp = [ud objectForKey:kGuardianAllRegionsTimeStamp];
     if (timestamp != nil) {
@@ -264,13 +264,13 @@
             NSTimeInterval nowUnix = [[NSDate date] timeIntervalSince1970];
             [ud setObject:[NSNumber numberWithInt:nowUnix] forKey:kGuardianAllRegionsTimeStamp];
             [ud setObject:[items sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name-pretty" ascending:true]]] forKey:kGuardianAllRegions];
-            if (block){
-                block(items);
+            if (completion){
+                completion(items);
             }
         }];
     } else {
-        if (block){
-            block(regions);
+        if (completion){
+            completion(regions);
         }
     }
 }
@@ -281,10 +281,10 @@
     
 }
 
-- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nonnull regions))block {
+- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nonnull regions))completion {
     [self populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-        if (block){
-            block([GRDRegion regionsFromTimezones:regions]);
+        if (completion){
+            completion([GRDRegion regionsFromTimezones:regions]);
         }
     }];
 }

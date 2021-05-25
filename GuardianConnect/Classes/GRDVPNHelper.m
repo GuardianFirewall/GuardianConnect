@@ -441,11 +441,11 @@
  
  */
 
-- (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nullable credential, NSString * _Nullable errorMessage))block {
+- (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nullable credential, NSString * _Nullable errorMessage))completion {
     
     if (![GRDVPNHelper isPayingUser]) {
-        if (block){
-            block(nil, @"A paid account is required to create a subscriber credential.");
+        if (completion){
+            completion(nil, @"A paid account is required to create a subscriber credential.");
             return;
         }
     }
@@ -474,8 +474,8 @@
         [[GRDHousekeepingAPI new] createNewSubscriberCredentialWithValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
             if (success == NO && errorMessage != nil) {
                 
-                if (block) {
-                    block(nil, errorMessage);
+                if (completion) {
+                    completion(nil, errorMessage);
                 }
                 return;
                 
@@ -483,44 +483,44 @@
                 [GRDKeychain removeSubscriberCredentialWithRetries:3];
                 OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
                 if (saveStatus != errSecSuccess) {
-                    if (block) {
-                        block(nil, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
+                    if (completion) {
+                        completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
                     }
                     return;
                 }
                 
-                block(subscriberCredential, nil);
+                completion(subscriberCredential, nil);
             }
         }];
         
     } else {
-        if (block){
-            block(subCredString, nil);
+        if (completion){
+            completion(subCredString, nil);
         }
     }
     
 }
 
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))block {
-    [self createStandaloneCredentialsForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults]valueForKey:kGRDHostnameOverride] completion:block];
+- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {
+    [self createStandaloneCredentialsForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults]valueForKey:kGRDHostnameOverride] completion:completion];
 }
 
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * creds, NSString * errorMessage))block {
+- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * creds, NSString * errorMessage))completion {
     [self getValidSubscriberCredentialWithCompletion:^(NSString *credential, NSString *error) {
         if (credential != nil) {
             NSInteger adjustedDays = [GRDVPNHelper subCredentialDays];
             //adjust the day count in case 30 is too many
             [[GRDGatewayAPI new] registerAndCreateWithHostname:hostname subscriberCredential:credential validForDays:adjustedDays completion:^(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage) {
                 if (success == NO && errorMessage != nil) {
-                    block(nil, errorMessage);
+                    completion(nil, errorMessage);
                     
                 } else {
-                    block(credentials, nil);
+                    completion(credentials, nil);
                 }
             }];
             
         } else {
-            block(nil,error);
+            completion(nil,error);
         }
     }];
 }
@@ -614,12 +614,12 @@
     }];
 }
 
-- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))block {
+- (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
     if (!creds && !subCred){
-        if (block){
-            block(FALSE, @"No valid EAP Credentials or subscriber credentials found");
+        if (completion){
+            completion(FALSE, @"No valid EAP Credentials or subscriber credentials found");
         }
     } else { //got em both, vaidate them.
         
@@ -629,8 +629,8 @@
                     [GRDKeychain removeSubscriberCredentialWithRetries:3];
                 }
                 if (stillValid) {
-                    if (block) {
-                        block(TRUE, nil);
+                    if (completion) {
+                        completion(TRUE, nil);
                     }
                     
                 } else { //successful API return, EAP creds are currently invalid.
@@ -642,8 +642,8 @@
                 
                 
             } else { //success is false
-                if (block) {
-                    block(FALSE, errorMessage);
+                if (completion) {
+                    completion(FALSE, errorMessage);
                 }
             }
         }];

@@ -331,10 +331,10 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
 }
 
 
-- (void)updateServerBlocklistWithItemProgress:(void (^ __nullable)(GRDBlacklistGroupItem *item))progress completion:(void (^ __nullable)(BOOL success))block {
+- (void)updateServerBlocklistWithItemProgress:(void (^ __nullable)(GRDBlacklistGroupItem *item))progress completion:(void (^ __nullable)(BOOL success))completion {
     if (![GRDVPNHelper proMode]){
-        if (block){
-            block(FALSE);
+        if (completion){
+            completion(FALSE);
         }
         return;
     }
@@ -348,14 +348,14 @@ static NSString *kGRDBlacklistGroups = @"GRDBlacklistGroups";
                     progress(obj);
                 }
                 if (idx == allBlocklistItems.count-1){
-                        if (block){
-                            block(TRUE);
+                        if (completion){
+                            completion(TRUE);
                         }
                 }
             }];
         } else {
-            if (block){
-                block(FALSE);
+            if (completion){
+                completion(FALSE);
             }
         }
     }];

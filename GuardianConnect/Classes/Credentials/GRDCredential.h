@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)expired;
 - (NSInteger)daysLeft; //days until it does expire
 - (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
-- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))block;
+- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion;
 @end
 
 NS_ASSUME_NONNULL_END

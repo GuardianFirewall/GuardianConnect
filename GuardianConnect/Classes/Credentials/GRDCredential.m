@@ -184,7 +184,7 @@
     return (self.username.length > 0 && self.apiAuthToken.length > 0);
 }
 
-- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))block {
+- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion {
     if (_username.length > 0 && _apiAuthToken.length > 0){
         [[GRDGatewayAPI new] invalidateEAPCredentials:_username andAPIToken:_apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
             if (success){
@@ -192,11 +192,11 @@
             } else {
                 GRDLog(@"[DEBUG] failed to revoke the credential with error: %@", errorMessage);
             }
-            if (block)block(success, errorMessage);
+            if (completion)completion(success, errorMessage);
         }];
     } else {
         GRDLog(@"[DEBUG] cant revoke this credential, missing necessary data!");
-        if (block)block(false, @"Cant revoke this credential, missing necessary data!");
+        if (completion)completion(false, @"Cant revoke this credential, missing necessary data!");
     }
 }
 
