@@ -561,11 +561,11 @@
     
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation completion:(StandardBlock)block {
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation completion:(StandardBlock)block {
     [self configureFirstTimeUserForHostname:host andHostLocation:hostLocation postCredential:nil completion:block];
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString *)host andHostLocation:(NSString *)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
+- (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)block {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
