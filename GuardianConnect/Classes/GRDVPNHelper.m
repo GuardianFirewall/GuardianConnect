@@ -617,7 +617,6 @@
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))block {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-    NSLog(@"subcred: %@", creds);
     if (!creds && !subCred){
         if (block){
             block(FALSE, @"No valid EAP Credentials or subscriber credentials found");
@@ -658,7 +657,7 @@
             OSStatus saveStatus = [GRDKeychain storePassword:response[kKeychainStr_PEToken] forAccount:kKeychainStr_PEToken];
             if (saveStatus != errSecSuccess) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    NSLog(@"[authenticateUser] Failed to store PET. Aborting");
+                    GRDLog(@"Failed to store PET. Aborting");
                     if (block){
                         block(false, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
                     }
