@@ -382,8 +382,8 @@
                     //there are additional steps necessary if it is a day pass subscription, setting a different user default for the expiration & setting up local user notifications about pending day pass expiration.
                     if ([productId isEqualToString:kGuardianSubscriptionDayPassAlt] || [productId isEqualToString:kGuardianSubscriptionDayPass]) {
                         
-                        NSNumber *expiresDate = [NSNumber numberWithInteger:[latestValidLineItem[kGRDExpiresDate] integerValue]];
-                        [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[expiresDate integerValue]] forKey:kGuardianDayPassExpirationDate];
+                        NSInteger expiresDate = [latestValidLineItem[kGRDExpiresDate] integerValue];
+                        [defaults setObject:[NSDate dateWithTimeIntervalSince1970:expiresDate] forKey:kGuardianDayPassExpirationDate];
                         
                         //handling sending notifications if on iOS 12+, trying to slim down this function, and this didn't need to be in here.
                         [self handleDayPassNotificationsIfNecessary:expiresDate];
@@ -447,7 +447,7 @@
     });
 }
 
-- (void)handleDayPassNotificationsIfNecessary:(NSNumber *)expiresDate {
+- (void)handleDayPassNotificationsIfNecessary:(NSInteger)expiresDate {
     if (@available(iOS 12.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:UNAuthorizationOptionAlert | UNAuthorizationOptionProvisional completionHandler:^(BOOL granted, NSError * _Nullable error) {
             if (error != nil) {
@@ -456,7 +456,7 @@
             }
             
             // Setting a reminder 2h prior to expiration
-            NSDateComponents *dateComponents2h = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond  fromDate:[NSDate dateWithTimeIntervalSince1970:[expiresDate integerValue] - 7200]];
+            NSDateComponents *dateComponents2h = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond  fromDate:[NSDate dateWithTimeIntervalSince1970:expiresDate - 7200]];
             UNCalendarNotificationTrigger *trigger2h = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents2h repeats:NO];
             
             UNMutableNotificationContent *content2h = [UNMutableNotificationContent new];
@@ -472,7 +472,7 @@
             
             
             // Setting a reminder 6h prior to expiration
-            NSDateComponents *dateComponents6h = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond  fromDate:[NSDate dateWithTimeIntervalSince1970:[expiresDate integerValue] - 21600]];
+            NSDateComponents *dateComponents6h = [[NSCalendar currentCalendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond  fromDate:[NSDate dateWithTimeIntervalSince1970:expiresDate - 21600]];
             UNCalendarNotificationTrigger *trigger6h = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents6h repeats:NO];
             
             UNMutableNotificationContent *content6h = [UNMutableNotificationContent new];
