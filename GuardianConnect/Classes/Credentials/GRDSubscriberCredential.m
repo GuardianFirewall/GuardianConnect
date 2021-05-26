@@ -22,6 +22,7 @@
 }
 
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential {
+    if (!subscriberCredential) return nil; //if theres no subscriber credential string we dont want to create the credential!
     if (!self) {
         self = [super init];
     }
