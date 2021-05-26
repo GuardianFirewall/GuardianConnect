@@ -6,7 +6,8 @@
 //  Copyright © 2019 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "GRDHousekeepingAPI.h"
+#import <GuardianConnect/GRDHousekeepingAPI.h>
+
 
 @implementation GRDHousekeepingAPI
 
@@ -40,6 +41,83 @@
         }];
     }
 }
+
+- (void)newVerifyReceiptWithCompletion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
+    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
+        NSString *deviceCheckToken = nil;
+        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
+            deviceCheckToken = [token base64EncodedStringWithOptions:0];
+            
+        } else {
+            NSLog(@"[verifyReceiptWithCompletion:] Failed to generate device check token: %@", [error localizedDescription]);
+            deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
+        }
+        
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
+        NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+        if (receiptData == nil) {
+            NSLog(@"[DEBUG][validate receipt] receiptData == nil");
+            if (completion) {
+                completion(nil, NO, @"No App Store receipt data present");
+            }
+            return;
+        }
+        
+        NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0], @"device-check-token": deviceCheckToken} options:0 error:nil];
+        [request setHTTPBody:postData];
+        [request setHTTPMethod:@"POST"];
+        [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+        
+        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error != nil) {
+                NSLog(@"Failed to retrieve receipt data: %@", error);
+                if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
+                return;
+            }
+            
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+            if (statusCode == 500) {
+                NSLog(@"Internal server error. Failed to retrieve any receipt information");
+                if (completion) completion(nil, NO, @"Internal server error");
+                return;
+                
+            } else if (statusCode == 400) {
+                NSLog(@"Bad request. Failed to retrieve any receipt information");
+                if (completion) completion(nil, NO, @"Bad request");
+                return;
+                
+            } else if (statusCode == 204) {
+                NSLog(@"Successful request. No active subscription found");
+                if (completion) completion(nil, YES, nil);
+                return;
+                
+            } else if (statusCode == 200) {
+                NSError *jsonError = nil;
+                NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+                if (jsonError != nil) {
+                    NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
+                    if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
+                    return;
+                    
+                } else {
+                    __block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
+                    [validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
+                        [items addObject:item];
+                    }];
+                    if (completion) completion(items, YES, nil);
+                    return;
+                }
+                
+            } else {
+                NSLog(@"Unknown error: %ld", statusCode);
+                if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
+            }
+        }];
+        [task resume];
+    }];
+}
+
 
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
     [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {

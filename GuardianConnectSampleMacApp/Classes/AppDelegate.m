@@ -56,7 +56,12 @@
     [self.mainMenuController toggleExpandedManually:false];
     [[GRDSubscriptionManager sharedManager] setDelegate:self.mainMenuController];
     //if ([GRDVPNHelper isPayingUser]){
-        [[GRDSubscriptionManager sharedManager] verifyReceipt];
+    NSLog(@"%@", [[NSBundle mainBundle] appStoreReceiptURL]);
+    [[GRDHousekeepingAPI new] newVerifyReceiptWithCompletion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorString) {
+       
+        NSLog(@"validLineItems: %@", validLineItems);
+    }];
+    //[[GRDSubscriptionManager sharedManager] verifyReceipt];
     //}
     [self attemptBlacklistFetch];
 }

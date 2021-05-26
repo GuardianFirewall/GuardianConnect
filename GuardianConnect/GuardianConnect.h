@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <GuardianConnect/GRDReceiptItem.h>
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
@@ -21,6 +22,7 @@
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/NSDate+Extras.h>
 #import <GuardianConnect/NSPredicate+Additions.h>
+#import <GuardianConnect/NSString+Extras.h>
 #import <GuardianConnect/metamacros.h>
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/EXTKeyPathCoding.h>

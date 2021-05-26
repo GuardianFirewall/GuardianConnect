@@ -76,6 +76,11 @@
 		32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		32ABCF53263540300030B258 /* GCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF52263540300030B258 /* GCImageView.m */; };
 		32ABCF56263547960030B258 /* GCWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 32ABCF55263547960030B258 /* GCWindow.m */; };
+		32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptItem.m */; };
+		32D80A46265B195A00F5C33B /* GRDReceiptItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptItem.m */; };
+		32D80A49265B1ABE00F5C33B /* NSString+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A47265B1ABE00F5C33B /* NSString+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A48265B1ABE00F5C33B /* NSString+Extras.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnectMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */; };
 		32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */; };
@@ -241,6 +246,10 @@
 		32ABCF52263540300030B258 /* GCImageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCImageView.m; sourceTree = "<group>"; };
 		32ABCF54263547960030B258 /* GCWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCWindow.h; sourceTree = "<group>"; };
 		32ABCF55263547960030B258 /* GCWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCWindow.m; sourceTree = "<group>"; };
+		32D80A42265B195200F5C33B /* GRDReceiptItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDReceiptItem.h; sourceTree = "<group>"; };
+		32D80A43265B195200F5C33B /* GRDReceiptItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDReceiptItem.m; sourceTree = "<group>"; };
+		32D80A47265B1ABE00F5C33B /* NSString+Extras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Extras.h"; sourceTree = "<group>"; };
+		32D80A48265B1ABE00F5C33B /* NSString+Extras.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extras.m"; sourceTree = "<group>"; };
 		32E92C02262A1B3D00A3202C /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32E92C04262A1B3D00A3202C /* GuardianConnectMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnectMac.h; sourceTree = "<group>"; };
 		32E92C05262A1B3D00A3202C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -418,6 +427,8 @@
 				3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */,
 				32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */,
 				32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */,
+				32D80A47265B1ABE00F5C33B /* NSString+Extras.h */,
+				32D80A48265B1ABE00F5C33B /* NSString+Extras.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -511,6 +522,8 @@
 		32ABCF5026352BCF0030B258 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
+				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
 				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
 				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
 				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
@@ -545,6 +558,7 @@
 				321BA1A0261408B800E876CB /* Shared.h in Headers */,
 				32939A9026167D20007A4DFA /* GRDVPNHelper.h in Headers */,
 				32939A6D26167D0E007A4DFA /* NSPredicate+Additions.h in Headers */,
+				32D80A49265B1ABE00F5C33B /* NSString+Extras.h in Headers */,
 				32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */,
 				32939A6F26167D0E007A4DFA /* metamacros.h in Headers */,
 				32939A9226167D20007A4DFA /* GRDServerManager.h in Headers */,
@@ -553,6 +567,7 @@
 				32939A8F26167D20007A4DFA /* GRDGatewayAPI.h in Headers */,
 				32939A7326167D0E007A4DFA /* EXTKeyPathCoding.h in Headers */,
 				32939A9126167D20007A4DFA /* GRDDebugHelper.h in Headers */,
+				32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
 				32939A8E26167D20007A4DFA /* GRDNotificationMode.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
@@ -761,8 +776,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				32939A8826167D20007A4DFA /* GRDServerManager.m in Sources */,
+				32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */,
 				32939A9426167D20007A4DFA /* GRDDebugHelper.m in Sources */,
 				32939A7026167D0E007A4DFA /* EXTScope.m in Sources */,
+				32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */,
 				32855B19263640B90088086E /* GRDRegion.m in Sources */,
 				3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */,
 				32939A8B26167D20007A4DFA /* GRDVPNHelper.m in Sources */,
@@ -815,6 +832,7 @@
 				32E92C17262A1B6100A3202C /* GRDVPNHelper.m in Sources */,
 				32E92C15262A1B6100A3202C /* GRDServerManager.m in Sources */,
 				32E92C0C262A1B5400A3202C /* EXTScope.m in Sources */,
+				32D80A46265B195A00F5C33B /* GRDReceiptItem.m in Sources */,
 				32855B1A263640B90088086E /* GRDRegion.m in Sources */,
 				32E92C14262A1B6100A3202C /* GRDKeychain.m in Sources */,
 				32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */,

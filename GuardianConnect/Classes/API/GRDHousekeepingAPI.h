@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 //#import "GRDBlacklistGroupItem.h"
+#import <GuardianConnect/GRDReceiptItem.h>
 
 #define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
 
@@ -53,6 +54,8 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// Used to verify the current subscription status of a user if they subscribed through an in app purchase. Returns an array containing only valid subscriptions / purchases
 /// @param completion completion block returning array only containing valid subscriptions / purchases, success indicator and a error message containing actionable information for the user if the request failed
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray *_Nullable validLineItems, BOOL success, NSString *_Nullable errorMessage))completion;
+
+- (void)newVerifyReceiptWithCompletion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion;
 
 /// endpoint: /api/v1/subscriber-credential/create
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
