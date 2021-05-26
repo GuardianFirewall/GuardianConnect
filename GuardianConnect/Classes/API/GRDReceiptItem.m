@@ -42,6 +42,11 @@
     _expiresDate = [NSDate dateWithTimeIntervalSince1970:self.expiresDateMs/1000];
     _purchaseDate = [NSDate dateWithTimeIntervalSince1970:self.purchaseDateMs/1000];
     _originalPurchaseDate = [NSDate dateWithTimeIntervalSince1970:self.originalPurchaseDateMs/1000];
+    
+    if (!_expiresDate) { //must be a day pass
+        _expiresDate = [NSDate dateWithTimeIntervalSince1970:(self.purchaseDateMs/1000)+86400];
+    }
+    
 }
 
 - (NSString *)description {
