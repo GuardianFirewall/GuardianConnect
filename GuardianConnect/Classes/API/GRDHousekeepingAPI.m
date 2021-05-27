@@ -43,220 +43,190 @@
 }
 
 - (void)newVerifyReceiptWithCompletion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
-    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
-        NSString *deviceCheckToken = nil;
-        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-            deviceCheckToken = [token base64EncodedStringWithOptions:0];
-            
-        } else {
-            NSLog(@"[verifyReceiptWithCompletion:] Failed to generate device check token: %@", [error localizedDescription]);
-            deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
+    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    if (receiptData == nil) {
+        NSLog(@"[DEBUG][validate receipt] receiptData == nil");
+        if (completion) {
+            completion(nil, NO, @"No App Store receipt data present");
         }
-        
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
-        NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-        if (receiptData == nil) {
-            NSLog(@"[DEBUG][validate receipt] receiptData == nil");
-            if (completion) {
-                completion(nil, NO, @"No App Store receipt data present");
-            }
+        return;
+    }
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
+    [request setHTTPBody:postData];
+    [request setHTTPMethod:@"POST"];
+    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+    
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"Failed to retrieve receipt data: %@", error);
+            if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
             return;
         }
         
-        NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0], @"device-check-token": deviceCheckToken} options:0 error:nil];
-        [request setHTTPBody:postData];
-        [request setHTTPMethod:@"POST"];
-        [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-        
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (error != nil) {
-                NSLog(@"Failed to retrieve receipt data: %@", error);
-                if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
+        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        if (statusCode == 500) {
+            NSLog(@"Internal server error. Failed to retrieve any receipt information");
+            if (completion) completion(nil, NO, @"Internal server error");
+            return;
+            
+        } else if (statusCode == 400) {
+            NSLog(@"Bad request. Failed to retrieve any receipt information");
+            if (completion) completion(nil, NO, @"Bad request");
+            return;
+            
+        } else if (statusCode == 204) {
+            NSLog(@"Successful request. No active subscription found");
+            if (completion) completion(nil, YES, nil);
+            return;
+            
+        } else if (statusCode == 200) {
+            NSError *jsonError = nil;
+            NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+            if (jsonError != nil) {
+                NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
+                if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
+                return;
+                
+            } else {
+                __block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
+                [validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
+                    [items addObject:item];
+                }];
+                if (completion) completion(items, YES, nil);
                 return;
             }
             
-            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-            if (statusCode == 500) {
-                NSLog(@"Internal server error. Failed to retrieve any receipt information");
-                if (completion) completion(nil, NO, @"Internal server error");
-                return;
-                
-            } else if (statusCode == 400) {
-                NSLog(@"Bad request. Failed to retrieve any receipt information");
-                if (completion) completion(nil, NO, @"Bad request");
-                return;
-                
-            } else if (statusCode == 204) {
-                NSLog(@"Successful request. No active subscription found");
-                if (completion) completion(nil, YES, nil);
-                return;
-                
-            } else if (statusCode == 200) {
-                NSError *jsonError = nil;
-                NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                if (jsonError != nil) {
-                    NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
-                    if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
-                    return;
-                    
-                } else {
-                    __block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
-                    [validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                        GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
-                        [items addObject:item];
-                    }];
-                    if (completion) completion(items, YES, nil);
-                    return;
-                }
-                
-            } else {
-                NSLog(@"Unknown error: %ld", statusCode);
-                if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
-            }
-        }];
-        [task resume];
+        } else {
+            NSLog(@"Unknown error: %ld", statusCode);
+            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
+        }
     }];
+    [task resume];
+    
 }
 
 
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
-    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
-        NSString *deviceCheckToken = nil;
-        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-            deviceCheckToken = [token base64EncodedStringWithOptions:0];
-            
-        } else {
-            NSLog(@"[verifyReceiptWithCompletion:] Failed to generate device check token: %@", [error localizedDescription]);
-            deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
+    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    if (receiptData == nil) {
+        NSLog(@"[DEBUG][validate receipt] receiptData == nil");
+        if (completion) {
+            completion(nil, NO, @"No App Store receipt data present");
         }
-        
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
-        NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-        if (receiptData == nil) {
-            NSLog(@"[DEBUG][validate receipt] receiptData == nil");
-            if (completion) {
-                completion(nil, NO, @"No App Store receipt data present");
-            }
+        return;
+    }
+    
+    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
+    [request setHTTPBody:postData];
+    [request setHTTPMethod:@"POST"];
+    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+    
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"Failed to retrieve receipt data: %@", error);
+            if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
             return;
         }
         
-        NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0], @"device-check-token": deviceCheckToken} options:0 error:nil];
-        [request setHTTPBody:postData];
-        [request setHTTPMethod:@"POST"];
-        [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-        
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (error != nil) {
-                NSLog(@"Failed to retrieve receipt data: %@", error);
-                if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
+        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        if (statusCode == 500) {
+            NSLog(@"Internal server error. Failed to retrieve any receipt information");
+            if (completion) completion(nil, NO, @"Internal server error");
+            return;
+            
+        } else if (statusCode == 400) {
+            NSLog(@"Bad request. Failed to retrieve any receipt information");
+            if (completion) completion(nil, NO, @"Bad request");
+            return;
+            
+        } else if (statusCode == 204) {
+            NSLog(@"Successful request. No active subscription found");
+            if (completion) completion(nil, YES, nil);
+            return;
+            
+        } else if (statusCode == 200) {
+            NSError *jsonError = nil;
+            NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+            if (jsonError != nil) {
+                NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
+                if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
+                return;
+                
+            } else {
+                if (completion) completion(validLineItems, YES, nil);
                 return;
             }
             
-            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-            if (statusCode == 500) {
-                NSLog(@"Internal server error. Failed to retrieve any receipt information");
-                if (completion) completion(nil, NO, @"Internal server error");
-                return;
-                
-            } else if (statusCode == 400) {
-                NSLog(@"Bad request. Failed to retrieve any receipt information");
-                if (completion) completion(nil, NO, @"Bad request");
-                return;
-                
-            } else if (statusCode == 204) {
-                NSLog(@"Successful request. No active subscription found");
-                if (completion) completion(nil, YES, nil);
-                return;
-                
-            } else if (statusCode == 200) {
-                NSError *jsonError = nil;
-                NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                if (jsonError != nil) {
-                    NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
-                    if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
-                    return;
-                    
-                } else {
-                    if (completion) completion(validLineItems, YES, nil);
-                    return;
-                }
-                
-            } else {
-                NSLog(@"Unknown error: %ld", statusCode);
-                if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
-            }
-        }];
-        [task resume];
+        } else {
+            NSLog(@"Unknown error: %ld", statusCode);
+            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
+        }
     }];
+    [task resume];
 }
 
 - (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable, BOOL, NSString * _Nullable))completion {
-    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
-        NSString *deviceCheckToken;
-        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-            deviceCheckToken = [token base64EncodedStringWithOptions:0];
-        } else {
-            deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
-        }
-        
+    
 #if GUARDIAN_INTERNAL
-        GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"createNewSubscriberCredentialWithValidationMethod"];
+    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"createNewSubscriberCredentialWithValidationMethod"];
 #endif
-            
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/subscriber-credential/create"]];
-                
-        NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
-        if (validationMethod == ValidationMethodAppStoreReceipt) {
-            NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-            if (receiptData == nil) {
-                NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
-                if (completion) {
-                    completion(nil, NO, @"AppStore receipt missing");
-                }
-                return;
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/subscriber-credential/create"]];
+    
+    NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
+    if (validationMethod == ValidationMethodAppStoreReceipt) {
+        NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+        if (receiptData == nil) {
+            NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
+            if (completion) {
+                completion(nil, NO, @"AppStore receipt missing");
             }
-            
-            NSString *appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
-            [jsonDict setObject:@"iap-guardian" forKey:@"validation-method"];
-            [jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
-            
-        } else if (validationMethod == ValidationmethodPEToken) {
-            NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-            if (petToken == nil) {
-                NSLog(@"[createNewSubscriberCredentialWithValidationMethod] Failed to retrieve PEToken from keychain");
-                if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
-                return;
-            }
-            
-            [jsonDict setObject:@"pe-token" forKey:@"validation-method"];
-            [jsonDict setObject:petToken forKey:@"pe-token"];
-            
-        } else if (validationMethod == ValidationMethodPromoCode) {
-            if (self.promoCode == nil || [self.promoCode isEqualToString:@""]) {
-                if (completion) completion(nil, NO, @"promo code missing");
-                return;
-            }
-        
-            [jsonDict setObject:@"promo-code" forKey:@"validation-method"];
-            [jsonDict setObject:self.promoCode forKey:@"promo-code"];
-            
-        } else {
-            if (completion) completion(nil, NO, @"validation method missing");
             return;
         }
         
-        // Setting DeviceCheck Token for all requests for the time being
-        //[jsonDict setObject:deviceCheckToken forKey:@"device-check-token"];
-                
-        [request setHTTPMethod:@"POST"];
-        [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-            
+        NSString *appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
+        [jsonDict setObject:@"iap-guardian" forKey:@"validation-method"];
+        [jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
+        
+    } else if (validationMethod == ValidationmethodPEToken) {
+        NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+        if (petToken == nil) {
+            NSLog(@"[createNewSubscriberCredentialWithValidationMethod] Failed to retrieve PEToken from keychain");
+            if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
+            return;
+        }
+        
+        [jsonDict setObject:@"pe-token" forKey:@"validation-method"];
+        [jsonDict setObject:petToken forKey:@"pe-token"];
+        
+    } else if (validationMethod == ValidationMethodPromoCode) {
+        if (self.promoCode == nil || [self.promoCode isEqualToString:@""]) {
+            if (completion) completion(nil, NO, @"promo code missing");
+            return;
+        }
+        
+        [jsonDict setObject:@"promo-code" forKey:@"validation-method"];
+        [jsonDict setObject:self.promoCode forKey:@"promo-code"];
+        
+    } else {
+        if (completion) completion(nil, NO, @"validation method missing");
+        return;
+    }
+    
+    [request setHTTPMethod:@"POST"];
+    [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+    
 #if GUARDIAN_INTERNAL
-        [debugHelper logTimeWithMessage:@"about to send POST request to API"];
+    [debugHelper logTimeWithMessage:@"about to send POST request to API"];
 #endif
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 #if GUARDIAN_INTERNAL
-            [debugHelper logTimeWithMessage:@"request completion block start"];
+        [debugHelper logTimeWithMessage:@"request completion block start"];
 #endif
         if (error != nil) {
             NSLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
@@ -279,31 +249,30 @@
             NSLog(@"No subscription present");
             if (completion) completion(nil, NO, @"No subscription present");
             return;
-                        
+            
         } else if (statusCode == 410) {
             NSLog(@"Subscription expired");
             // Not sending an error message back so that we're not showing a useless error to the user
             // The app should transition to free/unpaid if required
             if (completion) completion(nil, NO, nil);
             return;
-                        
+            
         } else if (statusCode == 200) {
             NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
             return;
-                        
+            
         } else {
             NSLog(@"Unknown server error");
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
         }
-                    
+        
 #if GUARDIAN_INTERNAL
-            [debugHelper logTimeWithMessage:@"request completion block end"];
+        [debugHelper logTimeWithMessage:@"request completion block end"];
 #endif
-        }];
-        [task resume];
-    
     }];
+    [task resume];
+    
 }
 
 - (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
