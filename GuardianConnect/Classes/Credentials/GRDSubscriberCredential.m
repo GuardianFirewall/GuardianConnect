@@ -64,18 +64,6 @@
     self.subscriptionExpirationDate = [(NSNumber*)[dict objectForKey:@"subscription-expiration-date"] integerValue];
     self.tokenExpirationDate = [(NSNumber*)[dict objectForKey:@"exp"] integerValue];
     self.tokenExpired = [self isExpired];
-    
-    // this code we never used and will be pruned out after review, the logic for expiration check was slightly different in VPNHelper so i adopted that logic instead
-    // and moved it into its own function.
-    
-    /*
-    NSInteger nowUnix = [[NSDate date] timeIntervalSince1970];
-    if (nowUnix >= self.tokenExpirationDate) {
-        self.tokenExpired = YES;
-    } else {
-        self.tokenExpired = NO;
-    }
-     */
 }
 
 @end
