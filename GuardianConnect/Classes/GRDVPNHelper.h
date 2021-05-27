@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperAPI_ProvisioningError
 };
 
+/// Always use the sharedInstance of this class, call it as early as possible in your application lifecycle to initialize the VPN preferences and load the credentials and VPN node connection information from the keychain.
 + (instancetype)sharedInstance;
 
 /// retrieves values out of the system keychain and stores them in the sharedInstance singleton object in memory for other functions to use in the future
