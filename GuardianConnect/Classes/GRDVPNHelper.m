@@ -541,9 +541,6 @@
             if (completion){
                 completion(false,errorMessage);
             }
-            if (completion){
-                completion(false,errorMessage);
-            }
         }
     }];
 }

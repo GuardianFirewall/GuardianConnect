@@ -36,6 +36,7 @@ typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 @property (nullable) NSString *lastErrorMessage;
 
 @property (nullable) NEProxySettings *proxySettings;
+/// a separate reference is kept of the mainCredential because the credential manager instance needs to be fetched from preferences & the keychain every time its called.
 @property (nullable) GRDCredential *mainCredential;
 @property (readwrite, assign) BOOL onDemand; //defaults to yes
 #if !TARGET_OS_OSX
