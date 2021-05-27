@@ -616,7 +616,7 @@
             
         } else { //no error, but creds are nil too!
             if (completion) {
-                completion(false, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab..");
+                completion(false, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
             }
             
         }
@@ -643,6 +643,8 @@
                     }
                     
                 } else { //successful API return, EAP creds are currently invalid.
+                    
+                    //NOTE: This functionality is currently untested.
                     
                     [self forceDisconnectVPNIfNecessary];
                     //create a fresh set of credentials (new user) in our current region.
