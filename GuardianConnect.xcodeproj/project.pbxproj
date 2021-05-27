@@ -425,8 +425,8 @@
 			children = (
 				3247E9F52628F2A7007D4E7E /* NSDate+Extras.h */,
 				3247E9F42628F2A6007D4E7E /* NSDate+Extras.m */,
-				32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */,
 				32939A6426167D0E007A4DFA /* NSPredicate+Additions.h */,
+				32939A6326167D0E007A4DFA /* NSPredicate+Additions.m */,
 				32D80A47265B1ABE00F5C33B /* NSString+Extras.h */,
 				32D80A48265B1ABE00F5C33B /* NSString+Extras.m */,
 			);

@@ -66,9 +66,11 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Refresh timer that tracks event counts, its ideal to listen for push notifications for real time updates, but this will do in a pinch if that isnt possible.
+    
     func startRefreshTimer() {
         
-        self.stopRefreshTimer()
+        self.stopRefreshTimer() //this only stops the timer if applicable
         timer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true, block: { (timer) in
             GRDGatewayAPI().getAlertTotals { (results, success, errorMessage) in
                 if (success){
@@ -111,6 +113,7 @@ class ViewController: UIViewController {
     
     @IBAction func attemptLogin() {
         
+        // if the user is already signed in, sign them out instead!
         if isSignedIn() {
             GRDVPNHelper.sharedInstance().logoutCurrentProUser()
             GRDVPNHelper.sharedInstance().forceDisconnectVPNIfNecessary()
@@ -122,6 +125,8 @@ class ViewController: UIViewController {
             return
         }
         
+        // got passed the sign in check, the user is not signed in currently, attempt to sign them in!
+        
         GRDVPNHelper.sharedInstance().proLogin(withEmail: usernameTextField.text!, password: passwordTextField.text!) { (success, errorMessage) in
             if success {
                 DispatchQueue.main.async {
@@ -130,6 +135,8 @@ class ViewController: UIViewController {
                 }
                 UserDefaults.standard.set(true, forKey: "userLoggedIn")
             } else {
+                
+                //show error message here!
                 print(errorMessage ?? "no error")
             }
         }
@@ -143,6 +150,7 @@ class ViewController: UIViewController {
     /// This should be more elegant, just a rough example
     @objc func vpnConfigChanged() {
         DispatchQueue.main.async {
+            //grab the current credentials to get the hostname
             let creds = GRDCredentialManager.mainCredentials()
             switch self.vpnStatus() {
             case .connected:
@@ -179,7 +187,7 @@ class ViewController: UIViewController {
         vpnConfigChanged() //call it once manually upon view loading so we know the current state of the UI is tracked accurately if they are already connected
     }
     
-    /// called to create OR disconnect the VPN depending on its current state.
+    /// called to create OR disconnect the VPN depending on its current state. Connected in the Storyboard
     @IBAction func createVPNConnection() {
         
         // already connected, we want to disconnect in this case.
@@ -201,7 +209,8 @@ class ViewController: UIViewController {
                 print(status)
                 self.populateRegionDataIfNecessary()
             }
-        } else {
+            
+        } else { //they do not have credentials yet.
             
             // first time user, OR recently cleared VPN creds
             GRDVPNHelper.sharedInstance().configureFirstTimeUserPostCredential({
@@ -237,15 +246,20 @@ class ViewController: UIViewController {
         GRDKeychain.removeSubscriberCredential(withRetries: 3)
     }
     
-    /// region selection, called upon the 'select region' button being pressed.
+    /// region selection, called upon any item being selected in the table view
     @IBAction func connectHost() {
+        
+        //if the GRDRegion is nil, configureFirstTimeUser() will perform an automatic selection
+        
         var currentItem: GRDRegion? = nil
         let indexPath = self.tableView.indexPathForSelectedRow
-        if (indexPath != nil) {
-            if indexPath?.section == 1 {
+        if (indexPath != nil) { //i know theres a 'swiftier' way to do this, but i'm solely focused on a working example.
+            if indexPath?.section == 1 { //if the section is 1 (manual selection) grab the GRDRegion option at the selected index path, 'automatic' is in 0 section and is the only object
                 currentItem = self.regions[indexPath!.row]
             }
         }
+        
+        // configure first time user based on a specified region.
         GRDVPNHelper.sharedInstance().configureFirstTimeUser(with: currentItem) { (success, error) in
             print(success)
             print(error as Any)
@@ -278,9 +292,7 @@ extension ViewController: UITextFieldDelegate {
 extension ViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //if indexPath.section == 0 {
-            self.connectHost()
-        //}
+        self.connectHost()
     }
     
 }
@@ -291,7 +303,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0{
+        if section == 0 {
             return 1
         }
         if (self.regions != nil){
@@ -305,10 +317,10 @@ extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableCell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         if indexPath.section == 0 {
-            tableCell.textLabel?.text = "Automatic"
+            tableCell.textLabel?.text = "Automatic" //automatic region selection
         } else {
             let currentItem = self.regions[indexPath.row]
-            tableCell.textLabel?.text = currentItem.displayName
+            tableCell.textLabel?.text = currentItem.displayName //manual region selection item
             
         }
         return tableCell
