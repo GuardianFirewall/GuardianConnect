@@ -1,7 +1,7 @@
 # GuardianConnect
 API / VPN Framework for Guardian Firewall iOS application
 
-To build an xcframework for iOS or mac change into the root folder and run
+To build an xcframework for iOS or mac change into the root folder and run OR change to the target XCFramework and build straight from Xcode
 
 ./build_framework.sh
 

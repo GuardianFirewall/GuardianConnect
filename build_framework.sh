@@ -4,6 +4,12 @@
 XCP=$(which xcpretty)
 echo $XCP
 
+# there is a path issue building through Xcode that i cant quite figure out re: ruby so when building from xcode the XCP var is emptied.
+
+if [ $1 == "NOXCP" ]; then
+    XCP=""
+fi
+
 # clear previous build folder if it exist
 rm -rf build
 

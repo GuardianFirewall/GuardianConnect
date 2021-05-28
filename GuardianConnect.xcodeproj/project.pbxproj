@@ -609,6 +609,23 @@
 		};
 /* End PBXHeadersBuildPhase section */
 
+/* Begin PBXLegacyTarget section */
+		32E6BB4D2660C26200B4DD46 /* XCFramework */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "build_framework.sh NOXCP";
+			buildConfigurationList = 32E6BB502660C26200B4DD46 /* Build configuration list for PBXLegacyTarget "XCFramework" */;
+			buildPhases = (
+			);
+			buildToolPath = /bin/bash;
+			buildWorkingDirectory = $SRCROOT;
+			dependencies = (
+			);
+			name = XCFramework;
+			passBuildSettingsInEnvironment = 1;
+			productName = XCFramework;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		321BA142261404A100E876CB /* GuardianConnect */ = {
 			isa = PBXNativeTarget;
@@ -703,6 +720,9 @@
 					329C526226315071003B78D8 = {
 						CreatedOnToolsVersion = 11.7;
 					};
+					32E6BB4D2660C26200B4DD46 = {
+						CreatedOnToolsVersion = 11.7;
+					};
 					32E92C01262A1B3D00A3202C = {
 						CreatedOnToolsVersion = 11.7;
 					};
@@ -725,6 +745,7 @@
 				32E92C01262A1B3D00A3202C /* GuardianConnectMac */,
 				329C526226315071003B78D8 /* Guardian */,
 				3224BC1126531A5E00E5B4AD /* iOSSampleApp */,
+				32E6BB4D2660C26200B4DD46 /* XCFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -1162,6 +1183,33 @@
 			};
 			name = Release;
 		};
+		32E6BB4E2660C26200B4DD46 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		32E6BB4F2660C26200B4DD46 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		32E92C07262A1B3D00A3202C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1253,6 +1301,15 @@
 			buildConfigurations = (
 				329C527126315073003B78D8 /* Debug */,
 				329C527226315073003B78D8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		32E6BB502660C26200B4DD46 /* Build configuration list for PBXLegacyTarget "XCFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32E6BB4E2660C26200B4DD46 /* Debug */,
+				32E6BB4F2660C26200B4DD46 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
