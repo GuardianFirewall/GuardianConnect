@@ -25,7 +25,6 @@ class ViewController: UIViewController {
     @IBOutlet var pageHijackerLabel: UILabel!
     var timer: Timer!
     
-    var rawRegions: [Any]!
     var regions: [GRDRegion]!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -214,13 +213,11 @@ class ViewController: UIViewController {
             
             // first time user, OR recently cleared VPN creds
             GRDVPNHelper.sharedInstance().configureFirstTimeUserPostCredential({
-                //no op
-                
                 // post credential block is optional and can be used as a midway point to update the UI if necessary
-                
+                print("midway point, we have credentials!")
             }) { (success, error) in
                 if (success){
-                    print("created a VPN connection successfully!");
+                    print("created a VPN connection successfully!")
                     self.populateRegionDataIfNecessary()
                     
                 } else {

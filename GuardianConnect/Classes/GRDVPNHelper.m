@@ -279,7 +279,7 @@
         } else {
             NSString *vpnServer = self.mainCredential.hostname;
             NSString *eapUsername = self.mainCredential.username;
-            GRDLog(@"server : %@ username: %@ password: %@", self.mainCredential.hostname, self.mainCredential.username, self.mainCredential.password);
+            //GRDLog(@"server : %@ username: %@ password: %@", self.mainCredential.hostname, self.mainCredential.username, self.mainCredential.password);
             NSData *eapPassword = self.mainCredential.passwordRef;
             vpnManager.enabled = YES;
             vpnManager.protocolConfiguration = [self prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
