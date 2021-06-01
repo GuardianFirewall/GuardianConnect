@@ -1,0 +1,15 @@
+//
+//  PrefixHeader.pch
+//  GuardianConnect
+//
+//  Created by Kevin Bradley on 3/30/21.
+//  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <GuardianConnect/NSPredicate+Additions.h>
+#import <GuardianConnect/Shared.h>
+
+#endif /* PrefixHeader_pch */
