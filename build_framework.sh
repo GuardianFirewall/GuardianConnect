@@ -20,13 +20,13 @@ if [ -z $XCP ]; then
     echo ""
     echo "xcpretty was not found, recommending its installion to clean up this build script output! 'gem install xcpretty' to install it!"
     echo ""
-    xcodebuild -sdk iphonesimulator
+    xcodebuild -sdk iphonesimulator -arch x86_64
     xcodebuild -sdk iphoneos
-    xcodebuild -sdk macosx -target GuardianConnectMac
+    xcodebuild -sdk macosx -target GuardianConnectMac -arch x86_64
 else
-    xcodebuild -sdk iphonesimulator | $XCP
+    xcodebuild -sdk iphonesimulator -arch x86_64 | $XCP
     xcodebuild -sdk iphoneos | $XCP
-    xcodebuild -sdk macosx -target GuardianConnectMac | $XCP
+    xcodebuild -sdk macosx -target GuardianConnectMac -arch x86_64 | $XCP
 fi
 
 # keep track of our current working directory
