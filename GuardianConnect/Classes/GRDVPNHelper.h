@@ -24,8 +24,6 @@
 #import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
-
 @interface GRDVPNHelper : NSObject
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
@@ -147,7 +145,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))completion;
 
 /// Convenience function for logging in a pro user
-- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)completion;
+- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(ResponseBlock)completion;
 
 /// Convenience function for logging out a pro user
 - (void)logoutCurrentProUser;

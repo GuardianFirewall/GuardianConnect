@@ -126,7 +126,7 @@ class ViewController: UIViewController {
         
         // got passed the sign in check, the user is not signed in currently, attempt to sign them in!
         
-        GRDVPNHelper.sharedInstance().proLogin(withEmail: usernameTextField.text!, password: passwordTextField.text!) { (success, errorMessage) in
+        GRDVPNHelper.sharedInstance().proLogin(withEmail: usernameTextField.text!, password: passwordTextField.text!) { (response, errorMessage, success) in
             if success {
                 DispatchQueue.main.async {
                     self.createVPNButton.isEnabled = true
@@ -139,6 +139,7 @@ class ViewController: UIViewController {
                 print(errorMessage ?? "no error")
             }
         }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {

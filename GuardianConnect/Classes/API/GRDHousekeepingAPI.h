@@ -10,7 +10,6 @@
 #import <DeviceCheck/DeviceCheck.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDVPNHelper.h>
-//#import "GRDBlacklistGroupItem.h"
 #import <GuardianConnect/GRDReceiptItem.h>
 
 #define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
@@ -88,8 +87,8 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// Used for pro/visionary authentication
 /// @param email address used to authenticate
 /// @param password used to authenticate
-/// @param completion completion block that will return a dictionary of authentication data and a boolean for whether or not (API call & authentication) were successful
-- (void)loginUserWithEMail:(NSString *)email password:(NSString *)password completion:(void (^)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success))completion;
+/// @param completion completion block that will return a dictionary of response data an error message and a boolean of whether or not the request was successful
+- (void)loginUserWithEMail:(NSString *)email password:(NSString *)password completion:(ResponseBlock)completion;
 
 /// endpoint: /api/v1/users/sign-out
 /// Used to mark login PETs as disabled so that they can't be used again

@@ -16,11 +16,15 @@
 #define LOG_SELF        NSLog(@"%@ %@", self, NSStringFromSelector(_cmd))
 #define DLOG_SELF DLog(@"%@ %@", self, NSStringFromSelector(_cmd))
 
+typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
+typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
+
 // Define below to 0 to make guardian specific code inactive
 #define GUARDIAN_INTERNAL 1
 
 #pragma mark - Misc
 
+NS_ASSUME_NONNULL_BEGIN
 static NSString * const kAppNeedsSelfRepair                             = @"guardianNeedsSelfRepair";
 
 #pragma mark - Housekeeping / Region / Timezone
@@ -91,5 +95,5 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 #define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
 #define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
-
+NS_ASSUME_NONNULL_END
 #endif /* Shared_h */

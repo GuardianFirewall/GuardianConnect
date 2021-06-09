@@ -553,7 +553,7 @@
                 [self selectRegion:region];
                 [self configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:completion];
             } else {
-                if (completion){
+                if (completion) {
                     completion(false, [NSString stringWithFormat:@"Failed to find a host location for region: %@", region.displayName]);
                 }
             }
@@ -665,7 +665,7 @@
     }
 }
 
-- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(StandardBlock)completion {
+- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(ResponseBlock)completion {
     [[GRDHousekeepingAPI new] loginUserWithEMail:email password:password completion:^(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success) {
         if (success){
             [GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -674,7 +674,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     GRDLog(@"Failed to store PET. Aborting");
                     if (completion){
-                        completion(false, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
+                        completion(response, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.", false);
                     }
                 });
                 
@@ -686,7 +686,7 @@
                     [defaults setObject:[NSDate dateWithTimeIntervalSince1970:[[response objectForKey:@"pet-expires"] integerValue]] forKey:kGuardianPETokenExpirationDate];
                     [defaults removeObjectForKey:kKnownGuardianHosts];
                     if (completion){
-                        completion(true, nil);
+                        completion(response, nil, true);
                     }
                 });
             }
@@ -694,7 +694,7 @@
             GRDLog(@"Login failed with error: %@", errorMessage);
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion){
-                    completion(false, errorMessage);
+                    completion(response, errorMessage, false);
                 }
             });
         }
