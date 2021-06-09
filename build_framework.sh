@@ -66,5 +66,5 @@ mac_path=$pwd/build/Release/$name.framework
 xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
 
 
-
+open $pwd
 
