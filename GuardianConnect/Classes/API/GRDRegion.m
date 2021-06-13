@@ -12,12 +12,20 @@
 #import <GuardianConnect/GRDServerManager.h>
 @implementation GRDRegion
 
++ (GRDRegion *)automaticRegion {
+    GRDRegion *reg = [[GRDRegion alloc] init];
+    [reg setDisplayName:NSLocalizedString(@"Automatic", nil)];
+    [reg setIsAutomatic:true];
+    return reg;
+}
+
 -(instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
     if (self){
         _continent = regionDict[@"continent"]; //ie europe
         _regionName = regionDict[@"name"]; //ie eu-es
         _displayName = regionDict[@"name-pretty"]; //ie Spain
+        _isAutomatic = false;
     }
     return self;
 }
