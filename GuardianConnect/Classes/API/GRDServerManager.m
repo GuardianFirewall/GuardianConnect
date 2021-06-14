@@ -10,6 +10,10 @@
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDDebugHelper.h>
 
+#if TARGET_OS_OSX
+#import <Cocoa/Cocoa.h>
+#endif
+
 @interface GRDServerManager() {
     GRDNetworkHealthType networkHealth;
 }
@@ -307,7 +311,9 @@
               if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
                   dispatch_async(dispatch_get_main_queue(), ^{
                       dispatch_async(dispatch_get_main_queue(), ^{
-#if !TARGET_OS_OSX
+#if TARGET_OS_OSX
+                          [[NSApplication sharedApplication] registerForRemoteNotifications];
+#else
                           [[UIApplication sharedApplication] registerForRemoteNotifications];
 #endif
                       });
