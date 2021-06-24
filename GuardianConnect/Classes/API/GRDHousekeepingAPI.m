@@ -95,7 +95,10 @@
                     GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
                     [items addObject:item];
                 }];
-                if (completion) completion(items, YES, nil);
+                NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
+                NSArray *sorted = [validLineItems sortedArrayUsingDescriptors:@[expireDesc]];
+                //newest item will be on the bottom of the array
+                if (completion) completion(sorted, YES, nil);
                 return;
             }
             
