@@ -17,7 +17,7 @@
 
 - (BOOL)isExpired {
     NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
-    NSTimeInterval subCredExpirationDate = [[NSDate dateWithTimeIntervalSince1970:self.tokenExpirationDate] timeIntervalSince1970];
+    NSTimeInterval subCredExpirationDate = self.tokenExpirationDate;
     return (safeExpirationDate > subCredExpirationDate);
 }
 

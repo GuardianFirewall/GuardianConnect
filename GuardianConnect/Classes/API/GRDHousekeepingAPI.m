@@ -96,7 +96,7 @@
                     [items addObject:item];
                 }];
                 NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
-                NSArray *sorted = [validLineItems sortedArrayUsingDescriptors:@[expireDesc]];
+                NSArray *sorted = [items sortedArrayUsingDescriptors:@[expireDesc]];
                 //newest item will be on the bottom of the array
                 if (completion) completion(sorted, YES, nil);
                 return;
