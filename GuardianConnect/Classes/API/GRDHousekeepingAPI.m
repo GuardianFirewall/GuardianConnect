@@ -42,7 +42,11 @@
     }
 }
 
-- (void)newVerifyReceiptWithCompletion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
+- (NSArray *)receiptIgnoreProducts {
+    return @[kGuardianSubscriptionTypeCustomDayPass];
+}
+
+- (void)verifyReceiptFiltered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
@@ -93,7 +97,14 @@
                 __block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
                 [validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                     GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
-                    [items addObject:item];
+                    if (!filtered){
+                        [items addObject:item];
+                    } else {
+                        if (![[self receiptIgnoreProducts] containsObject:item.productId]){ //dont wan't to process those at all, so dont add the item for them.
+                            [items addObject:item];
+                        }
+                    }
+                    
                 }];
                 NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
                 NSArray *sorted = [items sortedArrayUsingDescriptors:@[expireDesc]];
