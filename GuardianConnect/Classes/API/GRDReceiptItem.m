@@ -36,15 +36,34 @@
     return self;
 }
 
+- (BOOL)subscriberCredentialExpired {
+    NSDate *subCredSubExpirationDate = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianSubscriptionExpiresDate];
+    return ([subCredSubExpirationDate isEqualToDate:self.expiresDate] == NO);
+}
+
+- (BOOL)expired {
+    NSComparisonResult result = [[NSDate date] compare:self.expiresDate];
+    switch (result) {
+        case NSOrderedSame:
+        case NSOrderedDescending:
+            break;
+        case NSOrderedAscending: //expires date > current date
+            return false;
+    }
+    return true;
+}
+
 //convert MS date values into proper NSDate's
 
 - (void)_translateData {
     _expiresDate = [NSDate dateWithTimeIntervalSince1970:self.expiresDateMs/1000];
     _purchaseDate = [NSDate dateWithTimeIntervalSince1970:self.purchaseDateMs/1000];
     _originalPurchaseDate = [NSDate dateWithTimeIntervalSince1970:self.originalPurchaseDateMs/1000];
+    _isDayPass = false; //default to false
     
     if (!_expiresDate) { //must be a day pass
         _expiresDate = [NSDate dateWithTimeIntervalSince1970:(self.purchaseDateMs/1000)+86400];
+        _isDayPass = true;
     }
     
 }

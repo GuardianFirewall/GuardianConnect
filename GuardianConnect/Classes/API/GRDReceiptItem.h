@@ -29,9 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSInteger expiresDateMs; //ex: 1619126760000
 @property NSString *purchaseDatePst; //ex: 2021-04-22 13:26:00 America/Los_Angeles
 @property NSDate *originalPurchaseDate; //ex: 2021-04-22 20:26:07 Etc/GMT
-
+@property BOOL isDayPass; //set manually
 - (instancetype)initWithDictionary:(NSDictionary *)receiptItem;
-
+- (BOOL)expired; //calculated
+- (BOOL)subscriberCredentialExpired; //calculated: whether or not we should expire subscriber credential
 @end
 
 NS_ASSUME_NONNULL_END
