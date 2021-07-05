@@ -95,5 +95,9 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 #define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
 #define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
+
+static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
+static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
+
 NS_ASSUME_NONNULL_END
 #endif /* Shared_h */

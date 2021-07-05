@@ -31,6 +31,10 @@
             completion(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
         }
     } else {
+        //this is fine since we are doing a class availability check above.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability-new"
+
         [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
             if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]){
                 defaultDevice = [token base64EncodedStringWithOptions:0];
@@ -39,6 +43,8 @@
                 completion(defaultDevice, error);
             }
         }];
+        
+#pragma clang diagnostic pop
     }
 }
 
