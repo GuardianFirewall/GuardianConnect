@@ -268,6 +268,17 @@
 			path = iOSSampleApp;
 			sourceTree = "<group>";
 		};
+		3252D68726939F3700FE7402 /* Subscription */ = {
+			isa = PBXGroup;
+			children = (
+				3252D62926938DC000FE7402 /* GRDSubscriptionManager.h */,
+				3252D62A26938DC000FE7402 /* GRDSubscriptionManager.m */,
+				3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */,
+				3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */,
+			);
+			path = Subscription;
+			sourceTree = "<group>";
+		};
 		32939A6226167D0E007A4DFA /* Categories */ = {
 			isa = PBXGroup;
 			children = (
@@ -297,6 +308,7 @@
 		32939A962616837F007A4DFA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				3252D68726939F3700FE7402 /* Subscription */,
 				32ABCF5026352BCF0030B258 /* API */,
 				32ABCF4F26352BAC0030B258 /* Credentials */,
 				32939A8026167D1F007A4DFA /* GRDDebugHelper.h */,
@@ -335,10 +347,6 @@
 		32ABCF5026352BCF0030B258 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				3252D62926938DC000FE7402 /* GRDSubscriptionManager.h */,
-				3252D62A26938DC000FE7402 /* GRDSubscriptionManager.m */,
-				3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */,
-				3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */,
 				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
 				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
 				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
