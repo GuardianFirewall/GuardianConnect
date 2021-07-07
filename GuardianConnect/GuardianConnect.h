@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <GuardianConnect/GRDReceiptItem.h>
+#import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
@@ -28,6 +29,7 @@
 #import <GuardianConnect/EXTKeyPathCoding.h>
 #import <GuardianConnect/EXTRuntimeExtensions.h>
 #import <GuardianConnect/GRDNotificationMode.h>
+#import <GuardianConnect/GRDSubscriptionManager.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;

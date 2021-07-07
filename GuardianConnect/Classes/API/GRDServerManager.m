@@ -305,22 +305,25 @@
     if (![GRDVPNHelper proMode]) {
           return;
     }
-    //doing this on a delay to make sure the settings get synced w/ the new server properly, without the delay it happens too fast.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-          [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-              if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                      dispatch_async(dispatch_get_main_queue(), ^{
+    if (@available(macOS 10.14, iOS 10.0, *)) {
+        //doing this on a delay to make sure the settings get synced w/ the new server properly, without the delay it happens too fast.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            
+            [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+                if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        dispatch_async(dispatch_get_main_queue(), ^{
 #if TARGET_OS_OSX
-                          [[NSApplication sharedApplication] registerForRemoteNotifications];
+                            [[NSApplication sharedApplication] registerForRemoteNotifications];
 #else
-                          [[UIApplication sharedApplication] registerForRemoteNotifications];
+                            [[UIApplication sharedApplication] registerForRemoteNotifications];
 #endif
-                      });
-                  });
-              }
-          }];
-    });
+                        });
+                    });
+                }
+            }];
+        });
+    }
 }
 
 @end
