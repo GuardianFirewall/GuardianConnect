@@ -14,6 +14,7 @@
     BOOL _isRestore;
     BOOL _isPurchase;
     BOOL _activePurchase;
+    BOOL _addedObservers;
 }
 @synthesize delegate;
 
@@ -26,9 +27,40 @@
     return shared;
 }
 
+- (void)addObservers {
+    if (!_addedObservers) {
+        [self addObserver:self forKeyPath:@"productIds" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:nil];
+        _addedObservers = true;
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    NSArray *changed = change[NSKeyValueChangeNewKey];
+    if ([keyPath isEqualToString:@"productIds"]){
+        GRDLog(@"object: %@ kp: %@ change: %@", object, keyPath, changed);
+        [[NSUserDefaults standardUserDefaults] setObject:changed forKey:kGuardianSubscriptionProductIds];
+        [[GRDHousekeepingAPI new] setSubscriptionProductIDs:changed completion:^(BOOL success, NSString * _Nullable errorMessage) {
+            GRDLog(@"setSubscriptionProductIDs returned with success: %d error: %@", success, errorMessage);
+        }];
+    }
+}
+
+//productIds are stored in userdefaults, if they are already here we don't need to sync them to the API but we are going to sync them to the local instance in case they are needed for any reason.
+- (void)syncProductIdsIfNecessary {
+    NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+    if ([[[def dictionaryRepresentation] allKeys] containsObject:kGuardianSubscriptionProductIds]){
+        [self setProductIds:[def objectForKey:kGuardianSubscriptionProductIds]];
+    }
+}
+
 - (instancetype)init {
     self = [super init];
     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    [self syncProductIdsIfNecessary]; //we do this before adding observer because the API is already synced with their product ids if its saved in user defaults already.
+    [self addObservers];
     return self;
 }
 

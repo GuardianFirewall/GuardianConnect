@@ -37,6 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Add to this array if you want any product id's exempt from receipt validation (non-app store purchases)
 @property NSArray *receiptExceptionIds;
 
+/// Product ID's for processing receipt validation: NOTE: Currently unimplemented on back-end side, adding this for scaffolding
+@property NSArray *productIds;
+
 /// Always use the sharedManager singleton when using this class.
 + (instancetype)sharedManager;
 
