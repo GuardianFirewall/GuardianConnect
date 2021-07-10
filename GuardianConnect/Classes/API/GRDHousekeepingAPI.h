@@ -101,11 +101,11 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion;
 
-/// endpoint: /api/v1/subscription/set-product-ids
+/// endpoint: /api/v1/partner/set-product-ids
 /// Used to set productIds for receipt validation purposes. There is no need to call this directly, it is called every time you update those values in the subscription manager.
 /// @param productIds The product Ids you want associated with receipt validation
 /// @param completion completion block that will return a BOOL indicating successful API call and in the case of a failed API call an error message
-- (void)setSubscriptionProductIDs:(NSArray *)productIds completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)setPartnerProductIDs:(NSArray <NSDictionary *>*)productIds completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
 
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion;
 

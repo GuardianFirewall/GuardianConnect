@@ -10,11 +10,15 @@
 #import <GuardianConnect/GuardianConnect.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
+#import "NSObject+Dictionary.h"
+
 @implementation GRDSubscriptionManager {
     BOOL _isRestore;
     BOOL _isPurchase;
     BOOL _activePurchase;
     BOOL _addedObservers;
+    NSMutableArray *_mutableProducts; //keeps track of SKProducts
+    NSMutableArray *_mutableProductDicts; //keeps track of NSDictionary reps of said SKProducts
 }
 @synthesize delegate;
 
@@ -27,11 +31,54 @@
     return shared;
 }
 
+#pragma mark - SKProductRequest delegate methods
+
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
+    if (response.products.count > 0) {
+        self.subscriptionLocale = response.products[0].priceLocale;
+        
+        for (SKProduct *prod in response.products) {
+            [_mutableProducts addObject:prod];
+            NSDictionary *prodDict = [prod dictionaryRepresentation];
+            [_mutableProductDicts addObject:prodDict];
+            //GRDLog(@"prod name: %@ id: %@", prod.localizedTitle, prod.productIdentifier);
+        }
+        
+        for (NSString *invalidIdentifier in response.invalidProductIdentifiers) {
+            NSLog(@"invalid id: %@", invalidIdentifier);
+        }
+        
+        
+        NSSortDescriptor *priceDescriptor = [[NSSortDescriptor alloc] initWithKey:@"price" ascending:YES];
+        self.sortedProductOfferings = [_mutableProducts sortedArrayUsingDescriptors:@[priceDescriptor]];
+        [_mutableProductDicts sortUsingDescriptors:@[priceDescriptor]];
+        [[GRDHousekeepingAPI new] setPartnerProductIDs:_mutableProductDicts completion:^(BOOL success, NSString * _Nullable errorMessage) {
+            GRDLog(@"setSubscriptionProductIDs returned with success: %d error: %@", success, errorMessage);
+        }];
+        
+    } else {
+        GRDLog(@"response.products.count is not greater than 0 !!!");
+    }
+}
+
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error {
+    GRDLog(@"Failed to retrieve IAP objects: %@", [error localizedDescription]);
+}
+
 - (void)addObservers {
     if (!_addedObservers) {
         [self addObserver:self forKeyPath:@"productIds" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:nil];
         _addedObservers = true;
     }
+}
+
+- (void)getProducts {
+    if (self.productIds.count == 0 || self.productIds == nil) {
+        return;
+    }
+    SKProductsRequest *productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:self.productIds]];
+    productsRequest.delegate = self;
+    [productsRequest start];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -41,19 +88,24 @@
     NSArray *changed = change[NSKeyValueChangeNewKey];
     if ([keyPath isEqualToString:@"productIds"]){
         GRDLog(@"object: %@ kp: %@ change: %@", object, keyPath, changed);
-        [[NSUserDefaults standardUserDefaults] setObject:changed forKey:kGuardianSubscriptionProductIds];
-        [[GRDHousekeepingAPI new] setSubscriptionProductIDs:changed completion:^(BOOL success, NSString * _Nullable errorMessage) {
+        [self getProducts];
+        //[[NSUserDefaults standardUserDefaults] setObject:changed forKey:kGuardianSubscriptionProductIds];
+        /*
+        [[GRDHousekeepingAPI new] setPartnerProductIDs:changed completion:^(BOOL success, NSString * _Nullable errorMessage) {
             GRDLog(@"setSubscriptionProductIDs returned with success: %d error: %@", success, errorMessage);
-        }];
+        }];*/
     }
 }
 
 //productIds are stored in userdefaults, if they are already here we don't need to sync them to the API but we are going to sync them to the local instance in case they are needed for any reason.
 - (void)syncProductIdsIfNecessary {
+    GRDLog(@"no-op for now");
+    /*
     NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
     if ([[[def dictionaryRepresentation] allKeys] containsObject:kGuardianSubscriptionProductIds]){
         [self setProductIds:[def objectForKey:kGuardianSubscriptionProductIds]];
     }
+     */
 }
 
 - (instancetype)init {
@@ -61,6 +113,8 @@
     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     [self syncProductIdsIfNecessary]; //we do this before adding observer because the API is already synced with their product ids if its saved in user defaults already.
     [self addObservers];
+    _mutableProducts = [NSMutableArray new];
+    _mutableProductDicts = [NSMutableArray new];
     return self;
 }
 

@@ -668,22 +668,24 @@
 
 # pragma mark - Subscription Related Endpoints
 
-- (void)setSubscriptionProductIDs:(NSArray *)productIds completion:(void (^)(BOOL, NSString * _Nullable))completion {
+- (void)setPartnerProductIDs:(NSArray <NSDictionary *>*)productIds completion:(void (^)(BOOL, NSString * _Nullable))completion {
     if (productIds.count == 0 || productIds == nil) {
         GRDLog(@"Empty Product ID's nothing to do!");
         if (completion) completion(YES, nil);
         return;
     }
-    
+    NSDictionary *requestDict = @{@"product-ids": productIds,
+                                  @"bundle-id": [[NSBundle mainBundle] bundleIdentifier]};
+    GRDLog(@"setPartnerProductIDs: %@", requestDict);
     NSError *jsonEncodeError;
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"product-ids": productIds} options:0 error:&jsonEncodeError];
+    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&jsonEncodeError];
     if (jsonEncodeError != nil) {
         GRDLog(@"Failed to encode JSON: %@", jsonEncodeError);
         if (completion) completion(NO, [NSString stringWithFormat:@"Failed to encode JSON: %@", [jsonEncodeError localizedDescription]]);
         return;
     }
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/subscription/set-product-ids"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/partner/set-product-ids"]];
     [request setHTTPMethod:@"POST"];
     if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"x-api-key"];

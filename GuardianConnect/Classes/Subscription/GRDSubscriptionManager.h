@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol GRDSubscriptionDelegate;
 
-@interface GRDSubscriptionManager : NSObject <SKPaymentTransactionObserver>
+@interface GRDSubscriptionManager : NSObject <SKPaymentTransactionObserver, SKProductsRequestDelegate>
 /// Delegate that handles callbacks for receipt validation handling
 @property (nonatomic, weak) id <GRDSubscriptionDelegate> delegate;
 
@@ -39,6 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Product ID's for processing receipt validation: NOTE: Currently unimplemented on back-end side, adding this for scaffolding
 @property NSArray *productIds;
+
+/// Keeps track of the response from SKProductRequest
+@property NSArray <SKProduct *> *sortedProductOfferings;
+
+/// Keeps track of the locale for the SKProducts
+@property NSLocale *subscriptionLocale;
 
 /// Always use the sharedManager singleton when using this class.
 + (instancetype)sharedManager;
