@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <GuardianConnect/NSObject+Dictionary.h>
 #import <GuardianConnect/GRDReceiptItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDRegion.h>

@@ -67,8 +67,8 @@
 		32D80A46265B195A00F5C33B /* GRDReceiptItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptItem.m */; };
 		32D80A49265B1ABE00F5C33B /* NSString+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A47265B1ABE00F5C33B /* NSString+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A48265B1ABE00F5C33B /* NSString+Extras.m */; };
-		32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */; };
-		32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */; };
+		32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E1AE182698E2DF0057D80A /* NSObject+Dictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E1AE152698E2DF0057D80A /* NSObject+Dictionary.m */; };
 		32E1AE192698E2DF0057D80A /* NSObject+Dictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E1AE152698E2DF0057D80A /* NSObject+Dictionary.m */; };
 		32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E92C04262A1B3D00A3202C /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };

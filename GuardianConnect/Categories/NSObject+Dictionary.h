@@ -10,7 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SKProduct (Dictionary)
+@interface NSDictionary (String)
+- (NSString *)JSONRepresentation;
+@end
+
+@interface NSObject (Dictionary)
 - (NSDictionary *)dictionaryRepresentation;
 @end
 

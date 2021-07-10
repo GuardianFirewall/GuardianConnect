@@ -7,7 +7,7 @@
 //
 
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-
+#import <GuardianConnect/NSObject+Dictionary.h>
 
 @implementation GRDHousekeepingAPI
 
@@ -676,7 +676,7 @@
     }
     NSDictionary *requestDict = @{@"product-ids": productIds,
                                   @"bundle-id": [[NSBundle mainBundle] bundleIdentifier]};
-    GRDLog(@"setPartnerProductIDs: %@", requestDict);
+    GRDLog(@"setPartnerProductIDs: %@", [requestDict JSONRepresentation]);
     NSError *jsonEncodeError;
     NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&jsonEncodeError];
     if (jsonEncodeError != nil) {

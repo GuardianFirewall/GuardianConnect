@@ -6,8 +6,17 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
-#import "NSObject+Dictionary.h"
+#import <GuardianConnect/NSObject+Dictionary.h>
 #import <objc/runtime.h>
+
+@implementation NSDictionary (String)
+
+- (NSString *)JSONRepresentation {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted error:nil];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+@end
 
 @implementation NSObject (Dictionary)
 
@@ -46,7 +55,7 @@
 
 /*
  
- This extremely useful function will take the current class (rather than NSObject), get its String, Number and Array properties
+ This extremely useful function will take the current class (rather than NSObject), convert all of its properties
  and convert them into NSDictionary representations that /should/ be JSON friendly. This is mainly used to change SKProducts
  into a useful dictionary to feed to the API for partner product ID's.
  
@@ -62,7 +71,7 @@
         id val = [self valueForKey:obj];
         if ([val isKindOfClass:NSString.class] || [val isKindOfClass:NSNumber.class]) { //add numbers and strings as is
             [dict setValue:val forKey:obj];
-        } else { //right now the only other things being processed is arrays, this is specifically to target 'discounts' when we add support for discount manager for our partners.
+        } else { //not a string or a number
             if ([val isKindOfClass:NSArray.class]) {
                 //GRDLog(@"processing: %@ for %@", obj, [self valueForKey:@"className"]);
                 __block NSMutableArray *_newArray = [NSMutableArray new]; //new array will hold the dictionary reps of each item inside said array.
@@ -70,6 +79,11 @@
                     [_newArray addObject:[arrayObj dictionaryRepresentation]]; //call ourselves again, but with the current subarray object.
                 }];
                 [dict setValue:_newArray forKey:obj];
+            } else { //not an NSString, NSNumber of NSArray, try setting its dict rep for the key.
+                if (val) {
+                    //GRDLog(@"processing: %@ for %@", val, obj);
+                    [dict setValue:[val dictionaryRepresentation] forKey:obj];
+                }
             }
         }
     }];

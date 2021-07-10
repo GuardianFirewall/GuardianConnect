@@ -62,6 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)whitelist;
 /// Conveinience check to see if our subscription type exists among the whitelisted types.
 - (BOOL)hasWhitelistedSubscriptionType;
+/// Set productIds with a handy completion block for when they are done
+- (void)setProductIds:(NSArray * _Nonnull)productIds completion:(void(^)(NSArray <SKProduct *>*products, BOOL apiSuccess, NSString *error))completion;
 
 @end
 
