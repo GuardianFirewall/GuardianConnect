@@ -369,7 +369,7 @@
             if (success == YES && validLineItems.count > 0) { //sorted ascending, the last item will be the newest
                 
                 GRDReceiptItem *latestItem = [validLineItems lastObject];
-                GRDLog(@"latestItem: %@ in validLineItems: %@", latestItem, validLineItems);
+                //GRDLog(@"latestItem: %@ in validLineItems: %@", latestItem, validLineItems);
                 //this may no longer be necessary
                 BOOL isTrial = [latestItem isTrialPeriod];
                 if (!isTrial) {

@@ -79,6 +79,8 @@
                     [_newArray addObject:[arrayObj dictionaryRepresentation]]; //call ourselves again, but with the current subarray object.
                 }];
                 [dict setValue:_newArray forKey:obj];
+            } else if ([val isKindOfClass:NSDictionary.class]) {
+                [dict setValue:val forKey:obj];
             } else { //not an NSString, NSNumber of NSArray, try setting its dict rep for the key.
                 if (val) {
                     //GRDLog(@"processing: %@ for %@", val, obj);
