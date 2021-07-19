@@ -50,7 +50,7 @@
 
 - (id)valueForUndefinedKey:(NSString *)key {
     GRDLog(@"in value for undefined key: %@", key);
-    return [NSNull null];
+    return nil;
 }
 
 /*
@@ -82,7 +82,8 @@
             } else if ([val isKindOfClass:NSDictionary.class]) {
                 [dict setValue:val forKey:obj];
             } else { //not an NSString, NSNumber of NSArray, try setting its dict rep for the key.
-                if (val) {
+                //NSString* class = NSStringFromClass(self.class);
+                if (val && ![[self valueForKey:@"className"] isEqualToString:@"NSObject"]) {
                     //GRDLog(@"processing: %@ for %@", val, obj);
                     [dict setValue:[val dictionaryRepresentation] forKey:obj];
                 }
