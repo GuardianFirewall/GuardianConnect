@@ -24,7 +24,6 @@
     BOOL _activePurchase;
     BOOL _addedObservers;
     NSMutableArray *_mutableProducts; //keeps track of SKProducts
-    NSMutableArray *_mutableProductDicts; //keeps track of NSDictionary reps of said SKProducts
 }
 @synthesize delegate;
 
@@ -42,13 +41,7 @@
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
     if (response.products.count > 0) {
         self.subscriptionLocale = response.products[0].priceLocale;
-        
-        for (SKProduct *prod in response.products) {
-            [_mutableProducts addObject:prod]; //for app interface
-            NSDictionary *prodDict = [prod dictionaryRepresentation];
-            [_mutableProductDicts addObject:prodDict]; //for API settings
-            //GRDLog(@"prod name: %@ id: %@", prod.localizedTitle, prod.productIdentifier);
-        }
+        [_mutableProducts addObjectsFromArray:response.products];
         
         for (NSString *invalidIdentifier in response.invalidProductIdentifiers) {
             GRDLog(@"invalid id: %@", invalidIdentifier);
@@ -57,13 +50,9 @@
         
         NSSortDescriptor *priceDescriptor = [[NSSortDescriptor alloc] initWithKey:@"price" ascending:YES];
         self.sortedProductOfferings = [_mutableProducts sortedArrayUsingDescriptors:@[priceDescriptor]];
-        [_mutableProductDicts sortUsingDescriptors:@[priceDescriptor]];
-        [[GRDHousekeepingAPI new] setPartnerProductIDs:_mutableProductDicts completion:^(BOOL success, NSString * _Nullable errorMessage) {
-            GRDLog(@"setSubscriptionProductIDs returned with success: %d error: %@", success, errorMessage);
-            if (self.productIdCompletionBlock) {
-                self.productIdCompletionBlock(self.sortedProductOfferings, success, errorMessage);
-            }
-        }];
+        if (self.productIdCompletionBlock) {
+            self.productIdCompletionBlock(self.sortedProductOfferings, TRUE, nil);
+        }
         
     } else {
         GRDLog(@"response.products.count is not greater than 0 !!!");
@@ -118,28 +107,27 @@
     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     [self addObservers];
     _mutableProducts = [NSMutableArray new];
-    _mutableProductDicts = [NSMutableArray new];
     return self;
 }
 
 - (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product {
-    GRDLog(@"[DEBUG][delegate/shouldAddStorePayment] payment == %@", payment);
-    GRDLog(@"[DEBUG][delegate/shouldAddStorePayment] product == %@", product);
+    GRDLog(@"[delegate/shouldAddStorePayment] payment == %@", payment);
+    GRDLog(@"[delegate/shouldAddStorePayment] product == %@", product);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotficationPurchaseInAppStore object:nil];
     return YES;
 }
 
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
-    GRDLog(@"[DEBUG][paymentQueueRestoreCompletedTransactionsFinished] queue == %@", queue);
+    GRDLog(@"[paymentQueueRestoreCompletedTransactionsFinished] queue == %@", queue);
     
     GRDLog(@"transactions: %@", queue.transactions);
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationRestoreSubscriptionFinished object:nil];
 }
 
 - (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error; {
-    GRDLog(@"[DEBUG][paymentQueue:queuerestoreCompletedTransactionsFailedWithError] queue == %@", queue);
-    GRDLog(@"[DEBUG][paymentQueue:queuerestoreCompletedTransactionsFailedWithError] error == %@", error);
+    GRDLog(@"[paymentQueue:queuerestoreCompletedTransactionsFailedWithError] queue == %@", queue);
+    GRDLog(@"[paymentQueue:queuerestoreCompletedTransactionsFailedWithError] error == %@", error);
     
     NSString *errorString = nil;
     if([error code] == NSURLErrorTimedOut) {
@@ -206,11 +194,11 @@
     
     for (SKPaymentTransaction *IAPPaymentTransaction in transactions) {
         if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStatePurchasing) {
-            GRDLog(@"[DEBUG][delegate/updatedTransactions] purchasing...");
+            GRDLog(@"[delegate/updatedTransactions] purchasing...");
             _activePurchase = YES;
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStatePurchased) {
-            GRDLog(@"[DEBUG][delegate/updatedTransactions] state is purchased!");
+            GRDLog(@"[delegate/updatedTransactions] state is purchased!");
             [[SKPaymentQueue defaultQueue] finishTransaction:IAPPaymentTransaction];
             
             wasSuccessfulPurchase = YES;
@@ -223,11 +211,11 @@
             [self.delegate subscriptionFailed];
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStateDeferred) {
-            GRDLog(@"[DEBUG][delegate/updatedTransactions] Purchase deferred. Informing user about deferred");
+            GRDLog(@"[delegate/updatedTransactions] Purchase deferred. Informing user about deferred");
             [self.delegate subscriptionDeferred];
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStateRestored) {
-            GRDLog(@"[DEBUG][delegate/updatedTransactions] Restore successful");
+            //GRDLog(@"[delegate/updatedTransactions] Restore successful");
             [[SKPaymentQueue defaultQueue] finishTransaction:IAPPaymentTransaction];
             wasSuccessfulPurchase = YES;
             [self.delegate validatingReceipt];
