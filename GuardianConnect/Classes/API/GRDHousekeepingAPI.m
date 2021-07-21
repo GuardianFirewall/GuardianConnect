@@ -7,7 +7,7 @@
 //
 
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-
+#import <GuardianConnect/NSObject+Dictionary.h>
 
 @implementation GRDHousekeepingAPI
 
@@ -16,7 +16,9 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
     [request setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] forHTTPHeaderField:@"X-Guardian-Build"];
-    
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:postRequestDat];
     
@@ -66,6 +68,9 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -144,6 +149,9 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -239,6 +247,9 @@
     }
     
     [request setHTTPMethod:@"POST"];
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
     
 #if GUARDIAN_INTERNAL
@@ -308,6 +319,9 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -352,7 +366,9 @@
     NSData *jsonDict = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": token} options:0 error:nil];
     [request setHTTPBody:jsonDict];
     [request setHTTPMethod:@"POST"];
-    
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             GRDLog(@"Failed to send request: %@", [error localizedDescription]);
@@ -598,6 +614,9 @@
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/users/sign-out"]];
     [request setHTTPMethod:@"POST"];
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+    }
     [request setHTTPBody:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
@@ -676,7 +695,9 @@
         
         [request setHTTPBody:jsonPayload];
         [request setHTTPMethod:@"POST"];
-        
+        if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+            [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+        }
         NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error != nil) {
                 GRDLog(@"Failed to send request: %@", [error localizedDescription]);

@@ -26,9 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
+/// currently unused, will be used in the future for when API keys are necessary to use GuardianConnect.
+@property NSString *connectAPIKey;
+
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
-
+/// don't set this value manually, it is set upon the region selection code working successfully
 @property (nullable) GRDRegion *selectedRegion;
 @property BOOL vpnLoaded; ///whether load from preferences was successfull upon init
 @property (nullable) NSString *lastErrorMessage;
