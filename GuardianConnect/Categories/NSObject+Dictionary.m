@@ -53,6 +53,11 @@
     return nil;
 }
 
+//we'll never care about an items delegate details when saving a dict rep, this prevents an inifinite loop/crash on some classes.
+- (NSDictionary *)dictionaryRepresentation {
+    return [self dictionaryRepresentationExcludingProperties:@[@"delegate"]];
+}
+
 /*
  
  This extremely useful function will take the current class (rather than NSObject), convert all of its properties
@@ -61,7 +66,7 @@
  
  */
 
-- (NSDictionary *)dictionaryRepresentation {
+- (NSDictionary *)dictionaryRepresentationExcludingProperties:(NSArray *)excluding {
     __block NSMutableDictionary *dict = [NSMutableDictionary new];
     Class cls = NSClassFromString([self valueForKey:@"className"]); //this is how we hone in our the properties /just/ for our specific class rather than NSObject's properties.
     NSArray *props = [self propertiesForClass:cls];
@@ -83,7 +88,7 @@
                 [dict setValue:val forKey:obj];
             } else { //not an NSString, NSNumber of NSArray, try setting its dict rep for the key.
                 //NSString* class = NSStringFromClass(self.class);
-                if (val && ![[self valueForKey:@"className"] isEqualToString:@"NSObject"]) {
+                if (val && ![[self valueForKey:@"className"] isEqualToString:@"NSObject"] && !([excluding containsObject:obj])) {
                     //GRDLog(@"processing: %@ for %@", val, obj);
                     [dict setValue:[val dictionaryRepresentation] forKey:obj];
                 }

@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSObject (Dictionary)
 - (NSDictionary *)dictionaryRepresentation;
+- (NSDictionary *)dictionaryRepresentationExcludingProperties:(NSArray *)excluding;
 @end
 
 NS_ASSUME_NONNULL_END
