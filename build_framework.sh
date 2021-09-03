@@ -53,13 +53,6 @@ popd || exit
 
 # create variables for the path to each respective framework
 
-echo $pwd
-echo $pwd
-echo $pwd
-echo $pwd
-echo $pwd
-
-
 ios_fwpath=$pwd/build/Release-iphoneos/$name.framework
 
 sim_fwpath=$pwd/build/Release-iphonesimulator/$name.framework
@@ -68,7 +61,7 @@ mac_path=$pwd/build/Release/$name.framework
 
 # create the xcframework
 
-#xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
+xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
 
 
 open $pwd
