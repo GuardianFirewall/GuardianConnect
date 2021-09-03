@@ -237,12 +237,21 @@
 }
 
 - (NSArray *)whitelist {
+	// Include all the subscriptions which are sold on the website
+	// as well as all the Day Pass variations
     NSArray *initial = @[kGuardianSubscriptionTypeProfessionalBrave,
                          kGuardianSubscriptionTypeProfessionalYearly,
                          kGuardianSubscriptionTypeVisionary,
-                         kGuardianSubscriptionTypeProfessionalMonthly];
+                         kGuardianSubscriptionTypeProfessionalMonthly,
+						 kGuardianTrialBalanceDayPasses,
+						 kGuardianFreeTrial3Days,
+						 kGuardianExtendedTrial30Days,
+						 kGuardianSubscriptionFreeTrial,
+						 kGuardianSubscriptionCustomDayPass,
+						 kGuardianSubscriptionGiftedDayPass,
+						 kGuardianSubscriptionTypeTeams];
     
-    if (self.receiptExceptionIds.count > 0){
+    if (self.receiptExceptionIds.count > 0) {
         return [[initial mutableCopy] arrayByAddingObjectsFromArray:self.receiptExceptionIds];
     }
     return initial;
@@ -345,7 +354,8 @@
 - (void)verifyReceipt {
     __block NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([self hasWhitelistedSubscriptionType]) {
-        GRDLog(@"A valid Pro account is already present. Not verifying the receipt");
+		// First rule of Guardian PET: If a PET is present the AppStore receipt is never considered!
+        GRDLog(@"A valid PET is already present. Not verifying the receipt");
         if (_activePurchase) { // extra hardening
             [self handleValidationSuccess:nil];
         }
