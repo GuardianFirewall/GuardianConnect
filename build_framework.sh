@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# search for 'xcpretty' will make the build output much tinier and easier to read / digest.
-XCP=$(which xcpretty)
-echo $XCP
-
 # there is a path issue building through Xcode that i cant quite figure out re: ruby so when building from xcode the XCP var is emptied.
 
 if [ $1 == "NOXCP" ]; then
     XCP=""
+
+else
+	# search for 'xcpretty' will make the build output much tinier and easier to read / digest.
+	XCP=$(which xcpretty)
+	echo $XCP
 fi
 
 # clear previous build folder if it exist
@@ -17,9 +18,6 @@ rm -rf build
 
 # -z checks to see if a value is empty, if xcpretty is not found, build normally, if it is found then use it to clean up our output.
 if [ -z $XCP ]; then
-    echo ""
-    echo "xcpretty was not found, recommending its installion to clean up this build script output! 'gem install xcpretty' to install it!"
-    echo ""
     xcodebuild -sdk iphonesimulator
     xcodebuild -sdk iphoneos
     xcodebuild -sdk macosx -target GuardianConnectMac
@@ -55,6 +53,13 @@ popd || exit
 
 # create variables for the path to each respective framework
 
+echo $pwd
+echo $pwd
+echo $pwd
+echo $pwd
+echo $pwd
+
+
 ios_fwpath=$pwd/build/Release-iphoneos/$name.framework
 
 sim_fwpath=$pwd/build/Release-iphonesimulator/$name.framework
@@ -63,7 +68,7 @@ mac_path=$pwd/build/Release/$name.framework
 
 # create the xcframework
 
-xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
+#xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
 
 
 open $pwd
