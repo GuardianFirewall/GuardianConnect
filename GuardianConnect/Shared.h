@@ -85,6 +85,9 @@ static NSString * const kGuardianPETokenExpirationDate                  = @"kGua
 
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
+// Used to hard to code IAP receipts and create Subscriber Credentials
+static NSString * const kGuardianEncodedAppStoreReceipt = @"kGuardianEncodedAppStoreReceipt";
+
 //moved to make framework friendly
 static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
 static NSString * const kSubscriptionPlanTypeStr                        = @"subscriptionPlanType";

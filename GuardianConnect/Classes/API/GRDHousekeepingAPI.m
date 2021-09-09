@@ -208,16 +208,32 @@
     
     NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
     if (validationMethod == ValidationMethodAppStoreReceipt) {
+        NSString *appStoreReceipt;
         NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
         if (receiptData == nil) {
-            NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
-            if (completion) {
-                completion(nil, NO, @"AppStore receipt missing");
+            // Note from CJ 2021-09-09:
+            // This is a little bit of hand-wavey bullshit
+            // but it might be useful in the future who knows.
+            // For the time being it'll be used to enable the Mac app
+            // to create Subscriber Credentials and connection with encoded
+            // Apple in-app purchase receipts copied from the Guardian Firewall iOS app
+            NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
+            if (userDefaultsEncodedIAPReceipt == nil) {
+                NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
+                if (completion) {
+                    completion(nil, NO, @"AppStore receipt missing");
+                }
+                return;
             }
-            return;
+            
+            GRDLog(@"Found hard coded IAP receipt in NSUserDefaults. Trying that one");
+            appStoreReceipt = userDefaultsEncodedIAPReceipt;
+            
+        } else {
+            GRDLog(@"Base64 encoding AppStore receipt");
+            appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
         }
         
-        NSString *appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
         [jsonDict setObject:@"iap-guardian" forKey:@"validation-method"];
         [jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
         
