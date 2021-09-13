@@ -743,14 +743,18 @@
                              kGuardianSubscriptionTypeProfessionalMonthly,
                              kGuardianSubscriptionTypeVisionary,
                              kGuardianSubscriptionTypeProfessionalIAP,
-                             kGuardianSubscriptionTypeProfessionalBrave];
+                             kGuardianSubscriptionTypeProfessionalBrave,
+							 kGuardianSubscriptionTypeTeams,
+							 kGuardianSubscriptionTypeTeamsAnnual];
     
-    if ([essSubTypes containsObject:subscriptionTypeStr]){
+    if ([essSubTypes containsObject:subscriptionTypeStr]) {
         return GRDPlanDetailTypeEssentials;
     }
-    if ([proSubTypes containsObject:subscriptionTypeStr]){
+	
+    if ([proSubTypes containsObject:subscriptionTypeStr]) {
         return GRDPlanDetailTypeProfessional;
     }
+	
     return GRDPlanDetailTypeFree; //maybe others??
 }
 

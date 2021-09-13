@@ -67,7 +67,9 @@ static NSString * const kGuardianSubscriptionAnnual                     = @"grd_
 static NSString * const kGuardianSubscriptionTypeProfessionalIAP        = @"grd_pro";
 static NSString * const kGuardianSubscriptionTypeCustomDayPass          = @"grd_custom_day_pass";
 static NSString * const kGuardianSubscriptionTypeIntroductory           = @"grd_day_pass_introductory";
-static NSString * const kGuardianSubscriptionTypeTeams 					= @"grd_teams_annual";
+// "grd_teams" is an umbrealla description. Should never be used in production since it does not accurately describe the subscription length etc.
+static NSString * const kGuardianSubscriptionTypeTeams 					= @"grd_teams";
+static NSString * const kGuardianSubscriptionTypeTeamsAnnual			= @"grd_teams_annual";
 
 static NSString * const kGuardianFreeTrial3Days                         = @"grd_trial_3_days";
 static NSString * const kGuardianExtendedTrial30Days                    = @"grd_extended_trial_30_days";
