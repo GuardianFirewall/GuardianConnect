@@ -27,6 +27,14 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
     ValidationmethodPEToken
 };
 
+typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
+    ServerFeatureEnvironmentProduction = 1,
+    ServerFeatureEnvironmentInternal,
+    ServerFeatureEnvironmentDevelopment,
+    ServerFeatureEnvironmentDualStack,
+    ServerFeatureEnvironmentUnstable
+};
+
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
@@ -66,14 +74,13 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
-/// @param timestamp Unix timestamp containing the last known time timezones were updated. housekeeping will only send timezones if any record has been changed server side
 /// @param completion completion block returning an array with all timezones, indicating request success, and the response status code
-- (void)requestTimeZonesForRegionsWithTimestamp:(NSNumber *)timestamp completion:(void (^)(NSArray  * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode))completion;
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode))completion;
 
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region completion:(void (^)(NSArray *servers, BOOL success))completion;
+- (void)requestServersForRegion:(NSString *)region featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *servers, BOOL success))completion;
 
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success

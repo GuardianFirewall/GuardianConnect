@@ -221,10 +221,11 @@
 - (void)selectRegion:(GRDRegion * _Nullable)selectedRegion {
     _selectedRegion = selectedRegion;
     NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-    if (selectedRegion){
+    if (selectedRegion) {
         [def setBool:true forKey:kGuardianUseFauxTimeZone];
         [def setObject:selectedRegion.regionName forKey:kGuardianFauxTimeZone];
         [def setObject:selectedRegion.displayName forKey:kGuardianFauxTimeZonePretty];
+        
     } else {
         //resetting the value to nil, (Automatic)
         [def setBool:false forKey:kGuardianUseFauxTimeZone];
@@ -237,7 +238,7 @@
 - (void)_loadCredentialsFromKeychain {
     [self setMainCredential:[GRDCredentialManager mainCredentials]];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if([defaults boolForKey:kGuardianUseFauxTimeZone]) {
+    if ([defaults boolForKey:kGuardianUseFauxTimeZone]) {
         GRDRegion *region = [[GRDRegion alloc] init];
         region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
         region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
@@ -251,7 +252,7 @@
              
              */
             
-            if (!valid){
+            if (!valid) {
                 GRDLog(@"credentials are invalid and failed to re-create: %@", errorMessage);
             }
         }];
@@ -260,8 +261,9 @@
 
 - (NSString *)currentDisplayHostname {
     GRDRegion *selected = [self selectedRegion];
-    if (selected){
+    if (selected) {
         return selected.displayName;
+        
     } else {
         return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDVPNHostLocation];
     }
@@ -325,27 +327,32 @@
     if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
         GRDLog(@"[DEBUG] kAppNeedsSelfRepair == true. MIGRATING USER!!!!!!");
         [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
-            if (completion){
-                if (success){
+            if (completion) {
+                if (success) {
                     completion(nil, GRDVPNHelperSuccess);
+                    
                 } else {
                     completion(error, GRDVPNHelperFail);
                 }
+                
             } else {
                 NSLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
             }
         }];
         return;
     }
+    
     if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
         GRDLog(@"[DEBUG] something went wrong! bad server (%@). Migrating user...", vpnServer);
         [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
-            if (completion){
-                if (success){
+            if (completion) {
+                if (success) {
                     completion(nil, GRDVPNHelperSuccess);
+                    
                 } else {
                     completion(error, GRDVPNHelperFail);
                 }
+                
             } else {
                 GRDLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
             }
@@ -354,25 +361,24 @@
     }
     
     [[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
-        
-        //NSLog(@"[DEBUG] APIResponse: %@", apiResponse);
         if (apiResponse.responseStatus == GRDGatewayAPIServerOK) {
-            NSString *apiAuthToken = [self.mainCredential apiAuthToken];
-            NSString *eapUsername = [self.mainCredential username];
-            NSData *eapPassword = [self.mainCredential passwordRef];
+            NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
+            NSString *eapUsername   = [self.mainCredential username];
+            NSData *eapPassword     = [self.mainCredential passwordRef];
             
             if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
-                
                 GRDLog(@"[DEBUG] missing required credentials, migrating!");
                 [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
-                    if (completion){
-                        if (success){
+                    if (completion) {
+                        if (success) {
                             completion(nil, GRDVPNHelperSuccess);
+                            
                         } else {
                             completion(error, GRDVPNHelperFail);
                         }
+                        
                     } else {
-                        NSLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
+                        GRDLog(@"[DEBUG] NO COMPLETION BLOCK SET!!! GOING TO HAVE A BAD TIME");
                     }
                 }];
                 return;
@@ -442,27 +448,20 @@
     }];
 }
 
-/**
- 
- Slighty refactored this method to remove the legacy 'free' user logic (less room for weird bugs) Moved the paying user check to the beginning of the function
- so we can weed them out easily and make sure the API's are never hit with a free user.
- 
- */
-
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(NSString * _Nullable credential, NSString * _Nullable errorMessage))completion {
-    
     if (![GRDVPNHelper isPayingUser]) {
-        if (completion){
+        if (completion) {
             completion(nil, @"A paid account is required to create a subscriber credential.");
             return;
         }
     }
+    
     // Use convenience method to get access to our current subscriber cred (if it exists)
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
     __block NSString *subCredString = subCred.subscriberCredential;
     
     // Moved the expiration logic that WAS here into where it already half-existed inside of GRDSubscriberCredential and if it is expired or nil
-    // Create a fresh new credential
+    // create a fresh new credential
     
     if ([subCred tokenExpired] || subCred == nil) {
         // No subscriber credential yet or it is expired. We have to create a new one
@@ -481,18 +480,17 @@
         
         [[GRDHousekeepingAPI new] createNewSubscriberCredentialWithValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
             if (success == NO && errorMessage != nil) {
-                
                 if (completion) {
                     completion(nil, errorMessage);
                 }
                 return;
                 
-            }  else if (success == YES) {
+            } else if (success == YES) {
                 [GRDKeychain removeSubscriberCredentialWithRetries:3];
                 OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
                 if (saveStatus != errSecSuccess) {
                     if (completion) {
-                        completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again. If this issue persists please notify our technical support about your issue.");
+                        completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again.");
                     }
                     return;
                 }
@@ -502,11 +500,10 @@
         }];
         
     } else {
-        if (completion){
+        if (completion) {
             completion(subCredString, nil);
         }
     }
-    
 }
 
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {
@@ -535,11 +532,12 @@
 
 - (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
     [[GRDServerManager new] selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
-        if (!errorMessage){
+        if (!errorMessage) {
             [self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
+            
         } else {
-            if (completion){
-                completion(false,errorMessage);
+            if (completion) {
+                completion(false, errorMessage);
             }
         }
     }];
@@ -547,22 +545,23 @@
 
 - (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion {
     GRDLog(@"configure with region: %@ loc: %@", region.bestHost, region.bestHostLocation);
-    if (!region.bestHost && !region.bestHostLocation && region){
+    if (!region.bestHost && !region.bestHostLocation && region) {
         [region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-            if (success){
+            if (success) {
                 [self selectRegion:region];
                 [self configureFirstTimeUserForHostname:server andHostLocation:serverLocation completion:completion];
+                
             } else {
                 if (completion) {
                     completion(false, [NSString stringWithFormat:@"Failed to find a host location for region: %@", region.displayName]);
                 }
             }
         }];
+        
     } else {
         [self selectRegion:region];
         [self configureFirstTimeUserPostCredential:nil completion:completion];
     }
-    
 }
 
 - (void)configureFirstTimeUserForHostname:(NSString *_Nonnull)host andHostLocation:(NSString *_Nonnull)hostLocation completion:(StandardBlock)completion {
@@ -573,16 +572,19 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper saveAllInOneBoxHostname:host];
     [defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
+    
     [self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
-        if (errorMessage != nil){
+        if (errorMessage != nil) {
             GRDLog(@"%@", errorMessage);
             if (completion) {
                 completion(FALSE, errorMessage);
             }
-        } else if (creds){
-            if (mid){
+            
+        } else if (creds) {
+            if (mid) {
                 mid();
             }
+            
             NSMutableDictionary *fullCreds = [creds mutableCopy];
             //GRDLog(@"fullCreds: %@", fullCreds);
             fullCreds[kGRDHostnameOverride] = host;
@@ -597,28 +599,28 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (status == GRDVPNHelperFail) {
                         if (message != nil) {
-                            if (completion){
+                            if (completion) {
                                 completion(FALSE, message);
                             }
+                            
                         } else {
-                            if (completion){
-                                completion(FALSE, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
+                            if (completion) {
+                                completion(FALSE, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again.");
                             }
                         }
+                        
                     } else {
                         if (completion) {
                             completion(TRUE, nil);
                         }
                     }
-                    
                 });
             }];
             
         } else { //no error, but creds are nil too!
             if (completion) {
-                completion(false, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again. If this issue persists please select Contact Technical Support in the Settings tab.");
+                completion(false, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again.");
             }
-            
         }
     }];
 }
@@ -626,12 +628,12 @@
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-    if (!creds && !subCred){
-        if (completion){
+    if (!creds && !subCred) {
+        if (completion) {
             completion(FALSE, @"No valid EAP Credentials or subscriber credentials found");
         }
-    } else { //got em both, vaidate them.
         
+    } else { //got em both, vaidate them.
         [[GRDGatewayAPI new] verifyEAPCredentials:creds completion:^(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid) {
             if (success) {
                 if (subCredInvalid) { //if this is invalid, remove it regardless of anything else.
@@ -649,12 +651,11 @@
                     [self forceDisconnectVPNIfNecessary];
                     //create a fresh set of credentials (new user) in our current region.
                     [self configureFirstTimeUserWithRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
-                        if (completion){
+                        if (completion) {
                             completion(success, errorMessage);
                         }
                     }];
                 }
-                
                 
             } else { //success is false
                 if (completion) {

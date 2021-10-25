@@ -19,7 +19,7 @@
     return reg;
 }
 
--(instancetype)initWithDictionary:(NSDictionary *)regionDict {
+- (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
     if (self){
         _continent = regionDict[@"continent"]; //ie europe
@@ -37,22 +37,23 @@
 
 //overriding equality check because we MIGHT be missint contitent if we are recreated by GRDVPNHelper during credential loading.
 - (BOOL)isEqual:(id)object {
-    if (![object isKindOfClass:self.class]){
+    if (![object isKindOfClass:self.class]) {
         return false;
     }
     return (self.regionName == [object regionName] && self.displayName == [object displayName]);
 }
 
--(void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
+- (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
     [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
-        if (!error){
-            if (completion){
+        if (!error) {
+            if (completion) {
                 self.bestHost = host;
                 self.bestHostLocation = hostLocation;
                 completion(host, hostLocation, true);
             }
+            
         } else {
-            if (completion){
+            if (completion) {
                 completion(nil, nil, false);
             }
         }
@@ -62,12 +63,12 @@
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {
     __block NSMutableArray *newRegions = [NSMutableArray new];
     NSArray *_theRegions = regions;
-    if (_theRegions){
+    if (_theRegions) {
         _theRegions = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianAllRegions];
     }
     [_theRegions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
-        if (region){
+        if (region) {
             [newRegions addObject:region];
         }
     }];

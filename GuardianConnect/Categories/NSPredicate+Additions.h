@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSPredicate *)timezonePredicate;
 + (NSPredicate *)capacityPredicate;
++ (NSPredicate *)betaCapablePredicate;
 
 @end
 

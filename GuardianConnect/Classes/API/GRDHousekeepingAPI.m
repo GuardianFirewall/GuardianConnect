@@ -424,45 +424,35 @@
 
 #pragma mark - Time Zone & VPN Hostname endpoints
 
-- (void)requestTimeZonesForRegionsWithTimestamp:(NSNumber *)timestamp completion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"timestamp":timestamp} options:0 error:nil];
-    NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1/servers/timezones-for-regions" andPostRequestData:requestJSON];
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com/api/v1.1/servers/timezones-for-regions"]]];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         if (error != nil) {
-            NSLog(@"[requestTimeZonesForRegionsWithTimestamp] Failed to hit endpoint: %@", error);
+            GRDLog(@"Failed to hit endpoint: %@", error);
             if (completion) completion(nil, NO, 0);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            NSLog(@"[requestTimeZonesForRegionsWithTimestamp] Internal server error");
+        if (statusCode != 200) {
             if (completion) completion(nil, NO, statusCode);
-            
-        } else if (statusCode == 304) {
-            if (completion) completion(nil, YES, statusCode);
-            
-        } else if (statusCode == 200) {
-            NSArray *timezones = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(timezones, YES, statusCode);
             
         } else {
-            NSLog(@"[requestTimeZonesForRegionsWithTimestamp] Uncaught http response status: %ld", statusCode);
-            if (completion) completion(nil, NO, statusCode);
-            return;
+            NSArray *timezones = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (completion) completion(timezones, YES, statusCode);
         }
     }];
     [task resume];
 }
 
-- (void)requestServersForRegion:(NSString *)region completion:(void (^)(NSArray *, BOOL))completion {
+- (void)requestServersForRegion:(NSString *)region featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *, BOOL))completion {
     NSNumber *payingUserAsNumber = [NSNumber numberWithBool:[GRDVPNHelper isPayingUser]];
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber} options:0 error:nil];
-    NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1/servers/hostnames-for-region" andPostRequestData:requestJSON];
+    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment]} options:0 error:nil];
+    NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1.2/servers/hostnames-for-region" andPostRequestData:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
     NSURLSession *session = [NSURLSession sharedSession];
