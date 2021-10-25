@@ -39,7 +39,7 @@
         }
         
         // Array of servers out of which ultimately a host for the client will be randomly selected
-        NSArray *availableServers;
+        NSArray *availableServers = [NSArray new];
         
         // Checking to see if the clients prefers beta-capable servers over production servers
         BOOL betaCapablePreferred = [[NSUserDefaults standardUserDefaults] boolForKey:@"kGRDBetaCapablePreferred"];
