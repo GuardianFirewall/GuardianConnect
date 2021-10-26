@@ -44,9 +44,13 @@
         // Checking to see if the clients prefers beta-capable servers over production servers
         BOOL betaCapablePreferred = [[NSUserDefaults standardUserDefaults] boolForKey:@"kGRDBetaCapablePreferred"];
         if (betaCapablePreferred == YES) {
+            GRDLog(@"Client indicates that it prefers beta capable servers");
             availableServers = [servers filteredArrayUsingPredicate:[NSPredicate betaCapablePredicate]];
             if ([availableServers count] < 1) {
                 GRDLog(@"No beta capable hosts available in the current region, following regular client load balancing logic");
+                
+            } else {
+                GRDLog(@"Found %ld beta capable server(s) for the client", [availableServers count]);
             }
         }
         
