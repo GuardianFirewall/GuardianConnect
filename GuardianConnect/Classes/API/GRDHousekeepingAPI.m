@@ -12,7 +12,7 @@
 @implementation GRDHousekeepingAPI
 
 - (NSMutableURLRequest *)requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat {
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://housekeeping.sudosecuritygroup.com%@", apiEndpoint]];
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com%@", apiEndpoint]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
     [request setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] forHTTPHeaderField:@"X-Guardian-Build"];
@@ -56,7 +56,7 @@
 
 - (void)verifyReceiptFiltered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/verify-receipt"]];
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
     if (receiptData == nil) {
         NSLog(@"[DEBUG][validate receipt] receiptData == nil");
@@ -136,7 +136,7 @@
 
 - (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/verify-receipt"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/verify-receipt"]];
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
     if (receiptData == nil) {
         NSLog(@"[DEBUG][validate receipt] receiptData == nil");
@@ -204,7 +204,7 @@
     GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"createNewSubscriberCredentialWithValidationMethod"];
 #endif
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/subscriber-credential/create"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/subscriber-credential/create"]];
     
     NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
     if (validationMethod == ValidationMethodAppStoreReceipt) {
@@ -248,22 +248,13 @@
         [jsonDict setObject:@"pe-token" forKey:@"validation-method"];
         [jsonDict setObject:petToken forKey:@"pe-token"];
         
-    } else if (validationMethod == ValidationMethodPromoCode) {
-        if (self.promoCode == nil || [self.promoCode isEqualToString:@""]) {
-            if (completion) completion(nil, NO, @"promo code missing");
-            return;
-        }
-        
-        [jsonDict setObject:@"promo-code" forKey:@"validation-method"];
-        [jsonDict setObject:self.promoCode forKey:@"promo-code"];
-        
     } else {
         if (completion) completion(nil, NO, @"validation method missing");
         return;
     }
     
     [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
+    if ([[GRDVPNHelper sharedInstance] connectAPIKey]) {
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
     }
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
@@ -323,7 +314,7 @@
 }
 
 - (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/users/signup-token-for-iap"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/signup-token-for-iap"]];
     NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
     if (receiptData == nil) {
         GRDLog(@"receiptData == nil");
@@ -377,7 +368,7 @@
 }
 
 - (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/users/info-for-pe-token"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/info-for-pe-token"]];
     
     NSData *jsonDict = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": token} options:0 error:nil];
     [request setHTTPBody:jsonDict];
@@ -490,7 +481,7 @@
 }
 
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/servers/all-hostnames"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/servers/all-hostnames"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -519,7 +510,7 @@
 }
 
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/servers/all-server-regions"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -618,7 +609,7 @@
         return;
     }
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1/users/sign-out"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/sign-out"]];
     [request setHTTPMethod:@"POST"];
     if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
@@ -688,7 +679,7 @@
             deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
         }
         
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://housekeeping.sudosecuritygroup.com/api/v1.1/is-eligible-for-free"]];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/is-eligible-for-free"]];
         [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
         
         NSError *jsonError = nil;

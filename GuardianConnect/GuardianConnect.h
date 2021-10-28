@@ -29,7 +29,6 @@
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/EXTKeyPathCoding.h>
 #import <GuardianConnect/EXTRuntimeExtensions.h>
-#import <GuardianConnect/GRDNotificationMode.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 
 //! Project version number for GuardianConnect.

@@ -8,9 +8,9 @@
 
 @import UserNotifications;
 #import <GuardianConnect/GuardianConnect.h>
-#import <GuardianConnect/GRDSubscriptionManager.h>
-#import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/NSObject+Dictionary.h>
+#import <GuardianConnect/GRDIAPDiscountDetails.h>
+#import <GuardianConnect/GRDSubscriptionManager.h>
 
 @interface GRDSubscriptionManager ()
 
@@ -27,13 +27,26 @@
 }
 @synthesize delegate;
 
+- (instancetype)init {
+	self = [super init];
+	[[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+	[self addObservers];
+	_mutableProducts = [NSMutableArray new];
+	return self;
+}
+
 + (instancetype)sharedManager {
     static dispatch_once_t onceToken;
     static GRDSubscriptionManager *shared;
     dispatch_once(&onceToken, ^{
-        shared = [[GRDSubscriptionManager alloc] init];
+        shared = [GRDSubscriptionManager new];
     });
     return shared;
+}
+
+- (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId {
+	self.apiSecret = apiSecret;
+	self.bundleId = bundleId;
 }
 
 #pragma mark - SKProductRequest delegate methods
@@ -76,117 +89,42 @@
     }
 }
 
-- (void)setProductIds:(NSArray * _Nonnull)productIds completion:(void(^)(NSArray <SKProduct *>*products, BOOL success, NSString *error))completion {
-    [self setProductIds:productIds];
-    if (completion) {
-        self.productIdCompletionBlock = completion;
-    }
-}
-
 - (void)getProducts {
     if (self.productIds.count == 0 || self.productIds == nil) {
         return;
     }
+	
     SKProductsRequest *productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:self.productIds]];
     productsRequest.delegate = self;
     [productsRequest start];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context {
-    //NSArray *changed = change[NSKeyValueChangeNewKey];
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:@"productIds"]){
         [self getProducts];
     }
 }
 
-- (instancetype)init {
-    self = [super init];
-    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
-    [self addObservers];
-    _mutableProducts = [NSMutableArray new];
-    return self;
-}
-
 - (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product {
-    GRDLog(@"[delegate/shouldAddStorePayment] payment == %@", payment);
-    GRDLog(@"[delegate/shouldAddStorePayment] product == %@", product);
+    GRDLog(@"Adding payment == %@", payment);
+    GRDLog(@"Adding product == %@", product);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotficationPurchaseInAppStore object:nil];
     return YES;
 }
 
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue {
-    GRDLog(@"[paymentQueueRestoreCompletedTransactionsFinished] queue == %@", queue);
-    
-    GRDLog(@"transactions: %@", queue.transactions);
+    GRDLog(@"Queue: %@", queue);
+    GRDLog(@"Transactions: %@", queue.transactions);
+	
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationRestoreSubscriptionFinished object:nil];
 }
 
 - (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error; {
-    GRDLog(@"[paymentQueue:queuerestoreCompletedTransactionsFailedWithError] queue == %@", queue);
-    GRDLog(@"[paymentQueue:queuerestoreCompletedTransactionsFailedWithError] error == %@", error);
+    GRDLog(@"Queue: %@", queue);
+    GRDLog(@"Error: %@", error);
     
-    NSString *errorString = nil;
-    if([error code] == NSURLErrorTimedOut) {
-        errorString = @"NSURLErrorTimedOut";
-        
-    } else if([error code] == NSURLErrorCannotFindHost) {
-        errorString = @"NSURLErrorCannotFindHost";
-        
-    } else if([error code] == NSURLErrorCannotConnectToHost) {
-        errorString = @"NSURLErrorCannotConnectToHost";
-        
-    } else if([error code] == NSURLErrorNetworkConnectionLost) {
-        errorString = @"NSURLErrorNetworkConnectionLost";
-        
-    } else if([error code] == NSURLErrorNotConnectedToInternet) {
-        errorString = @"NSURLErrorNotConnectedToInternet";
-        
-    } else if([error code] == NSURLErrorUserCancelledAuthentication) {
-        errorString = @"NSURLErrorUserCancelledAuthentication";
-        
-    } else if([error code] == NSURLErrorSecureConnectionFailed) {
-        errorString = @"NSURLErrorSecureConnectionFailed";
-        
-    } else if([error code] == SKErrorUnknown) {
-        errorString = @"SKErrorUnknown";
-        
-    } else if([error code] == SKErrorClientInvalid) {
-        errorString = @"SKErrorClientInvalid";
-        
-    } else if([error code] == SKErrorPaymentCancelled) {
-        errorString = @"SKErrorPaymentCancelled";
-        
-    } else if([error code] == SKErrorPaymentInvalid) {
-        errorString = @"SKErrorPaymentInvalid";
-        
-    } else if([error code] == SKErrorPaymentNotAllowed) {
-        errorString = @"SKErrorPaymentNotAllowed";
-        
-    } else if (@available(macOS 10.15, *)) {
-        if([error code] == SKErrorStoreProductNotAvailable) {
-            errorString = @"SKErrorStoreProductNotAvailable";
-#if !TARGET_OS_OSX
-        } else if([error code] == SKErrorCloudServicePermissionDenied) {
-            errorString = @"SKErrorCloudServicePermissionDenied";
-            
-        } else if([error code] == SKErrorCloudServiceNetworkConnectionFailed) {
-            errorString = @"SKErrorCloudServiceNetworkConnectionFailed";
-            
-        } else if([error code] == SKErrorCloudServiceRevoked) {
-            errorString = @"SKErrorCloudServiceRevoked";
-#endif
-        } else {
-            errorString = @"(Undefined Error)";
-        }
-    } else {
-        // Fallback on earlier versions
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationRestoreSubscriptionError object:nil userInfo:@{@"errorString":errorString, @"NSError":error}];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationRestoreSubscriptionError object:nil userInfo:@{@"errorString":NSLocalizedString(@"Failed to restore purchase", nil), @"NSError":error}];
 }
 
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray<SKPaymentTransaction *> *)transactions {    
@@ -194,15 +132,14 @@
     
     for (SKPaymentTransaction *IAPPaymentTransaction in transactions) {
         if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStatePurchasing) {
-            GRDLog(@"[delegate/updatedTransactions] purchasing...");
+            GRDLog(@"Initialized purchase");
             _activePurchase = YES;
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStatePurchased) {
-            GRDLog(@"[delegate/updatedTransactions] state is purchased!");
+            GRDLog(@"Purchase succeeded!");
             [[SKPaymentQueue defaultQueue] finishTransaction:IAPPaymentTransaction];
             
             wasSuccessfulPurchase = YES;
-            [self.delegate validatingReceipt];
             _isPurchase = YES;
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStateFailed) {
@@ -211,14 +148,13 @@
             [self.delegate subscriptionFailed];
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStateDeferred) {
-            GRDLog(@"[delegate/updatedTransactions] Purchase deferred. Informing user about deferred");
+            GRDLog(@"Purchase deferred. Informing user about deferred state");
             [self.delegate subscriptionDeferred];
             
         } else if (IAPPaymentTransaction.transactionState == SKPaymentTransactionStateRestored) {
-            //GRDLog(@"[delegate/updatedTransactions] Restore successful");
+            GRDLog(@"Restore successful");
             [[SKPaymentQueue defaultQueue] finishTransaction:IAPPaymentTransaction];
             wasSuccessfulPurchase = YES;
-            [self.delegate validatingReceipt];
             _isRestore = YES;
         }
     }
@@ -226,6 +162,10 @@
     // calls 'verifyReceipt' for potential further action
     if (wasSuccessfulPurchase == YES) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			// Inform the delegate that the subscription/restoration was successful
+			// and that the receipt is about to be verified
+			// The delegate can then update the user with details about it
+			[self.delegate validatingReceipt];
             [self verifyReceipt];
         });
     }
@@ -293,7 +233,6 @@
 
 /// Process the receipt item for a new paying customer, sets all the necessary keychain and default items for a user
 - (void)processReceiptItemForNewPayingUser:(GRDReceiptItem *)receiptItem {
-    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDVPNHelper setIsPayingUser:YES];
     
@@ -307,15 +246,20 @@
     
     [defaults setObject:[receiptItem productId] forKey:kSubscriptionPlanTypeStr];
     [defaults setObject:[receiptItem expiresDate] forKey:kGuardianSubscriptionExpiresDate];
+	
+	// Note from CJ 2021-10-28:
+	// Nodes should no longer be locally cached so this should be
+	// remove all together soon
     [defaults removeObjectForKey:kKnownGuardianHosts];
     
-    //there are additional steps necessary if it is a day pass subscription, setting a different user default for the expiration & setting up local user notifications about pending day pass expiration.
-    
+    // there are additional steps necessary if it is a day pass subscription,
+	// setting a different user default for the expiration & setting up local
+	// user notifications about pending day pass expiration.
     if ([receiptItem isDayPass]) {
         [defaults setObject:receiptItem.expiresDate forKey:kGuardianDayPassExpirationDate];
     }
     
-    //determine if subscriber credentials need refreshing
+    // determine if subscriber credentials need refreshing
     if ([receiptItem subscriberCredentialExpired]) {
         GRDLog(@"Subscription change/renewal detected. Deleting subscriber credential in keychain");
         [GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -323,18 +267,17 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationSubscriptionActive object:nil];
     [[NSNotificationCenter defaultCenter] postNotificationName:kGRDSubscriptionUpdatedNotification object:nil];
     [self handleValidationSuccess:receiptItem];
-    
 }
 
 #pragma mark - StoreKit IAP
 
 - (void)userExpiredTrial:(BOOL)wasTrial {
-    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [GRDKeychain removeSubscriberCredentialWithRetries:3];
     if (wasTrial) { //if it was a free trial we modify two additional detault fields but leave the subscription plan string intact
         [defaults setBool:TRUE forKey:kGRDFreeTrialExpired];
         [defaults removeObjectForKey:kGRDTrialExpirationInterval];
+		
     } else {
         [defaults removeObjectForKey:kSubscriptionPlanTypeStr];
     }
@@ -378,19 +321,20 @@
                 if ([GRDVPNHelper isPayingUser] == NO) {
                     GRDLog(@"Free user with new subscription detected. Converting to paid user");
                     [self processReceiptItemForNewPayingUser:latestItem];
+					
                 } else {
                     [self processReceiptItemForExistingUser:latestItem];
                 }
                 
             } else if (success == YES && (validLineItems.count == 0 || validLineItems == nil) && ![self isFreeTrialOrDayPass]) {
-                
-                if ([GRDVPNHelper isPayingUser] == YES) {
+				if ([GRDVPNHelper isPayingUser] == YES) {
                     GRDLog(@"No valid subscriptions found. Converting paid to free...");
                     [self userExpiredTrial:false];
                     [self.delegate receiptInvalid];
                 }
+				
             } else {
-                if (errorMessage != nil){
+                if (errorMessage != nil) {
                     GRDLog(@"Failed to verify receipt: %@", errorMessage);
                 }
             }
@@ -402,8 +346,7 @@
                     [GRDKeychain removeSubscriberCredentialWithRetries:3];
                 }
             }
-            
-        }];
+		}];
     });
 }
 
@@ -411,22 +354,27 @@
     @weakify(self);
     dispatch_async(dispatch_get_main_queue(), ^{
         self_weak_.activePurchase = false;
-        if (self_weak_.isRestore){
-            if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored)]){
+        if (self_weak_.isRestore) {
+            if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored)]) {
                 [self_weak_.delegate subscriptionRestored];
             }
-            if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored:)]){
+			
+            if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored:)]) {
                 [self_weak_.delegate subscriptionRestored:receiptItem];
             }
+			
             self_weak_.isPurchase = false;
             self_weak_.isRestore = false;
-        } else if (self_weak_.isPurchase){
-            if([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully)]){
+			
+        } else if (self_weak_.isPurchase) {
+            if ([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully)]) {
                 [self_weak_.delegate subscribedSuccessfully];
             }
-            if ([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully:)]){
+			
+            if ([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully:)]) {
                 [self_weak_.delegate subscribedSuccessfully:receiptItem];
             }
+			
             self_weak_.isPurchase = false;
             self_weak_.isRestore = false;
         }

@@ -8,11 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
-#import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDReceiptItem.h>
 
-#define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
+#define kHousekeepingAPIBase @"https://connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,9 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Validation Method used to obtain a signed JWT from housekeeping
 typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
     ValidationMethodInvalid = -1,
-    ValidationMethodUsernamePassword,
     ValidationMethodAppStoreReceipt,
-    ValidationMethodPromoCode,
     ValidationmethodPEToken
 };
 
@@ -39,18 +36,13 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
 
-/// username to be used for authentication when GRDHousekeepingValidationMethod is set to ValidationMethodUsernamePassword
-@property NSString *username;
-
-/// password to be used for authentication when GRDHousekeepingValidationMethod is set to ValidationMethodUsernamePassword
-@property NSString *password;
-
 /// Digital App Store Receipt used to obtain a signed JWT from housekeeping
 /// Currently not used since the App Store Receipt is encoded and sent to housekeeping directly from the method itself. Meant as debugging/manual override option in the future
 @property NSString *appStoreReceipt;
 
-/// Promo code to be used to obtain a signed JWT from housekeeping when GRDHousekeepingValidationMethod is set to ValidationMethodPromoCode
-@property NSString *promoCode;
+/// PET or PE Token == Password Equivalent Token
+/// Currently only used by Guardian for subscriptions & purchases conducted via the web
+@property NSString *peToken;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for

@@ -9,14 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <NetworkExtension/NetworkExtension.h>
 
+#import <GuardianConnect/Shared.h>
+#import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-#import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
-#import <GuardianConnect/GRDRegion.h>
-#import <GuardianConnect/Shared.h>
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
