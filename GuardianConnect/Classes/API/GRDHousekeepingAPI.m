@@ -54,6 +54,7 @@
     return @[kGuardianSubscriptionTypeCustomDayPass];
 }
 
+# warning this idea in theory is good but 1. its doing it 100% in the wrong place and 2. this can't dupliate the entire API implementation wtf!
 - (void)verifyReceiptFiltered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/verify-receipt"]];
@@ -68,6 +69,7 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
+# warning this shit cant be pulled out of thin air in vpn helper wtf
     if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
     }

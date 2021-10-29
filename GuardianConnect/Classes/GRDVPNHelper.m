@@ -727,6 +727,7 @@
     [GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
 
+# warning This shit is subscription and payment related and should not be in vpn helper at all wtf
 + (GRDPlanDetailType)subscriptionTypeFromDefaults {
     NSString *subscriptionTypeStr = [[NSUserDefaults standardUserDefaults] objectForKey:kSubscriptionPlanTypeStr];
     NSArray *essSubTypes = @[kGuardianSubscriptionDayPass,

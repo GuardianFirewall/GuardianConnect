@@ -278,6 +278,8 @@
 				3252D62A26938DC000FE7402 /* GRDSubscriptionManager.m */,
 				3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */,
 				3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */,
+				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
+				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
 			);
 			path = StoreKit;
 			sourceTree = "<group>";
@@ -352,8 +354,6 @@
 		32ABCF5026352BCF0030B258 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
-				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
 				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
 				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
 				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,

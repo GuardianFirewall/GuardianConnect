@@ -30,23 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Delegate that handles callbacks for receipt validation handling
 @property (nonatomic, weak) id <GRDSubscriptionDelegate> delegate;
 
-/// Always use the sharedManager singleton when using this class.
-+ (instancetype)sharedManager;
-
-/// Set the API secret key as well as the bundle id for future requests to obtain the list of
-/// known product ids or verify the in-app purchase receipts
-- (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId;
-
 /// API Secret used to identify the Apple provided shared secret to verify in-app purchase receipts
+/// The API Secret is currently still unused
 @property (nonatomic, strong) NSString *apiSecret;
 
 /// Bundle Id identifying the Guardian partner app to verify in-app purchase receipts
 @property (nonatomic, strong) NSString * bundleId;
-
-/// Guardian internal properties for IAP discount tracking
-@property BOOL isEligibleForDiscounts;
-/// Ditto
-@property (nonatomic, strong) GRDIAPDiscountDetails *discountDetails;
 
 /// Add to this array if you want any product id's exempt from receipt validation (non-app store purchases)
 @property NSArray *receiptExceptionIds;
@@ -61,40 +50,57 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSLocale *subscriptionLocale;
 
 
+/// Always use the sharedManager singleton when using this class.
++ (instancetype)sharedManager;
 
-/// Used when a user account expires to clear all the necessary user defaults and keychain credentials
-/// @param wasTrial BOOL value that determines whether or not the account was a trial
-- (void)userExpiredTrial:(BOOL)wasTrial;
+/// Set the API secret key as well as the bundle id for future requests to obtain the list of
+/// known product ids or verify the in-app purchase receipts
+- (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId;
 
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
 - (void)verifyReceipt;
 
-/// TODO: this is redundant in VPN manager and should be factored out of there.
-- (GRDPlanDetailType)subscriptionTypeFromDefaults;
-
-/// Called in showActivateButton and in verifyReceipt to make certain day pass users that are missing corresponding receipt data don't get unsubscribed accidently.
-- (BOOL)isFreeTrialOrDayPass;
-
-/// These are subscription types that we skip receipt validation on, they consist of partner product ID's and purchases made outside of the app store.
-- (NSArray *)whitelist;
-
-/// Conveinience check to see if our subscription type exists among the whitelisted types.
-- (BOOL)hasWhitelistedSubscriptionType;
-
-
 @end
 
 
+/// Delegate defining the method callback structure once the purchase is initiated via StoreKit
 @protocol GRDSubscriptionDelegate <NSObject>
 
+/// Informs the delegate that the paymnet was successfully processed and returns the latest valid receipt line item
+- (void)purchasedSuccessfully:(GRDReceiptItem *)receiptItem;
+
+/// Informs the delegate that the receipt is invalid and could not be validated by Apple's servers
 - (void)receiptInvalid;
+
+/// Informs the delegate that the payment was marked as deferred for an unknown reason and has not yet been validated
+- (void)purchaseDeferred;
+
+/// Informs the delegate that the payment failed to process and returns the error
+- (void)purchaseFailedWithError:(NSError *)storeKitError;
+
+
+@optional
+/// Informs the delegate that the receipt is about to be verified to process the payment
+/// Useful to update the interface to relay information to the user
 - (void)validatingReceipt;
-- (void)subscribedSuccessfully; //will be obsoleted
-- (void)subscribedSuccessfully:(GRDReceiptItem *)receiptItem;
-- (void)subscriptionDeferred;
-- (void)subscriptionFailed;
-- (void)subscriptionRestored; //will be obsoleted
-- (void)subscriptionRestored:(GRDReceiptItem *)receiptItem;
+
+/// Informs the delegate that hte subscription was successfully restored and returns the latest valid receipt line item
+- (void)purchaseRestored:(GRDReceiptItem *)receiptItem;
+
+
+// Deprecated functions
+
+/// Informs the delegate that the paymnet was successfully processed
+/// Deprecated, use - purchasedSuccessfully:(GRDReceiptItem *)receiptItem instead
+- (void)subscribedSuccessfully;
+
+/// Informs the delegate that the subscription was successfully restored
+/// Deprecated, use - purchaseRestored:(GRDReceiptItem *)receiptItem instead
+- (void)subscriptionRestored; // deprecated
+
+/// Informs the delegate that the payment failed
+/// Deprecated, use - purchaseFailedWithError:(NSError *)storeKitError instead
+- (void)subscriptionFailed; // deprecated
 
 @end
 
