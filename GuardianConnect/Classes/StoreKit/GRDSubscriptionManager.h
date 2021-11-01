@@ -10,6 +10,7 @@
 #import <StoreKit/StoreKit.h>
 
 #import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDReceiptItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 
@@ -59,6 +60,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
 - (void)verifyReceipt;
+
+/// Used to determine if the current user has an active subscription
++ (BOOL)isPayingUser;
+
+/// Used to set whether our current user is actively a paying customer
+/// @param isPaying BOOL value that tracks whether or not the current user is a paying customer.
++ (void)setIsPayingUser:(BOOL)isPaying;
 
 @end
 

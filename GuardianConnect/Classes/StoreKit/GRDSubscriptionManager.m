@@ -251,4 +251,17 @@
     _activePurchase = isActivePurchase;
 }
 
+#pragma mark - Misc Helpers
+
++ (BOOL)isPayingUser {
+	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+	return ([ud boolForKey:kGuardianSuccessfulSubscription] && [ud boolForKey:kIsPremiumUser]);
+}
+
++ (void)setIsPayingUser:(BOOL)isPaying {
+	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+	[ud setBool:isPaying forKey:kIsPremiumUser];
+	[ud setBool:isPaying forKey:kGuardianSuccessfulSubscription];
+}
+
 @end

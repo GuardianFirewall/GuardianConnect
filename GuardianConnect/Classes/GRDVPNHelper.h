@@ -15,6 +15,7 @@
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 
 #if !TARGET_OS_OSX
@@ -30,15 +31,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
+
 /// don't set this value manually, it is set upon the region selection code working successfully
 @property (nullable) GRDRegion *selectedRegion;
+
 @property BOOL vpnLoaded; ///whether load from preferences was successfull upon init
 @property (nullable) NSString *lastErrorMessage;
 
 @property (nullable) NEProxySettings *proxySettings;
+
 /// a separate reference is kept of the mainCredential because the credential manager instance needs to be fetched from preferences & the keychain every time its called.
 @property (nullable) GRDCredential *mainCredential;
+
 @property (readwrite, assign) BOOL onDemand; //defaults to yes
+
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;
 #endif
@@ -64,16 +70,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Used to determine if an active connection is possible, do we have all the necessary credentials (EAPUsername, Password, Host, etc)
 + (BOOL)activeConnectionPossible;
-
-/// Used to determine if the current user has an active subscription
-+ (BOOL)isPayingUser;
-
-/// Used to determine if our current subscription a day pass
-+ (BOOL)dayPassActive;
-
-/// Used to set whether our current user is actively a paying customer
-/// @param isPaying BOOL value that tracks whether or not the current user is a paying customer.
-+ (void)setIsPayingUser:(BOOL)isPaying;
 
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
 + (void)clearVpnConfiguration;
@@ -133,10 +129,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block Completion block that will contain an NSDictionary of credentials upon success
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion;
 
-/// Doesn't appear to ever be used... obsolete code?
-- (void)setRetryCount:(NSInteger)retryCount;
-- (NSInteger)retryCount;
-
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 - (void)selectRegion:(GRDRegion * _Nullable)region;
 
@@ -146,22 +138,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Verify that current EAP credentials are valid if applicable
 - (void)validateCurrentEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))completion;
 
-/// Convenience function for logging in a pro user
-- (void)proLoginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(ResponseBlock)completion;
-
-/// Convenience function for logging out a pro user
-- (void)logoutCurrentProUser;
-
-#pragma mark Shared Framework Code
-
-+ (GRDPlanDetailType)subscriptionTypeFromDefaults;
-+ (BOOL)proMode;
 - (void)clearLocalCache;
-
-#if !TARGET_OS_OSX
-- (void)startBackgroundTaskIfNecessary;
-- (void)endBackgroundTask;
-#endif
 
 @end
 
