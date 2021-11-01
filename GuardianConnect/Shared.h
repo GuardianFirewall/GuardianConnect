@@ -9,13 +9,6 @@
 #ifndef Shared_h
 #define Shared_h
 
-//Logging Macros
-
-#define GRDLog(x, ...) NSLog(@"%s(L%d) " x, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
-#define LOG_SELF        NSLog(@"%@ %@", self, NSStringFromSelector(_cmd))
-#define DLOG_SELF DLog(@"%@ %@", self, NSStringFromSelector(_cmd))
-
 typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
 

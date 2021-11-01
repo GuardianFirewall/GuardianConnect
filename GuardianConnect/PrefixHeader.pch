@@ -11,5 +11,6 @@
 
 #import <GuardianConnect/NSPredicate+Additions.h>
 #import <GuardianConnect/Shared.h>
+#import <GuardianConnect/GRDLogger.h>
 
 #endif /* PrefixHeader_pch */
