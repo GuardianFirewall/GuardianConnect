@@ -31,7 +31,6 @@
 - (instancetype)init {
 	self = [super init];
 	[[SKPaymentQueue defaultQueue] addTransactionObserver:self];
-	[self addObservers];
 	_mutableProducts = [NSMutableArray new];
 	return self;
 }
@@ -48,13 +47,6 @@
 - (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId {
 	self.apiSecret = apiSecret;
 	self.bundleId = bundleId;
-}
-
-- (void)addObservers {
-	if (!_addedObservers) {
-		[self addObserver:self forKeyPath:@"productIds" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:nil];
-		_addedObservers = true;
-	}
 }
 
 
@@ -150,7 +142,7 @@
 			// and that the receipt is about to be verified
 			// The delegate can then update the user with details about it
 			[self.delegate validatingReceipt];
-            [self verifyReceipt];
+            [self verifyReceipt:nil filtered:YES];
         });
     }
 }
@@ -159,84 +151,99 @@
 #pragma mark - StoreKit IAP
 
 - (void)verifyReceipt {
-	@weakify(self);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-		[[GRDHousekeepingAPI new] verifyReceipt:nil bundleId:self.bundleId filtered:YES completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
-			// validLineItems is sorted ascending by the line item's expiration date,
-			// the last item in the array will be the latest purchase aka. the item whose expiration date
-			// is the furthest out in the future
-            if (success == YES && validLineItems.count > 0) {
-                GRDReceiptItem *latestItem = [validLineItems lastObject];
-				dispatch_async(dispatch_get_main_queue(), ^{
-					self_weak_.activePurchase = false;
-					if (self_weak_.isRestore) {
-						if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored)]) {
-							[self_weak_.delegate subscriptionRestored];
-						}
-						
-						if ([self_weak_.delegate respondsToSelector:@selector(purchaseRestored:)]) {
-							[self_weak_.delegate purchaseRestored:latestItem];
-						}
-						
-						self_weak_.isPurchase = false;
-						self_weak_.isRestore = false;
-						
-					} else if (self_weak_.isPurchase) {
-						if ([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully)]) {
-							[self_weak_.delegate subscribedSuccessfully];
-						}
-						
-						if ([self_weak_.delegate respondsToSelector:@selector(purchasedSuccessfully:)]) {
-							[self_weak_.delegate purchasedSuccessfully:latestItem];
-						}
-						
-						self_weak_.isPurchase = false;
-						self_weak_.isRestore = false;
-					}
-				});
-
-			} else if (success == YES && (validLineItems.count == 0 || validLineItems == nil)) {
-				[self.delegate receiptInvalid];
-				
-            } else {
-                if (errorMessage != nil) {
-                    GRDLog(@"Failed to verify receipt: %@", errorMessage);
-					[self.delegate purchaseFailedWithError:[NSError errorWithDomain:@"com.guardian.GuardianConnect" code:400 userInfo:@{NSLocalizedDescriptionKey: errorMessage}]];
-                }
-            }
-            
-            //everything else has been done by now, additional check to see if subscriber credential has expired.
-            GRDSubscriberCredential *cred = [GRDSubscriberCredential currentSubscriberCredential];
-            if (cred) {
-                if ([cred tokenExpired]) {
-                    [GRDKeychain removeSubscriberCredentialWithRetries:3];
-                }
-            }
-			
-			if ([self.delegate isKindOfClass:[GRDSubscriptionManager class]]) {
-				GRDLog(@"Detected GRDSubscriptionManager as the delegate");
-				self.delegate = nil;
-			}
-			
-			self_weak_.isPurchase = false;
-			self_weak_.isRestore = false;
-		}];
-    });
+	[self verifyReceipt:nil filtered:NO];
+	
+//	@weakify(self);
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//		[[GRDHousekeepingAPI new] verifyReceipt:nil bundleId:self.bundleId completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
+//			// validLineItems is sorted ascending by the line item's expiration date,
+//			// the last item in the array will be the latest purchase aka. the item whose expiration date
+//			// is the furthest out in the future
+//            if (success == YES && validLineItems.count > 0) {
+//                GRDReceiptItem *latestItem = [validLineItems lastObject];
+//				dispatch_async(dispatch_get_main_queue(), ^{
+//					self_weak_.activePurchase = false;
+//					if (self_weak_.isRestore) {
+//						if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored)]) {
+//							[self_weak_.delegate subscriptionRestored];
+//						}
+//
+//						if ([self_weak_.delegate respondsToSelector:@selector(purchaseRestored:)]) {
+//							[self_weak_.delegate purchaseRestored:latestItem];
+//						}
+//
+//						self_weak_.isPurchase = false;
+//						self_weak_.isRestore = false;
+//
+//					} else if (self_weak_.isPurchase) {
+//						if ([self_weak_.delegate respondsToSelector:@selector(subscribedSuccessfully)]) {
+//							[self_weak_.delegate subscribedSuccessfully];
+//						}
+//
+//						if ([self_weak_.delegate respondsToSelector:@selector(purchasedSuccessfully:)]) {
+//							[self_weak_.delegate purchasedSuccessfully:latestItem];
+//						}
+//
+//						self_weak_.isPurchase = false;
+//						self_weak_.isRestore = false;
+//					}
+//				});
+//
+//			} else if (success == YES && (validLineItems.count == 0 || validLineItems == nil)) {
+//				[self.delegate receiptInvalid];
+//
+//            } else {
+//                if (errorMessage != nil) {
+//                    GRDLog(@"Failed to verify receipt: %@", errorMessage);
+//					[self.delegate purchaseFailedWithError:[NSError errorWithDomain:@"com.guardian.GuardianConnect" code:400 userInfo:@{NSLocalizedDescriptionKey: errorMessage}]];
+//                }
+//            }
+//
+//            //everything else has been done by now, additional check to see if subscriber credential has expired.
+//            GRDSubscriberCredential *cred = [GRDSubscriberCredential currentSubscriberCredential];
+//            if (cred) {
+//                if ([cred tokenExpired]) {
+//                    [GRDKeychain removeSubscriberCredentialWithRetries:3];
+//                }
+//            }
+//
+//			if ([self.delegate isKindOfClass:[GRDSubscriptionManager class]]) {
+//				GRDLog(@"Detected GRDSubscriptionManager as the delegate");
+//				self.delegate = nil;
+//			}
+//
+//			self_weak_.isPurchase = false;
+//			self_weak_.isRestore = false;
+//		}];
+//    });
 }
 
-- (void)verifyReceipt:(NSData *)receipt {
+- (void)verifyReceipt:(NSData *)receipt filtered:(BOOL)filtered {
 	@weakify(self);
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 		NSString *encodedReceipt;
 		if (receipt) {
 			encodedReceipt = [receipt base64EncodedStringWithOptions:0];
 		}
-		[[GRDHousekeepingAPI new] verifyReceipt:encodedReceipt bundleId:self.bundleId filtered:YES completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
-			// validLineItems is sorted ascending by the line item's expiration date,
-			// the last item in the array will be the latest purchase aka. the item whose expiration date
-			// is the furthest out in the future
-			if (success == YES && validLineItems.count > 0) {
-				GRDReceiptItem *latestItem = [validLineItems lastObject];
+		
+		[[GRDHousekeepingAPI new] verifyReceipt:encodedReceipt bundleId:self.bundleId completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
+			NSArray *sortedValidLineItems = validLineItems;
+			if (filtered == YES) {
+				NSMutableArray *arrayWithoutIgnoredProductIds = [NSMutableArray new];
+				for (GRDReceiptItem *receiptItem in validLineItems) {
+					if (![self.ignoredProductIds containsObject:receiptItem.productId]) {
+						[arrayWithoutIgnoredProductIds addObject:receiptItem];
+					}
+				}
+				// sorted is sorted ascending by the line item's expiration date,
+				// the last item in the array will be the latest purchase aka. the item whose expiration date
+				// is the furthest out in the future
+				NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
+				sortedValidLineItems = [arrayWithoutIgnoredProductIds sortedArrayUsingDescriptors:@[expireDesc]];
+			}
+			
+			if (success == YES && sortedValidLineItems.count > 0) {
+				GRDReceiptItem *latestItem = [sortedValidLineItems lastObject];
 				dispatch_async(dispatch_get_main_queue(), ^{
 					self_weak_.activePurchase = false;
 					if (self_weak_.isRestore) {
@@ -265,7 +272,7 @@
 					}
 				});
 
-			} else if (success == YES && (validLineItems.count == 0 || validLineItems == nil)) {
+			} else if (success == YES && (sortedValidLineItems.count == 0 || sortedValidLineItems == nil)) {
 				[self.delegate receiptInvalid];
 				
 			} else {
@@ -284,7 +291,7 @@
 			}
 			
 			if ([self.delegate isKindOfClass:[GRDSubscriptionManager class]]) {
-				GRDLog(@"Detected GRDSubscriptionManager as the delegate");
+				GRDDebugLog(@"Detected GRDSubscriptionManager as the delegate. Setting delegate back to nil");
 				self.delegate = nil;
 			}
 			

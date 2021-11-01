@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString * bundleId;
 
 /// Add to this array if you want any product id's exempt from receipt validation (non-app store purchases)
-@property NSArray *receiptExceptionIds;
+@property NSArray <NSString *> *ignoredProductIds;
 
 /// Product ID's to limit programatically which ids are supposed to get verified / which products the app should retrieve prices and product details for. Currently not implemented
 @property NSArray *productIds;
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)verifyReceipt;
 
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
-- (void)verifyReceipt:(NSData  * _Nullable)receipt;
+- (void)verifyReceipt:(NSData * _Nullable)receipt filtered:(BOOL)filtered;
 
 
 /// Used to determine if the current user has an active subscription

@@ -56,8 +56,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// @param completion completion block returning array only containing valid subscriptions / purchases, success indicator and a error message containing actionable information for the user if the request failed
 - (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion;
 
-- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId filtered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion;
-
 /// endpoint: /api/v1/subscriber-credential/create
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
 /// @param validationMethod set to determine how to authenticate with housekeeping

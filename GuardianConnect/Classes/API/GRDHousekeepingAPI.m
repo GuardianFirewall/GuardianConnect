@@ -49,32 +49,6 @@
     }
 }
 
-# warning this needs to be yeeted outta here
-- (NSArray *)receiptIgnoreProducts {
-    return @[kGuardianSubscriptionTypeCustomDayPass];
-}
-
-- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId filtered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
-	[self verifyReceipt:encodedReceipt bundleId:bundleId completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
-		if (completion) {
-			if (success == NO) {
-				completion(validLineItems, success, errorMessage);
-			
-			} else {
-				if ([validLineItems count] < 1) {
-					completion(validLineItems, success, errorMessage);
-					return;
-						
-				} else {
-					NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
-					NSArray *sorted = [validLineItems sortedArrayUsingDescriptors:@[expireDesc]];
-					completion(sorted, success, errorMessage);
-				}
-			}
-		}
-	}];
-}
-
 - (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/verify-receipt"]];
 	if (encodedReceipt == nil) {
@@ -117,11 +91,7 @@
             } else {
 				__block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
 				[validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-					GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
-					//dont wan't to process those at all, so dont add the item for them.
-					if (![[self receiptIgnoreProducts] containsObject:item.productId]) {
-						[items addObject:item];
-					}
+					[items addObject:[[GRDReceiptItem alloc] initWithDictionary:obj]];
 				}];
                 if (completion) completion(items, YES, nil);
                 return;
