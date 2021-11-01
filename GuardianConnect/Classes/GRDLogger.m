@@ -31,7 +31,7 @@
 
 
 
-void zzz_GRDLog(const char *functionName, int lineNumber, NSString *format, ...) {
+void zzz_GRDLog(const char *functionName, int lineNumber, BOOL preventPersistentLog, NSString *format, ...) {
 	va_list vargs;
 	va_start(vargs, format);
 	if ([format hasSuffix:@"\n"] == NO) {
@@ -52,7 +52,7 @@ void zzz_GRDLog(const char *functionName, int lineNumber, NSString *format, ...)
 	
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 	BOOL persistentLogsEnabled = [userDefaults boolForKey:kGRDPersistentLogEnabled];
-	if (persistentLogsEnabled == YES) {
+	if (persistentLogsEnabled == YES && preventPersistentLog == NO) {
 		NSMutableArray *currentLogs = [NSMutableArray arrayWithArray:[userDefaults arrayForKey:kGRDPersistentLog]];
 		// Never let the array grow past 200 logs
 		if ([currentLogs count] > 199) {
