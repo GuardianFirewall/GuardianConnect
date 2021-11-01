@@ -46,10 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))completion;
 
-/// Used to register for device push notifications if applicable. will be innocuous if 'application: didRegisterForRemoteNotificationsWithDeviceToken:' isn't implemented in your app delegate.
-/// We specifically use it to sync our push notification settings to the current server we are associated with.
-- (void)bindPushToken;
-
 @end
 
 NS_ASSUME_NONNULL_END
