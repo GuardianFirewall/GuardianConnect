@@ -151,7 +151,7 @@
 #pragma mark - StoreKit IAP
 
 - (void)verifyReceipt {
-	[self verifyReceipt:nil filtered:NO];
+	[self verifyReceipt:nil filtered:YES];
 	
 //	@weakify(self);
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
