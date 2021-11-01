@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
 		23F9D37D272FEEE000CDDB5B /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
-		23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; };
+		23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA148261404A100E876CB /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3224BC1526531A5E00E5B4AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3224BC1426531A5E00E5B4AD /* AppDelegate.swift */; };
@@ -130,6 +132,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23E5FA9427304ABA000FC70F /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		23F9D37B272FEEE000CDDB5B /* GRDLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDLogger.m; sourceTree = "<group>"; };
 		23F9D37C272FEEE000CDDB5B /* GRDLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDLogger.h; sourceTree = "<group>"; };
 		321BA143261404A100E876CB /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -378,6 +381,7 @@
 			isa = PBXGroup;
 			children = (
 				32E92C04262A1B3D00A3202C /* GuardianConnect.h */,
+				23E5FA9427304ABA000FC70F /* PrefixHeader.pch */,
 				32E92C05262A1B3D00A3202C /* Info.plist */,
 			);
 			path = GuardianConnectMac;
@@ -437,6 +441,7 @@
 				32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */,
 				328035AE2666C3FD00A173CE /* GRDReceiptItem.h in Headers */,
 				32E92C24262A1BAE00A3202C /* NSDate+Extras.h in Headers */,
+				23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */,
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
 				32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */,
 				3252D62C26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
@@ -653,6 +658,7 @@
 				32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */,
 				32E92C0E262A1B6100A3202C /* GRDCredential.m in Sources */,
 				32E1AE192698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
+				23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */,
 				3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				32E92C0D262A1B5400A3202C /* EXTRuntimeExtensions.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,
