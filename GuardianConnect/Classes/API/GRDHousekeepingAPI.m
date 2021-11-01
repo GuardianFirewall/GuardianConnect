@@ -28,132 +28,69 @@
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion {
     Class dcDeviceClass = NSClassFromString(@"DCDevice");
     __block NSString *defaultDevice = @"helloMyNameIs-iPhoneSimulator";
-    if (!dcDeviceClass){
-        if (completion){
+    if (!dcDeviceClass) {
+        if (completion) {
             completion(defaultDevice, [NSError errorWithDomain:NSCocoaErrorDomain code:420 userInfo:@{}]);
         }
+		
     } else {
         //this is fine since we are doing a class availability check above.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
 
         [[DCDevice currentDevice] generateTokenWithCompletionHandler:^(NSData * _Nullable token, NSError * _Nullable error) {
-            if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]){
+            if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
                 defaultDevice = [token base64EncodedStringWithOptions:0];
             }
-            if (completion){
-                completion(defaultDevice, error);
-            }
+			
+            if (completion) completion(defaultDevice, error);
         }];
-        
 #pragma clang diagnostic pop
     }
 }
 
+# warning this needs to be yeeted outta here
 - (NSArray *)receiptIgnoreProducts {
     return @[kGuardianSubscriptionTypeCustomDayPass];
 }
 
-# warning this idea in theory is good but 1. its doing it 100% in the wrong place and 2. this can't dupliate the entire API implementation wtf!
-- (void)verifyReceiptFiltered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion {
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/verify-receipt"]];
-    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-    if (receiptData == nil) {
-        NSLog(@"[DEBUG][validate receipt] receiptData == nil");
-        if (completion) {
-            completion(nil, NO, @"No App Store receipt data present");
-        }
-        return;
-    }
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
-    [request setHTTPBody:postData];
-    [request setHTTPMethod:@"POST"];
-# warning this shit cant be pulled out of thin air in vpn helper wtf
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            NSLog(@"Failed to retrieve receipt data: %@", error);
-            if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            NSLog(@"Internal server error. Failed to retrieve any receipt information");
-            if (completion) completion(nil, NO, @"Internal server error");
-            return;
-            
-        } else if (statusCode == 400) {
-            NSLog(@"Bad request. Failed to retrieve any receipt information");
-            if (completion) completion(nil, NO, @"Bad request");
-            return;
-            
-        } else if (statusCode == 204) {
-            NSLog(@"Successful request. No active subscription found");
-            if (completion) completion(nil, YES, nil);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSError *jsonError = nil;
-            NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-            if (jsonError != nil) {
-                NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
-                if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
-                return;
-                
-            } else {
-                __block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
-                [validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
-                    if (!filtered){
-                        [items addObject:item];
-                    } else {
-                        if (![[self receiptIgnoreProducts] containsObject:item.productId]){ //dont wan't to process those at all, so dont add the item for them.
-                            [items addObject:item];
-                        }
-                    }
-                    
-                }];
-                NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
-                NSArray *sorted = [items sortedArrayUsingDescriptors:@[expireDesc]];
-                //newest item will be on the bottom of the array
-                if (completion) completion(sorted, YES, nil);
-                return;
-            }
-            
-        } else {
-            NSLog(@"Unknown error: %ld", statusCode);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
-        }
-    }];
-    [task resume];
-    
+- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId filtered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
+	[self verifyReceipt:encodedReceipt bundleId:bundleId completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
+		if (completion) {
+			if (success == NO) {
+				completion(validLineItems, success, errorMessage);
+			
+			} else {
+				if ([validLineItems count] < 1) {
+					completion(validLineItems, success, errorMessage);
+					return;
+						
+				} else {
+					NSSortDescriptor *expireDesc = [[NSSortDescriptor alloc] initWithKey:@"expiresDate" ascending:true];
+					NSArray *sorted = [validLineItems sortedArrayUsingDescriptors:@[expireDesc]];
+					completion(sorted, success, errorMessage);
+				}
+			}
+		}
+	}];
 }
 
-
-- (void)verifyReceiptWithCompletion:(void (^)(NSArray * _Nullable, BOOL, NSString * _Nullable))completion {
+- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/verify-receipt"]];
+	if (encodedReceipt == nil) {
+		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+		if (receiptData == nil) {
+			GRDDebugLog(@"This device has no App Store receipt");
+			if (completion) completion(nil, NO, @"No App Store receipt data present");
+			return;
+		}
+		
+		encodedReceipt = [receiptData base64EncodedStringWithOptions:0];
+	}
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/verify-receipt"]];
-    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-    if (receiptData == nil) {
-        NSLog(@"[DEBUG][validate receipt] receiptData == nil");
-        if (completion) {
-            completion(nil, NO, @"No App Store receipt data present");
-        }
-        return;
-    }
-    
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
+	NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":encodedReceipt, @"bundle-id": bundleId} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -163,19 +100,9 @@
             return;
         }
         
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            NSLog(@"Internal server error. Failed to retrieve any receipt information");
-            if (completion) completion(nil, NO, @"Internal server error");
-            return;
-            
-        } else if (statusCode == 400) {
-            NSLog(@"Bad request. Failed to retrieve any receipt information");
-            if (completion) completion(nil, NO, @"Bad request");
-            return;
-            
-        } else if (statusCode == 204) {
-            NSLog(@"Successful request. No active subscription found");
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+        if (statusCode == 204) {
+            GRDDebugLog(@"Successful request. No active subscription found");
             if (completion) completion(nil, YES, nil);
             return;
             
@@ -183,18 +110,36 @@
             NSError *jsonError = nil;
             NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
             if (jsonError != nil) {
-                NSLog(@"[verifyReceiptWithCompletion] Failed to read valid line items: %@", jsonError);
+                GRDWarningLog(@"Failed to read valid line items: %@", jsonError);
                 if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
                 return;
                 
             } else {
-                if (completion) completion(validLineItems, YES, nil);
+				__block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
+				[validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+					GRDReceiptItem *item = [[GRDReceiptItem alloc] initWithDictionary:obj];
+					//dont wan't to process those at all, so dont add the item for them.
+					if (![[self receiptIgnoreProducts] containsObject:item.productId]) {
+						[items addObject:item];
+					}
+				}];
+                if (completion) completion(items, YES, nil);
                 return;
             }
             
         } else {
-            NSLog(@"Unknown error: %ld", statusCode);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error. Status code: %ld", statusCode]);
+			NSError *jsonError;
+			NSDictionary *errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+			if (jsonError != nil) {
+				if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to decode response error message JSON"]);
+				return;
+			}
+			
+			NSString *errorTitle = errorJSON[@"error-title"];
+			NSString *errorMessage = errorJSON[@"error-message"];
+			
+            GRDErrorLog(@"Unknown error %@ - %@. Status code: %ld", errorTitle, errorMessage, statusCode);
+            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", errorMessage, statusCode]);
         }
     }];
     [task resume];
@@ -442,9 +387,8 @@
     [task resume];
 }
 
-- (void)requestServersForRegion:(NSString *)region featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *, BOOL))completion {
-#warning double check on this deal
-	NSNumber *payingUserAsNumber; // = [NSNumber numberWithBool:[GRDVPNHelper isPayingUser]];
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *, BOOL))completion {
+	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
     NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment]} options:0 error:nil];
     NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1.2/servers/hostnames-for-region" andPostRequestData:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];

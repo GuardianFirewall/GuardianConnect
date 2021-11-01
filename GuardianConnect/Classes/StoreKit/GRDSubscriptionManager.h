@@ -61,6 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
 - (void)verifyReceipt;
 
+/// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
+- (void)verifyReceipt:(NSData  * _Nullable)receipt;
+
+
 /// Used to determine if the current user has an active subscription
 + (BOOL)isPayingUser;
 
