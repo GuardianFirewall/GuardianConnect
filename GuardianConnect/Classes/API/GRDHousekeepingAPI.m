@@ -443,7 +443,8 @@
 }
 
 - (void)requestServersForRegion:(NSString *)region featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *, BOOL))completion {
-    NSNumber *payingUserAsNumber = [NSNumber numberWithBool:[GRDVPNHelper isPayingUser]];
+#warning double check on this deal
+	NSNumber *payingUserAsNumber; // = [NSNumber numberWithBool:[GRDVPNHelper isPayingUser]];
     NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment]} options:0 error:nil];
     NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1.2/servers/hostnames-for-region" andPostRequestData:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
