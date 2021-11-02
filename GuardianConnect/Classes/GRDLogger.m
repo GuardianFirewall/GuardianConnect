@@ -7,6 +7,7 @@
 //
 
 #import "GRDLogger.h"
+#import "stdarg.h"
 
 @interface GRDLogger ()
 @end
