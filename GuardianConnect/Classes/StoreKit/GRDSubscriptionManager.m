@@ -25,6 +25,9 @@
     BOOL _activePurchase;
     BOOL _addedObservers;
     NSMutableArray *_mutableProducts; //keeps track of SKProducts
+	NSString *_apiSecret;
+	NSString *_bundleId;
+	NSArray <NSString *> *_ignoredProductIds;
 }
 @synthesize delegate;
 
@@ -39,16 +42,10 @@
     static dispatch_once_t onceToken;
     static GRDSubscriptionManager *shared;
     dispatch_once(&onceToken, ^{
-        shared = [GRDSubscriptionManager new];
+        shared = [[GRDSubscriptionManager alloc] init];
     });
     return shared;
 }
-
-- (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId {
-	self.apiSecret = apiSecret;
-	self.bundleId = bundleId;
-}
-
 
 #pragma mark - StoreKit Delegate Methods
 
@@ -141,8 +138,10 @@
 			// Inform the delegate that the subscription/restoration was successful
 			// and that the receipt is about to be verified
 			// The delegate can then update the user with details about it
-			[self.delegate validatingReceipt];
-            [self verifyReceipt:nil filtered:YES];
+			if ([self.delegate respondsToSelector:@selector(validatingReceipt)]) {
+				[self.delegate validatingReceipt];
+			}
+            [self verifyReceipt];
         });
     }
 }

@@ -33,16 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// API Secret used to identify the Apple provided shared secret to verify in-app purchase receipts
 /// The API Secret is currently still unused
-@property (nonatomic, strong) NSString *apiSecret;
+@property NSString *apiSecret;
 
 /// Bundle Id identifying the Guardian partner app to verify in-app purchase receipts
-@property (nonatomic, strong) NSString * bundleId;
+@property NSString *bundleId;
 
 /// Add to this array if you want any product id's exempt from receipt validation (non-app store purchases)
 @property NSArray <NSString *> *ignoredProductIds;
-
-/// Product ID's to limit programatically which ids are supposed to get verified / which products the app should retrieve prices and product details for. Currently not implemented
-@property NSArray *productIds;
 
 /// Keeps track of the response from SKProductRequest
 @property NSArray <SKProduct *> *sortedProductOfferings;
@@ -54,16 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Always use the sharedManager singleton when using this class.
 + (instancetype)sharedManager;
 
-/// Set the API secret key as well as the bundle id for future requests to obtain the list of
-/// known product ids or verify the in-app purchase receipts
-- (void)setAPISecret:(NSString *)apiSecret andBundleId:(NSString *)bundleId;
-
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
 - (void)verifyReceipt;
 
 /// Used to process & verify receipt data for a valid subscription, plan update or subscription expiration, communicates via GRDSubscriptionDelegate callbacks
 - (void)verifyReceipt:(NSData * _Nullable)receipt filtered:(BOOL)filtered;
-
 
 /// Used to determine if the current user has an active subscription
 + (BOOL)isPayingUser;

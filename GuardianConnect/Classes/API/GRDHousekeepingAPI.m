@@ -61,7 +61,7 @@
 		
 		encodedReceipt = [receiptData base64EncodedStringWithOptions:0];
 	}
-    
+	
 	NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":encodedReceipt, @"bundle-id": bundleId} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
