@@ -30,8 +30,6 @@
 }
 
 
-
-
 void zzz_GRDLog(const char *functionName, int lineNumber, BOOL preventPersistentLog, NSString *format, ...) {
 	va_list vargs;
 	va_start(vargs, format);
@@ -42,8 +40,21 @@ void zzz_GRDLog(const char *functionName, int lineNumber, BOOL preventPersistent
 	NSString *formattedLog = [[NSString alloc] initWithFormat:format arguments:vargs];
 	va_end(vargs);
 	
+	NSString *name;
 	NSArray *classNameComp = [[NSString stringWithUTF8String:functionName] componentsSeparatedByString:@" "];
-	NSString *name = [[[classNameComp objectAtIndex:0] componentsSeparatedByString:@"-["] objectAtIndex:1];
+	NSString *classNamePlusSyntax = [classNameComp objectAtIndex:0];
+	// Instance method
+	if ([classNamePlusSyntax hasPrefix:@"-["]) {
+		name = [[classNamePlusSyntax componentsSeparatedByString:@"-["] objectAtIndex:1];
+		
+	// Class method
+	} else if ([classNamePlusSyntax hasPrefix:@"+["]) {
+		name = [[classNamePlusSyntax componentsSeparatedByString:@"+["] objectAtIndex:1];
+		
+	// Safety rescue to prevent a crash
+	} else {
+		name = [NSString stringWithUTF8String:functionName];
+	}
 	
 	NSDateFormatter *timestampFormatter = [[NSDateFormatter alloc] init];
 	[timestampFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
