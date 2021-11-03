@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 // Macros to expose the various function format so that we can pickup the line numbers etc.
-#define GRDLog(format, ...) zzz_GRDLog(__PRETTY_FUNCTION__, __LINE__, NO, format, ## __VA_ARGS__)
+#define GRDLog(format, ...) zzz_GRDLog(__PRETTY_FUNCTION__, __LINE__, YES, format, ## __VA_ARGS__)
 #define GRDWarningLog(format, ...) zzz_GRDLog(__PRETTY_FUNCTION__, __LINE__, NO, [NSString stringWithFormat:@"[WARNING] %@", format], ## __VA_ARGS__)
 #define GRDErrorLog(format, ...) zzz_GRDLog(__PRETTY_FUNCTION__, __LINE__, NO, [NSString stringWithFormat:@"[ERROR] %@", format], ## __VA_ARGS__)
 
