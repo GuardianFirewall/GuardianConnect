@@ -114,15 +114,15 @@
         status = [self removeKeychanItemForAccount:kKeychainStr_SubscriberCredential];
         NSString *sanityCheck = [self getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
         if (status == errSecSuccess || sanityCheck == nil || status == errSecItemNotFound) {
-            GRDLog(@"[DEBUG] subscriber credential keychain removal success on try %li", (long)i);
+            GRDDebugLog(@"Subscriber Credential keychain removal success on try %li", (long)i);
             return status;
             
         } else { //either not errSecSuccess // errSecItemNotFound or the item still exists
             if (sanityCheck != nil) {
-                GRDLog(@"[DEBUG] subscriber credential keychain removal error occured, credential still exists!");
+				GRDErrorLog(@"Subscriber Credential keychain removal error occured, credential still exists!");
                 
             } else {
-                GRDLog(@"[DEBUG] subscriber credential keychain removal error occured: %d", (int)status);
+				GRDErrorLog(@"Subscriber Credential keychain removal error occured: %d", (int)status);
             }
         }
     }

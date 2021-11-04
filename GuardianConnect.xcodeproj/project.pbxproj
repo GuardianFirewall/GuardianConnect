@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
+		23F9D37D272FEEE000CDDB5B /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
+		23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA148261404A100E876CB /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3224BC1526531A5E00E5B4AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3224BC1426531A5E00E5B4AD /* AppDelegate.swift */; };
@@ -52,7 +56,6 @@
 		32939A8B26167D20007A4DFA /* GRDVPNHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */; };
 		32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7B26167D1F007A4DFA /* GRDKeychain.m */; };
 		32939A8D26167D20007A4DFA /* GRDGatewayAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */; };
-		32939A8E26167D20007A4DFA /* GRDNotificationMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A8F26167D20007A4DFA /* GRDGatewayAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A9026167D20007A4DFA /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A9126167D20007A4DFA /* GRDDebugHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8026167D1F007A4DFA /* GRDDebugHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -94,7 +97,6 @@
 		32E92C1D262A1BA700A3202C /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1E262A1BA700A3202C /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1F262A1BA700A3202C /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7526167D1F007A4DFA /* GRDKeychain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32E92C20262A1BA700A3202C /* GRDNotificationMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C21262A1BA700A3202C /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8126167D1F007A4DFA /* GRDServerManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C23262A1BA700A3202C /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -130,6 +132,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23E5FA9427304ABA000FC70F /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		23F9D37B272FEEE000CDDB5B /* GRDLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDLogger.m; sourceTree = "<group>"; };
+		23F9D37C272FEEE000CDDB5B /* GRDLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDLogger.h; sourceTree = "<group>"; };
 		321BA143261404A100E876CB /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		321BA146261404A100E876CB /* GuardianConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnect.h; sourceTree = "<group>"; };
 		321BA147261404A100E876CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -171,7 +176,6 @@
 		32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDVPNHelper.m; sourceTree = "<group>"; };
 		32939A7B26167D1F007A4DFA /* GRDKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDKeychain.m; sourceTree = "<group>"; };
 		32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDGatewayAPI.m; sourceTree = "<group>"; };
-		32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDNotificationMode.h; sourceTree = "<group>"; };
 		32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDGatewayAPI.h; sourceTree = "<group>"; };
 		32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDVPNHelper.h; sourceTree = "<group>"; };
 		32939A8026167D1F007A4DFA /* GRDDebugHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDDebugHelper.h; sourceTree = "<group>"; };
@@ -274,15 +278,17 @@
 			path = iOSSampleApp;
 			sourceTree = "<group>";
 		};
-		3252D68726939F3700FE7402 /* Subscription */ = {
+		3252D68726939F3700FE7402 /* StoreKit */ = {
 			isa = PBXGroup;
 			children = (
 				3252D62926938DC000FE7402 /* GRDSubscriptionManager.h */,
 				3252D62A26938DC000FE7402 /* GRDSubscriptionManager.m */,
 				3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */,
 				3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */,
+				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
+				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
 			);
-			path = Subscription;
+			path = StoreKit;
 			sourceTree = "<group>";
 		};
 		32939A6226167D0E007A4DFA /* Categories */ = {
@@ -316,9 +322,11 @@
 		32939A962616837F007A4DFA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3252D68726939F3700FE7402 /* Subscription */,
+				3252D68726939F3700FE7402 /* StoreKit */,
 				32ABCF5026352BCF0030B258 /* API */,
 				32ABCF4F26352BAC0030B258 /* Credentials */,
+				23F9D37C272FEEE000CDDB5B /* GRDLogger.h */,
+				23F9D37B272FEEE000CDDB5B /* GRDLogger.m */,
 				32939A8026167D1F007A4DFA /* GRDDebugHelper.h */,
 				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
 				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
@@ -355,9 +363,6 @@
 		32ABCF5026352BCF0030B258 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
-				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
-				32939A7D26167D1F007A4DFA /* GRDNotificationMode.h */,
 				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
 				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
 				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
@@ -376,6 +381,7 @@
 			isa = PBXGroup;
 			children = (
 				32E92C04262A1B3D00A3202C /* GuardianConnect.h */,
+				23E5FA9427304ABA000FC70F /* PrefixHeader.pch */,
 				32E92C05262A1B3D00A3202C /* Info.plist */,
 			);
 			path = GuardianConnectMac;
@@ -403,7 +409,7 @@
 				32939A9126167D20007A4DFA /* GRDDebugHelper.h in Headers */,
 				32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
-				32939A8E26167D20007A4DFA /* GRDNotificationMode.h in Headers */,
+				23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
 				32939A9326167D20007A4DFA /* GRDHousekeepingAPI.h in Headers */,
 				3252D62B26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
@@ -435,9 +441,9 @@
 				32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */,
 				328035AE2666C3FD00A173CE /* GRDReceiptItem.h in Headers */,
 				32E92C24262A1BAE00A3202C /* NSDate+Extras.h in Headers */,
+				23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */,
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
 				32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */,
-				32E92C20262A1BA700A3202C /* GRDNotificationMode.h in Headers */,
 				3252D62C26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
 				32E92C1B262A1BA700A3202C /* GRDDebugHelper.h in Headers */,
 				32E92C25262A1BB600A3202C /* NSPredicate+Additions.h in Headers */,
@@ -604,6 +610,7 @@
 				32E1AE182698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
 				32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */,
 				32939A9426167D20007A4DFA /* GRDDebugHelper.m in Sources */,
+				23F9D37D272FEEE000CDDB5B /* GRDLogger.m in Sources */,
 				32939A7026167D0E007A4DFA /* EXTScope.m in Sources */,
 				32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */,
 				32855B19263640B90088086E /* GRDRegion.m in Sources */,
@@ -651,6 +658,7 @@
 				32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */,
 				32E92C0E262A1B6100A3202C /* GRDCredential.m in Sources */,
 				32E1AE192698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
+				23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */,
 				3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				32E92C0D262A1B5400A3202C /* EXTRuntimeExtensions.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,

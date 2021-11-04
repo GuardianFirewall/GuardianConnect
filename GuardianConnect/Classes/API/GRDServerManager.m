@@ -122,7 +122,7 @@
         // Note from CJ 2021-10-25:
         // Hardcoded to ServerFeatureEnvironmentProduction for the time being. Going to make this a little more
         // flexbile very soon to enable features in Guardian
-        [self.housekeeping requestServersForRegion:regionName featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
                 GRDLog(@"Failed to get servers for region");
                 if (completion) completion(nil, @"Failed to request list of servers.");
@@ -171,17 +171,17 @@
         return;
     }
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        GRDHousekeepingAPI *housekeeping = [[GRDHousekeepingAPI alloc] init];
-        [housekeeping requestServersForRegion:regionName featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
-            if (servers.count < 1){
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+            if (servers.count < 1) {
                 if (completion){
                     dispatch_async(dispatch_get_main_queue(), ^{
                         completion(nil, nil, NSLocalizedString(@"No server found", nil));
                     });
                 }
+				
             } else {
                 NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
-                if (availableServers.count < 2){
+                if (availableServers.count < 2) {
                     availableServers = servers;
                 }
                 
@@ -189,7 +189,7 @@
                 NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
                 NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
                 GRDLog(@"Selected host: %@", guardianHost);
-                if(completion){
+                if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         completion(guardianHost, guardianHostLocation, nil);
                     });
@@ -202,12 +202,11 @@
 - (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion {
     GRDLog(@"Requested Region: %@", regionName);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        GRDHousekeepingAPI *housekeeping = [[GRDHousekeepingAPI alloc] init];
-        [housekeeping requestServersForRegion:regionName featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(NSLocalizedString(@"No server found", nil),FALSE);
+                        completion(@"No server found the specified region", NO);
                     });
                 }
                 
@@ -227,16 +226,15 @@
                     if (!success) {
                         if (completion) {
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(errorMessage,FALSE);
+                                completion(errorMessage, NO);
                             });
                         }
                         
                     } else {
-                        GRDLog(@"[DEBUG] configured first time user successfully!");
-                        [self bindPushToken];
+                        GRDDebugLog(@"Configured first time user successfully!");
                         if (completion) {
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(nil,TRUE);
+                                completion(nil, YES);
                             });
                         }
                     }
@@ -252,24 +250,23 @@
     if (timestamp != nil) {
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:timestamp.integerValue];
         NSTimeInterval intervalSinceNow = [[NSDate date] timeIntervalSinceDate:date];
-        if (intervalSinceNow > 60*10){ //its been more than 10 minutes, time to refresh the data!
+        if (intervalSinceNow > 60*10) { //its been more than 10 minutes, time to refresh the data!
             [ud removeObjectForKey:kGuardianAllRegions];
         }
     }
+	
     NSArray *regions = [ud valueForKey:kGuardianAllRegions];
-    if (!regions){
+    if (!regions) {
         [[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success) {
             NSTimeInterval nowUnix = [[NSDate date] timeIntervalSince1970];
             [ud setObject:[NSNumber numberWithInt:nowUnix] forKey:kGuardianAllRegionsTimeStamp];
             [ud setObject:[items sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name-pretty" ascending:true]]] forKey:kGuardianAllRegions];
-            if (completion){
-                completion(items);
-            }
+            if (completion) completion(items);
+			return;
         }];
+		
     } else {
-        if (completion){
-            completion(regions);
-        }
+        if (completion) completion(regions);
     }
 }
 
@@ -280,43 +277,10 @@
 
 - (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nonnull regions))completion {
     [self populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-        if (completion){
+        if (completion) {
             completion([GRDRegion regionsFromTimezones:regions]);
         }
     }];
-}
-
-/**
- 
- the logic for this is simple, we need a delay to make sure we are actually connected to the server so the details get synced properly
- don't want to request push notification access if they haven't already accepted it, so this will only bind the push token if they have
- given permission to receive push notifications to begin with.
- 
- */
-
-- (void)bindPushToken {
-    if (![GRDVPNHelper proMode]) {
-          return;
-    }
-    if (@available(macOS 10.14, iOS 10.0, *)) {
-        //doing this on a delay to make sure the settings get synced w/ the new server properly, without the delay it happens too fast.
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            
-            [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-                if (settings.authorizationStatus == UNAuthorizationStatusAuthorized) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        dispatch_async(dispatch_get_main_queue(), ^{
-#if TARGET_OS_OSX
-                            [[NSApplication sharedApplication] registerForRemoteNotifications];
-#else
-                            [[UIApplication sharedApplication] registerForRemoteNotifications];
-#endif
-                        });
-                    });
-                }
-            }];
-        });
-    }
 }
 
 @end

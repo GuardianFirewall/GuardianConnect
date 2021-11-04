@@ -8,11 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
-#import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDReceiptItem.h>
 
-#define kHousekeepingAPIBase @"https://housekeeping.sudosecuritygroup.com"
+#define kHousekeepingAPIBase @"https://connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,9 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Validation Method used to obtain a signed JWT from housekeeping
 typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
     ValidationMethodInvalid = -1,
-    ValidationMethodUsernamePassword,
     ValidationMethodAppStoreReceipt,
-    ValidationMethodPromoCode,
     ValidationmethodPEToken
 };
 
@@ -39,30 +36,25 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
 
-/// username to be used for authentication when GRDHousekeepingValidationMethod is set to ValidationMethodUsernamePassword
-@property NSString *username;
-
-/// password to be used for authentication when GRDHousekeepingValidationMethod is set to ValidationMethodUsernamePassword
-@property NSString *password;
-
 /// Digital App Store Receipt used to obtain a signed JWT from housekeeping
 /// Currently not used since the App Store Receipt is encoded and sent to housekeeping directly from the method itself. Meant as debugging/manual override option in the future
 @property NSString *appStoreReceipt;
 
-/// Promo code to be used to obtain a signed JWT from housekeeping when GRDHousekeepingValidationMethod is set to ValidationMethodPromoCode
-@property NSString *promoCode;
+/// PET or PE Token == Password Equivalent Token
+/// Currently only used by Guardian for subscriptions & purchases conducted via the web
+@property NSString *peToken;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
 /// @param completion completion block returning NSDictionary with information for the requested token, an error message and a bool indicating success of the request
 - (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable peTokenInfo, NSString * _Nullable errorMessage, BOOL success))completion;
 
-/// endpoint: /api/v1.1/verify-receipt
-/// Used to verify the current subscription status of a user if they subscribed through an in app purchase. Returns an array containing only valid subscriptions / purchases
+/// endpoint: /api/v1.2/verify-receipt
+/// Used to verify the current subscription status of a user if they subscribed through an in-app purchase. Returns an array containing only valid subscriptions / purchases
+/// @param encodedReceipt Base64 encoded AppStore receipt. If the value is NULL, [NSBundle mainBundle] appStoreReceiptURL] will be used to grab the system App Store receipt
+/// @param bundleId The apps bundle id used to identify the shared secret server side to decrypt the receipt data
 /// @param completion completion block returning array only containing valid subscriptions / purchases, success indicator and a error message containing actionable information for the user if the request failed
-- (void)verifyReceiptWithCompletion:(void (^)(NSArray *_Nullable validLineItems, BOOL success, NSString *_Nullable errorMessage))completion;
-
-- (void)verifyReceiptFiltered:(BOOL)filtered completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL, NSString * _Nullable errorString))completion;
+- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1/subscriber-credential/create
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
@@ -80,7 +72,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *servers, BOOL success))completion;
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *servers, BOOL success))completion;
 
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success
