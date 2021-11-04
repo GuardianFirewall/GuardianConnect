@@ -15,8 +15,17 @@
 
 @implementation GRDLogger
 
-+ (NSArray *)allLogs {
++ (NSArray<NSString *> *)allLogs {
 	return [[NSUserDefaults standardUserDefaults] arrayForKey:kGRDPersistentLog];
+}
+
++ (NSString *) allLogsFormatted {
+	NSArray *allLogs = [GRDLogger allLogs];
+	NSString *formattedLogString = [NSString new];
+	for (NSString *log in allLogs) {
+		formattedLogString = [formattedLogString stringByAppendingFormat:@"%@,\n", log];
+	}
+	return  formattedLogString;
 }
 
 + (void)deleteAllLogs {
