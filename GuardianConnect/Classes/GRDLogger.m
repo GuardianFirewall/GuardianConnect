@@ -23,7 +23,7 @@
 	NSArray *allLogs = [GRDLogger allLogs];
 	NSString *formattedLogString = [NSString new];
 	for (NSString *log in allLogs) {
-		formattedLogString = [formattedLogString stringByAppendingFormat:@"%@,\n", log];
+		formattedLogString = [formattedLogString stringByAppendingString:log];
 	}
 	return  formattedLogString;
 }
