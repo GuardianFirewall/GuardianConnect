@@ -425,7 +425,7 @@
         NSString *petToken 		= [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
         BOOL preTrialTokenSet 	= [[NSUserDefaults standardUserDefaults] boolForKey:kGuardianFreeTrialPeTokenSet];
         
-        if ((preTrialTokenSet == YES || [petToken containsString:@"gdp_"]) && petToken.length > 0) {
+        if ((preTrialTokenSet == YES || [petToken containsString:@"gdp_"]) || petToken.length > 0) {
             valmethod = ValidationmethodPEToken;
         }
         
