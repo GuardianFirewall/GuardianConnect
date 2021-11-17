@@ -21,7 +21,7 @@
 
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
-    if (self){
+    if (self) {
         _continent = regionDict[@"continent"]; //ie europe
         _regionName = regionDict[@"name"]; //ie eu-es
         _displayName = regionDict[@"name-pretty"]; //ie Spain
