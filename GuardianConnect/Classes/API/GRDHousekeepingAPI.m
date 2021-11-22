@@ -67,7 +67,10 @@
     [request setHTTPMethod:@"POST"];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             NSLog(@"Failed to retrieve receipt data: %@", error);
             if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
@@ -179,7 +182,11 @@
 #if GUARDIAN_INTERNAL
     [debugHelper logTimeWithMessage:@"about to send POST request to API"];
 #endif
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 #if GUARDIAN_INTERNAL
         [debugHelper logTimeWithMessage:@"request completion block start"];
 #endif
@@ -248,7 +255,10 @@
     }
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             GRDLog(@"Failed to send request: %@", error);
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
@@ -293,7 +303,11 @@
     if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
     }
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             GRDLog(@"Failed to send request: %@", [error localizedDescription]);
             if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]], NO);
@@ -336,7 +350,9 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com/api/v1.1/servers/timezones-for-regions"]]];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         if (error != nil) {
@@ -363,7 +379,9 @@
     NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1.2/servers/hostnames-for-region" andPostRequestData:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         if (error != nil) {
@@ -401,7 +419,10 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/servers/all-hostnames"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             NSLog(@"[requestAllHostnamesWithCompletion] Request failed: %@", error);
             if (completion) completion(nil, NO);
@@ -430,7 +451,10 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             NSLog(@"Failed to get all region items: %@", error);
             if (completion) completion(nil, NO);
@@ -460,206 +484,5 @@
     [task resume];
 }
 
-# pragma mark - User Endpoints
-
-- (void)loginUserWithEMail:(NSString *)email password:(NSString *)password completion:(void (^)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success))completion {
-    
-    if ([[email lowercaseString] isEqualToString:@"bad"]) {
-        if (completion) {
-            completion(@{@"error": @"bunk"}, @"dummy user bad login", FALSE);
-            return;
-        }
-    }
-   
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"email":email, @"password":password} options:0 error:nil];
-    NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1/users/login" andPostRequestData:requestJSON];
-    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-    [request setValue:@"1" forHTTPHeaderField:@"GRD-iOS-App"];
-    
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            NSLog(@"[loginUserWithEMail] Failed with error: %@", error);
-            if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send login informaton to server: %@", [error localizedDescription]], NO);
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            NSLog(@"[loginUserWithEMail] Internal server error");
-            if (completion) completion(nil, @"Internal server error", NO);
-            return;
-            
-        } else if (statusCode == 404) {
-            NSLog(@"[loginUserWithEMail] User not found");
-            if (completion) completion(nil, @"Bad login data. Please try again", NO);
-            return;
-            
-        } else if (statusCode == 400) {
-            NSLog(@"[loginUserWithEMail] Bad request");
-            if (completion) completion(nil, @"Failed to login. Bad request - please try again", NO);
-            return;
-            
-        } else if (statusCode == 200) {//pe-token
-            NSDictionary *authResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(authResponse, nil, YES);
-            return;
-            
-        } else {
-            NSLog(@"Unknown server response: %ld", statusCode);
-            if (completion) completion(nil, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode], NO);
-        }
-    }];
-    [task resume];
-}
-
-- (void)signoutUserPET:(NSString *)petoken completion:(void (^)(BOOL, NSString * _Nullable))completion {
-    if ([petoken isEqualToString:@""]) {
-        GRDLog(@"Empty PE-Token. Nothing to do");
-        if (completion) completion(YES, nil);
-        return;
-    }
-    
-    NSError *jsonEncodeError;
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": petoken} options:0 error:&jsonEncodeError];
-    if (jsonEncodeError != nil) {
-        GRDLog(@"Failed to encode JSON: %@", jsonEncodeError);
-        if (completion) completion(NO, [NSString stringWithFormat:@"Failed to encode JSON: %@", [jsonEncodeError localizedDescription]]);
-        return;
-    }
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/sign-out"]];
-    [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
-    [request setHTTPBody:requestJSON];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send request: %@", error);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSError *jsonError;
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        if (jsonError != nil && statusCode != 200) {
-            GRDLog(@"Failed to decode JSON response: %@", jsonError);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to decode JSON response: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        if (statusCode == 500) {
-            GRDLog(@"Internal Server Error! Failed to mark PET as disabled");
-            if (completion) completion(false, @"Internal Server Error! Failed to mark PET as disabled");
-            
-        } else if (statusCode == 419 || statusCode == 409) {
-            GRDLog(@"Failed to mark PET as disabled: %@ - %@", [responseDict objectForKey:@"error-title"], [responseDict objectForKey:@"error-message"]);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to mark PET as disabled: %@ - %@", [responseDict objectForKey:@"error-title"], [responseDict objectForKey:@"error-message"]]);
-            return;
-            
-        } else if (statusCode == 200) {
-            if (completion) completion(YES, nil);
-            return;
-            
-        } else {
-            NSString *errorTitle = [responseDict objectForKey:@"error-title"];
-            NSString *errorMessage = [responseDict objectForKey:@"error-message"];
-            if (errorTitle == nil || errorMessage == nil) {
-                GRDLog(@"Failed to mark PET as disabled! Unknown status code: %ld", statusCode);
-                if (completion) completion(NO, [NSString stringWithFormat:@"Failed to mark PET as disabled. Unknown status code: %ld", statusCode]);
-                return;
-                
-            } else {
-                GRDLog(@"Failed to mark PET as disabled! Unknown status code: %ld - %@ - %@", statusCode, errorTitle, errorMessage);
-                if (completion) completion(NO, [NSString stringWithFormat:@"Failed to mark PET as disabled! Unknown status code: %ld - %@ - %@", statusCode, errorTitle, errorMessage]);
-            }
-        }
-    }];
-    [task resume];
-}
-
-# pragma mark - Trial Days Endpoints
-
-- (void)isEligibleForExtendedFreeWithCompletion:(void (^)(BOOL, BOOL, BOOL, NSInteger, NSString * _Nullable, NSInteger, NSString * _Nullable))completion {
-    [self getDeviceToken:^(id _Nullable token, NSError * _Nullable error) {
-        NSString *deviceCheckToken;
-        if (token != nil && [token respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
-            deviceCheckToken = [token base64EncodedStringWithOptions:0];
-        } else {
-            if (error != nil) {
-                NSLog(@"DeviceCheck Token generation error: %@", error);
-                if (completion) completion(NO, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"DeviceCheck token generation failed. If this issue persists please contact our technical support! Error: %@", [error localizedDescription]]);
-                return;
-            }
-            deviceCheckToken = @"helloMyNameIs-iPhoneSimulator";
-        }
-        
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/is-eligible-for-free"]];
-        [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-        
-        NSError *jsonError = nil;
-        NSData *jsonPayload = [NSJSONSerialization dataWithJSONObject:@{@"device-check-token": deviceCheckToken} options:0 error:&jsonError];
-        if (jsonError) {
-            GRDLog(@"jsonError: %@", jsonError);
-            if (completion) completion(NO, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"Failed to generate API payload. If this issue persists please contact our technical support! Error: %@", [jsonError localizedDescription]]);
-            return;
-        }
-        
-        [request setHTTPBody:jsonPayload];
-        [request setHTTPMethod:@"POST"];
-        if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-            [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-        }
-        NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (error != nil) {
-                GRDLog(@"Failed to send request: %@", [error localizedDescription]);
-                if (completion) completion(NO, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
-                return;
-            }
-            
-            NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-            if (statusCode == 500) {
-                NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                NSString *errorTitle = [errorDict objectForKey:@"error-title"];
-                NSString *errorMessage = [errorDict objectForKey:@"error-message"];
-                GRDLog(@"%@ - %@", errorTitle, errorMessage);
-                if (completion) completion(YES, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"%@ - %@", errorTitle, errorMessage]);
-                return;
-                
-            } else if (statusCode == 400) {
-                NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                NSString *errorTitle = [errorDict objectForKey:@"error-title"];
-                NSString *errorMessage = [errorDict objectForKey:@"error-message"];
-                GRDLog(@"%@ - %@", errorTitle, errorMessage);
-                if (completion) completion(YES, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"%@ - %@", errorTitle, errorMessage]);
-                return;
-                
-            } else if (statusCode == 300) {
-                GRDLog(@"Old style trial balance activated");
-                NSDictionary *petJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                NSString *peToken = [petJSON objectForKey:@"pe-token"];
-                NSNumber *petExpirationDate = [petJSON objectForKey:@"pet-expires"];
-                NSNumber *trialBalance = [petJSON objectForKey:@"trial-balance"];
-                if (completion) completion(YES, YES, YES, [trialBalance integerValue], peToken, [petExpirationDate integerValue], nil);
-                return;
-                
-            } else if (statusCode == 200) {
-                GRDLog(@"Eligible for free day passes");
-                NSDictionary *trialJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                NSNumber *trialBalance = [trialJSON objectForKey:@"trial-balance"];
-                if (completion) completion(YES, NO, YES, [trialBalance integerValue], nil, -1, nil);
-                return;
-                
-            } else {
-                GRDLog(@"Unknown server error. Response status code: %ld", statusCode);
-                if (completion) completion(NO, NO, NO, 0, nil, -1, [NSString stringWithFormat:@"Unknown server error. Response status code: %ld", statusCode]);
-                return;
-            }
-        }];
-        [task resume];
-    }];
-}
 
 @end

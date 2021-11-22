@@ -62,8 +62,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// @param completion completion block returning a signed JWT, indicating request success and a user actionable error message if the request failed
 - (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
 
-- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable userInfo, BOOL success, NSString * _Nullable errorMessage))completion;
-
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
 /// @param completion completion block returning an array with all timezones, indicating request success, and the response status code
@@ -78,28 +76,13 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// @param completion completion block returning an array of all hostnames and indicating request success
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable allServers, BOOL success))completion;
 
-/// endpoint: /api/v1.1/is-eligible-for-free
-/// @param completion completion block returning eligible and success BOOL indicating if the user is allowed to connect and whether or not the request was successful
-- (void)isEligibleForExtendedFreeWithCompletion:(void (^)(BOOL success, BOOL oldStyleTrialBalance, BOOL eligibleForTrialBalance, NSInteger trialBalance, NSString * _Nullable peToken, NSInteger petExpirationDate, NSString * _Nullable errorMessage))completion;
-
-/// endpoint: /api/v1/users/login
-/// Used for pro/visionary authentication
-/// @param email address used to authenticate
-/// @param password used to authenticate
-/// @param completion completion block that will return a dictionary of response data an error message and a boolean of whether or not the request was successful
-- (void)loginUserWithEMail:(NSString *)email password:(NSString *)password completion:(ResponseBlock)completion;
-
-/// endpoint: /api/v1/users/sign-out
-/// Used to mark login PETs as disabled so that they can't be used again
-/// @param petoken Password Equivalent Token that is supposed to be marked as disabled
-/// @param completion completion block that will return a BOOL indicating successful API call and in the case of a failed API call an error message
-- (void)signoutUserPET:(NSString *)petoken completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
-
 /// endpoint: /api/v1/servers/all-server-regions
 /// Used to retrieve all available Server Regions from housekeeping to allow users to override the selected Server Region
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion;
 
+
+- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable userInfo, BOOL success, NSString * _Nullable errorMessage))completion;
 
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion;
 
