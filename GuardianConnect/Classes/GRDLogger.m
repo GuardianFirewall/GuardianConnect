@@ -34,7 +34,7 @@
 }
 
 + (void)togglePersistentLogging:(BOOL)enabled {
-	GRDLog(@"Setting persistent log enabled to: %s", enabled ? @"YES" : @"NO");
+	GRDLog(@"Setting persistent log enabled to: %@", enabled ? @"YES" : @"NO");
 	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kGRDPersistentLogEnabled];
 }
 
