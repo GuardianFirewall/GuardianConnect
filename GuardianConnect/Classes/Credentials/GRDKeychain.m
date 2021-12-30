@@ -119,10 +119,10 @@
             
         } else { //either not errSecSuccess // errSecItemNotFound or the item still exists
             if (sanityCheck != nil) {
-				GRDErrorLog(@"Subscriber Credential keychain removal error occured, credential still exists!");
+				GRDErrorLogg(@"Subscriber Credential keychain removal error occured, credential still exists!");
                 
             } else {
-				GRDErrorLog(@"Subscriber Credential keychain removal error occured: %d", (int)status);
+				GRDErrorLogg(@"Subscriber Credential keychain removal error occured: %d", (int)status);
             }
         }
     }

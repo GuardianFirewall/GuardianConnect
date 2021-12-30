@@ -87,7 +87,7 @@
             NSError *jsonError = nil;
             NSArray *validLineItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
             if (jsonError != nil) {
-                GRDWarningLog(@"Failed to read valid line items: %@", jsonError);
+                GRDWarningLogg(@"Failed to read valid line items: %@", jsonError);
                 if (completion) completion(nil, YES, [NSString stringWithFormat:@"Failed to decode valid line items: %@", [jsonError localizedDescription]]);
                 return;
                 
@@ -111,7 +111,7 @@
 			NSString *errorTitle = errorJSON[@"error-title"];
 			NSString *errorMessage = errorJSON[@"error-message"];
 			
-            GRDErrorLog(@"Unknown error %@ - %@. Status code: %ld", errorTitle, errorMessage, statusCode);
+            GRDErrorLogg(@"Unknown error %@ - %@. Status code: %ld", errorTitle, errorMessage, statusCode);
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", errorMessage, statusCode]);
         }
     }];

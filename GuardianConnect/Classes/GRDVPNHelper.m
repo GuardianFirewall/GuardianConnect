@@ -304,7 +304,7 @@
                 }
                 
             } else {
-                GRDErrorLog(@"No COMPLETION BLOCK SET! Going to have a bad time");
+                GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
             }
         }];
         return;
@@ -322,7 +322,7 @@
                 }
                 
             } else {
-				GRDErrorLog(@"No COMPLETION BLOCK SET! Going to have a bad time");
+				GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
             }
         }];
         return;
@@ -346,7 +346,7 @@
                         }
                         
                     } else {
-						GRDErrorLog(@"No COMPLETION BLOCK SET! Going to have a bad time");
+						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
                     }
                 }];
                 return;
@@ -372,14 +372,14 @@
                         completion(error, GRDVPNHelperFail);
                     }
                 } else {
-					GRDErrorLog(@"No COMPLETION BLOCK SET! Going to have a bad time");
+					GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
                 }
             }];
             return;
             
         } else if (apiResponse.responseStatus == GRDGatewayAPIUnknownError) {
             if (apiResponse.error.code == NSURLErrorTimedOut || apiResponse.error.code == NSURLErrorServerCertificateHasBadDate || apiResponse.error.code == GRDVPNHelperDoesNeedMigration) {
-                GRDErrorLog(@"Timeout error! Cert expiration error or host not found, migrating!");
+                GRDErrorLogg(@"Timeout error! Cert expiration error or host not found, migrating!");
                 [self migrateUserWithCompletion:^(BOOL success, NSString *error) {
                     if (completion) {
                         if (success) {
@@ -389,12 +389,12 @@
                             completion(error, GRDVPNHelperFail);
                         }
                     } else {
-						GRDErrorLog(@"No COMPLETION BLOCK SET! Going to have a bad time");
+						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
                     }
                 }];
 				
             } else {
-				GRDErrorLog(@"Failed to connect to host: %@", [apiResponse.error localizedDescription]);
+				GRDErrorLogg(@"Failed to connect to host: %@", [apiResponse.error localizedDescription]);
                 if (completion) completion(@"Unknown error occured. Please try again soon", GRDVPNHelperFail);
             }
         }
