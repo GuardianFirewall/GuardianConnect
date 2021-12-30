@@ -532,7 +532,18 @@
         NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint];
         
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
-        NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken]};
+        NSString *apiAuthToken = [self apiAuthToken];
+        if (apiAuthToken == nil || [apiAuthToken isEqualToString:@""]) {
+            GRDLogg(@"API Auth Token is null or not useable. Resetting keychain items");
+            GRDLog(@"API Atuh Token out of keychain: %@", apiAuthToken);
+            [GRDKeychain removeGuardianKeychainItems];
+            [GRDKeychain removeSubscriberCredentialWithRetries:3];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kAppNeedsSelfRepair];
+            if (completion) completion(nil, NO, @"Corrupted keychain. Aborting");
+            return;
+        }
+        
+        NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: apiAuthToken};
         [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
         [request setHTTPMethod:@"POST"];
         
