@@ -72,7 +72,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            NSLog(@"Failed to retrieve receipt data: %@", error);
+            GRDLog(@"Failed to retrieve receipt data: %@", error);
             if (completion) completion(nil, NO, @"Failed to retrieve receipt data from server");
             return;
         }
@@ -139,7 +139,7 @@
             // Apple in-app purchase receipts copied from the Guardian Firewall iOS app
             NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
             if (userDefaultsEncodedIAPReceipt == nil) {
-                NSLog(@"[DEBUG][createNewSubscriberCredentialWithValidationMethod] receiptData == nil");
+                GRDLog(@"ReceiptData is nil");
                 if (completion) {
                     completion(nil, NO, @"AppStore receipt missing");
                 }
@@ -160,7 +160,7 @@
     } else if (validationMethod == ValidationmethodPEToken) {
         NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
         if (petToken == nil) {
-            NSLog(@"[createNewSubscriberCredentialWithValidationMethod] Failed to retrieve PEToken from keychain");
+            GRDLog(@"Failed to retrieve PEToken from keychain");
             if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
             return;
         }
@@ -191,29 +191,29 @@
         [debugHelper logTimeWithMessage:@"request completion block start"];
 #endif
         if (error != nil) {
-            NSLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
+            GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 500) {
-            NSLog(@"Housekeeping failed to return subscriber credential");
+            GRDLog(@"Housekeeping failed to return subscriber credential");
             if (completion) completion(nil, NO, @"Internal server error - couldn't create subscriber credential");
             return;
             
         } else if (statusCode == 400) {
-            NSLog(@"Failed to create subscriber credential. Faulty input values");
+            GRDLog(@"Failed to create subscriber credential. Faulty input values");
             if (completion) completion(nil, NO, @"Failed to create subscriber credential. Faulty input values");
             return;
             
         } else if (statusCode == 401) {
-            NSLog(@"No subscription present");
+            GRDLog(@"No subscription present");
             if (completion) completion(nil, NO, @"No subscription present");
             return;
             
         } else if (statusCode == 410) {
-            NSLog(@"Subscription expired");
+            GRDLog(@"Subscription expired");
             // Not sending an error message back so that we're not showing a useless error to the user
             // The app should transition to free/unpaid if required
             if (completion) completion(nil, NO, nil);
@@ -225,7 +225,7 @@
             return;
             
         } else {
-            NSLog(@"Unknown server error");
+            GRDLog(@"Unknown server error");
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
         }
         
@@ -373,9 +373,9 @@
     [task resume];
 }
 
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *, BOOL))completion {
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, BOOL))completion {
 	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment]} options:0 error:nil];
+    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment], @"beta-capable": @(betaCapable)} options:0 error:nil];
     NSMutableURLRequest *request = [self requestWithEndpoint:@"/api/v1.2/servers/hostnames-for-region" andPostRequestData:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     
@@ -383,21 +383,20 @@
 	[sessionConf setWaitsForConnectivity:YES];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
         if (error != nil) {
-            NSLog(@"[requestServersForRegion] Failed to hit endpoint: %@", error);
+            GRDLog(@"Failed to hit endpoint: %@", error);
             if (completion) completion(nil, NO);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 400) {
-            NSLog(@"[requestServersForRegion] region key missing or mangled in JSON");
+            GRDLog(@"region key missing or mangled in JSON");
             if (completion) completion(nil, NO);
             return;
             
         } else if (statusCode == 500) {
-            NSLog(@"[requestServersForRegion] Internal server error");
+            GRDLog(@"Internal server error");
             if (completion) completion(nil, NO);
             return;
             
@@ -407,7 +406,7 @@
                 completion(servers, YES);
             }
         } else {
-            NSLog(@"[requestServersForRegion] Uncaught http response status: %ld", statusCode);
+            GRDLog(@"Uncaught http response status: %ld", statusCode);
             if (completion) completion(nil, NO);
             return;
         }
@@ -424,14 +423,14 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            NSLog(@"[requestAllHostnamesWithCompletion] Request failed: %@", error);
+            GRDLog(@"Request failed: %@", error);
             if (completion) completion(nil, NO);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 500) {
-            NSLog(@"[requestAllHostnamesWithCompletion] Internal server error");
+            GRDLog(@"Internal server error");
             if (completion) completion(nil, NO);
             
         } else if (statusCode == 200) {
@@ -439,7 +438,7 @@
             if (completion) completion(servers, YES);
             
         } else {
-            NSLog(@"[requestAllHostnamesWithCompletion] Uncaught http response status: %ld", statusCode);
+            GRDLog(@"Uncaught http response status: %ld", statusCode);
             if (completion) completion(nil, NO);
             return;
         }
@@ -456,18 +455,18 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            NSLog(@"Failed to get all region items: %@", error);
+            GRDLog(@"Failed to get all region items: %@", error);
             if (completion) completion(nil, NO);
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 500) {
-            NSLog(@"[requestAllServerRegions] Internal server error");
+            GRDLog(@"Internal server error");
             if (completion) completion(nil, NO);
             return;
             
         } else if (statusCode == 204) {
-            NSLog(@"[requestAllServerRegions] came back empty");
+            GRDLog(@"Came back empty");
             if (completion) completion(@[], YES);
             return;
             
@@ -477,7 +476,7 @@
             return;
             
         } else {
-            NSLog(@"Unknown server response: %ld", statusCode);
+            GRDLog(@"Unknown server response: %ld", statusCode);
             if (completion) completion(nil, NO);
         }
     }];

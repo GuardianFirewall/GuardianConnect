@@ -7,17 +7,20 @@
 //
 
 @import UserNotifications;
-#import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDDebugHelper.h>
+#import <GuardianConnect/GRDServerManager.h>
+#import <GuardianConnect/GRDHousekeepingAPI.h>
 
 #if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
 #endif
 
-@interface GRDServerManager() {
-    GRDNetworkHealthType networkHealth;
-}
+@interface GRDServerManager()
+
 @property GRDHousekeepingAPI *housekeeping;
+@property GRDServerFeatureEnvironment featureEnv;
+@property BOOL betaCapable;
+
 @end
 
 @implementation GRDServerManager
@@ -25,8 +28,21 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.housekeeping = [[GRDHousekeepingAPI alloc] init];
+		self.featureEnv = ServerFeatureEnvironmentProduction;
+		self.betaCapable = NO;
     }
     return self;
+}
+
+- (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable {
+	self = [super init];
+	if (self) {
+		self.housekeeping = [[GRDHousekeepingAPI alloc] init];
+		self.featureEnv = featureEnv;
+		self.betaCapable = betaCapable;
+	}
+	
+	return self;
 }
 
 - (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion {
@@ -38,41 +54,20 @@
             return;
         }
         
-        // Array of servers out of which ultimately a host for the client will be randomly selected
-        NSArray *availableServers = [NSArray new];
+        // The server selection logic tries to prioritize low capacity servers which is defined as
+        // having few clients connected. Low is defined as a capacity score of 0 or 1
+        // capcaity score != connected clients. It's a calculated value based on information from each VPN node
+        // this predicate will filter out anything above 1 as its capacity score
+        NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
         
-        // Checking to see if the clients prefers beta-capable servers over production servers
-        BOOL betaCapablePreferred = [[NSUserDefaults standardUserDefaults] boolForKey:@"kGRDBetaCapablePreferred"];
-        if (betaCapablePreferred == YES) {
-            GRDLog(@"Client indicates that it prefers beta capable servers");
-            availableServers = [servers filteredArrayUsingPredicate:[NSPredicate betaCapablePredicate]];
-            if ([availableServers count] < 1) {
-                GRDLog(@"No beta capable hosts available in the current region, following regular client load balancing logic");
-                
-            } else {
-                GRDLog(@"Found %ld beta capable server(s) for the client", [availableServers count]);
-            }
+        // if at least 2 low capacity servers are not available, just use full list instead
+        // helps mitigate edge case: single server returned, but it is down yet not reported as such by Housekeeping
+        if ([availableServers count] < 2) {
+            // take full list of servers returned by housekeeping and use them
+            availableServers = servers;
+            GRDWarningLogg(@"Less than 2 low cap servers available. Using all servers");
         }
-        
-        // If availableServers is has a count of < 1 (aka. 0)
-        // because either the client didn't ask for beta-capable servers
-        // or because there were no beta capable servers availble
-        if ([availableServers count] < 1) {
-            // The server selection logic tries to prioritize low capacity servers which is defined as a capacity score of 0 or 1
-            // capcaity score != connected clients. It's a calculated value based on information from each VPN node
-            // this predicate will filter out anything above 1 as its capacity score
-            availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
-            
-            // if at least 2 low capacity servers are not available, just use full list instead
-            // helps mitigate edge case: single server returned, but it is down yet not reported as such by Housekeeping
-            if ([availableServers count] < 2) {
-                // take full list of servers returned by housekeeping and use them
-                availableServers = servers;
-                GRDLog(@"Fewer than 2 low capacity score server available, using all available servers");
-            }
-        }
-        
-        
+		
         [debugHelper logTimeWithMessage:@"created availableServers array"];
         
         // Get a random index based on the length of availableServers
@@ -80,7 +75,7 @@
         NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
         NSString *host = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
         NSString *hostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
-        GRDLog(@"Selected hostname: %@", host);
+        GRDLogg(@"Selected hostname: %@", host);
         if (completion) completion(host, hostLocation, nil);
         [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion end"];
     }];
@@ -92,7 +87,7 @@
     [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
         [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block start"];
         if (success == NO) {
-            GRDLog(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
+            GRDLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
             if (completion) completion(nil, @"Failed to request list of servers");
             return;
         }
@@ -100,13 +95,13 @@
         GRDRegion *region = [GRDServerManager localRegionFromTimezones:timeZones];
         NSString *regionName = region.regionName;
         NSTimeZone *local = [NSTimeZone localTimeZone];
-        GRDLog(@"[DEBUG] found region: %@", regionName);
-        GRDLog(@"[DEBUG] real local time zone: %@", local);
+        GRDDebugLog(@"Found region: %@", regionName);
+		GRDDebugLog(@"Real local time zone: %@", local);
         
         // This is how region / server selection works, if the selected credential isnt nil, we are using a custom region.
         GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
         if (selectedRegion) {
-            GRDLog(@"Using custom selected region: %@", selectedRegion.regionName);
+			GRDDebugLog(@"Using custom selected region: %@", selectedRegion.regionName);
             regionName = selectedRegion.regionName;
         }
         
@@ -114,17 +109,17 @@
         // when absolutely everything seems to have fallen apart
         // The same strategy is taken server side
         if (regionName == nil) {
-            GRDLog(@"Failed to find time zone: %@", local);
-            GRDLog(@"Setting time zone to us-east");
+            GRDWarningLogg(@"Failed to find time zone: %@", local);
+			GRDWarningLogg(@"Setting time zone to us-east");
             regionName = @"us-east";
         }
         
         // Note from CJ 2021-10-25:
         // Hardcoded to ServerFeatureEnvironmentProduction for the time being. Going to make this a little more
         // flexbile very soon to enable features in Guardian
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
-                GRDLog(@"Failed to get servers for region");
+				GRDWarningLogg(@"Failed to get servers for region");
                 if (completion) completion(nil, @"Failed to request list of servers.");
                 return;
                 
@@ -138,7 +133,7 @@
 
 - (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion {
     if (regionName == nil) { //if the region is nil, use the current one
-        GRDLog(@"[DEBUG] nil region, use the default!");
+        GRDDebugLog(@"Nil region, use the default!");
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
         GRDCredential *creds = [GRDCredentialManager mainCredentials];
         NSString *host = [def objectForKey:kGRDHostnameOverride];
@@ -149,7 +144,7 @@
         }
         
         if (host && hl) {
-            if(completion) {
+            if (completion) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completion(host, hl, nil);
                 });
@@ -170,10 +165,11 @@
         
         return;
     }
+	
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1) {
-                if (completion){
+                if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         completion(nil, nil, NSLocalizedString(@"No server found", nil));
                     });
@@ -202,18 +198,18 @@
 - (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion {
     GRDLog(@"Requested Region: %@", regionName);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:ServerFeatureEnvironmentProduction completion:^(NSArray * _Nonnull servers, BOOL success) {
+        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(@"No server found the specified region", NO);
+                        completion(@"No server found in the specified region", NO);
                     });
                 }
                 
             } else {
                 NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
                 if (availableServers.count < 2) {
-                    GRDLog(@"[DEBUG] less than 2 low capacity servers: %@", availableServers);
+                    GRDDebugLog(@"Less than 2 low capacity servers: %@", availableServers);
                     availableServers = servers;
                 }
                 
@@ -222,7 +218,7 @@
                 NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
                 GRDLog(@"Selected host: %@", guardianHost);
                 GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
-                [vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation completion:^(BOOL success, NSString * _Nonnull errorMessage) {
+				[vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
                     if (!success) {
                         if (completion) {
                             dispatch_async(dispatch_get_main_queue(), ^{
@@ -244,43 +240,22 @@
     });
 }
 
-- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))completion {
-    __block NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSNumber *timestamp = [ud objectForKey:kGuardianAllRegionsTimeStamp];
-    if (timestamp != nil) {
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:timestamp.integerValue];
-        NSTimeInterval intervalSinceNow = [[NSDate date] timeIntervalSinceDate:date];
-        if (intervalSinceNow > 60*10) { //its been more than 10 minutes, time to refresh the data!
-            [ud removeObjectForKey:kGuardianAllRegions];
-        }
-    }
-	
-    NSArray *regions = [ud valueForKey:kGuardianAllRegions];
-    if (!regions) {
-        [[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success) {
-            NSTimeInterval nowUnix = [[NSDate date] timeIntervalSince1970];
-            [ud setObject:[NSNumber numberWithInt:nowUnix] forKey:kGuardianAllRegionsTimeStamp];
-            [ud setObject:[items sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name-pretty" ascending:true]]] forKey:kGuardianAllRegions];
-            if (completion) completion(items);
-			return;
-        }];
-		
-    } else {
-        if (completion) completion(regions);
-    }
-}
-
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones {
     NSDictionary *found = [[timezones filteredArrayUsingPredicate:[NSPredicate timezonePredicate]] lastObject];
     return [[GRDRegion alloc] initWithDictionary:found];
 }
 
-- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nonnull regions))completion {
-    [self populateTimezonesIfNecessaryWithCompletion:^(NSArray * _Nonnull regions) {
-        if (completion) {
-            completion([GRDRegion regionsFromTimezones:regions]);
-        }
-    }];
+- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> *regions))completion {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success) {
+		if (!success) {
+			GRDErrorLogg(@"Failed to fetch server regions from API");
+			if (completion) completion(nil);
+			return;
+		}
+		
+		if (completion) completion([GRDRegion regionsFromTimezones:items]);
+		return;
+	}];
 }
 
 @end

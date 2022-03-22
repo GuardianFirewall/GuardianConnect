@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict;
 - (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion;
+- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)feautreEnv betaCapableServers:(BOOL)betaCapable completion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion;
 
 + (GRDRegion *)automaticRegion;
 

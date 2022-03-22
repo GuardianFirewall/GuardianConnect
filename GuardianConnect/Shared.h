@@ -36,6 +36,14 @@ static NSString * const kGRDExcludeLocalNetworks                        = @"kGRD
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
 static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
 static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
+static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
+
+static NSString * const kGRDWGDevicePublicKey                           = @"wg-device-public-key";
+static NSString * const kGRDWGDevicePrivateKey							= @"wg-device-private-key";
+static NSString * const kGRDWGServerPublicKey                           = @"server-public-key";
+static NSString * const kGRDWGIPv4Address                               = @"mapped-ipv4-address";
+static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
+static NSString * const kGRDClientId                               		= @"client-id";
 
 static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
 static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";

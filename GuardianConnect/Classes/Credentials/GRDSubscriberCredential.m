@@ -7,36 +7,37 @@
 //
 
 #import <GuardianConnect/GRDSubscriberCredential.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 
 @implementation GRDSubscriberCredential
-
-+ (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
-    NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
-    return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
-}
-
-- (BOOL)isExpired {
-    NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
-    NSTimeInterval subCredExpirationDate = self.tokenExpirationDate;
-    return (safeExpirationDate > subCredExpirationDate);
-}
 
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential {
     if (!subscriberCredential) return nil; //if theres no subscriber credential string we dont want to create the credential!
     if (!self) {
         self = [super init];
     }
-    self.subscriberCredential = subscriberCredential;
+    self.jwt = subscriberCredential;
     [self processSubscriberCredentialInformation];
     return self;
 }
 
+- (NSString *)description {
+	NSString *desc = [super description];
+	
+	NSString *expiredString = @"YES";
+	if (self.tokenExpired == NO) {
+		expiredString = @"NO";
+	}
+	
+	return [NSString stringWithFormat:@"%@ \nSubscription Type: %@ \nSubscription Expiration Date: %@ \nExpired: %@", desc, self.subscriptionType, [NSDate dateWithTimeIntervalSince1970:self.subscriptionExpirationDate], expiredString];
+}
+
 - (void)processSubscriberCredentialInformation {
-    if (self.subscriberCredential == nil) {
+    if (self.jwt == nil) {
         return;
     }
     
-    NSArray *jwtComp = [self.subscriberCredential componentsSeparatedByString:@"."];
+    NSArray *jwtComp = [self.jwt componentsSeparatedByString:@"."];
     NSString *payloadString = [jwtComp objectAtIndex:1];
     
     // Note from CJ:
@@ -64,6 +65,17 @@
     self.subscriptionExpirationDate = [(NSNumber*)[dict objectForKey:@"subscription-expiration-date"] integerValue];
     self.tokenExpirationDate = [(NSNumber*)[dict objectForKey:@"exp"] integerValue];
     self.tokenExpired = [self isExpired];
+}
+
+- (BOOL)isExpired {
+	NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
+	NSTimeInterval jwtExpirationDate = self.tokenExpirationDate;
+	return (safeExpirationDate > jwtExpirationDate);
+}
+
++ (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
+	NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
+	return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
 }
 
 @end

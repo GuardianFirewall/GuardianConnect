@@ -24,14 +24,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
     ValidationmethodPEToken
 };
 
-typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
-    ServerFeatureEnvironmentProduction = 1,
-    ServerFeatureEnvironmentInternal,
-    ServerFeatureEnvironmentDevelopment,
-    ServerFeatureEnvironmentDualStack,
-    ServerFeatureEnvironmentUnstable
-};
-
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
@@ -70,7 +62,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *servers, BOOL success))completion;
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion;
 
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success

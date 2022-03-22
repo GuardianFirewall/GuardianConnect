@@ -8,24 +8,41 @@
 
 #import <Foundation/Foundation.h>
 
+#import <GuardianConnect/GRDTransportProtocol.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDCredential : NSObject
 
-@property NSString *name;
-@property NSString *identifier;
-@property NSString *username;
-@property NSString *password;
-@property NSString *hostname;
-@property NSDate *expirationDate;
-@property NSString *hostnameDisplayValue;
-@property NSString *apiAuthToken;
-@property BOOL mainCredential; //experimental
-@property NSData *passwordRef;
+// Properties releveant to all credentials
+@property NSString 	*name;
+@property NSString 	*identifier;
+@property NSDate 	*expirationDate;
+@property NSString 	*hostname;
+@property NSString 	*hostnameDisplayValue;
+@property NSString 	*apiAuthToken;
+@property TransportProtocol transportProtocol;
+
+// IKEv2 related properties
+@property NSString 	*username;
+@property NSString 	*password;
+@property NSData 	*passwordRef;
+
+// WireGuard related properties
+@property NSString *devicePublicKey;
+@property NSString *devicePrivateKey;
+@property NSString *serverPublicKey;
+@property NSString *IPv4Address;
+@property NSString *IPv6Address;
+@property NSString *clientId;
+
+// Experimental
+@property BOOL mainCredential;
 
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;
 - (id)initWithFullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
+- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
 - (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate;
 - (void)updateWithItem:(GRDCredential *)cred;
 - (OSStatus)saveToKeychain;
@@ -37,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)daysLeft; //days until it does expire
 - (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
 - (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

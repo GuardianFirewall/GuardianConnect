@@ -11,16 +11,22 @@
 #import <GuardianConnect/GRDCredential.h>
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString * const kGuardianCredentialList = @"kGuardianCredentialList";
+
+static NSString * const kGuardianCredentialList = @"kGuardianCredentialsList";
+
 @interface GRDCredentialManager : NSObject
-+ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
+
 + (NSArray <GRDCredential *>*)credentials;
 + (NSArray <GRDCredential *>*)filteredCredentials;
-+ (void)removeCredential:(GRDCredential *)credential;
-+ (void)addOrUpdateCredential:(GRDCredential *)credential;
-+ (GRDCredential *)credentialWithIdentifier:(NSString *)groupIdentifier;
 + (GRDCredential *)mainCredentials;
 + (void)clearMainCredentials;
++ (GRDCredential *)credentialWithIdentifier:(NSString *)groupIdentifier;
++ (void)addOrUpdateCredential:(GRDCredential *)credential;
++ (void)removeCredential:(GRDCredential *)credential;
+
+
++ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END
