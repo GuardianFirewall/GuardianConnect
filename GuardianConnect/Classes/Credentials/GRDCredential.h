@@ -14,14 +14,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDCredential : NSObject
 
-// Properties releveant to all credentials
-@property NSString 	*name;
-@property NSString 	*identifier;
-@property NSDate 	*expirationDate;
-@property NSString 	*hostname;
-@property NSString 	*hostnameDisplayValue;
-@property NSString 	*apiAuthToken;
+// Properties used by all credentials
+@property NSString 	        *name;
+@property NSString 	        *identifier;
+@property BOOL              mainCredential;
 @property TransportProtocol transportProtocol;
+@property NSDate 	        *expirationDate;
+@property NSString 	        *hostname;
+@property NSString 	        *hostnameDisplayValue;
+
+@property NSString          *clientId;
+@property NSString          *apiAuthToken;
 
 // IKEv2 related properties
 @property NSString 	*username;
@@ -34,10 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *serverPublicKey;
 @property NSString *IPv4Address;
 @property NSString *IPv6Address;
-@property NSString *clientId;
-
-// Experimental
-@property BOOL mainCredential;
 
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;

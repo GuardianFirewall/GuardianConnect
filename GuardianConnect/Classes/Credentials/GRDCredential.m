@@ -235,8 +235,8 @@
 }
 
 - (OSStatus)saveToKeychain {
-    OSStatus stat = [GRDKeychain storePassword:self.apiAuthToken forAccount:[self authTokenIdentifier]];
-    stat = stat + [GRDKeychain storePassword:self.password forAccount:self.identifier];
+//    OSStatus stat = [GRDKeychain storePassword:self.apiAuthToken forAccount:[self authTokenIdentifier]];
+    OSStatus stat = [GRDKeychain storePassword:self.password forAccount:self.identifier];
     if (!self.passwordRef) {
         self.passwordRef = [GRDKeychain getPasswordRefForAccount:self.identifier];
     }
@@ -246,7 +246,7 @@
 - (BOOL)loadFromKeychain {
     self.password 		= [GRDKeychain getPasswordStringForAccount:self.identifier];
     self.passwordRef 	= [GRDKeychain getPasswordRefForAccount:self.identifier];
-    self.apiAuthToken 	= [GRDKeychain getPasswordStringForAccount:[self authTokenIdentifier]];
+//    self.apiAuthToken 	= [GRDKeychain getPasswordStringForAccount:[self authTokenIdentifier]];
     return (self.password && self.apiAuthToken);
 }
 
