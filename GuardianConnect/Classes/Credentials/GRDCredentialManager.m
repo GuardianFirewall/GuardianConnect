@@ -33,13 +33,9 @@
 + (NSArray <GRDCredential *>*)filteredCredentials { //credentials minus the main credentials, for use in EAP view
 	NSArray *items = [self credentials];
 	NSMutableArray<GRDCredential*> *credentials = [NSMutableArray array];
-	for (NSData *item in items) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		GRDCredential *credential = [NSKeyedUnarchiver unarchiveObjectWithData:item];
-#pragma clang diagnostic pop
-		if (![credential mainCredential]) {
-			[credentials addObject:credential];
+	for (GRDCredential *item in items) {
+		if (![item mainCredential]) {
+			[credentials addObject:item];
 		}
 	}
 	return credentials;
