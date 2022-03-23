@@ -101,6 +101,28 @@
     }
 }
 
++ (BOOL)migrateKeychainItemsToGRDCredential {
+    NSString *eapUsername = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
+    NSString *eapPassword = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapPassword];
+    NSString *apiAuthToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *hostname = [defaults stringForKey:kGRDHostnameOverride];
+    NSString *hostnameLocation = [defaults stringForKey:kGRDVPNHostLocation];
+    
+    if (eapUsername != nil || eapPassword == nil || apiAuthToken == nil || hostname == nil || hostnameLocation == nil) {
+        GRDWarningLogg(@"nil value detected. Nothing to migrate");
+        GRDWarningLogg(@"\neap username: %@\neap password: %@\napi auth token: %@\nhostname: %@\nhostname location: %@", eapUsername, eapPassword, apiAuthToken, hostname, hostnameLocation);
+        return NO;
+    }
+    
+    GRDCredential *newMain = [[GRDCredential alloc] initWithFullDictionary:@{kKeychainStr_EapUsername: eapUsername, kKeychainStr_EapPassword: eapPassword, kKeychainStr_APIAuthToken: apiAuthToken, kGRDHostnameOverride: hostname, kGRDVPNHostLocation: hostnameLocation} validFor:30 isMain:YES];
+    [self addOrUpdateCredential:newMain];
+    [newMain saveToKeychain];
+    
+    [[GRDVPNHelper sharedInstance] setMainCredential:newMain];
+    return YES;
+}
 
 + (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion {
 	//first get a host name

@@ -24,6 +24,7 @@ static NSString * const kGuardianCredentialList = @"kGuardianCredentialsList";
 + (void)addOrUpdateCredential:(GRDCredential *)credential;
 + (void)removeCredential:(GRDCredential *)credential;
 
++ (BOOL)migrateKeychainItemsToGRDCredential;
 
 + (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
 
