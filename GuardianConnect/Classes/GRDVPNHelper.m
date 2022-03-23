@@ -64,7 +64,7 @@
 		region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
 		region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
 		_selectedRegion = region;
-		[self validateMainEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
+		[self verifyMainEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
 			// This is called upon app load in the background and the method already tries to recreate the credentials,
 			// if it returns a failure, trying to create new ones failed & there isnt much else that can be done.
 			// just log an error for now.
@@ -373,6 +373,9 @@
 				NSData *eapPassword     = [self.mainCredential passwordRef];
 			
 				if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
+					GRDDebugLog(@"EAP username: %@", eapUsername);
+					GRDDebugLog(@"EAP password: %@", eapPassword);
+					GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
 					GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
 					[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
 						if (completion) {
@@ -464,6 +467,7 @@
 		if (completion) completion(@"IKEv2 tunnel localized description missing. Please set a value for the IKEv2TunnelLocalizedDescription property", GRDVPNHelperFail);
 		return;
 	}
+	
     NEVPNManager *vpnManager = [NEVPNManager sharedManager];
     [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
         if (loadError) {
