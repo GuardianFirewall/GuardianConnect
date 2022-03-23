@@ -150,8 +150,6 @@
                               kKeychainStr_EapPassword,
                               kKeychainStr_AuthToken,
                               kKeychainStr_APIAuthToken,
-                              kKeychainStr_SharedEapUsername,
-                              kKeychainStr_SharedEapPassword,
 							  kKeychainStr_WireGuardConfig];
     [guardianKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self removeKeychanItemForAccount:obj];
