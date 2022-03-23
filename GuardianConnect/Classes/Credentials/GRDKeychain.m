@@ -36,7 +36,6 @@
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
     if (status != errSecSuccess) {
         if (status == errSecDuplicateItem) {
-            GRDWarningLogg(@"Removing and re-adding duplicate keychain item: %@", accountKeyStr);
             [self removeKeychanItemForAccount:accountKeyStr];
             return [self storePassword:passwordStr forAccount:accountKeyStr];
         }
@@ -67,7 +66,6 @@
 	OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
 	if (status != errSecSuccess) {
 		if (status == errSecDuplicateItem) {
-			GRDWarningLogg(@"Removing and re-adding duplicate keychain item: %@", accountKeyString);
 			[self removeKeychanItemForAccount:accountKeyString];
 			return [self storeData:data forAccount:accountKeyString];
 		}
