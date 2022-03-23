@@ -85,10 +85,13 @@
 		if (apiHostname == nil || authToken == nil || eapUsername == nil) return NO;
 		return YES;
 		
-	} else {
+	} else if (cred.transportProtocol == TransportWireGuard) {
 		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return  NO;
 		return YES;
-	}
+	
+    } else {
+        return NO;
+    }
 }
 
 + (void)clearVpnConfiguration {
