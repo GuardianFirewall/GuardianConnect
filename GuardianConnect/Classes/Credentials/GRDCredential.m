@@ -158,10 +158,14 @@
         
         self.mainCredential 		= [aDecoder decodeBoolForKey:@"mainCredential"];
 		
-		// Note from CJ 2022-03-17:
-		// We may want this capability back by storing a reference to they various identities in
-		// NSUserDefaults but the actual values in the keychain
-//        [self loadFromKeychain];
+		// Note from CJ 2022-03-23:
+		// Only load the credential password reference for the main credential
+		// since it needs to be available to setup the NEVPNProtocolIKEv2.
+		// Everything can stay in the data blob that is stored as one in
+		// the keychain as the 'kGuardianCredentialsList'
+		if (self.mainCredential == true) {
+			[self loadFromKeychain];
+		}
     }
     return self;
 }
