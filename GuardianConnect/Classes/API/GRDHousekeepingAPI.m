@@ -118,13 +118,8 @@
     [task resume];
 }
 
-- (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable, BOOL, NSString * _Nullable))completion {
-    
-#if GUARDIAN_INTERNAL
-    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"createNewSubscriberCredentialWithValidationMethod"];
-#endif
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/subscriber-credential/create"]];
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/subscriber-credential/create"]];
     
     NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
     if (validationMethod == ValidationMethodAppStoreReceipt) {
@@ -154,7 +149,8 @@
             appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
         }
         
-        [jsonDict setObject:@"iap-guardian" forKey:@"validation-method"];
+        [jsonDict setObject:@"iap-apple" forKey:@"validation-method"];
+		[jsonDict setObject:bundleId forKey:@"bundle-id"];
         [jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
         
     } else if (validationMethod == ValidationmethodPEToken) {
@@ -178,18 +174,11 @@
         [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
     }
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-    
-#if GUARDIAN_INTERNAL
-    [debugHelper logTimeWithMessage:@"about to send POST request to API"];
-#endif
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-#if GUARDIAN_INTERNAL
-        [debugHelper logTimeWithMessage:@"request completion block start"];
-#endif
         if (error != nil) {
             GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
@@ -228,10 +217,6 @@
             GRDLog(@"Unknown server error");
             if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
         }
-        
-#if GUARDIAN_INTERNAL
-        [debugHelper logTimeWithMessage:@"request completion block end"];
-#endif
     }];
     [task resume];
     

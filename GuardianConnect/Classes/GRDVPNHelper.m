@@ -825,7 +825,7 @@
             valmethod = ValidationmethodPEToken;
         }
         
-        [[GRDHousekeepingAPI new] createNewSubscriberCredentialWithValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
+		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
             if (success == NO && errorMessage != nil) {
                 if (completion) {
                     completion(nil, errorMessage);

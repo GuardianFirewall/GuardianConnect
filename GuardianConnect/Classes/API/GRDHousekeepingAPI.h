@@ -52,7 +52,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
 /// @param validationMethod set to determine how to authenticate with housekeeping
 /// @param completion completion block returning a signed JWT, indicating request success and a user actionable error message if the request failed
-- (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
