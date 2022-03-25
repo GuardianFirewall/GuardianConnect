@@ -15,6 +15,7 @@ static NSString * const kKeychainStr_SubscriberCredential 	= @"subscriber-creden
 static NSString * const kKeychainStr_PEToken 				= @"pe-token";
 static NSString * const kKeychainStr_WireGuardConfig 		= @"kGuardianWireGuardConfig";
 static NSString * const kKeychainStr_DayPassAccountingToken = @"kGuardianDayPassAccountingToken";
+static NSString * const kGuardianCredentialsList 			= @"kGuardianCredentialsList";
 
 @interface GRDKeychain : NSObject
 

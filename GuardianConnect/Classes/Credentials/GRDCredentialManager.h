@@ -12,8 +12,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString * const kGuardianCredentialList = @"kGuardianCredentialsList";
-
 @interface GRDCredentialManager : NSObject
 
 + (NSArray <GRDCredential *>*)credentials;

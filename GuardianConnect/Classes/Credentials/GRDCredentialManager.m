@@ -15,7 +15,7 @@
 + (NSArray <GRDCredential *>*)credentials {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	NSArray *items = [NSKeyedUnarchiver unarchiveObjectWithData:[GRDKeychain getDataForAccount:kGuardianCredentialList]];
+	NSArray *items = [NSKeyedUnarchiver unarchiveObjectWithData:[GRDKeychain getDataForAccount:kGuardianCredentialsList]];
 	NSMutableArray<GRDCredential*> *credentials = [NSMutableArray array];
 	for (NSData *item in items) {
 		if ([item class] != [GRDCredential class]) {
@@ -83,7 +83,7 @@
 		[credentialList insertObject:newObject atIndex:0];
 	}
 	
-	[GRDKeychain storeData:[NSKeyedArchiver archivedDataWithRootObject:credentialList] forAccount:kGuardianCredentialList];
+	[GRDKeychain storeData:[NSKeyedArchiver archivedDataWithRootObject:credentialList] forAccount:kGuardianCredentialsList];
 #pragma clang diagnostic pop
 }
 
@@ -96,7 +96,7 @@
 		[credentialList removeObject:credential];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		[GRDKeychain storeData:[NSKeyedArchiver archivedDataWithRootObject:credentialList] forAccount:kGuardianCredentialList];
+		[GRDKeychain storeData:[NSKeyedArchiver archivedDataWithRootObject:credentialList] forAccount:kGuardianCredentialsList];
 #pragma clang diagnostic pop
     }
 }
