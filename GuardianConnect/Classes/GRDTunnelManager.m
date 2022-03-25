@@ -138,63 +138,7 @@
 	}];
 }
 
-- (BOOL)updateTunnelSettings:(BOOL)turnOn {
-    __block BOOL _success = true;
-    self.tunnelProviderManager.onDemandEnabled = turnOn;
-    self.tunnelProviderManager.enabled = turnOn;
-    self.tunnelProviderManager.onDemandRules = [GRDTunnelManager onDemandRules];
-    [[NSUserDefaults standardUserDefaults] setBool:turnOn forKey:kGRDTunnelEnabled];
-    @weakify(self);
-    [self.tunnelProviderManager saveToPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-        if (error) {
-            _success = false;
-            [self_weak_.tunnelProviderManager saveToPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-                self_weak_.tunnelProviderManager = nil;
-                [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
-                    if (errorMessage) {
-                        _success = false;
-						
-                    } else {
-                        _success = true;
-                    }
-                }];
-            }];
-			
-        } else {
-            self_weak_.tunnelProviderManager = nil;
-            [self_weak_ loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
-                if (errorMessage) {
-                    _success = false;
-					
-                } else {
-                    _success = true;
-                }
-            }];
-        }
-    }];
-    return _success;
-}
 
-/// Toggle the state on or off for the PacketTunnelProvider
-- (BOOL)toggleTunnelProviderState {
-    BOOL _success = true;
-    switch ([self currentTunnelProviderState]) {
-        
-        case NEVPNStatusConnected:
-            
-            //[self.tunnelProviderManager.connection stopVPNTunnel];
-            [self updateTunnelSettings:false];
-            break;
-        case NEVPNStatusInvalid:
-        case NEVPNStatusDisconnected:
-            _success = [self updateTunnelSettings:true];
-            break;
-            
-        default:
-            break;
-    }
-    return _success;
-}
 
 /// Current status of the tunnel provider
 - (NEVPNStatus)currentTunnelProviderState {
@@ -212,11 +156,11 @@
     }
 }
 
-+ (NSArray <NEOnDemandRuleConnect *> *)onDemandRules {
-	NEOnDemandRuleConnect *connectRule = [NEOnDemandRuleConnect new];
-	connectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
-	return @[connectRule];
-}
+//+ (NSArray <NEOnDemandRuleConnect *> *)onDemandRules {
+//	NEOnDemandRuleConnect *connectRule = [NEOnDemandRuleConnect new];
+//	connectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
+//	return @[connectRule];
+//}
 
 
 

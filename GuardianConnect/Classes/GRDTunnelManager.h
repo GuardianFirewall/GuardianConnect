@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)tunnelConfiguredWithCompletion:(void(^)(BOOL configured))completion;
 
 - (NEVPNStatus)currentTunnelProviderState;
-- (BOOL)toggleTunnelProviderState;
-- (BOOL)updateTunnelSettings:(BOOL)turnOn;
 
 @end
 
