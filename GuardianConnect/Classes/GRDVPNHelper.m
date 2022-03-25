@@ -57,7 +57,8 @@
 }
 
 - (void)_loadCredentialsFromKeychain {
-	[self setMainCredential:[GRDCredentialManager mainCredentials]];
+	GRDCredential *main = [GRDCredentialManager mainCredentials];
+	[self setMainCredential:main];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if ([defaults boolForKey:kGuardianUseFauxTimeZone]) {
 		GRDRegion *region = [[GRDRegion alloc] init];

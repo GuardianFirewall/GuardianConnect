@@ -39,7 +39,7 @@
 
 - (NSString *)baseHostname {
     GRDCredential *main = [[GRDVPNHelper sharedInstance] mainCredential];
-    if (main){
+    if (main) {
         return [main hostname];
     }
     return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride];
