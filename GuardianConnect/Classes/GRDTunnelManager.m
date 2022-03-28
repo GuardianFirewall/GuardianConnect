@@ -129,7 +129,9 @@
 			if (managers.count > 1) { //clear out any additional configs if there is more than one.
 				NETunnelProviderManager *last = managers.lastObject;
 				[last removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-					GRDErrorLogg(@"Failed to delete extra tunnel manager: %@", error);
+					if (error != nil) {
+						GRDErrorLogg(@"Failed to delete extra tunnel manager: %@", error);
+					}
 				}];
 			}
 			
