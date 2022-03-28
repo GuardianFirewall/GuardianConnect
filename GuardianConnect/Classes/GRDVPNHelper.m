@@ -739,7 +739,7 @@
 		[tunnelManager setEnabled:NO];
 		[tunnelManager setOnDemandEnabled:NO];
         
-#if TARGET_OS_MAC
+#if TARGET_OS_MAC && !TARGET_OS_IPHONE
 		[tunnelManager setOnDemandRules:@[]];
 		[tunnelManager setProtocolConfiguration:nil];
 		[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
