@@ -109,7 +109,6 @@
 	}];
 }
 
-/// Loads or creates our stored instance of the tunnelProviderManager
 - (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion {
 	if (_isLoading) {
 		if (completion) {
@@ -140,8 +139,6 @@
 	}];
 }
 
-
-
 /// Current status of the tunnel provider
 - (NEVPNStatus)currentTunnelProviderState {
     __block NEVPNStatus currentStatus = NEVPNStatusInvalid;
@@ -157,13 +154,5 @@
         return self.tunnelProviderManager.connection.status;
     }
 }
-
-//+ (NSArray <NEOnDemandRuleConnect *> *)onDemandRules {
-//	NEOnDemandRuleConnect *connectRule = [NEOnDemandRuleConnect new];
-//	connectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
-//	return @[connectRule];
-//}
-
-
 
 @end
