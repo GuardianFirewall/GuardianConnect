@@ -70,7 +70,8 @@
 - (BOOL)isExpired {
 	NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
 	NSTimeInterval jwtExpirationDate = self.tokenExpirationDate;
-	return (safeExpirationDate > jwtExpirationDate);
+	BOOL expired = (safeExpirationDate < jwtExpirationDate);
+	return expired;
 }
 
 + (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
