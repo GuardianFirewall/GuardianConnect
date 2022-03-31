@@ -65,15 +65,6 @@
 		region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
 		region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
 		_selectedRegion = region;
-		[self verifyMainEAPCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
-			// This is called upon app load in the background and the method already tries to recreate the credentials,
-			// if it returns a failure, trying to create new ones failed & there isnt much else that can be done.
-			// just log an error for now.
-			// Definitely should not surface any error alerts to the user.
-			if (!valid) {
-				GRDLog(@"Credentials are invalid and failed to re-create: %@", errorMessage);
-			}
-		}];
 	}
 }
 
