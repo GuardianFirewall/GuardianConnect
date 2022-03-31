@@ -200,7 +200,6 @@
 }
 
 - (void)verifyEAPCredentialsUsername:(NSString *_Nonnull)eapUsername apiToken:(NSString *_Nonnull)apiToken andSubscriberCredential:(NSString *_Nonnull)subscriberCredential forVPNNode:(NSString *_Nonnull)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
-    
     if (eapUsername == nil || apiToken == nil || subscriberCredential == nil || vpnNode == nil) {
         if (completion) completion(NO, NO, @"nil variable detected. Aborting", NO);
         return;
