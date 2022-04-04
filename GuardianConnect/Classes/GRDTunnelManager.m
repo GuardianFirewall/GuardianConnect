@@ -23,6 +23,7 @@
 
 @interface GRDTunnelManager() {
     BOOL _isLoading;
+	BOOL _tunnelLoaded;
 }
 @end
 
@@ -36,17 +37,27 @@
 	_isLoading = loading;
 }
 
+- (BOOL)tunnelLoaded {
+	return _tunnelLoaded;
+}
+
+- (void)setTunnelLoaded:(BOOL)loaded {
+	_tunnelLoaded = loaded;
+}
+
 + (id)sharedManager {
     static dispatch_once_t pred;
     static GRDTunnelManager *shared;
     dispatch_once(&pred, ^{
         shared = [GRDTunnelManager new];
-        [shared setIsLoading:false];
-        [shared setBlocklistEnabled:false];
+        [shared setIsLoading:NO];
+        [shared setBlocklistEnabled:NO];
+		[shared setTunnelLoaded:NO];
         
-        [shared setIsLoading: YES];
+        [shared setIsLoading:YES];
         [NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
             [shared setIsLoading:NO];
+			[shared setTunnelLoaded:YES];
             if ([managers count] == 0) {
                 GRDWarningLogg(@"No tunnel manager to load. Not creating a new one");
                 
@@ -55,6 +66,7 @@
             }
         }];
     });
+	
     return shared;
 }
 
@@ -110,19 +122,20 @@
 }
 
 - (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion {
-	if (_isLoading) {
+	if ([self isLoading]) {
 		if (completion) {
 			completion(nil, @"Already loading tunnel manager preferences, dont do it again!");
 		}
 		return;
 	}
 	
-	@weakify(self);
-	_isLoading = YES;
+	[self setIsLoading:YES];
 	[NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
-		self_weak_.isLoading = false;
+		[self setIsLoading:NO];
+		[self setTunnelLoaded:YES];
+		
 		if (managers.count == 0) {
-			if (completion) completion(nil, @"No tunnel provider managers setup!");
+			if (completion) completion(nil, nil);
 			
 		} else {
 			if (managers.count > 1) { //clear out any additional configs if there is more than one.
@@ -143,6 +156,10 @@
 - (NEVPNStatus)currentTunnelProviderState {
     __block NEVPNStatus currentStatus = NEVPNStatusInvalid;
     if (!self.tunnelProviderManager) {
+		if ([self tunnelLoaded] == YES) {
+			return currentStatus;
+		}
+		
         [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
             if (manager && !errorMessage) {
                 currentStatus = manager.connection.status;
