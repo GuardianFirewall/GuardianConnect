@@ -36,6 +36,14 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// Currently only used by Guardian for subscriptions & purchases conducted via the web
 @property NSString *peToken;
 
+/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
+@property (nonatomic, strong) NSString *_Nullable appKey;
+
+/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
+@property (nonatomic, strong) NSString *_Nullable appBundleId;
+
+- (instancetype)initWithAppKey:(NSString *_Nonnull)appKey andAppBundleId:(NSString *_Nonnull)appBundleId;
+
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
 /// @param completion completion block returning NSDictionary with information for the requested token, an error message and a bool indicating success of the request

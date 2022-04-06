@@ -11,14 +11,26 @@
 
 @implementation GRDHousekeepingAPI
 
+- (instancetype)initWithAppKey:(NSString *)appKey andAppBundleId:(NSString *)appBundleId {
+	self = [GRDHousekeepingAPI new];
+	if (self) {
+		self.appKey 		= appKey;
+		self.appBundleId 	= appBundleId;
+	}
+	
+	return self;
+}
+
 - (NSMutableURLRequest *)requestWithEndpoint:(NSString *)apiEndpoint andPostRequestData:(NSData *)postRequestDat {
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com%@", apiEndpoint]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
-    [request setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] forHTTPHeaderField:@"X-Guardian-Build"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
+	if ([self appKey] != nil) {
+		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
+	}
+	if ([self appBundleId] != nil) {
+		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
+	}
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:postRequestDat];
     
@@ -168,11 +180,14 @@
         if (completion) completion(nil, NO, @"validation method missing");
         return;
     }
-    
-    [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]) {
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
+        
+    if ([self appKey] != nil) {
+        [request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
     }
+	if ([self appBundleId] != nil) {
+		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
+	}
+	[request setHTTPMethod:@"POST"];
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -235,9 +250,12 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
+	if ([self appKey] != nil) {
+		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
+	}
+	if ([self appBundleId] != nil) {
+		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
+	}
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
     
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -285,9 +303,12 @@
     NSData *jsonDict = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": token} options:0 error:nil];
     [request setHTTPBody:jsonDict];
     [request setHTTPMethod:@"POST"];
-    if ([[GRDVPNHelper sharedInstance] connectAPIKey]){
-        [request setValue:[[GRDVPNHelper sharedInstance] connectAPIKey] forHTTPHeaderField:@"GRD-API-Key"];
-    }
+	if ([self appKey] != nil) {
+		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
+	}
+	if ([self appBundleId] != nil) {
+		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
+	}
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];

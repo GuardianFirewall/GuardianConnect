@@ -48,8 +48,11 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 
 @property (readonly) GRDServerFeatureEnvironment featureEnvironment;
 
-/// currently unused, will be used in the future for when API keys are necessary to use GuardianConnect.
-@property NSString *connectAPIKey;
+/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
+@property (nonatomic, strong) NSString *_Nullable appKey;
+
+/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
+@property (nonatomic, strong) NSString *_Nullable appBundleId;
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
