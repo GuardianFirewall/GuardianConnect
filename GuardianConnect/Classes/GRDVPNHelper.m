@@ -43,7 +43,7 @@
 }
 
 - (BOOL)isConnected {
-	NEVPNStatus ikev2Status = [[[NEVPNManager sharedManager] connection] status];
+	NEVPNStatus ikev2Status 	= [[[NEVPNManager sharedManager] connection] status];
 	NEVPNStatus grdTunnelstatus = [[[[[GRDVPNHelper sharedInstance] tunnelManager] tunnelProviderManager] connection] status];
     
 	return (ikev2Status == NEVPNStatusConnected || grdTunnelstatus == NEVPNStatusConnected);
