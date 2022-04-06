@@ -22,24 +22,29 @@
     CFTypeRef result = NULL;
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     NSData *valueData = [passwordStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *secItem = @{
-        (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
-        (__bridge id)kSecAttrService : bundleId,
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAlways,
-#pragma clang diagnostic pop
-        (__bridge id)kSecAttrSynchronizable : (__bridge id)kCFBooleanFalse,
-        (__bridge id)kSecAttrAccount : accountKeyStr,
-        (__bridge id)kSecValueData : valueData,
-    };
+	
+	NSMutableDictionary *mSecItem = [NSMutableDictionary new];
+	[mSecItem setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+	[mSecItem setObject:bundleId forKey:(__bridge id)kSecAttrService];
+	[mSecItem setObject:(__bridge id)kCFBooleanFalse forKey:(__bridge id)kSecAttrSynchronizable];
+	[mSecItem setObject:accountKeyStr forKey:(__bridge id)kSecAttrAccount];
+	[mSecItem setObject:valueData forKey:(__bridge id)kSecValueData];
+	
+	if ([accountKeyStr isEqualToString:kGuardianCredentialsList] == YES) {
+		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
+	
+	} else {
+		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+	}
+	NSDictionary *secItem = [NSDictionary dictionaryWithDictionary:mSecItem];
+	
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
     if (status != errSecSuccess) {
         if (status == errSecDuplicateItem) {
             [self removeKeychanItemForAccount:accountKeyStr];
             return [self storePassword:passwordStr forAccount:accountKeyStr];
         }
-        GRDErrorLogg(@"[GRDKeychain] Error storing password item '%@' OSStatus error: %ld", accountKeyStr, (long)status);
+        GRDErrorLogg(@"Error storing password item '%@' OSStatus error: %ld", accountKeyStr, (long)status);
     }
 	
     return status;
@@ -52,24 +57,29 @@
 	
 	CFTypeRef result = NULL;
 	NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
-	NSDictionary *secItem = @{
-		(__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
-		(__bridge id)kSecAttrService : bundleId,
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		(__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAlways,
-#pragma clang diagnostic pop
-		(__bridge id)kSecAttrSynchronizable : (__bridge id)kCFBooleanFalse,
-		(__bridge id)kSecAttrAccount : accountKeyString,
-		(__bridge id)kSecValueData : data,
-	};
+	
+	NSMutableDictionary *mSecItem = [NSMutableDictionary new];
+	[mSecItem setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+	[mSecItem setObject:bundleId forKey:(__bridge id)kSecAttrService];
+	[mSecItem setObject:(__bridge id)kCFBooleanFalse forKey:(__bridge id)kSecAttrSynchronizable];
+	[mSecItem setObject:accountKeyString forKey:(__bridge id)kSecAttrAccount];
+	[mSecItem setObject:data forKey:(__bridge id)kSecValueData];
+	
+	if ([accountKeyString isEqualToString:kGuardianCredentialsList] == YES) {
+		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
+	
+	} else {
+		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+	}
+	NSDictionary *secItem = [NSDictionary dictionaryWithDictionary:mSecItem];
+	
 	OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
 	if (status != errSecSuccess) {
 		if (status == errSecDuplicateItem) {
 			[self removeKeychanItemForAccount:accountKeyString];
 			return [self storeData:data forAccount:accountKeyString];
 		}
-		GRDErrorLogg(@"[GRDKeychain] Error storing data item '%@' OSStatus error: %ld", accountKeyString, (long)status);
+		GRDErrorLogg(@"Error storing data item '%@' OSStatus error: %ld", accountKeyString, (long)status);
 	}
 	
 	return status;
