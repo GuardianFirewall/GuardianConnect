@@ -57,8 +57,8 @@
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *preferredTransportProtocol = [defaults stringForKey:kGuardianTransportProtocol];
 	if ([preferredTransportProtocol isEqualToString:@""] || preferredTransportProtocol == nil) {
-		GRDWarningLogg(@"No preferred transport protocol set yet");
-		return TransportUnknown;
+		GRDWarningLogg(@"No preferred transport protocol set yet. Defaulting to IKEv2");
+		return TransportIKEv2;
 	}
 	
 	TransportProtocol transport;
