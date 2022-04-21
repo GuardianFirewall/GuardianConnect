@@ -114,9 +114,6 @@
             regionName = @"us-east";
         }
         
-        // Note from CJ 2021-10-25:
-        // Hardcoded to ServerFeatureEnvironmentProduction for the time being. Going to make this a little more
-        // flexbile very soon to enable features in Guardian
         [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
 				GRDWarningLogg(@"Failed to get servers for region");
