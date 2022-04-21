@@ -35,8 +35,9 @@
                 shared.vpnLoaded = YES;
             }
         }];
+		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
         [shared _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
-        [shared setTunnelManager: [GRDTunnelManager sharedManager]];
+        [shared setTunnelManager:[GRDTunnelManager sharedManager]];
     });
     
     return shared;
