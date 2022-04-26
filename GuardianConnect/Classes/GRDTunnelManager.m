@@ -152,6 +152,23 @@
 	}];
 }
 
+- (void)removeTunnelFromPreferences:(void (^)(NSError * _Nullable))completion {
+	if (self.tunnelProviderManager == nil) {
+		if (completion) completion(nil);
+		return;
+	}
+	
+	[self.tunnelProviderManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(error);
+			return;
+		}
+		self.tunnelProviderManager = nil;
+		if (completion) completion(nil);
+		return;
+	}];
+}
+
 /// Current status of the tunnel provider
 - (NEVPNStatus)currentTunnelProviderState {
     __block NEVPNStatus currentStatus = NEVPNStatusInvalid;

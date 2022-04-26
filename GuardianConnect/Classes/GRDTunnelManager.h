@@ -24,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion;
 
+/// Convenience method to quickly delete the current tunnel manager out of the iOS preferences
+- (void)removeTunnelFromPreferences:(void (^_Nullable)(NSError *_Nullable error))completion;
+
 /// Used to determine whether or not the NETunnelManager has already been configured on this device
 /// Used to prevent the client to show an awkward modal system alert asking to install the personal VPN configuration without any context
 + (void)tunnelConfiguredWithCompletion:(void(^)(BOOL configured))completion;
