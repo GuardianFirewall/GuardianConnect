@@ -6,6 +6,7 @@
 //
 
 #import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDVPNhelper.h>
 #import <GuardianConnect/GRDCredentialManager.h>
 
 @interface GRDKeychain ()
@@ -36,6 +37,11 @@
 	} else {
 		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
 	}
+	
+	if ([accountKeyStr isEqualToString:kKeychainStr_WireGuardConfig]) {
+		[mSecItem setObject:[[GRDVPNHelper sharedInstance] appGroupIdentifier] forKey:(__bridge id)kSecAttrAccessGroup];
+	}
+	
 	NSDictionary *secItem = [NSDictionary dictionaryWithDictionary:mSecItem];
 	
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);

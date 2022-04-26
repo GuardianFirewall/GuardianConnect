@@ -116,6 +116,11 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// Eg. "Guardian Firewall" -> "Guardian Firewall: Frankfurt, Germany"
 @property BOOL appendServerRegionToGRDTunnelProviderManagerLocalizedDescription;
 
+/// Constant used to make the WireGuard config in the local keychain
+/// available to both the main app as well as the included Packet Tunnel Provider
+/// app extension. Only used for WireGuard connections on iOS
+@property NSString *appGroupIdentifier;
+
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;
 #endif
