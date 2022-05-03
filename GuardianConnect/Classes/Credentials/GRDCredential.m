@@ -164,7 +164,7 @@
 		// Everything can stay in the data blob that is stored as one in
 		// the keychain as the 'kGuardianCredentialsList'
 		if (self.mainCredential == true) {
-			[self loadFromKeychain];
+			self.passwordRef = [GRDKeychain getPasswordRefForAccount:self.identifier];
 		}
     }
     return self;

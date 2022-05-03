@@ -44,15 +44,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
 - (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate;
 - (void)updateWithItem:(GRDCredential *)cred;
-- (OSStatus)saveToKeychain;
-- (BOOL)loadFromKeychain;
 - (NSString *)truncatedHost;
-- (OSStatus)removeFromKeychain;
 - (NSString *)authTokenIdentifier;
 - (BOOL)expired;
 - (NSInteger)daysLeft; //days until it does expire
 - (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
 - (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion;
+
+
+// Note from CJ 2022-05-03
+// Both of these are deprecated and only remain in the codebase
+// to leave existing codepaths untouched. They should never be used directly
+// nor should they be adopted anywhere else in newly written code since
+// all credentials are now saved together as a data blob in the keychain
+// and managed by GRDCredentialManager
+- (OSStatus)saveToKeychain;
+- (BOOL)loadFromKeychain;
+- (OSStatus)removeFromKeychain;
 
 @end
 
