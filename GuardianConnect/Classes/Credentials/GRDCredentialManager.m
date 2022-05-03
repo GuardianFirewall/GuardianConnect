@@ -75,6 +75,7 @@
 		NSInteger index = [creds indexOfObject:foundCred];
 		if (index != NSNotFound) {
 			[credentialList replaceObjectAtIndex:index withObject:newObject];
+			
 		} else {
 			//should NOT happen...
 			[credentialList insertObject:newObject atIndex:0];
@@ -118,7 +119,6 @@
     
     GRDCredential *newMain = [[GRDCredential alloc] initWithFullDictionary:@{kKeychainStr_EapUsername: eapUsername, kKeychainStr_EapPassword: eapPassword, kKeychainStr_APIAuthToken: apiAuthToken, kGRDHostnameOverride: hostname, kGRDVPNHostLocation: hostnameLocation} validFor:30 isMain:YES];
     [self addOrUpdateCredential:newMain];
-    [newMain saveToKeychain];
     
     [[GRDVPNHelper sharedInstance] setMainCredential:newMain];
     return YES;
@@ -162,5 +162,37 @@
 		}
 	}];
 }
+
++ (void)createCredentialForRegion:(NSString *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void (^)(GRDCredential * _Nullable, NSString * _Nullable))completion {
+	//first get a host name
+	[[GRDServerManager new] findBestHostInRegion:region completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+		if (!error) {
+			//now get the new credentials for said hostname
+			[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays hostname:host completion:^(NSDictionary * _Nonnull credentials, NSString * _Nonnull errorMessage) {
+				if (!errorMessage) {
+					//we got a hostname & credentials, got all we need!
+					NSMutableDictionary *credCopy = [credentials mutableCopy];
+					credCopy[kGRDHostnameOverride] = host;
+					credCopy[kGRDVPNHostLocation] = hostLocation;
+					GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credCopy validFor:numberOfDays isMain:mainCredential];
+					if (completion) {
+						completion(credential, nil);
+					}
+					
+				} else {
+					if (completion) {
+						completion(nil,error);
+					}
+				}
+			}];
+			
+		} else {
+			if (completion) {
+				completion(nil, error);
+			}
+		}
+	}];
+}
+
 
 @end
