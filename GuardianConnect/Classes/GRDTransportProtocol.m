@@ -75,4 +75,15 @@
 	return transport;
 }
 
++ (TransportProtocol)transportProtocolFromString:(NSString *)protocolString {
+	if ([protocolString isEqualToString:@"ikev2"] == YES) {
+		return TransportIKEv2;
+	
+	} else if ([protocolString isEqualToString:@"wireguard"] == YES) {
+		return TransportWireGuard;
+	}
+	
+	return TransportUnknown;
+}
+
 @end

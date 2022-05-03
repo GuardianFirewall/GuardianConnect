@@ -37,6 +37,10 @@ typedef NS_OPTIONS(NSUInteger, TransportProtocol) {
 /// If no user preferred transport protocol has been set yet it will return TransportIKEv2
 + (TransportProtocol)getUserPreferredTransportProtocol;
 
+/// Convenience function to convert a (non-pretty) transport protocol string
+/// into a TransportProtocol object
++ (TransportProtocol)transportProtocolFromString:(NSString *)protocolString;
+
 @end
 
 NS_ASSUME_NONNULL_END
