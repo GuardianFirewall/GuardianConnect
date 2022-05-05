@@ -288,6 +288,10 @@
 
 			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
 			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:fullCreds validFor:adjustedDays isMain:YES];
+			if (protocol == TransportIKEv2) {
+				[self.mainCredential saveToKeychain];
+			}
+			
 			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
 			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
 			[self configureAndConnectVPNWithCompletion:^(NSString * _Nonnull message, GRDVPNHelperStatusCode status) {
@@ -612,7 +616,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
+//		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
 
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {

@@ -121,6 +121,7 @@
     [self addOrUpdateCredential:newMain];
     
     [[GRDVPNHelper sharedInstance] setMainCredential:newMain];
+	[newMain saveToKeychain];
     return YES;
 }
 
