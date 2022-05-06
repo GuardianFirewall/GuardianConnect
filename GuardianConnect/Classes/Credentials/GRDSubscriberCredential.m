@@ -68,9 +68,8 @@
 }
 
 - (BOOL)isExpired {
-	NSTimeInterval safeExpirationDate = [[[NSCalendar currentCalendar] dateByAddingUnit:NSCalendarUnitDay value:-2 toDate:[NSDate date] options:0] timeIntervalSince1970];
-	NSTimeInterval jwtExpirationDate = self.tokenExpirationDate;
-	BOOL expired = (safeExpirationDate < jwtExpirationDate);
+	NSTimeInterval safeExpirationDate = self.tokenExpirationDate - 172800;
+	BOOL expired = (safeExpirationDate < [[NSDate date] timeIntervalSince1970]);
 	return expired;
 }
 

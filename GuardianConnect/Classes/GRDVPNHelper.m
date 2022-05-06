@@ -806,9 +806,9 @@
     
     // Use convenience method to get access to our current subscriber cred (if it exists)
     GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-
+	BOOL expired = [subCred tokenExpired];
     // check current Subscriber Credential if it exists
-    if ([subCred tokenExpired] || subCred == nil) {
+    if (expired == YES || subCred == nil) {
         // No subscriber credential yet or it is expired. We have to create a new one
         GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
         
@@ -839,11 +839,15 @@
                 }
                 
 				GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
-                completion(subCred, nil);
+				GRDLogg(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
+				if (completion) {
+					completion(subCred, nil);
+				}
             }
         }];
         
     } else {
+		GRDLogg(@"Valid Subscriber Credential found: %@", subCred.jwt);
         if (completion) {
             completion(subCred, nil);
         }
