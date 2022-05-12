@@ -36,8 +36,14 @@
             }
         }];
 		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
-        [shared _loadCredentialsFromKeychain]; //the API user shouldn't have to call this manually, been meaning to put this in here.
+        [shared _loadCredentialsFromKeychain];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
+		GRDLogg(@"Verifying main VPN credentials");
+		[shared verifyMainCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
+			if (valid == NO && errorMessage != nil) {
+				GRDErrorLogg(@"Failed to verify main credentials: %@", errorMessage);
+			}
+		}];
     });
     
     return shared;
@@ -988,7 +994,7 @@
 
 - (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion {
 	GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
-	if (mainCreds) {
+	if (mainCreds == nil) {
 		if (completion) completion(NO, @"No VPN credentials found");
 		return;
 	}
@@ -999,7 +1005,8 @@
 			return;
 		}
 		
-		[[GRDGatewayAPI new] verifyCredentialsForClientId:mainCreds.clientId withAPIToken:mainCreds.apiAuthToken hostname:mainCreds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL success, BOOL credentialsValid, NSString * _Nullable errorMessage) {
+		GRDGatewayAPI *gatewayAPI = [GRDGatewayAPI new];
+		[gatewayAPI verifyCredentialsForClientId:mainCreds.clientId withAPIToken:mainCreds.apiAuthToken hostname:mainCreds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL success, BOOL credentialsValid, NSString * _Nullable errorMessage) {
 			if (success == YES) {
 				if (credentialsValid == YES) {
 					if (completion) completion(YES, nil);
@@ -1013,12 +1020,26 @@
 							if (completion) completion(success, errorMessage);
 							return;
 						}];
+					
+					} else {
+						if (completion) completion(NO, errorMessage);
+						return;
 					}
 				}
 				
 			} else {
-				if (completion) completion(NO, errorMessage);
-				return;
+				if ([self isConnected] == NO) {
+					[self forceDisconnectVPNIfNecessary];
+					//create a fresh set of credentials (new user) in our current region.
+					[self configureFirstTimeUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
+						if (completion) completion(success, errorMessage);
+						return;
+					}];
+				
+				} else {
+					if (completion) completion(NO, errorMessage);
+					return;
+				}
 			}
 		}];
 	}];

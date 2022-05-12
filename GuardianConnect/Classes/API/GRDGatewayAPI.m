@@ -85,6 +85,8 @@
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:10];
+	[sessionConf setTimeoutIntervalForResource:10];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         GRDGatewayAPIResponse *respObj = [[GRDGatewayAPIResponse alloc] init];
@@ -390,9 +392,12 @@
     [request setHTTPBody:jsonBody];
     [request setHTTPMethod:@"POST"];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:10];
     
     NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     [sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:10];
+	[sessionConf setTimeoutIntervalForResource:10];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
