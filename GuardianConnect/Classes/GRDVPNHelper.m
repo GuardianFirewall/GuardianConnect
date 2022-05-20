@@ -38,12 +38,6 @@
 		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
         [shared _loadCredentialsFromKeychain];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
-		GRDLogg(@"Verifying main VPN credentials");
-		[shared verifyMainCredentialsWithCompletion:^(BOOL valid, NSString * _Nullable errorMessage) {
-			if (valid == NO && errorMessage != nil) {
-				GRDErrorLogg(@"Failed to verify main credentials: %@", errorMessage);
-			}
-		}];
     });
     
     return shared;
