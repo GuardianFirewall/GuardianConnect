@@ -616,7 +616,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-//		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
 
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
