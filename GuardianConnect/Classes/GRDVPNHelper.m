@@ -598,6 +598,10 @@
 	} else if (self.grdTunnelProviderManagerLocalizedDescription == nil || [self.grdTunnelProviderManagerLocalizedDescription isEqualToString:@""]) {
 		if (completion) completion(@"No localized description set for the tunnel provider description. Please set a value for the  grdTunnelProviderManagerLocalizedDescription property", GRDVPNHelperFail);
 		return;
+		
+	} else if ([[GRDVPNHelper sharedInstance] appGroupIdentifier] == nil) {
+		if (completion) completion(@"No app group identifier set. Please set a value for the appGroupIdentifier property", GRDVPNHelperFail);
+		return;
 	}
 	
 	[[GRDTunnelManager sharedManager] ensureTunnelManagerWithCompletion:^(NETunnelProviderManager * _Nullable tunnelManager, NSString * _Nullable errorMessage) {

@@ -39,7 +39,11 @@
 	}
 	
 	if ([accountKeyStr isEqualToString:kKeychainStr_WireGuardConfig]) {
-		[mSecItem setObject:[[GRDVPNHelper sharedInstance] appGroupIdentifier] forKey:(__bridge id)kSecAttrAccessGroup];
+		NSString *appGroupId = [[GRDVPNHelper sharedInstance] appGroupIdentifier];
+		if (appGroupId == nil) {
+			appGroupId = @"";
+		}
+		[mSecItem setObject:appGroupId forKey:(__bridge id)kSecAttrAccessGroup];
 	}
 	
 	NSDictionary *secItem = [NSDictionary dictionaryWithDictionary:mSecItem];
