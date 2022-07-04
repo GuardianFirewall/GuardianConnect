@@ -8,13 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GuardianConnect/GRDVPNHelper.h>
-#import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDRegion.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDServerManager : NSObject
+
+- (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;
 
 /// Used to find and return the VPN server node we will connect to based on the results of a call to 'getGuardianHostsWithCompletion:"
 /// @param completion Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
@@ -30,10 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param regionName NSString The region we want to specify, if null it will defer to 'Automatic' selection.
 /// @param completion Completion block with NSString error message if the 'success' BOOL is false. (upon failure)
 - (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion;
-
-/// Used to populate the regions stored in 'kGuardianAllRegions' if necessary. This raw data is used for region selection.
-/// @param completion Completion block with an NSArray * of region NSDictionaries upon success, or an empty array upon failure.
-- (void)populateTimezonesIfNecessaryWithCompletion:(void(^_Nullable)(NSArray *regions))completion;
 
 /// Used to find the best VPN server node in a specified region, useful if you want to get VPN server node & its host location without creating a VPN connection.
 /// @param regionName NSString. The region we want to find the best available VPN node in.

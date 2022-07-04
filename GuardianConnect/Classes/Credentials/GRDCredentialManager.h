@@ -11,16 +11,23 @@
 #import <GuardianConnect/GRDCredential.h>
 
 NS_ASSUME_NONNULL_BEGIN
-static NSString * const kGuardianCredentialList = @"kGuardianCredentialList";
+
 @interface GRDCredentialManager : NSObject
-+ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
+
 + (NSArray <GRDCredential *>*)credentials;
 + (NSArray <GRDCredential *>*)filteredCredentials;
-+ (void)removeCredential:(GRDCredential *)credential;
-+ (void)addOrUpdateCredential:(GRDCredential *)credential;
-+ (GRDCredential *)credentialWithIdentifier:(NSString *)groupIdentifier;
 + (GRDCredential *)mainCredentials;
 + (void)clearMainCredentials;
++ (GRDCredential *)credentialWithIdentifier:(NSString *)groupIdentifier;
++ (void)addOrUpdateCredential:(GRDCredential *)credential;
++ (void)removeCredential:(GRDCredential *)credential;
+
++ (BOOL)migrateKeychainItemsToGRDCredential;
+
++ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
+
++ (void)createCredentialForRegion:(NSString *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSString * _Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

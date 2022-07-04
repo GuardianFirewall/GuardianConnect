@@ -3,10 +3,26 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		232ED3DA278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		232ED3DB278604C6008B1FCE /* GRDTransportProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */; };
+		232ED3DC278604C6008B1FCE /* GRDTransportProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */; };
+		232ED3F1278F16FB008B1FCE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3F0278F16FB008B1FCE /* Curve25519.swift */; };
+		232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3F0278F16FB008B1FCE /* Curve25519.swift */; };
+		232ED3F4278F172C008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F3278F172C008B1FCE /* CryptoKit.framework */; };
+		232ED3F6278F1733008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F5278F1733008B1FCE /* CryptoKit.framework */; platformFilter = maccatalyst; };
+		23C2144227986ABF0061B2BC /* GRDTunnelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 23C2144027986ABF0061B2BC /* GRDTunnelManager.m */; };
+		23C2144327986ABF0061B2BC /* GRDTunnelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 23C2144027986ABF0061B2BC /* GRDTunnelManager.m */; };
+		23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 23C2144127986ABF0061B2BC /* GRDTunnelManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 23C2144127986ABF0061B2BC /* GRDTunnelManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23DCA2B327E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DCA2B127E37AE000130BE4 /* GRDWireGuardConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23DCA2B427E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DCA2B127E37AE000130BE4 /* GRDWireGuardConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23DCA2B527E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DCA2B227E37AE000130BE4 /* GRDWireGuardConfiguration.m */; };
+		23DCA2B627E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DCA2B227E37AE000130BE4 /* GRDWireGuardConfiguration.m */; };
 		23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
 		23F9D37D272FEEE000CDDB5B /* GRDLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9D37B272FEEE000CDDB5B /* GRDLogger.m */; };
@@ -132,6 +148,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDTransportProtocol.h; sourceTree = "<group>"; };
+		232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDTransportProtocol.m; sourceTree = "<group>"; };
+		232ED3F0278F16FB008B1FCE /* Curve25519.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve25519.swift; sourceTree = "<group>"; };
+		232ED3F3278F172C008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = System/Library/Frameworks/CryptoKit.framework; sourceTree = SDKROOT; };
+		232ED3F5278F1733008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/CryptoKit.framework; sourceTree = DEVELOPER_DIR; };
+		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		23C2144027986ABF0061B2BC /* GRDTunnelManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GRDTunnelManager.m; path = GuardianConnect/Classes/GRDTunnelManager.m; sourceTree = SOURCE_ROOT; };
+		23C2144127986ABF0061B2BC /* GRDTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GRDTunnelManager.h; path = GuardianConnect/Classes/GRDTunnelManager.h; sourceTree = SOURCE_ROOT; };
+		23DCA2B127E37AE000130BE4 /* GRDWireGuardConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDWireGuardConfiguration.h; sourceTree = "<group>"; };
+		23DCA2B227E37AE000130BE4 /* GRDWireGuardConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDWireGuardConfiguration.m; sourceTree = "<group>"; };
 		23E5FA9427304ABA000FC70F /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		23F9D37B272FEEE000CDDB5B /* GRDLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDLogger.m; sourceTree = "<group>"; };
 		23F9D37C272FEEE000CDDB5B /* GRDLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDLogger.h; sourceTree = "<group>"; };
@@ -205,6 +231,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				232ED3F4278F172C008B1FCE /* CryptoKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +248,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				232ED3F6278F1733008B1FCE /* CryptoKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,6 +258,7 @@
 		321BA139261404A100E876CB = {
 			isa = PBXGroup;
 			children = (
+				23A3D13D285B76B400AC2B0C /* Package.swift */,
 				32A49C3D263900E100D15910 /* README.md */,
 				32E92C62262F3F3800A3202C /* build_framework.sh */,
 				321BA145261404A100E876CB /* GuardianConnect */,
@@ -331,6 +360,10 @@
 				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
 				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
 				32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */,
+				23C2144127986ABF0061B2BC /* GRDTunnelManager.h */,
+				23C2144027986ABF0061B2BC /* GRDTunnelManager.m */,
+				232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */,
+				232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -338,6 +371,8 @@
 		329C5278263151A6003B78D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				232ED3F3278F172C008B1FCE /* CryptoKit.framework */,
+				232ED3F5278F1733008B1FCE /* CryptoKit.framework */,
 				32A664BB26532583008277E0 /* NetworkExtension.framework */,
 				32A49C48263944C700D15910 /* StoreKit.framework */,
 				329C527A26315721003B78D8 /* NetworkExtension.framework */,
@@ -356,6 +391,9 @@
 				3247E9EF2628F252007D4E7E /* GRDCredential.m */,
 				3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */,
 				3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */,
+				232ED3F0278F16FB008B1FCE /* Curve25519.swift */,
+				23DCA2B127E37AE000130BE4 /* GRDWireGuardConfiguration.h */,
+				23DCA2B227E37AE000130BE4 /* GRDWireGuardConfiguration.m */,
 			);
 			path = Credentials;
 			sourceTree = "<group>";
@@ -402,6 +440,7 @@
 				32939A6F26167D0E007A4DFA /* metamacros.h in Headers */,
 				32939A9226167D20007A4DFA /* GRDServerManager.h in Headers */,
 				32939A9526167D20007A4DFA /* GRDGatewayAPIResponse.h in Headers */,
+				23DCA2B327E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				32939A8626167D20007A4DFA /* GRDKeychain.h in Headers */,
 				32939A8F26167D20007A4DFA /* GRDGatewayAPI.h in Headers */,
 				32939A7326167D0E007A4DFA /* EXTKeyPathCoding.h in Headers */,
@@ -409,6 +448,7 @@
 				32939A9126167D20007A4DFA /* GRDDebugHelper.h in Headers */,
 				32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
+				232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
 				23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
 				32939A9326167D20007A4DFA /* GRDHousekeepingAPI.h in Headers */,
@@ -417,6 +457,7 @@
 				3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */,
 				32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
+				23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
 				321BA148261404A100E876CB /* GuardianConnect.h in Headers */,
 			);
@@ -434,6 +475,7 @@
 				32E92C27262A1BC100A3202C /* metamacros.h in Headers */,
 				32E92C23262A1BA700A3202C /* GRDVPNHelper.h in Headers */,
 				32E92C1F262A1BA700A3202C /* GRDKeychain.h in Headers */,
+				23DCA2B427E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				32E92C1C262A1BA700A3202C /* GRDGatewayAPI.h in Headers */,
 				32E92C1D262A1BA700A3202C /* GRDGatewayAPIResponse.h in Headers */,
 				32E92C19262A1BA700A3202C /* GRDCredential.h in Headers */,
@@ -445,9 +487,11 @@
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
 				32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */,
 				3252D62C26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
+				232ED3DA278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
 				32E92C1B262A1BA700A3202C /* GRDDebugHelper.h in Headers */,
 				32E92C25262A1BB600A3202C /* NSPredicate+Additions.h in Headers */,
 				32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
+				23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
 				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
 				32E92C28262A1BC500A3202C /* EXTScope.h in Headers */,
@@ -536,20 +580,23 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1010;
-				LastUpgradeCheck = 9998;
+				LastUpgradeCheck = 1330;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
 					321BA142261404A100E876CB = {
 						CreatedOnToolsVersion = 11.7;
+						LastSwiftMigration = 1320;
 					};
 					3224BC1126531A5E00E5B4AD = {
 						CreatedOnToolsVersion = 10.1;
 					};
 					32E6BB4D2660C26200B4DD46 = {
 						CreatedOnToolsVersion = 11.7;
+						LastSwiftMigration = 1320;
 					};
 					32E92C01262A1B3D00A3202C = {
 						CreatedOnToolsVersion = 11.7;
+						LastSwiftMigration = 1320;
 					};
 				};
 			};
@@ -568,8 +615,8 @@
 			targets = (
 				321BA142261404A100E876CB /* GuardianConnect */,
 				32E92C01262A1B3D00A3202C /* GuardianConnectMac */,
-				3224BC1126531A5E00E5B4AD /* iOSSampleApp */,
 				32E6BB4D2660C26200B4DD46 /* XCFramework */,
+				3224BC1126531A5E00E5B4AD /* iOSSampleApp */,
 			);
 		};
 /* End PBXProject section */
@@ -611,18 +658,22 @@
 				32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */,
 				32939A9426167D20007A4DFA /* GRDDebugHelper.m in Sources */,
 				23F9D37D272FEEE000CDDB5B /* GRDLogger.m in Sources */,
+				232ED3DB278604C6008B1FCE /* GRDTransportProtocol.m in Sources */,
 				32939A7026167D0E007A4DFA /* EXTScope.m in Sources */,
 				32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */,
 				32855B19263640B90088086E /* GRDRegion.m in Sources */,
 				3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */,
 				32939A8B26167D20007A4DFA /* GRDVPNHelper.m in Sources */,
+				23C2144227986ABF0061B2BC /* GRDTunnelManager.m in Sources */,
 				3252D64F2693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				3252D62D26938DC000FE7402 /* GRDSubscriptionManager.m in Sources */,
 				32939A8526167D20007A4DFA /* GRDHousekeepingAPI.m in Sources */,
 				32939A7126167D0E007A4DFA /* EXTRuntimeExtensions.m in Sources */,
 				32939A8926167D20007A4DFA /* GRDSubscriberCredential.m in Sources */,
 				32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */,
+				232ED3F1278F16FB008B1FCE /* Curve25519.swift in Sources */,
 				3247E9F12628F253007D4E7E /* GRDCredentialManager.m in Sources */,
+				23DCA2B527E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				32939A8D26167D20007A4DFA /* GRDGatewayAPI.m in Sources */,
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
@@ -656,9 +707,13 @@
 				32E92C0F262A1B6100A3202C /* GRDCredentialManager.m in Sources */,
 				32E92C16262A1B6100A3202C /* GRDSubscriberCredential.m in Sources */,
 				32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */,
+				23DCA2B627E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
+				232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */,
+				232ED3DC278604C6008B1FCE /* GRDTransportProtocol.m in Sources */,
 				32E92C0E262A1B6100A3202C /* GRDCredential.m in Sources */,
 				32E1AE192698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
 				23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */,
+				23C2144327986ABF0061B2BC /* GRDTunnelManager.m in Sources */,
 				3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				32E92C0D262A1B5400A3202C /* EXTRuntimeExtensions.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,
@@ -722,6 +777,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -747,8 +803,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -784,6 +840,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -803,11 +860,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -817,8 +875,10 @@
 		321BA14C261404A100E876CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 12;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -827,17 +887,19 @@
 				GCC_PREFIX_HEADER = $SRCROOT/GuardianConnect/PrefixHeader.pch;
 				INFOPLIST_FILE = GuardianConnect/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -845,8 +907,10 @@
 		321BA14D261404A100E876CB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 12;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -855,17 +919,18 @@
 				GCC_PREFIX_HEADER = $SRCROOT/GuardianConnect/PrefixHeader.pch;
 				INFOPLIST_FILE = GuardianConnect/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -873,6 +938,7 @@
 		3224BC2126531A5F00E5B4AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -899,6 +965,7 @@
 		3224BC2226531A5F00E5B4AD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -913,7 +980,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -924,36 +991,57 @@
 		32E6BB4E2660C26200B4DD46 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUGGING_SYMBOLS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "GuardianConnect/Classes/XCFramework-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		32E6BB4F2660C26200B4DD46 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = FL2NUL637S;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "GuardianConnect/Classes/XCFramework-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
 		32E92C07262A1B3D00A3202C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 12;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -968,20 +1056,24 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		32E92C08262A1B3D00A3202C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 12;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -996,11 +1088,12 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

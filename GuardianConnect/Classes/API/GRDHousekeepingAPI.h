@@ -24,14 +24,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
     ValidationmethodPEToken
 };
 
-typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
-    ServerFeatureEnvironmentProduction = 1,
-    ServerFeatureEnvironmentInternal,
-    ServerFeatureEnvironmentDevelopment,
-    ServerFeatureEnvironmentDualStack,
-    ServerFeatureEnvironmentUnstable
-};
-
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
@@ -43,6 +35,14 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// PET or PE Token == Password Equivalent Token
 /// Currently only used by Guardian for subscriptions & purchases conducted via the web
 @property NSString *peToken;
+
+/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
+@property (nonatomic, strong) NSString *_Nullable appKey;
+
+/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
+@property (nonatomic, strong) NSString *_Nullable appBundleId;
+
+- (instancetype)initWithAppKey:(NSString *_Nonnull)appKey andAppBundleId:(NSString *_Nonnull)appBundleId;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
 /// @param validationMethod set to determine how to authenticate with housekeeping
 /// @param completion completion block returning a signed JWT, indicating request success and a user actionable error message if the request failed
-- (void)createNewSubscriberCredentialWithValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
@@ -70,7 +70,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingServerFeatureEnvironment) {
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDHousekeepingServerFeatureEnvironment)featureEnvironment completion:(void (^)(NSArray *servers, BOOL success))completion;
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion;
 
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success

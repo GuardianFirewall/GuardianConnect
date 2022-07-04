@@ -34,7 +34,7 @@
 }
 
 + (void)togglePersistentLogging:(BOOL)enabled {
-	GRDLog(@"Setting persistent log enabled to: %@", enabled ? @"YES" : @"NO");
+	GRDLog(@"Setting device diagnostic logs enabled to: %@", enabled ? @"YES" : @"NO");
 	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kGRDPersistentLogEnabled];
 }
 
@@ -86,7 +86,7 @@ void zzz_GRDLog(const char *functionName, int lineNumber, BOOL preventPersistent
 		[userDefaults setObject:currentLogs forKey:kGRDPersistentLog];
 	}
 	
-	printf("%s", [finalLog UTF8String]);
+	NSLog(@"%s", [finalLog UTF8String]);
 }
 
 @end

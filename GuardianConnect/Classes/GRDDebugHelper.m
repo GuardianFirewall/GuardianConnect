@@ -11,7 +11,7 @@
 @implementation GRDDebugHelper
 
 - (instancetype)initWithTitle:(NSString *)title {
-    if([super init]) {
+    if ([super init]) {
         self.logTitle = title;
         self.beginTime = mach_absolute_time();
         self.logTimerSet = YES;

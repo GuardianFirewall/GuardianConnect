@@ -23,6 +23,7 @@
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 #import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDTunnelManager.h>
 #import <GuardianConnect/NSDate+Extras.h>
 #import <GuardianConnect/NSPredicate+Additions.h>
 #import <GuardianConnect/NSString+Extras.h>
@@ -31,6 +32,8 @@
 #import <GuardianConnect/EXTKeyPathCoding.h>
 #import <GuardianConnect/EXTRuntimeExtensions.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
+#import <GuardianConnect/GRDTransportProtocol.h>
+#import <GuardianConnect/GRDWireGuardConfiguration.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;

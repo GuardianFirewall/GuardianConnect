@@ -60,13 +60,27 @@
     }];
 }
 
+- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)feautreEnv betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:feautreEnv betaCapableServers:betaCapable];
+	[serverManager findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+		if (!error) {
+			if (completion) {
+				self.bestHost = host;
+				self.bestHostLocation = hostLocation;
+				completion(host, hostLocation, true);
+			}
+			
+		} else {
+			if (completion) {
+				completion(nil, nil, false);
+			}
+		}
+	}];
+}
+
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {
     __block NSMutableArray *newRegions = [NSMutableArray new];
-    NSArray *_theRegions = regions;
-    if (_theRegions) {
-        _theRegions = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianAllRegions];
-    }
-    [_theRegions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [regions enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         GRDRegion *region = [[GRDRegion alloc] initWithDictionary:obj];
         if (region) {
             [newRegions addObject:region];
