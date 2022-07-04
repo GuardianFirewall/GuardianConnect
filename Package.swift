@@ -1,8 +1,8 @@
+// swift-tools-version:5.6
 //
 //  Package.swift
 //  GuardianConnect
 //
-// swift-tools-version:5.3
 //
 
 import PackageDescription
