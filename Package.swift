@@ -17,6 +17,6 @@ let package = Package(
 		.library(name: "GuardianConnect", targets: ["GuardianConnect", "GuardianConnectMac"])
 	],
 	targets: [
-		.binaryTarget(name: "GuardianConnect", url:"https://github.com/GuardianFirewall/GuardianConnect/releases/download/1.6.0/GuardianConnect.xcframework.zip")
+		.binaryTarget(name: "GuardianConnect", url:"https://github.com/GuardianFirewall/GuardianConnect/releases/download/1.6.1/GuardianConnect.xcframework.zip")
 	]
 )
