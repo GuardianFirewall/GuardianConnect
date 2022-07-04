@@ -10,7 +10,7 @@ import PackageDescription
 let package = Package(
 	name: "GuardianConnect",
 	platforms: [
-		.macOS(.v10.15),
+		.macOS(.v10_15),
 		.iOS(.v13)
 	],
 	products: [
