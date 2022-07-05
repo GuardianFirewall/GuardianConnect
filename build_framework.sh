@@ -52,6 +52,11 @@ mac_path=$pwd/build/Release/$name.framework
 # create the xcframework
 xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
 
+# create .zip of the framework for SwiftPM
+ditto -c -k --sequesterRsrc --keepParent "./GuardianConnect.xcframework" "./GuardianConnect.xcframework.zip"
 
-open "$pwd"
+# get hash checksum for SwiftPM
+swift package compute-checksum "./GuardianConnect.xcframework.zip"
+
+open -R "$pwd" "$name".xcframework
 
