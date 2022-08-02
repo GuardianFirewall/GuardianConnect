@@ -801,61 +801,66 @@
 # pragma mark - Credential Creation Helper
 
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable errorMessage))completion {
-    if (![GRDSubscriptionManager isPayingUser]) {
-        if (completion) {
-            completion(nil, @"A paid account is required to create a subscriber credential.");
-            return;
-        }
-    }
-    
-    // Use convenience method to get access to our current subscriber cred (if it exists)
-    GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+	if (![GRDSubscriptionManager isPayingUser]) {
+		if (completion) {
+			completion(nil, @"A paid account is required to create a subscriber credential.");
+			return;
+		}
+	}
+	
+	// Use convenience method to get access to our current subscriber cred (if it exists)
+	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	BOOL expired = [subCred tokenExpired];
-    // check current Subscriber Credential if it exists
-    if (expired == YES || subCred == nil) {
-        // No subscriber credential yet or it is expired. We have to create a new one
-        GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
-        
-        // Default to AppStore Receipt
-        GRDHousekeepingValidationMethod valmethod = ValidationMethodAppStoreReceipt;
-        
-        // Check to see if we have a PEToken
-        NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-        if (petToken.length > 0) {
-            valmethod = ValidationmethodPEToken;
-        }
-        
-		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
-            if (success == NO && errorMessage != nil) {
-                if (completion) {
-                    completion(nil, errorMessage);
-                }
-                return;
-                
-            } else if (success == YES) {
-                [GRDKeychain removeSubscriberCredentialWithRetries:3];
-                OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
-                if (saveStatus != errSecSuccess) {
-                    if (completion) {
-                        completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again.");
-                    }
-                    return;
-                }
-                
+	// check current Subscriber Credential if it exists
+	if (expired == YES || subCred == nil) {
+		// No subscriber credential yet or it is expired. We have to create a new one
+		GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
+		
+		// Default to AppStore Receipt
+		GRDHousekeepingValidationMethod valmethod = ValidationMethodAppStoreReceipt;
+		NSMutableDictionary *customKeys = [NSMutableDictionary new];
+		
+		// Check to see if we have a PEToken
+		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+		if (petToken.length < 0) {
+			valmethod = ValidationMethodPEToken;
+		
+		} else if (self.customSubscriberCredentialAuthKeys != nil) {
+			valmethod = ValidationMethodCustom;
+			customKeys = self.customSubscriberCredentialAuthKeys;
+		}
+		
+		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod customKeys:customKeys completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
+			if (success == NO && errorMessage != nil) {
+				if (completion) {
+					completion(nil, errorMessage);
+				}
+				return;
+				
+			} else if (success == YES) {
+				[GRDKeychain removeSubscriberCredentialWithRetries:3];
+				OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
+				if (saveStatus != errSecSuccess) {
+					if (completion) {
+						completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again.");
+					}
+					return;
+				}
+				
 				GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
 				GRDLogg(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
 				if (completion) {
 					completion(subCred, nil);
 				}
-            }
-        }];
-        
-    } else {
+			}
+		}];
+		
+	} else {
 		GRDLogg(@"Valid Subscriber Credential found: %@", subCred.jwt);
-        if (completion) {
-            completion(subCred, nil);
-        }
-    }
+		if (completion) {
+			completion(subCred, nil);
+		}
+	}
 }
 
 - (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {

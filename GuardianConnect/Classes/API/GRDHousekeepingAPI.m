@@ -130,111 +130,124 @@
     [task resume];
 }
 
-- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/subscriber-credential/create"]];
-    
-    NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
-    if (validationMethod == ValidationMethodAppStoreReceipt) {
-        NSString *appStoreReceipt;
-        NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-        if (receiptData == nil) {
-            // Note from CJ 2021-09-09:
-            // This is a little bit of hand-wavey bullshit
-            // but it might be useful in the future who knows.
-            // For the time being it'll be used to enable the Mac app
-            // to create Subscriber Credentials and connection with encoded
-            // Apple in-app purchase receipts copied from the Guardian Firewall iOS app
-            NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
-            if (userDefaultsEncodedIAPReceipt == nil) {
-                GRDLog(@"ReceiptData is nil");
-                if (completion) {
-                    completion(nil, NO, @"AppStore receipt missing");
-                }
-                return;
-            }
-            
-            GRDLog(@"Found hard coded IAP receipt in NSUserDefaults. Trying that one");
-            appStoreReceipt = userDefaultsEncodedIAPReceipt;
-            
-        } else {
-            GRDLog(@"Base64 encoding AppStore receipt");
-            appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
-        }
-        
-        [jsonDict setObject:@"iap-apple" forKey:@"validation-method"];
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/subscriber-credential/create"]];
+	
+	NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
+	if (validationMethod == ValidationMethodAppStoreReceipt) {
+		NSString *appStoreReceipt;
+		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+		if (receiptData == nil) {
+			// Note from CJ 2021-09-09:
+			// This is a little bit of hand-wavey bullshit
+			// but it might be useful in the future who knows.
+			// For the time being it'll be used to enable the Mac app
+			// to create Subscriber Credentials and connection with encoded
+			// Apple in-app purchase receipts copied from the Guardian Firewall iOS app
+			NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
+			if (userDefaultsEncodedIAPReceipt == nil) {
+				GRDLog(@"ReceiptData is nil");
+				if (completion) {
+					completion(nil, NO, @"AppStore receipt missing");
+				}
+				return;
+			}
+			
+			GRDLog(@"Found hard coded IAP receipt in NSUserDefaults. Trying that one");
+			appStoreReceipt = userDefaultsEncodedIAPReceipt;
+			
+		} else {
+			GRDLog(@"Base64 encoding AppStore receipt");
+			appStoreReceipt = [receiptData base64EncodedStringWithOptions:0];
+		}
+		
+		[jsonDict setObject:@"iap-apple" forKey:@"validation-method"];
 		[jsonDict setObject:bundleId forKey:@"bundle-id"];
-        [jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
-        
-    } else if (validationMethod == ValidationmethodPEToken) {
-        NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-        if (petToken == nil) {
-            GRDLog(@"Failed to retrieve PEToken from keychain");
-            if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
-            return;
-        }
-        
-        [jsonDict setObject:@"pe-token" forKey:@"validation-method"];
-        [jsonDict setObject:petToken forKey:@"pe-token"];
-        
-    } else {
-        if (completion) completion(nil, NO, @"validation method missing");
-        return;
-    }
-        
-    if ([self appKey] != nil) {
-        [request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
-    }
+		[jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
+		
+	} else if (validationMethod == ValidationMethodPEToken) {
+		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+		if (petToken == nil) {
+			GRDLog(@"Failed to retrieve PEToken from keychain");
+			if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
+			return;
+		}
+		
+		[jsonDict setObject:@"pe-token" forKey:@"validation-method"];
+		[jsonDict setObject:petToken forKey:@"pe-token"];
+		
+	} else if (validationMethod == ValidationMethodCustom) {
+		jsonDict = dict;
+		
+	} else {
+		if (completion) completion(nil, NO, @"validation method missing");
+		return;
+	}
+	
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		GRDErrorLog(@"Failed to encode JSON request body: %@", jsonErr);
+		if (completion) completion(nil, NO, @"Failed to encode JSON request body");
+		return;
+	}
+		
+	if ([self appKey] != nil) {
+		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
+	}
 	if ([self appBundleId] != nil) {
 		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
 	}
+	
+	[request setValue:@"development" forHTTPHeaderField:@"Brave-Payments-Environment"];
+	
 	[request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+	[request setHTTPBody:requestData];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Housekeeping failed to return subscriber credential");
-            if (completion) completion(nil, NO, @"Internal server error - couldn't create subscriber credential");
-            return;
-            
-        } else if (statusCode == 400) {
-            GRDLog(@"Failed to create subscriber credential. Faulty input values");
-            if (completion) completion(nil, NO, @"Failed to create subscriber credential. Faulty input values");
-            return;
-            
-        } else if (statusCode == 401) {
-            GRDLog(@"No subscription present");
-            if (completion) completion(nil, NO, @"No subscription present");
-            return;
-            
-        } else if (statusCode == 410) {
-            GRDLog(@"Subscription expired");
-            // Not sending an error message back so that we're not showing a useless error to the user
-            // The app should transition to free/unpaid if required
-            if (completion) completion(nil, NO, nil);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
-            return;
-            
-        } else {
-            GRDLog(@"Unknown server error");
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
-        }
-    }];
-    [task resume];
-    
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
+			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
+			return;
+		}
+		
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode == 500) {
+			GRDLog(@"Housekeeping failed to return subscriber credential");
+			if (completion) completion(nil, NO, @"Internal server error - couldn't create subscriber credential");
+			return;
+			
+		} else if (statusCode == 400) {
+			GRDLog(@"Failed to create subscriber credential. Faulty input values");
+			if (completion) completion(nil, NO, @"Failed to create subscriber credential. Faulty input values");
+			return;
+			
+		} else if (statusCode == 401) {
+			GRDLog(@"No subscription present");
+			if (completion) completion(nil, NO, @"No subscription present");
+			return;
+			
+		} else if (statusCode == 410) {
+			GRDLog(@"Subscription expired");
+			// Not sending an error message back so that we're not showing a useless error to the user
+			// The app should transition to free/unpaid if required
+			if (completion) completion(nil, NO, nil);
+			return;
+			
+		} else if (statusCode == 200) {
+			NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+			if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
+			return;
+			
+		} else {
+			GRDLog(@"Unknown server error");
+			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
+		}
+	}];
+	[task resume];
 }
 
 - (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
