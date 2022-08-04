@@ -121,6 +121,10 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// app extension. Only used for WireGuard connections on iOS
 @property NSString *appGroupIdentifier;
 
+/// Set this key/value combinations to authenticate for custom
+/// payment validation mechanisms already known to the Connect API
+@property NSMutableDictionary *customSubscriberCredentialAuthKeys;
+
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;
 #endif

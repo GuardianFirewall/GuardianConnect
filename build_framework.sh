@@ -13,6 +13,12 @@ fi
 # clear previous build folder if it exist
 rm -rf build
 
+# remove the old copy of the xcframework if it already exists
+rm -rf GuardianConnect.xcframework
+
+# remove the old copy of the xcframework zip if it already exists
+rm -rf GuardianConnect.xcframework.zip
+
 # build simulator and iphoneos frameworks
 
 # -z checks to see if a value is empty, if xcpretty is not found, build normally, if it is found then use it to clean up our output.
@@ -38,9 +44,6 @@ for i in $(find ./* -name "*.framework"); do
     echo "$name"
 done
 
-# remove the old copy of the xcframework if it already exists
-rm -rf ../../"$name".xcframework
-
 # pop back to the GuardianConnect folder
 popd || exit
 
@@ -52,11 +55,18 @@ mac_path=$pwd/build/Release/$name.framework
 # create the xcframework
 xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
 
+printf "\n\n"
+printf "Proccesing SwiftPM artifacts\n"
+
+printf "Creating .zip archive...\n"
 # create .zip of the framework for SwiftPM
 ditto -c -k --sequesterRsrc --keepParent "./GuardianConnect.xcframework" "./GuardianConnect.xcframework.zip"
 
+printf "Done\n"
+
+printf "\n"
+printf "SwiftPM .zip checksum:\n"
 # get hash checksum for SwiftPM
 swift package compute-checksum "./GuardianConnect.xcframework.zip"
 
-open -R "$pwd" "$name".xcframework
-
+open -R "$name".xcframework.zip
