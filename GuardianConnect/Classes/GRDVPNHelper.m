@@ -822,7 +822,7 @@
 		
 		// Check to see if we have a PEToken
 		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-		if (petToken.length < 0) {
+		if (petToken.length > 0) {
 			valmethod = ValidationMethodPEToken;
 		
 		} else if (self.customSubscriberCredentialAuthKeys != nil) {
