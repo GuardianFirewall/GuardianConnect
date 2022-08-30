@@ -199,8 +199,6 @@
 		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
 	}
 	
-	[request setValue:@"development" forHTTPHeaderField:@"Brave-Payments-Environment"];
-	
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	
