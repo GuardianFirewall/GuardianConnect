@@ -538,6 +538,11 @@
 	protocolConfig.username = user;
 	protocolConfig.passwordReference = passRef;
 	protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
+    if (@available(iOS 14.2, *)) {
+        protocolConfig.includeAllNetworks = self.killSwitchEnabled;
+        protocolConfig.excludeLocalNetworks = YES;
+    }
+    
 	NEProxySettings *proxSettings = [self proxySettings];
 	if (proxSettings) {
 		protocolConfig.proxySettings = proxSettings;
@@ -617,6 +622,12 @@
 		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username = [self.mainCredential clientId];
+        
+        if (@available(iOS 14.2, *)) {
+            protocol.includeAllNetworks = self.killSwitchEnabled;
+            protocol.excludeLocalNetworks = YES;
+        }
+        
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
