@@ -49,7 +49,7 @@
 	}
 	
 	GRDLogg(@"Setting user preferred transport protocol to: %@", preferredTransportProtocol);
-	[defaults setObject:preferredTransportProtocol forKey:@"kGuardianTransportProtocol"];
+	[defaults setObject:preferredTransportProtocol forKey:kGuardianTransportProtocol];
 	return nil;
 }
 
@@ -73,6 +73,14 @@
 	}
 	
 	return transport;
+}
+
++ (BOOL)userPreferredTransportProtocolSet {
+	if ([[NSUserDefaults standardUserDefaults] valueForKey:kGuardianTransportProtocol] == nil) {
+		return NO;
+	}
+	
+	return YES;
 }
 
 + (TransportProtocol)transportProtocolFromString:(NSString *)protocolString {
