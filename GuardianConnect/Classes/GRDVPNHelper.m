@@ -489,7 +489,7 @@
             
 			if ([self onDemand]) {
                 vpnManager.onDemandEnabled = YES;
-                vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
+                vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
 				
             } else {
                 vpnManager.onDemandEnabled = NO;
@@ -582,11 +582,13 @@
 	}
 }
 
-+ (NSArray *)_vpnOnDemandRules {
++ (NSArray *)_vpnOnDemandRulesWithProbeURL:(BOOL)probeURLEnabled {
 	// RULE: connect to VPN automatically if server reports that it is running OK
 	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
 	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
-	vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride]]];
+	if (probeURLEnabled == YES) {
+		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride]]];
+	}
 	
 	NSArray *onDemandArr = @[vpnServerConnectRule];
 	return onDemandArr;
@@ -631,7 +633,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRules];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
 
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
