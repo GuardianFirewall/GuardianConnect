@@ -463,7 +463,7 @@
 /// Starting the VPN connection via the builtin IKEv2 transport protocol
 - (void)_startIKEv2ConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
 	if (self.tunnelLocalizedDescription == nil || [self.tunnelLocalizedDescription isEqualToString:@""]) {
-		if (completion) completion(@"IKEv2 tunnel localized description missing. Please set a value for the IKEv2TunnelLocalizedDescription property", GRDVPNHelperFail);
+		if (completion) completion(@"IKEv2 tunnel localized description missing. Please set a value for the tunnelLocalizedDescription property", GRDVPNHelperFail);
 		return;
 	}
 	

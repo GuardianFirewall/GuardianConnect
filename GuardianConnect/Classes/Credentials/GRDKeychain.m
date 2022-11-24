@@ -132,7 +132,7 @@
         (__bridge id)kSecReturnPersistentRef : (__bridge id)kCFBooleanTrue,
     };
     OSStatus results = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&copyResult);
-    if (results != errSecSuccess) {
+    if (results != errSecSuccess && results != errSecItemNotFound) {
 		GRDErrorLogg(@"Failed to  obtain keychain data for item '%@': %ld", accountKeyStr, (long)results);
     }
     
