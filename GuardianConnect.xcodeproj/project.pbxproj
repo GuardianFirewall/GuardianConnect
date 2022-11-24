@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		23187DFA292F611100ED302A /* GRDWireGuardKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */; };
-		23187DFB292F611100ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		23187E03292F797800ED302A /* GRDWireGuardKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */; };
+		23187E04292F797800ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		232ED3DA278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		232ED3DB278604C6008B1FCE /* GRDTransportProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */; };
@@ -153,7 +153,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				23187DFB292F611100ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */,
+				23187E04292F797800ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -182,7 +182,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GRDWireGuardKit.xcframework; path = ../../GRDWireGuardKit/GRDWireGuardKit.xcframework; sourceTree = "<group>"; };
+		23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = GRDWireGuardKit.xcframework; sourceTree = "<group>"; };
 		231A2023292CE6AC00D8E9C2 /* GRDWireGuardKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GRDWireGuardKit.xcframework; path = ../GRDWireGuardKit/GRDWireGuardKit.xcframework; sourceTree = "<group>"; };
 		232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDTransportProtocol.h; sourceTree = "<group>"; };
 		232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDTransportProtocol.m; sourceTree = "<group>"; };
@@ -273,7 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */,
-				23187DFA292F611100ED302A /* GRDWireGuardKit.xcframework in Frameworks */,
+				23187E03292F797800ED302A /* GRDWireGuardKit.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,10 +308,10 @@
 		23BBBC5A2923E70D00BAEC41 /* WireGuardPTP */ = {
 			isa = PBXGroup;
 			children = (
-				23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */,
 				23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */,
 				23BBBC5D2923E70D00BAEC41 /* Info.plist */,
 				23BBBC5E2923E70D00BAEC41 /* WireGuardPTP.entitlements */,
+				23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */,
 			);
 			path = WireGuardPTP;
 			sourceTree = "<group>";
