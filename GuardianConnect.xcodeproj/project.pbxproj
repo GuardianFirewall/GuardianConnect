@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23187DFA292F611100ED302A /* GRDWireGuardKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */; };
+		23187DFB292F611100ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		232ED3DA278604C6008B1FCE /* GRDTransportProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		232ED3DB278604C6008B1FCE /* GRDTransportProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */; };
@@ -15,6 +17,9 @@
 		232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3F0278F16FB008B1FCE /* Curve25519.swift */; };
 		232ED3F4278F172C008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F3278F172C008B1FCE /* CryptoKit.framework */; };
 		232ED3F6278F1733008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F5278F1733008B1FCE /* CryptoKit.framework */; platformFilter = maccatalyst; };
+		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
+		23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */; };
+		23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		23C2144227986ABF0061B2BC /* GRDTunnelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 23C2144027986ABF0061B2BC /* GRDTunnelManager.m */; };
 		23C2144327986ABF0061B2BC /* GRDTunnelManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 23C2144027986ABF0061B2BC /* GRDTunnelManager.m */; };
 		23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 23C2144127986ABF0061B2BC /* GRDTunnelManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -125,6 +130,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		23BBBC5F2923E70D00BAEC41 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321BA13A261404A100E876CB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 23BBBC572923E70D00BAEC41;
+			remoteInfo = WireGuardPTP;
+		};
 		32A664B026531C15008277E0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 321BA13A261404A100E876CB /* Project object */;
@@ -135,6 +147,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		23187DFC292F611100ED302A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				23187DFB292F611100ED302A /* GRDWireGuardKit.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23BBBC652923E70D00BAEC41 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		32A664B226531C20008277E0 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -148,12 +182,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GRDWireGuardKit.xcframework; path = ../../GRDWireGuardKit/GRDWireGuardKit.xcframework; sourceTree = "<group>"; };
+		231A2023292CE6AC00D8E9C2 /* GRDWireGuardKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GRDWireGuardKit.xcframework; path = ../GRDWireGuardKit/GRDWireGuardKit.xcframework; sourceTree = "<group>"; };
 		232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDTransportProtocol.h; sourceTree = "<group>"; };
 		232ED3D8278604C6008B1FCE /* GRDTransportProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDTransportProtocol.m; sourceTree = "<group>"; };
 		232ED3F0278F16FB008B1FCE /* Curve25519.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve25519.swift; sourceTree = "<group>"; };
 		232ED3F3278F172C008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = System/Library/Frameworks/CryptoKit.framework; sourceTree = SDKROOT; };
 		232ED3F5278F1733008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/CryptoKit.framework; sourceTree = DEVELOPER_DIR; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		23BBBC5D2923E70D00BAEC41 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		23BBBC5E2923E70D00BAEC41 /* WireGuardPTP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WireGuardPTP.entitlements; sourceTree = "<group>"; };
+		23BBBC672923EA1400BAEC41 /* libGRDWireGuardKitiOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGRDWireGuardKitiOS.a; path = "../GRDWireGuardKit/build/Release-iphoneos/libGRDWireGuardKitiOS.a"; sourceTree = "<group>"; };
 		23C2144027986ABF0061B2BC /* GRDTunnelManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GRDTunnelManager.m; path = GuardianConnect/Classes/GRDTunnelManager.m; sourceTree = SOURCE_ROOT; };
 		23C2144127986ABF0061B2BC /* GRDTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GRDTunnelManager.h; path = GuardianConnect/Classes/GRDTunnelManager.h; sourceTree = SOURCE_ROOT; };
 		23DCA2B127E37AE000130BE4 /* GRDWireGuardConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDWireGuardConfiguration.h; sourceTree = "<group>"; };
@@ -227,6 +268,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		23BBBC552923E70D00BAEC41 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */,
+				23187DFA292F611100ED302A /* GRDWireGuardKit.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		321BA140261404A100E876CB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -255,6 +305,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		23BBBC5A2923E70D00BAEC41 /* WireGuardPTP */ = {
+			isa = PBXGroup;
+			children = (
+				23187DF8292F610700ED302A /* GRDWireGuardKit.xcframework */,
+				23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */,
+				23BBBC5D2923E70D00BAEC41 /* Info.plist */,
+				23BBBC5E2923E70D00BAEC41 /* WireGuardPTP.entitlements */,
+			);
+			path = WireGuardPTP;
+			sourceTree = "<group>";
+		};
 		321BA139261404A100E876CB = {
 			isa = PBXGroup;
 			children = (
@@ -264,6 +325,7 @@
 				321BA145261404A100E876CB /* GuardianConnect */,
 				32E92C03262A1B3D00A3202C /* GuardianConnectMac */,
 				3224BC1326531A5E00E5B4AD /* iOSSampleApp */,
+				23BBBC5A2923E70D00BAEC41 /* WireGuardPTP */,
 				321BA144261404A100E876CB /* Products */,
 				329C5278263151A6003B78D8 /* Frameworks */,
 			);
@@ -275,6 +337,7 @@
 				321BA143261404A100E876CB /* GuardianConnect.framework */,
 				32E92C02262A1B3D00A3202C /* GuardianConnect.framework */,
 				3224BC1226531A5E00E5B4AD /* iOSSampleApp.app */,
+				23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -371,6 +434,8 @@
 		329C5278263151A6003B78D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				231A2023292CE6AC00D8E9C2 /* GRDWireGuardKit.xcframework */,
+				23BBBC672923EA1400BAEC41 /* libGRDWireGuardKitiOS.a */,
 				232ED3F3278F172C008B1FCE /* CryptoKit.framework */,
 				232ED3F5278F1733008B1FCE /* CryptoKit.framework */,
 				32A664BB26532583008277E0 /* NetworkExtension.framework */,
@@ -518,6 +583,24 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
+		23BBBC572923E70D00BAEC41 /* WireGuardPTP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23BBBC622923E70D00BAEC41 /* Build configuration list for PBXNativeTarget "WireGuardPTP" */;
+			buildPhases = (
+				23BBBC542923E70D00BAEC41 /* Sources */,
+				23BBBC552923E70D00BAEC41 /* Frameworks */,
+				23BBBC562923E70D00BAEC41 /* Resources */,
+				23187DFC292F611100ED302A /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WireGuardPTP;
+			productName = WireGuardPTP;
+			productReference = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		321BA142261404A100E876CB /* GuardianConnect */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 321BA14B261404A100E876CB /* Build configuration list for PBXNativeTarget "GuardianConnect" */;
@@ -544,11 +627,13 @@
 				3224BC0F26531A5E00E5B4AD /* Frameworks */,
 				3224BC1026531A5E00E5B4AD /* Resources */,
 				32A664B226531C20008277E0 /* CopyFiles */,
+				23BBBC652923E70D00BAEC41 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				32A664B126531C15008277E0 /* PBXTargetDependency */,
+				23BBBC602923E70D00BAEC41 /* PBXTargetDependency */,
 			);
 			name = iOSSampleApp;
 			productName = iOSSampleApp;
@@ -579,10 +664,13 @@
 		321BA13A261404A100E876CB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1010;
-				LastUpgradeCheck = 1400;
+				LastSwiftUpdateCheck = 1410;
+				LastUpgradeCheck = 1330;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
+					23BBBC572923E70D00BAEC41 = {
+						CreatedOnToolsVersion = 14.1;
+					};
 					321BA142261404A100E876CB = {
 						CreatedOnToolsVersion = 11.7;
 						LastSwiftMigration = 1320;
@@ -617,11 +705,19 @@
 				32E92C01262A1B3D00A3202C /* GuardianConnectMac */,
 				32E6BB4D2660C26200B4DD46 /* XCFramework */,
 				3224BC1126531A5E00E5B4AD /* iOSSampleApp */,
+				23BBBC572923E70D00BAEC41 /* WireGuardPTP */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		23BBBC562923E70D00BAEC41 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		321BA141261404A100E876CB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -649,6 +745,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		23BBBC542923E70D00BAEC41 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		321BA13F261404A100E876CB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -724,6 +828,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		23BBBC602923E70D00BAEC41 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 23BBBC572923E70D00BAEC41 /* WireGuardPTP */;
+			targetProxy = 23BBBC5F2923E70D00BAEC41 /* PBXContainerItemProxy */;
+		};
 		32A664B126531C15008277E0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 321BA142261404A100E876CB /* GuardianConnect */;
@@ -751,6 +860,79 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		23BBBC632923E70D00BAEC41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WireGuardPTP/WireGuardPTP.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WireGuardPTP/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WireGuardPTP;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sudo Security Group Inc. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp2.WireGuardPTP;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/libGRDWireGuardKit.framework/**";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		23BBBC642923E70D00BAEC41 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WireGuardPTP/WireGuardPTP.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FL2NUL637S;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WireGuardPTP/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WireGuardPTP;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sudo Security Group Inc. All rights reserved.";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp2.WireGuardPTP;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/libGRDWireGuardKit.framework/**";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		321BA149261404A100E876CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -809,6 +991,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -944,19 +1127,24 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FL2NUL637S;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = iOSSampleApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GCSampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRIP_SWIFT_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_COMPILATION_MODE = singlefile;
-				SWIFT_DISABLE_SAFETY_CHECKS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_DISABLE_SAFETY_CHECKS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -971,17 +1159,21 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = FL2NUL637S;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = iOSSampleApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GCSampleApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_DISABLE_SAFETY_CHECKS = NO;
+				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1100,6 +1292,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		23BBBC622923E70D00BAEC41 /* Build configuration list for PBXNativeTarget "WireGuardPTP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23BBBC632923E70D00BAEC41 /* Debug */,
+				23BBBC642923E70D00BAEC41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		321BA13D261404A100E876CB /* Build configuration list for PBXProject "GuardianConnect" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
