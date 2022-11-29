@@ -665,7 +665,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1330;
+				LastUpgradeCheck = 1410;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
 					23BBBC572923E70D00BAEC41 = {
@@ -1234,6 +1234,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 15;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1266,6 +1267,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 15;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
