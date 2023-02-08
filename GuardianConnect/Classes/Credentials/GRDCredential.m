@@ -229,8 +229,8 @@
 //since a proper success status is 0, and all we really care about is whether or not it was successful, adding them both together should still == 0 upon success.
 
 - (OSStatus)removeFromKeychain {
-    OSStatus stat = [GRDKeychain removeKeychanItemForAccount:[self authTokenIdentifier]];
-    stat = stat + [GRDKeychain removeKeychanItemForAccount:self.identifier];
+    OSStatus stat = [GRDKeychain removeKeychainItemForAccount:[self authTokenIdentifier]];
+    stat = stat + [GRDKeychain removeKeychainItemForAccount:self.identifier];
     return stat;
 }
 

@@ -25,7 +25,7 @@ static NSString * const kGuardianCredentialsList 			= @"kGuardianCredentialsList
 + (NSString *)getPasswordStringForAccount:(NSString *)accountKeyStr;
 + (NSData *)getPasswordRefForAccount:(NSString *)accountKeyStr;
 + (NSData *)getDataForAccount:(NSString *)accountKeyString;
-+ (OSStatus)removeKeychanItemForAccount:(NSString *)accountKeyStr;
++ (OSStatus)removeKeychainItemForAccount:(NSString *)accountKeyStr;
 + (OSStatus)removeSubscriberCredentialWithRetries:(NSInteger)retryCount;
 
 + (void)removeAllKeychainItems;

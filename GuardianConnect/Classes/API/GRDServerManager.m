@@ -243,7 +243,7 @@
 }
 
 - (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> *regions))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success) {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage) {
 		if (!success) {
 			GRDErrorLogg(@"Failed to fetch server regions from API");
 			if (completion) completion(nil);
@@ -251,6 +251,19 @@
 		}
 		
 		if (completion) completion([GRDRegion regionsFromTimezones:items]);
+		return;
+	}];
+}
+
+- (void)regionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSString * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage) {
+		if (!success) {
+			GRDErrorLogg(@"Failed to fetch server regions from API");
+			if (completion) completion(nil, errorMessage);
+			return;
+		}
+		
+		if (completion) completion([GRDRegion regionsFromTimezones:items], nil);
 		return;
 	}];
 }
