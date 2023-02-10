@@ -48,11 +48,14 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 
 @property (readonly) GRDServerFeatureEnvironment featureEnvironment;
 
-/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
-@property (nonatomic, strong) NSString *_Nullable appKey;
+/// The GuardianConnect API hostname to use for the majority of API calls
+/// WARNING: Some API endpoints are always going to use the public Connect
+/// API hostname https://connect-api.guardianapp.com
+/// If no custom hostname is provided, the default public Connect API hostname is going to be used
+@property NSString *connectAPIHostname;
 
-/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
-@property (nonatomic, strong) NSString *_Nullable appBundleId;
+/// GuardianConnect app key used to authenticate API requests
+@property (nonatomic, strong) NSString *_Nullable connectPublicKey;
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;

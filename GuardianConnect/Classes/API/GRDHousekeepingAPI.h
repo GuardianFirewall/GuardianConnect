@@ -10,8 +10,9 @@
 #import <DeviceCheck/DeviceCheck.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDReceiptItem.h>
+#import <GuardianConnect/GRDAPIError.h>
 
-#define kHousekeepingAPIBase @"https://connect-api.guardianapp.com"
+#define kConnectAPIHostname @"connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +26,12 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
+/// The GuardianConnect API hostname to use for the majority of API calls
+/// WARNING: Some API endpoints are always going to use the public Connect
+/// API hostname https://connect-api.guardianapp.com
+/// If no custom hostname is provided, the default public Connect API hostname is going to be used
+@property NSString *connectAPIHostname;
+
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
 @property GRDHousekeepingValidationMethod validationMethod;
@@ -37,13 +44,8 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// Currently only used by Guardian for subscriptions & purchases conducted via the web
 @property NSString *peToken;
 
-/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
-@property (nonatomic, strong) NSString *_Nullable appKey;
-
-/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
-@property (nonatomic, strong) NSString *_Nullable appBundleId;
-
-- (instancetype)initWithAppKey:(NSString *_Nonnull)appKey andAppBundleId:(NSString *_Nonnull)appBundleId;
+/// GuardianConnect app public key used to authenticate API requests
+@property (nonatomic, strong) NSString *_Nullable publicKey;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
@@ -81,8 +83,30 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// endpoint: /api/v1/servers/all-server-regions
 /// Used to retrieve all available Server Regions from housekeeping to allow users to override the selected Server Region
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
-- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success))completion;
+- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage))completion;
 
+
+# pragma mark - Connect Subscriber
+
+- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSString * _Nullable errorMessage))completion;
+
+- (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSString * _Nullable errorMessage))completion;
+
+- (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable details, NSString * _Nullable errorMessage))completion;
+
+
+# pragma mark - Connect Subscriber Devices
+
+- (void)addConnectDeviceWith:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
+
+- (void)updateConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
+
+- (void)listConnectDevicesFor:(NSString * _Nonnull)peToken withCompletion:(void (^)(NSArray * _Nullable devices, NSString * _Nullable errorMessage))completion;
+
+- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
+
+
+# pragma mark - Misc
 
 - (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable userInfo, BOOL success, NSString * _Nullable errorMessage))completion;
 
