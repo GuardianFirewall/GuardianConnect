@@ -34,6 +34,9 @@
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
+#import <GuardianConnect/GRDAPIError.h>
+#import <GuardianConnect/GRDConnectSubscriber.h>
+#import <GuardianConnect/GRDConnectDevice.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;

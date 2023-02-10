@@ -17,6 +17,18 @@
 		232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3F0278F16FB008B1FCE /* Curve25519.swift */; };
 		232ED3F4278F172C008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F3278F172C008B1FCE /* CryptoKit.framework */; };
 		232ED3F6278F1733008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F5278F1733008B1FCE /* CryptoKit.framework */; platformFilter = maccatalyst; };
+		235E3E622993EF3D008E915B /* GRDAPIError.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E602993EF3D008E915B /* GRDAPIError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E632993EF3D008E915B /* GRDAPIError.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E602993EF3D008E915B /* GRDAPIError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E642993EF3D008E915B /* GRDAPIError.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E612993EF3D008E915B /* GRDAPIError.m */; };
+		235E3E652993EF3D008E915B /* GRDAPIError.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E612993EF3D008E915B /* GRDAPIError.m */; };
+		235E3E682993F8A5008E915B /* GRDConnectSubscriber.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E662993F8A5008E915B /* GRDConnectSubscriber.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E692993F8A5008E915B /* GRDConnectSubscriber.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E662993F8A5008E915B /* GRDConnectSubscriber.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E6A2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E672993F8A5008E915B /* GRDConnectSubscriber.m */; };
+		235E3E6B2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E672993F8A5008E915B /* GRDConnectSubscriber.m */; };
+		235E3E6E2993F8B6008E915B /* GRDConnectDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E6C2993F8B6008E915B /* GRDConnectDevice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E6F2993F8B6008E915B /* GRDConnectDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E6C2993F8B6008E915B /* GRDConnectDevice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		235E3E702993F8B6008E915B /* GRDConnectDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E6D2993F8B6008E915B /* GRDConnectDevice.m */; };
+		235E3E712993F8B6008E915B /* GRDConnectDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E6D2993F8B6008E915B /* GRDConnectDevice.m */; };
 		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */; };
 		23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -189,6 +201,12 @@
 		232ED3F0278F16FB008B1FCE /* Curve25519.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve25519.swift; sourceTree = "<group>"; };
 		232ED3F3278F172C008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = System/Library/Frameworks/CryptoKit.framework; sourceTree = SDKROOT; };
 		232ED3F5278F1733008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/CryptoKit.framework; sourceTree = DEVELOPER_DIR; };
+		235E3E602993EF3D008E915B /* GRDAPIError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDAPIError.h; sourceTree = "<group>"; };
+		235E3E612993EF3D008E915B /* GRDAPIError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDAPIError.m; sourceTree = "<group>"; };
+		235E3E662993F8A5008E915B /* GRDConnectSubscriber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDConnectSubscriber.h; sourceTree = "<group>"; };
+		235E3E672993F8A5008E915B /* GRDConnectSubscriber.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDConnectSubscriber.m; sourceTree = "<group>"; };
+		235E3E6C2993F8B6008E915B /* GRDConnectDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDConnectDevice.h; sourceTree = "<group>"; };
+		235E3E6D2993F8B6008E915B /* GRDConnectDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDConnectDevice.m; sourceTree = "<group>"; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
@@ -423,6 +441,10 @@
 				32939A8326167D1F007A4DFA /* GRDDebugHelper.m */,
 				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
 				32939A7A26167D1F007A4DFA /* GRDVPNHelper.m */,
+				235E3E662993F8A5008E915B /* GRDConnectSubscriber.h */,
+				235E3E672993F8A5008E915B /* GRDConnectSubscriber.m */,
+				235E3E6C2993F8B6008E915B /* GRDConnectDevice.h */,
+				235E3E6D2993F8B6008E915B /* GRDConnectDevice.m */,
 				23C2144127986ABF0061B2BC /* GRDTunnelManager.h */,
 				23C2144027986ABF0061B2BC /* GRDTunnelManager.m */,
 				232ED3D7278604C6008B1FCE /* GRDTransportProtocol.h */,
@@ -472,6 +494,8 @@
 				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
 				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
 				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
+				235E3E602993EF3D008E915B /* GRDAPIError.h */,
+				235E3E612993EF3D008E915B /* GRDAPIError.m */,
 				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
 				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
 				32855B18263640B90088086E /* GRDRegion.h */,
@@ -499,6 +523,7 @@
 			files = (
 				321BA1A0261408B800E876CB /* Shared.h in Headers */,
 				32939A9026167D20007A4DFA /* GRDVPNHelper.h in Headers */,
+				235E3E622993EF3D008E915B /* GRDAPIError.h in Headers */,
 				32939A6D26167D0E007A4DFA /* NSPredicate+Additions.h in Headers */,
 				32D80A49265B1ABE00F5C33B /* NSString+Extras.h in Headers */,
 				32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */,
@@ -513,6 +538,7 @@
 				32939A9126167D20007A4DFA /* GRDDebugHelper.h in Headers */,
 				32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
+				235E3E682993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
 				232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
 				23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
@@ -521,6 +547,7 @@
 				3247E9F72628F2A7007D4E7E /* NSDate+Extras.h in Headers */,
 				3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */,
 				32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
+				235E3E6E2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
 				23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
@@ -534,6 +561,7 @@
 			files = (
 				32E92C21262A1BA700A3202C /* GRDServerManager.h in Headers */,
 				32E92C29262A1BCA00A3202C /* EXTKeyPathCoding.h in Headers */,
+				235E3E632993EF3D008E915B /* GRDAPIError.h in Headers */,
 				32E92C26262A1BBD00A3202C /* EXTRuntimeExtensions.h in Headers */,
 				328035B22666C53700A173CE /* NSString+Extras.h in Headers */,
 				32E92C1E262A1BA700A3202C /* GRDHousekeepingAPI.h in Headers */,
@@ -548,6 +576,7 @@
 				32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */,
 				328035AE2666C3FD00A173CE /* GRDReceiptItem.h in Headers */,
 				32E92C24262A1BAE00A3202C /* NSDate+Extras.h in Headers */,
+				235E3E692993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
 				23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */,
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
 				32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */,
@@ -556,6 +585,7 @@
 				32E92C1B262A1BA700A3202C /* GRDDebugHelper.h in Headers */,
 				32E92C25262A1BB600A3202C /* NSPredicate+Additions.h in Headers */,
 				32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
+				235E3E6F2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
 				23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
 				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
@@ -774,9 +804,12 @@
 				32939A8526167D20007A4DFA /* GRDHousekeepingAPI.m in Sources */,
 				32939A7126167D0E007A4DFA /* EXTRuntimeExtensions.m in Sources */,
 				32939A8926167D20007A4DFA /* GRDSubscriberCredential.m in Sources */,
+				235E3E642993EF3D008E915B /* GRDAPIError.m in Sources */,
 				32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */,
 				232ED3F1278F16FB008B1FCE /* Curve25519.swift in Sources */,
+				235E3E702993F8B6008E915B /* GRDConnectDevice.m in Sources */,
 				3247E9F12628F253007D4E7E /* GRDCredentialManager.m in Sources */,
+				235E3E6A2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */,
 				23DCA2B527E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				32939A8D26167D20007A4DFA /* GRDGatewayAPI.m in Sources */,
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
@@ -806,6 +839,7 @@
 				32855B1A263640B90088086E /* GRDRegion.m in Sources */,
 				32E92C14262A1B6100A3202C /* GRDKeychain.m in Sources */,
 				32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */,
+				235E3E712993F8B6008E915B /* GRDConnectDevice.m in Sources */,
 				32E92C12262A1B6100A3202C /* GRDGatewayAPIResponse.m in Sources */,
 				32E92C13262A1B6100A3202C /* GRDHousekeepingAPI.m in Sources */,
 				32E92C0F262A1B6100A3202C /* GRDCredentialManager.m in Sources */,
@@ -818,9 +852,11 @@
 				32E1AE192698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
 				23E5FA9327304AAB000FC70F /* GRDLogger.m in Sources */,
 				23C2144327986ABF0061B2BC /* GRDTunnelManager.m in Sources */,
+				235E3E6B2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */,
 				3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				32E92C0D262A1B5400A3202C /* EXTRuntimeExtensions.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,
+				235E3E652993EF3D008E915B /* GRDAPIError.m in Sources */,
 				32E92C10262A1B6100A3202C /* GRDDebugHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1061,7 +1097,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1076,7 +1112,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.2;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1093,7 +1129,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1108,7 +1144,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.2;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1233,7 +1269,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1249,7 +1285,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.7.2;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -1266,7 +1302,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1282,7 +1318,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.7.2;
+				MARKETING_VERSION = 1.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
