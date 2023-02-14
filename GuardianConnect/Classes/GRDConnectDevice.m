@@ -17,6 +17,9 @@
 		self.uuid = [deviceDictionary objectForKey:kGuardianConnectDeviceUUIDKey];
 		self.peToken = [deviceDictionary objectForKey:kGuardianConnectDevicePETokenKey];
 		
+		NSNumber *petExpires = [deviceDictionary objectForKey:kGuardianConnectDevicePETExpiresKey];
+		self.petExpires = [NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]];
+		
 		NSNumber *createdAtUnix = [deviceDictionary objectForKey:kGuardianConnectDeviceCreatedAtKey];
 		self.createdAt = [NSDate dateWithTimeIntervalSince1970:[createdAtUnix integerValue]];
 	}

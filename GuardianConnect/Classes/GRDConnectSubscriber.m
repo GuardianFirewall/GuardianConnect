@@ -138,6 +138,21 @@
 		}
 		
 		GRDConnectSubscriber *subscriber = [[GRDConnectSubscriber alloc] initFromDictionary:subscriberDetails];
+		
+		NSString *pet = [subscriberDetails objectForKey:@"pe-token"];
+		if (pet == nil || [pet isEqualToString:@""]) {
+			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to validate Connect Subscriber. No new PE-Token was returned"]);
+			return;
+		}
+		NSNumber *petExpires = [subscriberDetails objectForKey:@"pet-expires"];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
+		
+		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
+		if (storeStatus != errSecSuccess) {
+			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to store new PE-Token for Connect subscriber. Keychain status: %d", storeStatus]);
+			return;
+		}
+		
 		NSError *updateErr = [subscriber store];
 		if (updateErr != nil) {
 			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to store persistent local data of updated Connect Subscriber: %@", [updateErr localizedDescription]]);
@@ -168,6 +183,8 @@
 			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to validate Connect Subscriber. No new PE-Token was returned"]);
 			return;
 		}
+		NSNumber *petExpires = [details objectForKey:@"pet-expires"];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
 		
 		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
 		if (storeStatus != errSecSuccess) {

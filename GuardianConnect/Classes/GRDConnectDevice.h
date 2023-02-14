@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString * const kGuardianConnectDeviceNicknameKey 	= @"ep-grd-device-nickname";
 static NSString * const kGuardianConnectDeviceUUIDKey 		= @"ep-grd-device-uuid";
 static NSString * const kGuardianConnectDevicePETokenKey 	= @"ep-grd-device-pe-token";
+static NSString * const kGuardianConnectDevicePETExpiresKey	= @"ep-grd-device-pet-expires";
 static NSString * const kGuardianConnectDeviceCreatedAtKey 	= @"ep-grd-device-created-at";
 
 
@@ -23,6 +24,7 @@ static NSString * const kGuardianConnectDeviceCreatedAtKey 	= @"ep-grd-device-cr
 @property NSString 	*nickname;
 @property NSString 	*uuid;
 @property NSString 	*peToken;
+@property NSDate 	*petExpires;
 @property NSDate 	*createdAt;
 
 - (instancetype)initFromDictionary:(NSDictionary *)deviceDictionary;
