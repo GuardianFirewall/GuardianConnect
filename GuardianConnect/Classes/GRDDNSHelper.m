@@ -24,14 +24,14 @@
 	dispatch_once(&onceToken, ^{
 		shared = [GRDDNSHelper new];
 		
-		shared.dnsSettingManager = [NEDNSSettingsManager sharedManager];
-		
 		NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
 		vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
 		shared.defaultOnDemandRules = @[vpnServerConnectRule];
 		
 		shared.dnsfRoamingClientId = [GRDKeychain getPasswordStringForAccount:kGRDKeychainStr_DNSFRoamingClientId];
 	});
+	
+	shared.dnsSettingManager = [NEDNSSettingsManager sharedManager];
 	
 	return shared;
 }
@@ -92,7 +92,12 @@
 		[self.dnsSettingManager setDnsSettings:dohSettings];
 		
 		[self.dnsSettingManager saveToPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-			if (error != nil) {
+			// Note from CJ 2023-02-15
+			// Ignoring error code 9 here which is
+			// Error Domain=NEConfigurationErrorDomain Code=9 "configuration is unchanged" UserInfo={NSLocalizedDescription=configuration is unchanged}
+			// as it is quite pointless to report that
+			if (error != nil && [error code] != 9) {
+				
 				if (completion) completion([NSString stringWithFormat:@"Failed to save DNS settings configuration: %@", [error localizedDescription]]);
 				return;
 			}
