@@ -10,7 +10,6 @@
 
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
-#import <GuardianConnect/GRDDebugHelper.h>
 #import <GuardianConnect/GRDCredential.h>
 
 

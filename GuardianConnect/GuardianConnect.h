@@ -14,7 +14,6 @@
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
-#import <GuardianConnect/GRDDebugHelper.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/Shared.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>

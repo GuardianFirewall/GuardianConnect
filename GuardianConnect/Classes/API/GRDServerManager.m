@@ -7,7 +7,6 @@
 //
 
 @import UserNotifications;
-#import <GuardianConnect/GRDDebugHelper.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 
@@ -46,9 +45,7 @@
 }
 
 - (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion {
-    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"selectGuardianHostWithCompletion"];
     [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
-        [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion completion handler"];
         if (servers == nil) {
             if (completion) completion(nil, nil, errorMessage);
             return;
@@ -67,8 +64,6 @@
             availableServers = servers;
             GRDWarningLogg(@"Less than 2 low cap servers available. Using all servers");
         }
-		
-        [debugHelper logTimeWithMessage:@"created availableServers array"];
         
         // Get a random index based on the length of availableServers
         // Then use that random index to select a hostname and return it to the caller
@@ -77,15 +72,12 @@
         NSString *hostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
         GRDLogg(@"Selected hostname: %@", host);
         if (completion) completion(host, hostLocation, nil);
-        [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion end"];
     }];
 }
 
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion {
-    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"getGuardianHostsWithCompletion"];
     
     [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
-        [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block start"];
         if (success == NO) {
             GRDLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
             if (completion) completion(nil, @"Failed to request list of servers");
@@ -124,7 +116,6 @@
                 if (completion) completion(servers, nil);
             }
         }];
-        [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block end"];
     }];
 }
 
