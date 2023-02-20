@@ -92,7 +92,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 - (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSString * _Nullable errorMessage))completion;
 
-- (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable details, NSString * _Nullable errorMessage))completion;
+- (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable details, NSString * _Nullable errorMessage))completion;
 
 
 # pragma mark - Connect Subscriber Devices
@@ -105,6 +105,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 - (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
 
+- (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
 
 # pragma mark - Misc
 

@@ -595,10 +595,10 @@
 	[task resume];
 }
 
-- (void)validateConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)validateConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, kKeychainStr_PEToken: pet} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
 		return;
@@ -837,5 +837,53 @@
 	[task resume];
 }
 
+- (void)validateConnectDevicePEToken:(NSString *)peToken andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+	[self checkCustomValues];
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device/validate"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestData];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, @"Failed to decode API response error message");
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSDictionary *device = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			return;
+		}
+		
+		if (completion) completion(device, nil);
+		return;
+	}];
+	[task resume];
+}
 
 @end
