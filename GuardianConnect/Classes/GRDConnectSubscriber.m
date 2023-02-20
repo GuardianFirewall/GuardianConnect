@@ -52,10 +52,10 @@
 	[coder encodeObject:self.subscriptionSKU forKey:kGuardianConnectSubscriberSubscriptionSKUKey];
 	[coder encodeObject:self.subscriptionNameFormmated forKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
 	
-	NSNumber *subscriptionExpirationDateUnix = [NSNumber numberWithDouble:[self.subscriptionExpirationDate timeIntervalSince1970]];
+	NSNumber *subscriptionExpirationDateUnix = [NSNumber numberWithInteger:[self.subscriptionExpirationDate timeIntervalSince1970]];
 	[coder encodeObject:subscriptionExpirationDateUnix forKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
 	
-	NSNumber *createdAtUnix = [NSNumber numberWithDouble:[self.createdAt timeIntervalSince1970]];
+	NSNumber *createdAtUnix = [NSNumber numberWithInteger:[self.createdAt timeIntervalSince1970]];
 	[coder encodeObject:createdAtUnix forKey:kGuardianConnectSubscriberCreatedAtKey];
 }
 
@@ -66,11 +66,15 @@
 + (void)currentSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSData *subscriberDict = [defaults objectForKey:kGuardianConnectSubscriber];
+	if (subscriberDict == nil) {
+		if (completion) completion(nil, nil);
+		return;
+	}
 
 	NSError *unarchiveErr;
 	GRDConnectSubscriber *subscriber = [NSKeyedUnarchiver unarchivedObjectOfClass:[GRDConnectSubscriber class] fromData:subscriberDict error:&unarchiveErr];
 	
-	if (completion) completion(subscriber, nil);
+	if (completion) completion(subscriber, unarchiveErr);
 }
 
 - (BOOL)loadSecretFromKeychain {
@@ -85,6 +89,17 @@
 }
 
 - (NSError *)store {
+	// Ensure that the subscriber's secret is never written into NSUserDefaults
+	NSString *secret = [self.secret mutableCopy];
+	self.secret = @"";
+	
+	// Store the subscriber's secret separately in the keychain
+	OSStatus result = [GRDKeychain storePassword:secret forAccount:kGuardianConnectSubscriberSecret];
+	if (result != errSecSuccess) {
+		NSError *error = [NSError errorWithDomain:(NSString *)kCFErrorDomainOSStatus code:result userInfo:@{NSLocalizedDescriptionKey: @"Failed to store Connect subscriber secret in the keychain"}];
+		return error;
+	}
+	
 	NSError *archiveErr;
 	NSData *subscriberData = [NSKeyedArchiver archivedDataWithRootObject:self requiringSecureCoding:YES error:&archiveErr];
 	if (archiveErr != nil) {
@@ -165,7 +180,17 @@
 }
 
 - (void)validateConnectSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] validateConnectSubscriberWith:self.identifier secret:self.secret andCompletion:^(NSDictionary * _Nullable details, NSString * _Nullable errorMessage) {
+	// Grab current PET from the keychain so that it can be invalidated and swapped against a new one
+	NSString *oldPET = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+	if (oldPET == nil || [oldPET isEqualToString:@""]) {
+		if (completion) completion(nil, @"Failed to validate Connect subscriber. No PE-Token present on device");
+		return;
+	}
+	
+	// Ensure the the subscriber's secret is retrieved from they keychain before making the Connect API call
+	[self loadSecretFromKeychain];
+	
+	[[GRDHousekeepingAPI new] validateConnectSubscriberWith:self.identifier secret:self.secret pet:oldPET andCompletion:^(NSDictionary * _Nullable details, NSString * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
