@@ -189,4 +189,32 @@
     }
 }
 
+- (void)currentTunnelProviderStateWithCompletion:(void (^)(NEVPNStatus, NSString * _Nullable))completion {
+	if (self.tunnelProviderManager != nil) {
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
+		return;
+	}
+		
+	if ([self tunnelLoaded] == YES) {
+		if (completion) completion(NEVPNStatusInvalid, nil);
+		return;
+	}
+	
+	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			if (completion) completion(NEVPNStatusInvalid, errorMessage);
+			return;
+		}
+		
+		if (manager != nil) {
+			if (completion) completion(manager.connection.status, nil);
+			return;
+			
+		} else {
+			if (completion) completion(NEVPNStatusInvalid, nil);
+			return;
+		}
+	}];
+}
+
 @end

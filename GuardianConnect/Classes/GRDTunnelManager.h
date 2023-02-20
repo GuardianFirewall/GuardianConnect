@@ -31,7 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Used to prevent the client to show an awkward modal system alert asking to install the personal VPN configuration without any context
 + (void)tunnelConfiguredWithCompletion:(void(^)(BOOL configured))completion;
 
+/// Returns the tunnel manager's current connection status as a NEVPNStatus
 - (NEVPNStatus)currentTunnelProviderState;
+
+/// Returns the tunnel manager's current connection status as a NEVPNStatus
+///
+/// In the case of  no tunnel manager being installed yet, eg. after first installation on a device, this function will return NEVPNStatusInvalid & nil in the completion block
+/// - Parameter completion: completion block containing the connection status as well as an error message in case of a failure to load the array of tunnel managers
+- (void)currentTunnelProviderStateWithCompletion:(void (^_Nullable)(NEVPNStatus status, NSString * _Nullable error))completion;
 
 @end
 

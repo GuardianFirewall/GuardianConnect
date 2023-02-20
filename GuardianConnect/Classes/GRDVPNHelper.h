@@ -218,8 +218,17 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode status))completion;
 
-/// Used to disconnect from the current VPN node.
+/// Used to disconnect from the current VPN node
 - (void)disconnectVPN;
+
+/// Used to disconnect from the current VPN node
+///
+/// The sibling to this function - (void) disconnectVPN does not expose various potential errors as it tries to mitigate various OS bugs as well as trigger race conditions
+/// to provide the expected behavior to begin with.
+///
+/// This function might be hazardous to your health
+/// - Parameter completion: completion block potentially containing an error message. This completion block may be called multiple times and could potentially include an error every time
+- (void)disconnectVPNWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
 
 /// Safely disconnect from the current VPN node if applicable. This is best to call upon doing disconnections upon app launches. For instance, if a subscription expiration has been detected on launch, disconnect the active VPN connection. This will make certain not to disconnect the VPN if a valid state isnt detected.
 - (void)forceDisconnectVPNIfNecessary;
