@@ -75,9 +75,12 @@
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
+	[request setTimeoutInterval:30];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -188,19 +191,15 @@
 		if (completion) completion(nil, NO, @"Failed to encode JSON request body");
 		return;
 	}
-		
-//	if ([self appKey] != nil) {
-//		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
-//	}
-//	if ([self appBundleId] != nil) {
-//		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
-//	}
 	
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -258,16 +257,13 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
     [request setHTTPBody:postData];
     [request setHTTPMethod:@"POST"];
-//	if ([self appKey] != nil) {
-//		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
-//	}
-//	if ([self appBundleId] != nil) {
-//		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
-//	}
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
+	[request setTimeoutInterval:30];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -311,15 +307,12 @@
     NSData *jsonDict = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": token} options:0 error:nil];
     [request setHTTPBody:jsonDict];
     [request setHTTPMethod:@"POST"];
-//	if ([self appKey] != nil) {
-//		[request setValue:[self appKey] forHTTPHeaderField:@"GRD-CNT-App-Key"];
-//	}
-//	if ([self appBundleId] != nil) {
-//		[request setValue:[self appBundleId] forHTTPHeaderField:@"GRD-CNT-Bundle-Id"];
-//	}
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -363,9 +356,12 @@
 - (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com/api/v1.1/servers/timezones-for-regions"]]];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-    
+	[request setTimeoutInterval:20];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:20];
+	[sessionConf setTimeoutIntervalForResource:20];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
@@ -394,9 +390,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestJSON];
     [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-    
+	[request setTimeoutInterval:20];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:20];
+	[sessionConf setTimeoutIntervalForResource:20];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -433,9 +432,12 @@
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/servers/all-hostnames"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
+	[request setTimeoutInterval:20];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:20];
+	[sessionConf setTimeoutIntervalForResource:20];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -465,9 +467,12 @@
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-    
+	[request setTimeoutInterval:15];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:15];
+	[sessionConf setTimeoutIntervalForResource:15];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -510,9 +515,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -559,9 +567,12 @@
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -608,9 +619,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -661,9 +675,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -710,9 +727,12 @@
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -759,9 +779,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -808,9 +831,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -850,9 +876,12 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
