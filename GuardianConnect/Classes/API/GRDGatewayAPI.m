@@ -60,8 +60,6 @@
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
 	
-	[request setValue:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] forHTTPHeaderField:@"X-Guardian-Build"];
-	
 	[request setHTTPMethod:@"POST"];
     [request setHTTPBody:postRequestDat];
     
@@ -69,18 +67,16 @@
 }
 
 
-- (void)getServerStatusWithCompletion:(void (^)(GRDGatewayAPIResponse *apiResponse))completion {
+- (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable))completion {
     if ([self _canMakeApiRequests] == NO) {
-        GRDLog(@"Cannot make API requests !!! won't continue");
-        if (completion) {
-            completion([GRDGatewayAPIResponse deniedResponse]);
-        }
+        GRDErrorLog(@"Cannot make API requests !!! won't continue");
+        if (completion) completion(@"Failed to send API request: API target hostname missing");
         return;
     }
     
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", [self baseHostname]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    [request setTimeoutInterval:10.0f];
+    [request setTimeoutInterval:10];
     [request setHTTPMethod:@"GET"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -89,50 +85,18 @@
 	[sessionConf setTimeoutIntervalForResource:10];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        GRDGatewayAPIResponse *respObj = [[GRDGatewayAPIResponse alloc] init];
-        respObj.urlResponse = response;
-        
-        if (error) {
-            if (error.code == NSURLErrorCannotConnectToHost) {
-				GRDLog(@"Couldn't get server status. Host is offline");
-                respObj.responseStatus = GRDGatewayAPIServerNotOK;
-                if (completion) completion(respObj);
-				
-            } else {
-				GRDLog(@"request error = %@", error);
-                respObj.error = error;
-                respObj.responseStatus = GRDGatewayAPIUnknownError;
-                completion(respObj);
-            }
-			
-        } else {
-			NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-            if (statusCode == 200) {
-                respObj.responseStatus = GRDGatewayAPIServerOK;
-				
-            } else if (statusCode == 500) {
-				GRDLog(@"Server error! Need to use different server");
-                respObj.responseStatus = GRDGatewayAPIServerInternalError;
-				
-            } else if (statusCode == 404) {
-				GRDLog(@"Endpoint not found on this server!");
-                respObj.responseStatus = GRDGatewayAPIEndpointNotFound;
-				
-            } else {
-				GRDLog(@"unknown error!");
-                respObj.responseStatus = GRDGatewayAPIUnknownError;
-            }
-            
-            if (data != nil) {
-                // The /server-status endpoint has been changed to never return data.
-                // This is legacy that way meant to report the capcity-score to the app
-                // It is now reported through housekeeping. This will be removed in the next API iteration
-                NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                respObj.jsonData = json;
-            }
-			
-            completion(respObj);
-        }
+		if (error != nil) {
+			if (completion) completion([NSString stringWithFormat:@"Failed to check VPN server status: %@", [error localizedDescription]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			if (completion) completion([NSString stringWithFormat:@"VPN server status not 200 Ok. Received status code instead: %ld", statusCode]);
+			return;
+		}
+		
+		completion(nil);
     }];
     
     [task resume];
@@ -151,9 +115,12 @@
 	
 	NSDictionary *jsonDict = @{@"subscriber-credential":subscriberCredential, @"valid-for":[NSNumber numberWithInteger:validFor]};
 	[request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
@@ -219,9 +186,12 @@
     [request setHTTPBody:jsonBody];
     [request setHTTPMethod:@"POST"];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -272,10 +242,13 @@
     
     NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: apiToken};
     
-    NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/invalidate-credentials", eapUsername] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-    
+    NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/invalidate-credentials", eapUsername] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+	[request setTimeoutInterval:30];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -329,9 +302,12 @@
 		if (completion) completion(nil, NO, @"Failed to encode request body");
 		return;
 	}
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -392,12 +368,12 @@
     [request setHTTPBody:jsonBody];
     [request setHTTPMethod:@"POST"];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:10];
+	[request setTimeoutInterval:30];
     
     NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
     [sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:10];
-	[sessionConf setTimeoutIntervalForResource:10];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -448,9 +424,12 @@
     
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:requestBody];
-    
-    NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    [sessionConf setWaitsForConnectivity:YES];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -525,9 +504,12 @@
         NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: apiAuthToken};
         [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
         [request setHTTPMethod:@"POST"];
-        
+		[request setTimeoutInterval:45];
+		
 		NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 		[sessionConf setWaitsForConnectivity:YES];
+		[sessionConf setTimeoutIntervalForRequest:45];
+		[sessionConf setTimeoutIntervalForResource:45];
 		NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
         NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error != nil) {
@@ -642,9 +624,12 @@
     }
     
     NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/set-alerts-download-timestamp", [self deviceIdentifier]] andPostRequestData:jsonData];
-    
+	[request setTimeoutInterval:30];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -695,9 +680,12 @@
     NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken]};
     [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
     [request setHTTPMethod:@"POST"];
-    
+	[request setTimeoutInterval:30];
+	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -761,10 +749,13 @@
 
 	NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken], @"push-token": pushToken, @"push-data-tracker": [NSNumber numberWithBool:dataTrackers], @"push-location-tracker": [NSNumber numberWithBool:locationTrackers], @"push-page-hijacker": [NSNumber numberWithBool:pageHijackers], @"push-mail-tracker": [NSNumber numberWithBool:mailTrackers]};
 	
-	NSURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.1/device/%@/set-push-token", [self deviceIdentifier]] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+	NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.1/device/%@/set-push-token", [self deviceIdentifier]] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 		if (error) {
@@ -833,9 +824,12 @@
 	
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/device/%@/remove-push-token", [self baseHostname], [self deviceIdentifier]]]];
 	[request setHTTPMethod:@"POST"];
+	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {

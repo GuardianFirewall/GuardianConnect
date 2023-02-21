@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// endpoint: /vpnsrv/api/server-status
 /// hits the endpoint for the current VPN host to check if a VPN connection can be established
-- (void)getServerStatusWithCompletion:(void (^)(GRDGatewayAPIResponse *apiResponse))completion;
+- (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1.1/register-and-create
 /// @param subscriberCredential JWT token obtained from housekeeping
