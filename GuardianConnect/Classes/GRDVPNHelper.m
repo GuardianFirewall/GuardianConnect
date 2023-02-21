@@ -1137,16 +1137,12 @@
 - (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if (errorMessage != nil) {
-				if (completion) {
-					completion(NO, errorMessage);
-				}
-				
-			} else {
-				[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:completion];
-			}
-		});
+		if (errorMessage != nil) {
+			if (completion) completion(NO, errorMessage);
+			return;
+		}
+		
+		[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:completion];
 	}];
 }
 
