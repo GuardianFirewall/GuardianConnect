@@ -342,6 +342,7 @@
 			} else {
 				GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
 			}
+			return;
 		}];
 		return;
 	}
@@ -360,63 +361,14 @@
 			} else {
 				GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
 			}
+			return;
 		}];
 		return;
 	}
 	
-	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
-		if (apiResponse.responseStatus == GRDGatewayAPIServerOK) {
-			if ([self.mainCredential transportProtocol] == TransportIKEv2) {
-				NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
-				NSString *eapUsername   = [self.mainCredential username];
-				NSData *eapPassword     = [self.mainCredential passwordRef];
-			
-				if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
-					GRDDebugLog(@"EAP username: %@", eapUsername);
-					GRDDebugLog(@"EAP password: %@", eapPassword);
-					GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
-					GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
-					[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-						if (completion) {
-							if (success) {
-								completion(nil, GRDVPNHelperSuccess);
-								
-							} else {
-								completion(error, GRDVPNHelperFail);
-							}
-							
-						} else {
-							GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-						}
-					}];
-					return;
-				}
-				
-				[self _startIKEv2ConnectionWithCompletion:completion];
-				
-			} else {
-				if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
-					GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
-					[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-						if (completion) {
-							if (success) {
-								completion(nil, GRDVPNHelperSuccess);
-								
-							} else {
-								completion(error, GRDVPNHelperFail);
-							}
-							
-						} else {
-							GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-						}
-					}];
-					return;
-				}
-				
-				[self _startWireGuardConnectionWithCompletion:completion];
-			}
-			
-		} else if (apiResponse.responseStatus == GRDGatewayAPIServerInternalError || apiResponse.responseStatus == GRDGatewayAPIServerNotOK) {
+	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(NSString * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			GRDErrorLogg(@"VPN server status check failed with error: %@", errorMessage);
 			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
 				if (completion) {
 					if (success) {
@@ -429,12 +381,21 @@
 				} else {
 					GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
 				}
+				return;
 			}];
 			return;
+		}
+		
+		if ([self.mainCredential transportProtocol] == TransportIKEv2) {
+			NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
+			NSString *eapUsername   = [self.mainCredential username];
+			NSData *eapPassword     = [self.mainCredential passwordRef];
 			
-		} else if (apiResponse.responseStatus == GRDGatewayAPIUnknownError) {
-			if (apiResponse.error.code == NSURLErrorTimedOut || apiResponse.error.code == NSURLErrorServerCertificateHasBadDate || apiResponse.error.code == GRDVPNHelperDoesNeedMigration) {
-				GRDErrorLogg(@"Timeout error! Cert expiration error or host not found, migrating!");
+			if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
+				GRDDebugLog(@"EAP username: %@", eapUsername);
+				GRDDebugLog(@"EAP password: %@", eapPassword);
+				GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
+				GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
 				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
 					if (completion) {
 						if (success) {
@@ -447,14 +408,129 @@
 					} else {
 						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
 					}
+					return;
 				}];
-				
-			} else {
-				GRDErrorLogg(@"Failed to connect to host: %@", [apiResponse.error localizedDescription]);
-				if (completion) completion(@"Unknown error occured. Please try again soon", GRDVPNHelperFail);
+				return;
 			}
+			
+			[self _startIKEv2ConnectionWithCompletion:completion];
+			
+		} else {
+			if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
+				GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
+				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
+					if (completion) {
+						if (success) {
+							completion(nil, GRDVPNHelperSuccess);
+							
+						} else {
+							completion(error, GRDVPNHelperFail);
+						}
+						
+					} else {
+						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
+					}
+					return;
+				}];
+				return;
+			}
+			
+			[self _startWireGuardConnectionWithCompletion:completion];
 		}
+		
 	}];
+	
+//	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(GRDGatewayAPIResponse *apiResponse) {
+//		if (apiResponse.responseStatus == GRDGatewayAPIServerOK) {
+//			if ([self.mainCredential transportProtocol] == TransportIKEv2) {
+//				NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
+//				NSString *eapUsername   = [self.mainCredential username];
+//				NSData *eapPassword     = [self.mainCredential passwordRef];
+//
+//				if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
+//					GRDDebugLog(@"EAP username: %@", eapUsername);
+//					GRDDebugLog(@"EAP password: %@", eapPassword);
+//					GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
+//					GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
+//					[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
+//						if (completion) {
+//							if (success) {
+//								completion(nil, GRDVPNHelperSuccess);
+//
+//							} else {
+//								completion(error, GRDVPNHelperFail);
+//							}
+//
+//						} else {
+//							GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
+//						}
+//					}];
+//					return;
+//				}
+//
+//				[self _startIKEv2ConnectionWithCompletion:completion];
+//
+//			} else {
+//				if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
+//					GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
+//					[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
+//						if (completion) {
+//							if (success) {
+//								completion(nil, GRDVPNHelperSuccess);
+//
+//							} else {
+//								completion(error, GRDVPNHelperFail);
+//							}
+//
+//						} else {
+//							GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
+//						}
+//					}];
+//					return;
+//				}
+//
+//				[self _startWireGuardConnectionWithCompletion:completion];
+//			}
+//
+//		} else if (apiResponse.responseStatus == GRDGatewayAPIServerInternalError || apiResponse.responseStatus == GRDGatewayAPIServerNotOK) {
+//			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
+//				if (completion) {
+//					if (success) {
+//						completion(nil, GRDVPNHelperSuccess);
+//
+//					} else {
+//						completion(error, GRDVPNHelperFail);
+//					}
+//
+//				} else {
+//					GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
+//				}
+//			}];
+//			return;
+//
+//		} else if (apiResponse.responseStatus == GRDGatewayAPIUnknownError) {
+//			if (apiResponse.error.code == NSURLErrorTimedOut || apiResponse.error.code == NSURLErrorServerCertificateHasBadDate || apiResponse.error.code == GRDVPNHelperDoesNeedMigration) {
+//				GRDErrorLogg(@"Timeout error! Cert expiration error or host not found, migrating!");
+//				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
+//					if (completion) {
+//						if (success) {
+//							completion(nil, GRDVPNHelperSuccess);
+//
+//						} else {
+//							completion(error, GRDVPNHelperFail);
+//						}
+//
+//					} else {
+//						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
+//					}
+//				}];
+//
+//			} else {
+//				GRDErrorLogg(@"Failed to connect to host: %@", [apiResponse.error localizedDescription]);
+//				if (completion) completion(@"Unknown error occured. Please try again soon", GRDVPNHelperFail);
+//			}
+//		}
+//	}];
 }
 
 

@@ -76,7 +76,6 @@
 }
 
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion {
-    
     [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success == NO) {
             GRDLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
