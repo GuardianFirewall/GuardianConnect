@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)ensureTunnelManagerWithCompletion:(void (^_Nullable)(NETunnelProviderManager *_Nullable tunnelManager, NSString *_Nullable errorMessage))completion;
 
-- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion;
+- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSError * __nullable errorMessage))completion;
 
 /// Convenience method to quickly delete the current tunnel manager out of the iOS preferences
 - (void)removeTunnelFromPreferences:(void (^_Nullable)(NSError *_Nullable error))completion;
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// In the case of  no tunnel manager being installed yet, eg. after first installation on a device, this function will return NEVPNStatusInvalid & nil in the completion block
 /// - Parameter completion: completion block containing the connection status as well as an error message in case of a failure to load the array of tunnel managers
-- (void)currentTunnelProviderStateWithCompletion:(void (^_Nullable)(NEVPNStatus status, NSString * _Nullable error))completion;
+- (void)currentTunnelProviderStateWithCompletion:(void (^_Nullable)(NEVPNStatus status, NSError * _Nullable error))completion;
 
 @end
 

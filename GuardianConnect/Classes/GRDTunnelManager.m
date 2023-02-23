@@ -80,9 +80,9 @@
 		return;
 	}
 	
-	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
-		if (errorMessage && ![errorMessage isEqualToString:@"No tunnel provider managers setup!"]) {
-			if (completion) completion(nil, errorMessage);
+	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
+		if (errorMessage && ![[errorMessage localizedDescription] isEqualToString:@"No tunnel provider managers setup!"]) {
+			if (completion) completion(nil, [errorMessage localizedDescription]);
 			return;
 		
 		} else if (manager == nil) {
@@ -121,10 +121,10 @@
 	}];
 }
 
-- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion {
+- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSError * __nullable errorMessage))completion {
 	if ([self isLoading]) {
 		if (completion) {
-			completion(nil, @"Already loading tunnel manager preferences, dont do it again!");
+			completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Already loading tunnel manager preferences, dont do it again!"]);
 		}
 		return;
 	}
@@ -132,6 +132,11 @@
 	[self setIsLoading:YES];
 	[NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
 		[self setIsLoading:NO];
+		if (error != nil) {
+			if (completion) completion(nil, error);
+			return;
+		}
+		
 		[self setTunnelLoaded:YES];
 		
 		if (managers.count == 0) {
@@ -177,7 +182,7 @@
 			return currentStatus;
 		}
 		
-        [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
+        [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
             if (manager && !errorMessage) {
                 currentStatus = manager.connection.status;
             }
@@ -189,7 +194,7 @@
     }
 }
 
-- (void)currentTunnelProviderStateWithCompletion:(void (^)(NEVPNStatus, NSString * _Nullable))completion {
+- (void)currentTunnelProviderStateWithCompletion:(void (^)(NEVPNStatus, NSError * _Nullable))completion {
 	if (self.tunnelProviderManager != nil) {
 		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
 		return;
@@ -200,7 +205,7 @@
 		return;
 	}
 	
-	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
+	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(NEVPNStatusInvalid, errorMessage);
 			return;
