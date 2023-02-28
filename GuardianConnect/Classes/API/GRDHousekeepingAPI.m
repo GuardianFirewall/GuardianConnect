@@ -502,12 +502,12 @@
 
 # pragma mark - Connect Subscriber
 
-- (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -524,7 +524,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -532,19 +532,19 @@
 		if (statusCode != 201) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *subscriber = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]] );
 			return;
 		}
 		
@@ -554,12 +554,12 @@
 	[task resume];
 }
 
-- (void)updateConnectSubscriberWith:(NSString *)email identifier:(NSString *)identifier secret:(NSString *)secret andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)updateConnectSubscriberWith:(NSString *)email identifier:(NSString *)identifier secret:(NSString *)secret andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -576,7 +576,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -584,19 +584,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *subscriber = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		
@@ -606,12 +606,12 @@
 	[task resume];
 }
 
-- (void)validateConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)validateConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, kKeychainStr_PEToken: pet} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -628,7 +628,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -636,19 +636,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *subscriber = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		
@@ -662,12 +662,12 @@
 
 # pragma mark - Connect Devices
 
-- (void)addConnectDeviceWith:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)addConnectDeviceWith:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-nickname": nickname, @"accepted-tos": [NSNumber numberWithBool:acceptedTOS]} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -684,7 +684,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -692,19 +692,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *device = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		
@@ -714,12 +714,12 @@
 	[task resume];
 }
 
-- (void)updateConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken nickname:(NSString *)nickname andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)updateConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken nickname:(NSString *)nickname andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-nickname": nickname, @"device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -736,7 +736,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -744,19 +744,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *device = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		
@@ -766,12 +766,12 @@
 	[task resume];
 }
 
-- (void)listConnectDevicesFor:(NSString *)peToken withCompletion:(void (^)(NSArray * _Nullable, NSString * _Nullable))completion {
+- (void)listConnectDevicesFor:(NSString *)peToken withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -788,7 +788,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -796,19 +796,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSArray *devices = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		
@@ -818,12 +818,12 @@
 	[task resume];
 }
 
-- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSString * _Nullable))completion {
+- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion([NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -840,7 +840,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion([NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -848,12 +848,12 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(@"Failed to decode API response error message");
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion([NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
@@ -863,12 +863,12 @@
 	[task resume];
 }
 
-- (void)validateConnectDevicePEToken:(NSString *)peToken andCompletion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable))completion {
+- (void)validateConnectDevicePEToken:(NSString *)peToken andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		if (completion) completion(nil, [NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]);
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -885,7 +885,7 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -893,19 +893,19 @@
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, @"Failed to decode API response error message");
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		NSError *jsonErr;
 		NSDictionary *device = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
 		if (jsonErr != nil) {
-			if (completion) completion(nil, [NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
 			return;
 		}
 		

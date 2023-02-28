@@ -67,26 +67,26 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 ///   - nickname: the nickname of the device
 ///   - acceptedTOS: used to indicate that the invited device has accepted the TOS
 ///   - completion: completion block containing the newly registered Connect device object or nil in case of a failure. If an error occured during the registration process an error message is provided. If no error occurred the errorMessage will be nil
-+ (void)addConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(GRDConnectDevice * _Nullable newDevice, NSString * _Nullable errorMessage))completion;
++ (void)addConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(GRDConnectDevice * _Nullable newDevice, NSError * _Nullable errorMessage))completion;
 
 /// Convenience wrapper around the Connect API endpoint to update a Connect device's nickname
 /// - Parameters:
 ///   - peToken: the subscribers PET with which this device is associated
 ///   - newNickname: the new nickname
 ///   - completion: completion block containing the updated Connect device object or nil in case of a failure. If an error occured during the update process an error message is provided. If no error occurred the errorMessage will be nil
-- (void)updateConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)newNickname andCompletion:(void (^)(GRDConnectDevice * _Nullable updatedDevice, NSString * _Nullable errorMessage))completion;
+- (void)updateConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)newNickname andCompletion:(void (^)(GRDConnectDevice * _Nullable updatedDevice, NSError * _Nullable errorMessage))completion;
 
 /// Convenience wrapper around the Connect API to fetch the list of devices associated with the Connect subscriber account
 /// - Parameters:
 ///   - peToken: the Connect subscriber's PET this device is associated with
 ///   - completion: completion block containing an array of Connect device objects or nil in case of a failure. If an error occured during the fetch process an error message is provided. If no error occurred the errorMessage will be nil
-+ (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray <GRDConnectDevice *> * _Nullable devices, NSString * _Nullable errorMessage))completion;
++ (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray <GRDConnectDevice *> * _Nullable devices, NSError * _Nullable errorMessage))completion;
 
 /// Convenience wrapper around the Connect API endpoint to delete a Connect device permanently. Once complete the Connect device is unable to reconnect as it cannot create new Subscriber Credentials
 /// - Parameters:
 ///   - peToken: the Connect subscriber's PET this device is associated with
 ///   - completion: completion block containing an error message in case of a failure. If nil is returned the action was successful
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
+- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 
 /// Convenience wrapper around the Connect API endpoint to validate the Connect device's PET.
@@ -95,7 +95,7 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 /// - Parameters:
 ///   - peToken: the Connect device's PET
 ///   - completion: completion block containing the validated Connect device object incl. updated PET and PET expiration date or nil in case of a failure. If an error occured during the validation process an error message is provided. If no error occurred the errorMessage will be nil
-- (void)validateConnectDeviceWithDevicePEToken:(NSString *)peToken andCompletion:(void (^)(GRDConnectDevice * _Nullable validatedDevice, NSString * _Nullable errorMessage))completion;
+- (void)validateConnectDeviceWithDevicePEToken:(NSString *)peToken andCompletion:(void (^)(GRDConnectDevice * _Nullable validatedDevice, NSError * _Nullable errorMessage))completion;
 
 @end
 

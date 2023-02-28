@@ -101,8 +101,8 @@
 
 # pragma mark - API Wrappers
 
-+ (void)addConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] addConnectDeviceWith:peToken nickname:nickname acceptedTOS:acceptedTOS andCompletion:^(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage) {
++ (void)addConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] addConnectDeviceWith:peToken nickname:nickname acceptedTOS:acceptedTOS andCompletion:^(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -114,8 +114,8 @@
 	}];
 }
 
-- (void)updateConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)newNickname andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] updateConnectDevice:self.uuid withPEToken:peToken nickname:newNickname andCompletion:^(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage) {
+- (void)updateConnectDeviceWithPEToken:(NSString *)peToken nickname:(NSString *)newNickname andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] updateConnectDevice:self.uuid withPEToken:peToken nickname:newNickname andCompletion:^(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -127,8 +127,8 @@
 	}];
 }
 
-+ (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] listConnectDevicesFor:peToken withCompletion:^(NSArray * _Nullable devices, NSString * _Nullable errorMessage) {
++ (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] listConnectDevicesFor:peToken withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -145,15 +145,15 @@
 	}];
 }
 
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken andCompletion:^(NSString * _Nullable errorMessage) {
+- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken andCompletion:^(NSError * _Nullable errorMessage) {
 		if (completion) completion(errorMessage);
 		return;
 	}];
 }
 
-- (void)validateConnectDeviceWithDevicePEToken:(NSString *)peToken andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] validateConnectDevicePEToken:self.peToken andCompletion:^(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage) {
+- (void)validateConnectDeviceWithDevicePEToken:(NSString *)peToken andCompletion:(void (^)(GRDConnectDevice * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] validateConnectDevicePEToken:self.peToken andCompletion:^(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;

@@ -88,24 +88,24 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 # pragma mark - Connect Subscriber
 
-- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSString * _Nullable errorMessage))completion;
+- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSString * _Nullable errorMessage))completion;
+- (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable details, NSString * _Nullable errorMessage))completion;
+- (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable details, NSError * _Nullable errorMessage))completion;
 
 
 # pragma mark - Connect Subscriber Devices
 
-- (void)addConnectDeviceWith:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
+- (void)addConnectDeviceWith:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)updateConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
+- (void)updateConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)listConnectDevicesFor:(NSString * _Nonnull)peToken withCompletion:(void (^)(NSArray * _Nullable devices, NSString * _Nullable errorMessage))completion;
+- (void)listConnectDevicesFor:(NSString * _Nonnull)peToken withCompletion:(void (^)(NSArray * _Nullable devices, NSError * _Nullable errorMessage))completion;
 
-- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
+- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
-- (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSString * _Nullable errorMessage))completion;
+- (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
 # pragma mark - Misc
 
