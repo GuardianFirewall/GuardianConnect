@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
 - (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))completion;
-- (void)regionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions, NSString * _Nullable errorMessage))completion;
+- (void)regionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage))completion;
 
 @end
 

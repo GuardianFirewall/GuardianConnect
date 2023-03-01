@@ -68,7 +68,7 @@ API_AVAILABLE(macos(11.0), ios(14.0))
 /// This mehtod will call [GRDDNSHelper sharedInstance] once to ensure that the default values are set.
 /// This also ensures that the DNS settings configuration properties can afterwards be accessed through the shared instance 'dnsSettingsManager' property if so desired. In case no DNS settings configuration is set yet the completion block will return no error message, but the 'dnsSettingsManager' property should be set to nil
 /// - Parameter completion: completion block containing an error message string. If no error occured during loading of the DNS settings configuration this will be nil
-+ (void)loadDNSSettingsConfigurationWithCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
++ (void)loadDNSSettingsConfigurationWithCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 /// Convenience method to save a DNS setting configuration with framework provided defaults or by using the provided proerties, as well as the method parameters.
 /// Currently only the DNSSettingsTypeDOH is supported
@@ -76,7 +76,7 @@ API_AVAILABLE(macos(11.0), ios(14.0))
 ///   - dnsSettingsType: Enum type to quickly determine how the DNS settings configuration should be applied
 ///   - roamingClientId: DNSFilter roaming client id used to route the DNS queries properly and apply the correct policies for the device
 ///   - completion: completion block containing a error message string in case the DNS settings configuration can either not be saved or not be loaded
-- (void)setDNSSettingsConfigurationWithType:(GRDDNSSettingsType)dnsSettingsType roamingClientId:(NSString * _Nonnull)roamingClientId andCompletion:(void (^)(NSString * _Nullable errorMessage))completion;
+- (void)setDNSSettingsConfigurationWithType:(GRDDNSSettingsType)dnsSettingsType roamingClientId:(NSString * _Nonnull)roamingClientId andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 /// Convenience function to remove the DNS settings configuration from the device.
 ///

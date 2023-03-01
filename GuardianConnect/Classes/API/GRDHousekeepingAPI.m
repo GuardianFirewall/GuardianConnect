@@ -464,7 +464,7 @@
     [task resume];
 }
 
-- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage))completion {
+- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
     [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
 	[request setTimeoutInterval:15];
@@ -476,19 +476,19 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to get retrieve all regions: %@", [error localizedDescription]]);
+            if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to get retrieve all regions: %@", [error localizedDescription]]]);
         }
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
 			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, NO, @"Failed to decode API response error message");
+				if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
 				return;
 			}
 			
 			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]);
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		

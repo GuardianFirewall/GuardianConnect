@@ -39,7 +39,7 @@
 
 # pragma mark - NEDNSSettings Wrappers
 
-+ (void)loadDNSSettingsConfigurationWithCompletion:(void (^)(NSString * _Nullable))completion {
++ (void)loadDNSSettingsConfigurationWithCompletion:(void (^)(NSError * _Nullable))completion {
 	GRDDNSHelper *helper = [GRDDNSHelper sharedInstance];
 	if (helper.dnsSettingManager == nil) {
 		helper.dnsSettingManager = [NEDNSSettingsManager sharedManager];
@@ -47,7 +47,7 @@
 	
 	[helper.dnsSettingManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion([NSString stringWithFormat:@"Failed to load the DNS settings configuration: %@", [error localizedDescription]]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to load the DNS settings configuration: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -56,20 +56,20 @@
 	}];
 }
 
-- (void)setDNSSettingsConfigurationWithType:(GRDDNSSettingsType)dnsSettingsType roamingClientId:(NSString *)roamingClientId andCompletion:(void (^)(NSString * _Nullable))completion {
+- (void)setDNSSettingsConfigurationWithType:(GRDDNSSettingsType)dnsSettingsType roamingClientId:(NSString *)roamingClientId andCompletion:(void (^)(NSError * _Nullable))completion {
 	if (dnsSettingsType != DNSSettingsTypeDOH) {
-		if (completion) completion([NSString stringWithFormat:@"Unsupported DNS settings type passed. Please provide a DNS settings configuration of type DNSSettingsTypeDOH"]);
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unsupported DNS settings type passed. Please provide a DNS settings configuration of type DNSSettingsTypeDOH"]]);
 		return;
 	}
 	
 	if (self.localizedDNSConfigurationDescription == nil || [self.localizedDNSConfigurationDescription isEqualToString:@""]) {
-		if (completion) completion(@"GRDDNSHelper class property ‘localizedDNSConfigurationDescription‘ unset (nil or empty string). Please provide a user presentable configuration description");
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"GRDDNSHelper class property ‘localizedDNSConfigurationDescription‘ unset (nil or empty string). Please provide a user presentable configuration description"]);
 		return;
 	}
 	
 	[self.dnsSettingManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 		if (error != nil) {
-			if (completion) completion([NSString stringWithFormat:@"Failed to load DNS settings configuration: %@", [error localizedDescription]]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to load DNS settings configuration: %@", [error localizedDescription]]]);
 			return;
 		}
 		
@@ -97,7 +97,7 @@
 			// Error Domain=NEConfigurationErrorDomain Code=9 "configuration is unchanged" UserInfo={NSLocalizedDescription=configuration is unchanged}
 			// as it is quite pointless to report that
 			if (error != nil && [error code] != 9) {
-				if (completion) completion([NSString stringWithFormat:@"Failed to save DNS settings configuration: %@", [error localizedDescription]]);
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to save DNS settings configuration: %@", [error localizedDescription]]]);
 				return;
 			}
 			

@@ -233,9 +233,9 @@
 }
 
 - (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> *regions))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage) {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
 		if (!success) {
-			GRDErrorLogg(@"Failed to fetch server regions from API");
+			GRDErrorLogg(@"Failed to fetch server regions from API. Error: %@", [errorMessage localizedDescription]);
 			if (completion) completion(nil);
 			return;
 		}
@@ -245,8 +245,8 @@
 	}];
 }
 
-- (void)regionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSString * _Nullable))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSString * _Nullable errorMessage) {
+- (void)regionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
 		if (!success) {
 			GRDErrorLogg(@"Failed to fetch server regions from API");
 			if (completion) completion(nil, errorMessage);
