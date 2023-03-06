@@ -232,7 +232,7 @@
     return [[GRDRegion alloc] initWithDictionary:found];
 }
 
-- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> *regions))completion {
+- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable regions))completion {
 	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
 		if (!success) {
 			GRDErrorLogg(@"Failed to fetch server regions from API. Error: %@", [errorMessage localizedDescription]);

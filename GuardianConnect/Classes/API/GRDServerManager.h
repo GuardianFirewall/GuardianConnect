@@ -42,7 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
-- (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> *regions))completion;
+/// Returns all currently supported VPN server regions
+/// @param completion completion block containing a NSArray of all server regions if sucessul. Nil if unsuccessful
+- (void)getRegionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions))completion DEPRECATED_MSG_ATTRIBUTE("Please use the newer iteration 'regionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage))completion' which also returns an error message in case a problem occured during the fetch operation");
+
+/// Returns all currently supported VPN server regions
+/// @param completion completion block containing a NSArray of all server regions if the operation was succesful. If a problem occured errorMessage will not be nil
 - (void)regionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage))completion;
 
 @end
