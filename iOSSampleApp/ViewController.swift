@@ -227,12 +227,17 @@ class ViewController: UIViewController {
     
     /// populate region selection data
     func populateRegionDataIfNecessary () {
-        GRDServerManager().getRegionsWithCompletion { (regions) in
-            self.regions = regions;
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-        }
+		GRDServerManager().regions { regions, error in
+			if error != nil {
+				print("Failed to fetch regions from the Connect API: \(error?.localizedDescription ?? "No error message provided")")
+				return
+			}
+			
+			self.regions = regions;
+			DispatchQueue.main.async {
+				self.tableView.reloadData()
+			}
+		}
     }
     
     @IBAction func clearKeychain() {
