@@ -505,7 +505,7 @@
 - (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
@@ -665,7 +665,7 @@
 - (void)addConnectDeviceWith:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-nickname": nickname, @"accepted-tos": [NSNumber numberWithBool:acceptedTOS]} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-nickname": nickname, @"ep-grd-device-accepted-tos": [NSNumber numberWithBool:acceptedTOS]} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
@@ -717,7 +717,7 @@
 - (void)updateConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken nickname:(NSString *)nickname andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-nickname": nickname, @"device-uuid": deviceUUID} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-nickname": nickname, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
@@ -821,7 +821,7 @@
 - (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
 	[self checkCustomValues];
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"device-uuid": deviceUUID} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;

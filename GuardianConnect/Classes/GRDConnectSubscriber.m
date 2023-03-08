@@ -127,6 +127,15 @@
 # pragma mark - API Wrappers
 
 - (void)registerNewConnectSubscriber:(BOOL)acceptedTOS withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion {
+	if (self.identifier == NULL || self.secret == NULL) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to register new Connect subscriber. Either the Connect identifier or secret is missing"]);
+		return;
+	}
+	
+	if (self.email == NULL) {
+		self.email = @"";
+	}
+	
 	[[GRDHousekeepingAPI new] newConnectSubscriberWith:self.identifier secret:self.secret acceptedTOS:acceptedTOS email:self.email andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
@@ -146,6 +155,11 @@
 }
 
 - (void)updateConnectSubscriberWithEmailAddress:(NSString * _Nonnull)email andCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
+	if (email == NULL || [email isEqualToString:@""] == YES) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"New E-Mail is either nil or an empty string. Neither are valid"]);
+		return;
+	}
+	
 	[[GRDHousekeepingAPI new] updateConnectSubscriberWith:self.email identifier:self.identifier secret:self.secret andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
@@ -182,7 +196,7 @@
 - (void)validateConnectSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
 	// Grab current PET from the keychain so that it can be invalidated and swapped against a new one
 	NSString *oldPET = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-	if (oldPET == nil || [oldPET isEqualToString:@""]) {
+	if (oldPET == NULL || [oldPET isEqualToString:@""] == YES) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to validate Connect subscriber. No PE-Token present on device"]);
 		return;
 	}
