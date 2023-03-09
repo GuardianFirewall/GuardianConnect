@@ -63,7 +63,7 @@
 	return YES;
 }
 
-+ (void)currentSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
++ (void)currentSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable_result, NSError * _Nullable))completion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSData *subscriberDict = [defaults objectForKey:kGuardianConnectSubscriber];
 	if (subscriberDict == nil) {
@@ -110,6 +110,25 @@
 	return nil;
 }
 
++ (NSError *)destorySubscriber {
+	OSStatus deleteSecretStatus = [GRDKeychain removeKeychainItemForAccount:kGuardianConnectSubscriberSecret];
+	if (deleteSecretStatus != errSecSuccess) {
+		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete Connect subscriber secret"];
+	}
+	
+	OSStatus deletePET = [GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
+	if (deletePET != errSecSuccess) {
+		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete PET"];
+	}
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	[defaults removeObjectForKey:kGuardianPETokenExpirationDate];
+	[defaults removeObjectForKey:kGuardianConnectSubscriber];
+	
+	return nil;
+}
+
 - (void)allDevicesWithCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
 	NSString *peToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
 	if (peToken == nil || [peToken isEqualToString:@""]) {
@@ -143,6 +162,22 @@
 		}
 		
 		GRDConnectSubscriber *newSubscriber = [[GRDConnectSubscriber alloc] initFromDictionary:subscriberDetails];
+		
+		NSString *pet = [subscriberDetails objectForKey:@"pe-token"];
+		if (pet == nil || [pet isEqualToString:@""]) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to register new Connect Subscriber. No PE-Token was returned"]]);
+			return;
+		}
+		
+		NSNumber *petExpires = [subscriberDetails objectForKey:@"pet-expires"];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
+		
+		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
+		if (storeStatus != errSecSuccess) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store new PE-Token for Connect subscriber. Keychain status: %d", storeStatus]]);
+			return;
+		}
+		
 		NSError *storeErr = [newSubscriber store];
 		if (storeErr != nil) {
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store persistent local data of new Connect Subscriber: %@", [storeErr localizedDescription]]]);
@@ -167,21 +202,6 @@
 		}
 		
 		GRDConnectSubscriber *subscriber = [[GRDConnectSubscriber alloc] initFromDictionary:subscriberDetails];
-		
-		NSString *pet = [subscriberDetails objectForKey:@"pe-token"];
-		if (pet == nil || [pet isEqualToString:@""]) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate Connect Subscriber. No new PE-Token was returned"]]);
-			return;
-		}
-		NSNumber *petExpires = [subscriberDetails objectForKey:@"pet-expires"];
-		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
-		
-		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
-		if (storeStatus != errSecSuccess) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store new PE-Token for Connect subscriber. Keychain status: %d", storeStatus]]);
-			return;
-		}
-		
 		NSError *updateErr = [subscriber store];
 		if (updateErr != nil) {
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store persistent local data of updated Connect Subscriber: %@", [updateErr localizedDescription]]]);
