@@ -16,7 +16,7 @@
 		self.identifier = [dict objectForKey:kGuardianConnectSubscriberIdentifierKey];
 		self.email = [dict objectForKey:kGuardianConnectSubscriberEmailKey];
 		self.subscriptionSKU = [dict objectForKey:kGuardianConnectSubscriberSubscriptionSKUKey];
-		self.subscriptionNameFormmated = [dict objectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
+		self.subscriptionNameFormatted = [dict objectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
 		
 		NSNumber *expirationDateUnix = [dict objectForKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
 		self.subscriptionExpirationDate = [NSDate dateWithTimeIntervalSince1970:[expirationDateUnix integerValue]];
@@ -28,13 +28,17 @@
 	return self;
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"[GRDConnectSubscriber]\r identifier: %@;\r secret: ***;\r email: %@;\r subscription-SKU: %@\r subscription-name-formatted: %@\r subscription-expiration-date: %@ (unix: %ld);\r created-at: %@ (unix: %ld);", self.identifier, self.email, self.subscriptionSKU, self.subscriptionNameFormatted, self.subscriptionExpirationDate, (NSUInteger)[self.subscriptionExpirationDate timeIntervalSince1970], self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
+}
+
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super init];
 	if (self) {
 		self.identifier = [coder decodeObjectForKey:kGuardianConnectSubscriberIdentifierKey];
 		self.email = [coder decodeObjectForKey:kGuardianConnectSubscriberEmailKey];
 		self.subscriptionSKU = [coder decodeObjectForKey:kGuardianConnectSubscriberSubscriptionSKUKey];
-		self.subscriptionNameFormmated = [coder decodeObjectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
+		self.subscriptionNameFormatted = [coder decodeObjectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
 		
 		NSNumber *expirationDateUnix = [coder decodeObjectForKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
 		self.subscriptionExpirationDate = [NSDate dateWithTimeIntervalSince1970:[expirationDateUnix integerValue]];
@@ -50,7 +54,7 @@
 	[coder encodeObject:self.identifier forKey:kGuardianConnectSubscriberIdentifierKey];
 	[coder encodeObject:self.email forKey:kGuardianConnectSubscriberEmailKey];
 	[coder encodeObject:self.subscriptionSKU forKey:kGuardianConnectSubscriberSubscriptionSKUKey];
-	[coder encodeObject:self.subscriptionNameFormmated forKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
+	[coder encodeObject:self.subscriptionNameFormatted forKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
 	
 	NSNumber *subscriptionExpirationDateUnix = [NSNumber numberWithInteger:[self.subscriptionExpirationDate timeIntervalSince1970]];
 	[coder encodeObject:subscriptionExpirationDateUnix forKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
@@ -72,20 +76,10 @@
 	}
 
 	NSError *unarchiveErr;
-	GRDConnectSubscriber *subscriber = [NSKeyedUnarchiver unarchivedObjectOfClass:[GRDConnectSubscriber class] fromData:subscriberDict error:&unarchiveErr];
+	GRDConnectSubscriber *subscriber = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDConnectSubscriber class], [NSString class], [NSNumber class], [NSDate class], nil] fromData:subscriberDict error:&unarchiveErr];
+	subscriber.secret = [GRDKeychain getPasswordStringForAccount:kGuardianConnectSubscriberSecret];
 	
 	if (completion) completion(subscriber, unarchiveErr);
-}
-
-- (BOOL)loadSecretFromKeychain {
-	BOOL success = NO;
-	NSString *secret = [GRDKeychain getPasswordStringForAccount:kGuardianConnectSubscriberSecret];
-	if (secret != nil) {
-		success = YES;
-		self.secret = secret;
-	}
-	
-	return success;
 }
 
 - (NSError *)store {
@@ -112,17 +106,16 @@
 
 + (NSError *)destorySubscriber {
 	OSStatus deleteSecretStatus = [GRDKeychain removeKeychainItemForAccount:kGuardianConnectSubscriberSecret];
-	if (deleteSecretStatus != errSecSuccess) {
+	if (deleteSecretStatus != errSecSuccess && deleteSecretStatus != errSecItemNotFound) {
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete Connect subscriber secret"];
 	}
 	
 	OSStatus deletePET = [GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
-	if (deletePET != errSecSuccess) {
+	if (deletePET != errSecSuccess && deletePET != errSecItemNotFound) {
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete PET"];
 	}
 	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	
 	[defaults removeObjectForKey:kGuardianPETokenExpirationDate];
 	[defaults removeObjectForKey:kGuardianConnectSubscriber];
 	
@@ -178,6 +171,7 @@
 			return;
 		}
 		
+		newSubscriber.secret = self.secret;
 		NSError *storeErr = [newSubscriber store];
 		if (storeErr != nil) {
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store persistent local data of new Connect Subscriber: %@", [storeErr localizedDescription]]]);
@@ -195,7 +189,7 @@
 		return;
 	}
 	
-	[[GRDHousekeepingAPI new] updateConnectSubscriberWith:self.email identifier:self.identifier secret:self.secret andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
+	[[GRDHousekeepingAPI new] updateConnectSubscriberWith:email identifier:self.identifier secret:self.secret andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -221,9 +215,6 @@
 		return;
 	}
 	
-	// Ensure the the subscriber's secret is retrieved from they keychain before making the Connect API call
-	[self loadSecretFromKeychain];
-	
 	[[GRDHousekeepingAPI new] validateConnectSubscriberWith:self.identifier secret:self.secret pet:oldPET andCompletion:^(NSDictionary * _Nullable details, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
@@ -232,7 +223,7 @@
 		
 		GRDConnectSubscriber *newSubscriber = [self mutableCopy];
 		newSubscriber.subscriptionSKU = [details objectForKey:kGuardianConnectSubscriberSubscriptionSKUKey];
-		newSubscriber.subscriptionNameFormmated = [details objectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
+		newSubscriber.subscriptionNameFormatted = [details objectForKey:kGuardianConnectSubscriberSubscriptionNameFormattedKey];
 		
 		NSNumber *subscriptionExpirationDateUnix = [details objectForKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
 		newSubscriber.subscriptionExpirationDate = [NSDate dateWithTimeIntervalSince1970:[subscriptionExpirationDateUnix integerValue]];

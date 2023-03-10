@@ -40,7 +40,7 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 @property NSString 	*subscriptionSKU;
 
 /// The subscription's formatted name (public)
-@property NSString 	*subscriptionNameFormmated;
+@property NSString 	*subscriptionNameFormatted;
 
 /// The subscription's expiration date. The date is passed as a JSON encoded Unix timestamp in API calls and is computed into an NSDate
 @property NSDate 	*subscriptionExpirationDate;
@@ -56,9 +56,6 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 /// Retrieves a GRDConnectSubscriber reference from an object stored in NSUserDefaults.
 /// - Parameter completion: completion block returning subscriber reference. If no subscriber reference has been created yet both the subscriber & error parameters in the returned completion block will be nil
 + (void)currentSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable_result subscriber, NSError * _Nullable error))completion;
-
-/// The subscriber's secret will not be stored in NSUserDefaults and is instead stored securely the keychain. Call this function to load the secret for it then to become available as the GRDConnectSubscriber's 'secret' property this is called on
-- (BOOL)loadSecretFromKeychain;
 
 /// Stores an encoded GRDConnectSubscriber object in NSUserDefaults. Ensures that the subscriber's secret is never written into NSUserDeafults in plaintext and instead stores it securely in the keychain
 - (NSError * _Nullable)store;
@@ -86,7 +83,6 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 - (void)updateConnectSubscriberWithEmailAddress:(NSString * _Nonnull)email andCompletion:(void (^)(GRDConnectSubscriber * _Nullable subscriber, NSError * _Nullable errorMessage))completion;
 
 /// Convenience wrapper around the Connect API endpoint to validate the subscriber's subscription with the help of the subscriber's identifier and secret as well as the PE-Token found in the keychain so that the current PET can be invalidated and a new one can be created for the subscriber. If successful the Connect subscriber will be stored automatically on the device
-/// This method will call [self loadSecretFromKeychain] itself to ensure that the secret is always present before trying to make the Connect API call
 /// - Parameter completion: completion block containing the validated subscriber object with updated subscription metadata. The updated metadata is stored persistently automatically. If an error occured during validation of the subscription for any reason nil will be returned for the subscriber object and an error message will be provided. If no error occurred the errorMessage will be nil
 - (void)validateConnectSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable subscriber, NSError * _Nullable errorMessage))completion;
 
