@@ -131,7 +131,8 @@
 }
 
 - (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/subscriber-credential/create"]];
+	[self checkCustomValues];
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
 	
 	NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
 	if (validationMethod == ValidationMethodAppStoreReceipt) {
@@ -195,6 +196,9 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
+	if ([self publicKey] != nil) {
+		[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	}
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
