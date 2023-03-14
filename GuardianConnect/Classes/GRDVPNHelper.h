@@ -218,6 +218,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode status))completion;
 
+/// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
+/// @param completion block This completion block will return an error to display to the user and a status code, if the connection is successful, the error will be empty.
+- (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage))completion;
+
 /// Used to disconnect from the current VPN node
 - (void)disconnectVPN;
 
