@@ -27,6 +27,10 @@
 	return self;
 }
 
+- (NSString *)description {
+	return [NSString stringWithFormat:@"\r[GRDConnectDevice]\r nickname: %@\r uuid: %@\r created-at: %@ (unix: %ld)", self.nickname, self.uuid, self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
+}
+
 - (instancetype)initWithCoder:(NSCoder *)coder {
 	self = [super init];
 	if (self) {
