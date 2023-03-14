@@ -253,4 +253,18 @@
 	}];
 }
 
+- (void)logoutConnectSubscriberWithCompletion:(void (^)(NSError * _Nullable))completion {
+	// Grab current PET from the keychain so that it can be invalidated and swapped against a new one
+	NSString *pet = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+	if (pet == NULL || [pet isEqualToString:@""] == YES) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to validate Connect subscriber. No PE-Token present on device"]);
+		return;
+	}
+	
+	[[GRDHousekeepingAPI new] logoutConnectSubscriberWithPEToken:pet andCompletion:^(NSError * _Nullable error) {
+		if (completion) completion(error);
+		return;
+	}];
+}
+
 @end

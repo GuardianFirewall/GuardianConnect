@@ -86,6 +86,10 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 /// - Parameter completion: completion block containing the validated subscriber object with updated subscription metadata. The updated metadata is stored persistently automatically. If an error occured during validation of the subscription for any reason nil will be returned for the subscriber object and an error message will be provided. If no error occurred the errorMessage will be nil
 - (void)validateConnectSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable subscriber, NSError * _Nullable errorMessage))completion;
 
+/// Convenience wrapper around the Connection API to logout a Connect subscriber and invalidate the subscriber's PE-Token that was active on the device this function was called from
+/// - Parameter completion: completion block returning an error if a problem of some sort occurred during the logout attempt. If no error was returned the the logout attempt was successful
+- (void)logoutConnectSubscriberWithCompletion:(void (^)(NSError * _Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END
