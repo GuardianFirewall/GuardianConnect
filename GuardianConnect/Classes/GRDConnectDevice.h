@@ -49,9 +49,6 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 /// - Parameter completion: completion block containing the current Connect device or nil if an error occured or no device has been stored yet. In case of a failure to get the current device an error message is provided, otherwise it is nil
 + (void)currentDeviceWithCompletion:(void (^)(GRDConnectDevice * _Nullable device, NSError * _Nullable error))completion;
 
-/// The Connect device's secret will not be stored in NSUserDefaults and is instead stored securely the keychain. Call this function to load the secret for it then to become available as the GRDConnectDevice's 'peToken' property this is called on
-- (BOOL)loadFromKeychain;
-
 /// Stores an encoded GRDConnectDevice object in NSUserDefaults
 ///
 /// This method should only be used in the context of a Connect device being the main user on the device

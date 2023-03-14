@@ -73,17 +73,6 @@
 	if (completion) completion(device, unarchiveErr);
 }
 
-- (BOOL)loadFromKeychain {
-	BOOL success = NO;
-	NSString *pet = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-	if (pet != nil) {
-		success = YES;
-		self.peToken = pet;
-	}
-	
-	return success;
-}
-
 - (NSError *)store {
 	self.peToken = nil;
 	
