@@ -29,7 +29,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"[GRDConnectSubscriber]\r identifier: %@;\r secret: ***;\r email: %@;\r subscription-SKU: %@\r subscription-name-formatted: %@\r subscription-expiration-date: %@ (unix: %ld);\r created-at: %@ (unix: %ld);", self.identifier, self.email, self.subscriptionSKU, self.subscriptionNameFormatted, self.subscriptionExpirationDate, (NSUInteger)[self.subscriptionExpirationDate timeIntervalSince1970], self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
+	return [NSString stringWithFormat:@"[GRDConnectSubscriber]\r identifier: %@\r secret: ***\r email: %@\r subscription-SKU: %@\r subscription-name-formatted: %@\r subscription-expiration-date: %@ (unix: %ld)\r created-at: %@ (unix: %ld)", self.identifier, self.email, self.subscriptionSKU, self.subscriptionNameFormatted, self.subscriptionExpirationDate, (NSUInteger)[self.subscriptionExpirationDate timeIntervalSince1970], self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
