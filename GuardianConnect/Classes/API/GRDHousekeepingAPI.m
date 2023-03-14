@@ -662,6 +662,51 @@
 	[task resume];
 }
 
+- (void)logoutConnectSubscriberWithPEToken:(NSString *)pet andCompletion:(void (^)(NSError * _Nullable))completion {
+	[self checkCustomValues];
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_PEToken: pet} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/logout"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestData];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		if (completion) completion(nil);
+		return;
+	}];
+	[task resume];
+}
+
 
 
 # pragma mark - Connect Devices
