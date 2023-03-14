@@ -143,13 +143,13 @@
 
 - (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
 			[self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
 			
 		} else {
 			if (completion) {
-				completion(NO, errorMessage);
+				completion(NO, [errorMessage localizedDescription]);
 			}
 		}
 	}];
@@ -157,15 +157,30 @@
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
 			[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
 			
 		} else {
 			if (completion) {
-				completion(NO, errorMessage);
+				completion(NO, [errorMessage localizedDescription]);
 			}
 		}
+	}];
+}
+
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			if (completion) completion(errorMessage);
+			return;
+		}
+		
+		[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:postCredentialCallback completion:^(BOOL success, NSString * _Nullable errorMessage) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
+			return;
+		}];
 	}];
 }
 
@@ -1393,11 +1408,11 @@
 
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if (errorMessage != nil) {
 				if (completion) {
-					completion(NO, errorMessage);
+					completion(NO, [errorMessage localizedDescription]);
 				}
 				
 			} else {
@@ -1409,9 +1424,9 @@
 
 - (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
-			if (completion) completion(NO, errorMessage);
+			if (completion) completion(NO, [errorMessage localizedDescription]);
 			return;
 		}
 		

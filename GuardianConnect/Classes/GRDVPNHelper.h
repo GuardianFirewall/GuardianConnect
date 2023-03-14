@@ -188,6 +188,12 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
 
+/// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no VPN credentials or a Subscriber Credential exist yet and a new connection should be established to a server chosen automatically.
+/// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
+/// @param postCredentialCallback This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
+/// @param completion This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^ _Nullable)(void))postCredentialCallback completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
+
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.

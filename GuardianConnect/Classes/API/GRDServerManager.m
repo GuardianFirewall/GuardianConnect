@@ -44,8 +44,8 @@
 	return self;
 }
 
-- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion {
-    [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
+- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage))completion {
+    [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSError * _Nullable errorMessage) {
         if (servers == nil) {
             if (completion) completion(nil, nil, errorMessage);
             return;
@@ -75,11 +75,11 @@
     }];
 }
 
-- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion {
+- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSError * _Nullable errorMessage))completion {
     [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
         if (success == NO) {
-            GRDLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
-            if (completion) completion(nil, @"Failed to request list of servers");
+            GRDErrorLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
+            if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
             return;
         }
         
@@ -108,7 +108,7 @@
         [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
 				GRDWarningLogg(@"Failed to get servers for region");
-                if (completion) completion(nil, @"Failed to request list of servers.");
+                if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers."]);
                 return;
                 
             } else {
@@ -140,11 +140,11 @@
         } else {
             //we dont have a host and hostlocation yet.
             GRDLog(@"we dont have a host or host location yet");
-            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, errorMessage);
-                        completion(guardianHost, guardianHostLocation, errorMessage);
+                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
+                        completion(guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
                     });
                 }
             }];
