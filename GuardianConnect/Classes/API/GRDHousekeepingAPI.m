@@ -325,7 +325,6 @@
             return;
         }
         
-        
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 500) {
             GRDLog(@"Internal server error");
@@ -368,7 +367,6 @@
 	[sessionConf setTimeoutIntervalForResource:20];
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
         if (error != nil) {
             GRDLog(@"Failed to hit endpoint: %@", error);
             if (completion) completion(nil, NO, 0);
@@ -481,6 +479,7 @@
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to get retrieve all regions: %@", [error localizedDescription]]]);
+			return;
         }
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
