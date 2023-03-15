@@ -60,9 +60,12 @@
 			[shared setTunnelLoaded:YES];
             if ([managers count] == 0) {
                 GRDWarningLogg(@"No tunnel manager to load. Not creating a new one");
-                
+				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(NEVPNStatusInvalid, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No tunnel manager available"]);
+				
             } else {
-                shared.tunnelProviderManager = [managers firstObject];
+				NETunnelProviderManager *manager = [managers firstObject];
+                shared.tunnelProviderManager = manager;
+				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(manager.connection.status, nil);
             }
         }];
     });
@@ -134,6 +137,7 @@
 		[self setIsLoading:NO];
 		if (error != nil) {
 			if (completion) completion(nil, error);
+			if (self.tunnelLoadedCallback) self.tunnelLoadedCallback(NEVPNStatusInvalid, error);
 			return;
 		}
 		
@@ -152,7 +156,9 @@
 				}];
 			}
 			
-			if (completion) completion(managers[0], nil);
+			NETunnelProviderManager *manager = managers[0];
+			if (completion) completion(manager, nil);
+			if (self.tunnelLoadedCallback) self.tunnelLoadedCallback(manager.connection.status, nil);
 		}
 	}];
 }

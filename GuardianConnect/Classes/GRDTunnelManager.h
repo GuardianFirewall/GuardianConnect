@@ -16,6 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL blocklistEnabled; //defaults to false
 @property NETunnelProviderManager * _Nullable tunnelProviderManager;
 
+/// If set this callback handler will be called from both +sharedManager as well as + loadTunnelManagerFromPreferences: and will allow you to be notified immediately
+///
+/// If set immediately after the first call to [GRDVPNHelper sharedInstance] this is effectively racing the NetworkExtensions framework to be set before the [NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:] returns and could potentially be dangerous or lead to instability and unpredictable behaviour of the app.
+/// Please proceed with caution and test thoroughly!
+@property (nonatomic, copy, nullable) void (^tunnelLoadedCallback)(NEVPNStatus connectionStatus, NSError * _Nullable error);
+
 + (id)sharedManager;
 
 + (BOOL)tunnelConnected;
