@@ -17,14 +17,20 @@
 - (instancetype)initWithData:(NSData *)jsonData {
 	self = [super init];
 	if (self) {
-		NSError *jsonErr;
-		self.apiErrorDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonErr];
-		if (jsonErr != nil) {
-			self.parseError = jsonErr;
+		if (jsonData == nil) {
+			self.title = @"Failed to parse error";
+			self.message = @"Failed to parse the API error message returned by the server";
 			
 		} else {
-			self.title 		= [self.apiErrorDictionary objectForKey:@"error-title"];
-			self.message 	= [self.apiErrorDictionary objectForKey:@"error-message"];
+			NSError *jsonErr;
+			self.apiErrorDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonErr];
+			if (jsonErr != nil) {
+				self.parseError = jsonErr;
+				
+			} else {
+				self.title 		= [self.apiErrorDictionary objectForKey:@"error-title"];
+				self.message 	= [self.apiErrorDictionary objectForKey:@"error-message"];
+			}
 		}
 	}
 	
