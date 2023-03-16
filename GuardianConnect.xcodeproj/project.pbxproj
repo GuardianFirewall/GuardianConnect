@@ -37,6 +37,10 @@
 		2362523B29A7CE7000C11DDC /* GRDErrorHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2362523829A7CE7000C11DDC /* GRDErrorHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2362523C29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362523929A7CE7000C11DDC /* GRDErrorHelper.m */; };
 		2362523D29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362523929A7CE7000C11DDC /* GRDErrorHelper.m */; };
+		2362524329C2273600C11DDC /* GRDPEToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 2362524129C2273600C11DDC /* GRDPEToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2362524429C2273600C11DDC /* GRDPEToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 2362524129C2273600C11DDC /* GRDPEToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2362524529C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
+		2362524629C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
 		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */; };
 		23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -215,6 +219,8 @@
 		236251EF299CE48C00C11DDC /* GRDDNSHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDDNSHelper.m; sourceTree = "<group>"; };
 		2362523829A7CE7000C11DDC /* GRDErrorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDErrorHelper.h; sourceTree = "<group>"; };
 		2362523929A7CE7000C11DDC /* GRDErrorHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDErrorHelper.m; sourceTree = "<group>"; };
+		2362524129C2273600C11DDC /* GRDPEToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDPEToken.h; sourceTree = "<group>"; };
+		2362524229C2273600C11DDC /* GRDPEToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDPEToken.m; sourceTree = "<group>"; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
@@ -480,6 +486,8 @@
 			children = (
 				32939A7526167D1F007A4DFA /* GRDKeychain.h */,
 				32939A7B26167D1F007A4DFA /* GRDKeychain.m */,
+				2362524129C2273600C11DDC /* GRDPEToken.h */,
+				2362524229C2273600C11DDC /* GRDPEToken.m */,
 				32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */,
 				32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */,
 				3247E9EE2628F252007D4E7E /* GRDCredential.h */,
@@ -557,6 +565,7 @@
 				3247E9F02628F253007D4E7E /* GRDCredentialManager.h in Headers */,
 				32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
 				235E3E6E2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
+				2362524329C2273600C11DDC /* GRDPEToken.h in Headers */,
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
 				23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
@@ -596,6 +605,7 @@
 				32E92C25262A1BB600A3202C /* NSPredicate+Additions.h in Headers */,
 				32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
 				235E3E6F2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
+				2362524429C2273600C11DDC /* GRDPEToken.h in Headers */,
 				23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
 				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
@@ -823,6 +833,7 @@
 				235E3E6A2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */,
 				23DCA2B527E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				32939A8D26167D20007A4DFA /* GRDGatewayAPI.m in Sources */,
+				2362524529C2273600C11DDC /* GRDPEToken.m in Sources */,
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
 				32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */,
@@ -868,6 +879,7 @@
 				236251F3299CE48C00C11DDC /* GRDDNSHelper.m in Sources */,
 				3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */,
 				32E92C0D262A1B5400A3202C /* EXTRuntimeExtensions.m in Sources */,
+				2362524629C2273600C11DDC /* GRDPEToken.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,
 				235E3E652993EF3D008E915B /* GRDAPIError.m in Sources */,
 			);

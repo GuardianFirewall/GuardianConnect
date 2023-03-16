@@ -38,6 +38,7 @@
 #import <GuardianConnect/GRDConnectDevice.h>
 #import <GuardianConnect/GRDDNSHelper.h>
 #import <GuardianConnect/GRDErrorHelper.h>
+#import <GuardianConnect/GRDPEToken.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;
