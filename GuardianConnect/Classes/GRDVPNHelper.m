@@ -1204,7 +1204,7 @@
 				}
 				
 				GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
-				GRDLogg(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
+				GRDDebugLog(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
 				if (completion) {
 					completion(subCred, nil);
 				}
@@ -1212,7 +1212,7 @@
 		}];
 		
 	} else {
-		GRDLogg(@"Valid Subscriber Credential found: %@", subCred.jwt);
+		GRDDebugLog(@"Valid Subscriber Credential found: %@", subCred.jwt);
 		if (completion) {
 			completion(subCred, nil);
 		}
