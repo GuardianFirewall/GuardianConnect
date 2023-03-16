@@ -21,31 +21,30 @@
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
 
-@interface GRDTunnelManager() {
-    BOOL _isLoading;
-	BOOL _tunnelLoaded;
-}
+@interface GRDTunnelManager()
+@property (nonatomic, readwrite) BOOL isLoading;
+@property (nonatomic, readwrite) BOOL tunnelLoaded;
 @end
 
 @implementation GRDTunnelManager
 
 - (BOOL)isLoading {
-	return _isLoading;
+	return self.isLoading;
 }
 
 - (void)setIsLoading:(BOOL)loading {
-	_isLoading = loading;
+	self.isLoading = loading;
 }
 
 - (BOOL)tunnelLoaded {
-	return _tunnelLoaded;
+	return self.tunnelLoaded;
 }
 
 - (void)setTunnelLoaded:(BOOL)loaded {
-	_tunnelLoaded = loaded;
+	self.tunnelLoaded = loaded;
 }
 
-+ (id)sharedManager {
++ (instancetype)sharedManager {
     static dispatch_once_t pred;
     static GRDTunnelManager *shared;
     dispatch_once(&pred, ^{
@@ -205,26 +204,28 @@
 		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
 		return;
 	}
-		
+
 	if ([self tunnelLoaded] == YES) {
-		if (completion) completion(NEVPNStatusInvalid, nil);
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
+		return;
+	}
+
+	if ([self isLoading] == YES) {
+		NSDate *start = [NSDate date];
+		while ([self isLoading]) {
+			NSDate *now = [NSDate date];
+			if ([now timeIntervalSinceDate:start] > 5) {
+				break;
+			}
+		}
+		
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
 		return;
 	}
 	
 	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
-		if (errorMessage != nil) {
-			if (completion) completion(NEVPNStatusInvalid, errorMessage);
-			return;
-		}
-		
-		if (manager != nil) {
-			if (completion) completion(manager.connection.status, nil);
-			return;
-			
-		} else {
-			if (completion) completion(NEVPNStatusInvalid, nil);
-			return;
-		}
+		if (completion) completion(manager.connection.status, errorMessage);
+		return;
 	}];
 }
 

@@ -13,7 +13,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDTunnelManager : NSObject
 
+/// Indicates whether the tunnel manager is still in the process of loading the tunnelProviderManager reference
+@property (nonatomic, readonly) BOOL isLoading;
+
+/// Indicates whether the tasks to load the tunnelProviderManager was completed. A call to [GRDTunnelManager loadTunnelManagerFromPreferences:] will not set this back to NO
+@property (nonatomic, readonly) BOOL tunnelLoaded;
+
 @property BOOL blocklistEnabled; //defaults to false
+
+/// A public reference to the current tunnel manager to prevent redundant calls to [GRDTunnelManager loadTunnelManagerFromPreferences:]
 @property NETunnelProviderManager * _Nullable tunnelProviderManager;
 
 /// If set this callback handler will be called from both +sharedManager as well as + loadTunnelManagerFromPreferences: and will allow you to be notified immediately
@@ -22,7 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Please proceed with caution and test thoroughly!
 @property (nonatomic, copy, nullable) void (^tunnelLoadedCallback)(NEVPNStatus connectionStatus, NSError * _Nullable error);
 
-+ (id)sharedManager;
+
++ (instancetype)sharedManager NS_SWIFT_NAME(GRDTunnelManager.sharedManager());
 
 + (BOOL)tunnelConnected;
 
@@ -34,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTunnelFromPreferences:(void (^_Nullable)(NSError *_Nullable error))completion;
 
 /// Used to determine whether or not the NETunnelManager has already been configured on this device
-/// Used to prevent the client to show an awkward modal system alert asking to install the personal VPN configuration without any context
+/// Useful to prevent showing an awkward modal system alert asking to install the personal VPN configuration without any context
 + (void)tunnelConfiguredWithCompletion:(void(^)(BOOL configured))completion;
 
 /// Returns the tunnel manager's current connection status as a NEVPNStatus
