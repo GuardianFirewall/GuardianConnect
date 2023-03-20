@@ -28,22 +28,6 @@
 
 @implementation GRDTunnelManager
 
-- (BOOL)isLoading {
-	return self.isLoading;
-}
-
-- (void)setIsLoading:(BOOL)loading {
-	self.isLoading = loading;
-}
-
-- (BOOL)tunnelLoaded {
-	return self.tunnelLoaded;
-}
-
-- (void)setTunnelLoaded:(BOOL)loaded {
-	self.tunnelLoaded = loaded;
-}
-
 + (instancetype)sharedManager {
     static dispatch_once_t pred;
     static GRDTunnelManager *shared;
