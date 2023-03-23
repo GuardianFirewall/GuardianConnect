@@ -45,8 +45,11 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 }
 
 @property (readonly) BOOL preferBetaCapableServers;
-
 @property (readonly) GRDServerFeatureEnvironment featureEnvironment;
+
+/// a read only reference to the global NEVPNManager which handles
+/// IKEv2 connections. This should be used as a read-only reference to convenient access
+@property NEVPNManager *NEVPNManager;
 
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
