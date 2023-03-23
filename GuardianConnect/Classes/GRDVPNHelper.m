@@ -26,8 +26,8 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = YES;
-		shared.NEVPNManager = [NEVPNManager sharedManager];
-        [shared.NEVPNManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+		shared.ikev2VPNManager = [NEVPNManager sharedManager];
+        [shared.ikev2VPNManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
             if (error) {
                 shared.vpnLoaded = NO;
                 shared.lastErrorMessage = error.localizedDescription;

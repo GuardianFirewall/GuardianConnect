@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 
 /// a read only reference to the global NEVPNManager which handles
 /// IKEv2 connections. This should be used as a read-only reference to convenient access
-@property NEVPNManager *NEVPNManager;
+@property NEVPNManager *ikev2VPNManager;
 
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
