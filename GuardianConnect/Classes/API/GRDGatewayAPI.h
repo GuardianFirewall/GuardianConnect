@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDCredential.h>
+#import <GuardianConnect/GRDAPIError.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -117,6 +118,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// endpoint: /api/v1.1/device/<device_token>/remove-push-token
 /// @param completion completion block indicating success, and an error message with information for the user
 - (void)removePushTokenWithCompletion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
+
+
+# pragma mark - Device Filter Configs
+
+/// Upon success will return a NSDictionary containing four booleans
+- (void)getDeviceFitlerConfigsForDeviceId:(NSString * _Nonnull)deviceId apiToken:(NSString * _Nonnull)apiToken completion:(void(^)(NSDictionary * _Nullable configFilters, NSError * _Nullable errorMessage))completion;
+
+/// Will run through all keys and values in configFilters and send them to the VPN node
+- (void)setDeviceFilterConfigsForDeviceId:(NSString * _Nonnull)deviceId apiToken:(NSString * _Nonnull)apiToken deviceConfigFilters:(NSDictionary * _Nonnull)configFilters completion:(void(^)(NSError * _Nullable errorMessage))completion;
 
 @end
 

@@ -858,4 +858,95 @@
 	[task resume];
 }
 
+
+# pragma mark - Device Filter Configs
+
+- (void)getDeviceFitlerConfigsForDeviceId:(NSString *)deviceId apiToken:(NSString *)apiToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	if ([self baseHostname] == nil || [[self baseHostname] isEqualToString:@""]) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Cannot make API requests !!! won't continue"]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.3/device/%@/config/filters", [self baseHostname], deviceId]]];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, error);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		NSError *jsonError;
+		NSDictionary *deviceConfigFilters = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+		if (jsonError != nil) {
+			if (completion) completion(nil, jsonError);
+			return;
+		}
+		if (completion) completion(deviceConfigFilters, nil);
+	}];
+	[task resume];
+}
+
+- (void)setDeviceFilterConfigsForDeviceId:(NSString *)deviceId apiToken:(NSString *)apiToken deviceConfigFilters:(NSDictionary *)configFilters completion:(void (^)(NSError * _Nullable))completion {
+	if ([self baseHostname] == nil || [[self baseHostname] isEqualToString:@""]) {
+		GRDLog(@"Cannot make API requests !!! won't continue");
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Cannot make API requests !!! won't continue"]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.3/device/%@/config/filters", [self baseHostname], deviceId]]];
+	[request setHTTPMethod:@"POST"];
+	
+	NSMutableDictionary *jsonBody = [NSMutableDictionary dictionaryWithDictionary:configFilters];
+	[jsonBody setValue:apiToken forKey:kKeychainStr_APIAuthToken];
+	[request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonBody options:0 error:nil]];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(error);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		if (completion) completion(nil);
+	}];
+	[task resume];
+}
+
 @end
