@@ -11,6 +11,11 @@
 @implementation GRDErrorHelper
 
 + (NSError *)errorWithErrorCode:(NSInteger)code andErrorMessage:(NSString *)errorMessage {
+	// nil in, nil out
+	if (errorMessage == nil) {
+		return nil;
+	}
+	
 	NSDictionary *errorDict = @{NSLocalizedDescriptionKey: errorMessage};
 	NSError *error = [NSError errorWithDomain:kGRDErrorDomainGeneral code:code userInfo:errorDict];
 	return error;
