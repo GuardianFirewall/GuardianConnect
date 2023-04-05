@@ -1158,12 +1158,14 @@
 # pragma mark - Credential Creation Helper
 
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable errorMessage))completion {
-	if (![GRDSubscriptionManager isPayingUser]) {
-		if (completion) {
-			completion(nil, @"A paid account is required to create a subscriber credential.");
-			return;
-		}
-	}
+	// Note from CJ 2023-03-29
+	// This has been a little nonsensical in the current state
+//	if (![GRDSubscriptionManager isPayingUser]) {
+//		if (completion) {
+//			completion(nil, @"A paid account is required to create a subscriber credential.");
+//			return;
+//		}
+//	}
 	
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];

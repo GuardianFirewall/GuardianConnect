@@ -35,17 +35,25 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString * const kGRDPersistentLog 			= @"kGRDPersistentLog";
 static NSString * const kGRDPersistentLogEnabled 	= @"kGRDPersistentLogEnabled";
 
+
 @interface GRDLogger : NSObject
 
-@property BOOL persistentLoggingEnabled;
-
-// Setup and management functions
+/// Returns all recorded persistent logs (200 log lines max)
 + (NSArray <NSString *>*)allLogs;
+
+/// Returns all recorded persistent logs (200 log lines max) already pre-formatted in a single string
+/// The individual log lines are appended to a string along with a \n character
 + (NSString *)allLogsFormatted;
+
+/// Deletes all log lines out of the NSUserDefaults
 + (void)deleteAllLogs;
+
+/// Set the persistent log state to enable or disable persistent logging
+/// Persistent logging is disabled by default and needs to enabled explicitly by calling this function once and passing YES/true
+/// - Parameter enabled: indicator to enable or disable persistent logging
 + (void)togglePersistentLogging:(BOOL)enabled;
 
-// C function (like NSLog) that actually writes the log
+/// C function (like NSLog) that actually writes the log
 void zzz_GRDLog(const char *functionName, int lineNumber, BOOL preventPersistentLog, NSString *format, ...);
 
 @end

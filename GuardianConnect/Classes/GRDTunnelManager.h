@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns the tunnel manager's current connection status as a NEVPNStatus
 ///
-/// In the case of  no tunnel manager being installed yet, eg. after first installation on a device, this function will return NEVPNStatusInvalid & nil in the completion block
+/// In the case of no tunnel manager being installed yet, eg. after first installation on a device, this function will return NEVPNStatusInvalid & nil in the completion block. This function can hang for at least 5 seconds or until the property isLoading is no longer NO/false. It is not safe for unsage from the main thread!
 /// - Parameter completion: completion block containing the connection status as well as an error message in case of a failure to load the array of tunnel managers
 - (void)currentTunnelProviderStateWithCompletion:(void (^_Nullable)(NEVPNStatus status, NSError * _Nullable error))completion;
 
