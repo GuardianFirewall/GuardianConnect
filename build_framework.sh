@@ -1,17 +1,8 @@
 #!/bin/bash
 
-# there is a path issue building through Xcode that i cant quite figure out re: ruby so when building from xcode the XCP var is emptied.
-
-if [ "$1" == "NOXCP" ]; then
-    XCP=""
-else
-	# search for 'xcpretty' will make the build output much tinier and easier to read / digest.
-	XCP=$(which xcpretty)
-	echo "$XCP"
-fi
-
-# clear previous build folder if it exist
+# clear previous build folders if it exist
 rm -rf build
+rm -rf build-archives
 
 # remove the old copy of the xcframework if it already exists
 rm -rf GuardianConnect.xcframework
@@ -22,38 +13,25 @@ rm -rf GuardianConnect.xcframework.zip
 # build simulator and iphoneos frameworks
 
 # -z checks to see if a value is empty, if xcpretty is not found, build normally, if it is found then use it to clean up our output.
-if [ -z "$XCP" ]; then
-    xcodebuild -sdk iphonesimulator
-    xcodebuild -sdk iphoneos
-    xcodebuild -sdk macosx -target GuardianConnectMac
-else
-    xcodebuild -sdk iphonesimulator | $XCP
-    xcodebuild -sdk iphoneos | $XCP
-    xcodebuild -sdk macosx -target GuardianConnectMac | $XCP
-fi
+
+xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -archivePath './build-archives/GuardianConnect-iossimulator.xcarchive'
+xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -archivePath './build-archives/GuardianConnect-ios.xcarchive'
+xcodebuild clean archive -scheme GuardianConnectMac -target GuardianConnectMac -configuration Release -sdk macosx -archivePath './build-archives/GuardianConnect-macos.xcarchive'
+
 
 # keep track of our current working directory
 pwd=$(pwd)
 
-# change to the release-iphoneos folder to get the name of the framework (this is to make this script more universal)
-pushd build/Release-iphoneos || exit
-
-# find the name of the framework, in our case 'GuardianConnect'
-for i in $(find ./* -name "*.framework"); do
-    name=${i%\.*}
-    echo "$name"
-done
-
-# pop back to the GuardianConnect folder
-popd || exit
-
 # create variables for the path to each respective framework
-ios_fwpath=$pwd/build/Release-iphoneos/$name.framework
-sim_fwpath=$pwd/build/Release-iphonesimulator/$name.framework
-mac_path=$pwd/build/Release/$name.framework
+ios_fwpath="$pwd/build-archives/GuardianConnect-ios.xcarchive/Products/Library/Frameworks/GuardianConnect.framework"
+ios_debugpath="$pwd/build-archives/GuardianConnect-ios.xcarchive/dSYMs/GuardianConnect.framework.dSYM"
+sim_fwpath="$pwd/build-archives/GuardianConnect-iossimulator.xcarchive/Products/Library/Frameworks/GuardianConnect.framework"
+sim_debugpath="$pwd/build-archives/GuardianConnect-iossimulator.xcarchive/dSYMs/GuardianConnect.framework.dSYM"
+mac_path="$pwd/build-archives/GuardianConnect-macos.xcarchive/Products/Library/Frameworks/GuardianConnect.framework"
+mac_debugpath="$pwd/build-archives/GuardianConnect-macos.xcarchive/dSYMs/GuardianConnect.framework.dSYM"
 
 # create the xcframework
-xcodebuild -create-xcframework -framework "$ios_fwpath" -framework "$sim_fwpath" -framework "$mac_path" -output "$name".xcframework
+xcodebuild -create-xcframework -framework "$ios_fwpath" -debug-symbols "$ios_debugpath" -framework "$sim_fwpath" -debug-symbols "$sim_debugpath" -framework "$mac_path" -debug-symbols "$mac_debugpath" -output GuardianConnect.xcframework
 
 printf "\n\n"
 printf "Proccesing SwiftPM artifacts\n"
@@ -62,11 +40,11 @@ printf "Creating .zip archive...\n"
 # create .zip of the framework for SwiftPM
 ditto -c -k --sequesterRsrc --keepParent "./GuardianConnect.xcframework" "./GuardianConnect.xcframework.zip"
 
-printf "Done\n"
+printf "Done 🎉\n"
 
 printf "\n"
 printf "SwiftPM .zip checksum:\n"
 # get hash checksum for SwiftPM
 swift package compute-checksum "./GuardianConnect.xcframework.zip"
 
-open -R "$name".xcframework.zip
+open -R GuardianConnect.xcframework.zip
