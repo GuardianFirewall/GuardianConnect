@@ -18,14 +18,16 @@
 	self = [super init];
 	if (self) {
 		if (jsonData == nil) {
-			self.title = @"Failed to parse error";
-			self.message = @"Failed to parse the API error message returned by the server";
+			self.title 		= @"Failed to parse error";
+			self.message 	= @"Failed to parse the API error message returned by the server";
 			
 		} else {
 			NSError *jsonErr;
 			self.apiErrorDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonErr];
 			if (jsonErr != nil) {
 				self.parseError = jsonErr;
+				self.title 		= @"JSON Parse Error";
+				self.message 	= [NSString stringWithFormat:@"Failed to parse JSON API error message data: %@", jsonErr];
 				
 			} else {
 				self.title 		= [self.apiErrorDictionary objectForKey:@"error-title"];
