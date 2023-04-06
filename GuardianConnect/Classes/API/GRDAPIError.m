@@ -11,7 +11,7 @@
 @implementation GRDAPIError
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"Error-Title: %@ Error-Message: '%@'", self.title, self.message];
+	return [NSString stringWithFormat:@"error-title: %@; error-message: '%@'", self.title, self.message];
 }
 
 - (instancetype)initWithData:(NSData *)jsonData {
