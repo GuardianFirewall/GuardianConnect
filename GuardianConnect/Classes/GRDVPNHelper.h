@@ -45,14 +45,20 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 }
 
 @property (readonly) BOOL preferBetaCapableServers;
-
 @property (readonly) GRDServerFeatureEnvironment featureEnvironment;
 
-/// GuardianConnect app key used to authenticate API actions alongside the registered bundle id
-@property (nonatomic, strong) NSString *_Nullable appKey;
+/// a read only reference to the global NEVPNManager which handles
+/// IKEv2 connections. This should be used as a read-only reference to convenient access
+@property NEVPNManager *ikev2VPNManager;
 
-/// GuardianConnect app bundle id used to authenticate API actions alongside the app key
-@property (nonatomic, strong) NSString *_Nullable appBundleId;
+/// The GuardianConnect API hostname to use for the majority of API calls
+/// WARNING: Some API endpoints are always going to use the public Connect
+/// API hostname https://connect-api.guardianapp.com
+/// If no custom hostname is provided, the default public Connect API hostname is going to be used
+@property NSString *connectAPIHostname;
+
+/// GuardianConnect app key used to authenticate API requests
+@property (nonatomic, strong) NSString *_Nullable connectPublicKey;
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
@@ -72,6 +78,10 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 @property (nullable) GRDCredential *mainCredential;
 
 @property (readwrite, assign) BOOL onDemand; //defaults to yes
+
+/// bool used to indicate whether the user wants the VPN to run in a super strict
+/// mode, ensuring no data leaks. Puts the device into an almost unusable state
+@property BOOL killSwitchEnabled;
 
 /// This string will be used as the localized description of the NEVPNManager
 /// configuration. The string will be visible in the network preferences on macOS
@@ -181,6 +191,12 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
 
+/// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no VPN credentials or a Subscriber Credential exist yet and a new connection should be established to a server chosen automatically.
+/// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
+/// @param postCredentialCallback This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
+/// @param completion This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^ _Nullable)(void))postCredentialCallback completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
+
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
@@ -211,8 +227,21 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode status))completion;
 
-/// Used to disconnect from the current VPN node.
+/// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
+/// @param completion block This completion block will return an error to display to the user and a status code, if the connection is successful, the error will be empty.
+- (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage))completion;
+
+/// Used to disconnect from the current VPN node
 - (void)disconnectVPN;
+
+/// Used to disconnect from the current VPN node
+///
+/// The sibling to this function - (void) disconnectVPN does not expose various potential errors as it tries to mitigate various OS bugs as well as trigger race conditions
+/// to provide the expected behavior to begin with.
+///
+/// This function might be hazardous to your health
+/// - Parameter completion: completion block potentially containing an error message. This completion block may be called multiple times and could potentially include an error every time
+- (void)disconnectVPNWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
 
 /// Safely disconnect from the current VPN node if applicable. This is best to call upon doing disconnections upon app launches. For instance, if a subscription expiration has been detected on launch, disconnect the active VPN connection. This will make certain not to disconnect the VPN if a valid state isnt detected.
 - (void)forceDisconnectVPNIfNecessary;

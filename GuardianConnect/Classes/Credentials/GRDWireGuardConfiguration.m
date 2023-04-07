@@ -33,7 +33,7 @@
 	config = [config stringByAppendingString:@"\n"];
 	config = [config stringByAppendingString:@"[Peer]\n"];
 	config = [config stringByAppendingString:[NSString stringWithFormat:@"PublicKey = %@\n", [credential serverPublicKey]]];
-	config = [config stringByAppendingString:[NSString stringWithFormat:@"AllowedIPs = 0.0.0.0/0\n"]];
+	config = [config stringByAppendingString:[NSString stringWithFormat:@"AllowedIPs = 0.0.0.0/0, ::/0\n"]];
 	config = [config stringByAppendingString:[NSString stringWithFormat:@"Endpoint = %@:51821", [credential hostname]]];
 	config = [config stringByAppendingString:@"\n"];
 	

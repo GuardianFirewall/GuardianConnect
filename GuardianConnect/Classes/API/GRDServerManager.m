@@ -7,7 +7,6 @@
 //
 
 @import UserNotifications;
-#import <GuardianConnect/GRDDebugHelper.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 
@@ -45,10 +44,8 @@
 	return self;
 }
 
-- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage))completion {
-    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"selectGuardianHostWithCompletion"];
-    [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSString * _Nullable errorMessage) {
-        [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion completion handler"];
+- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage))completion {
+    [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSError * _Nullable errorMessage) {
         if (servers == nil) {
             if (completion) completion(nil, nil, errorMessage);
             return;
@@ -67,8 +64,6 @@
             availableServers = servers;
             GRDWarningLogg(@"Less than 2 low cap servers available. Using all servers");
         }
-		
-        [debugHelper logTimeWithMessage:@"created availableServers array"];
         
         // Get a random index based on the length of availableServers
         // Then use that random index to select a hostname and return it to the caller
@@ -77,18 +72,14 @@
         NSString *hostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
         GRDLogg(@"Selected hostname: %@", host);
         if (completion) completion(host, hostLocation, nil);
-        [debugHelper logTimeWithMessage:@"getGuardianHostsWithCompletion end"];
     }];
 }
 
-- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSString * _Nullable errorMessage))completion {
-    GRDDebugHelper *debugHelper = [[GRDDebugHelper alloc] initWithTitle:@"getGuardianHostsWithCompletion"];
-    
+- (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSError * _Nullable errorMessage))completion {
     [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
-        [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block start"];
         if (success == NO) {
-            GRDLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
-            if (completion) completion(nil, @"Failed to request list of servers");
+            GRDErrorLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
+            if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
             return;
         }
         
@@ -117,14 +108,13 @@
         [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (success == false) {
 				GRDWarningLogg(@"Failed to get servers for region");
-                if (completion) completion(nil, @"Failed to request list of servers.");
+                if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers."]);
                 return;
                 
             } else {
                 if (completion) completion(servers, nil);
             }
         }];
-        [debugHelper logTimeWithMessage:@"housekeeping.requestTimeZonesForRegionsWithTimestamp completion block end"];
     }];
 }
 
@@ -150,11 +140,11 @@
         } else {
             //we dont have a host and hostlocation yet.
             GRDLog(@"we dont have a host or host location yet");
-            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSString * _Nullable errorMessage) {
+            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, errorMessage);
-                        completion(guardianHost, guardianHostLocation, errorMessage);
+                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
+                        completion(guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
                     });
                 }
             }];
@@ -242,15 +232,28 @@
     return [[GRDRegion alloc] initWithDictionary:found];
 }
 
-- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> *regions))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success) {
+- (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable regions))completion {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
 		if (!success) {
-			GRDErrorLogg(@"Failed to fetch server regions from API");
+			GRDErrorLogg(@"Failed to fetch server regions from API. Error: %@", [errorMessage localizedDescription]);
 			if (completion) completion(nil);
 			return;
 		}
 		
 		if (completion) completion([GRDRegion regionsFromTimezones:items]);
+		return;
+	}];
+}
+
+- (void)regionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
+		if (!success) {
+			GRDErrorLogg(@"Failed to fetch server regions from API");
+			if (completion) completion(nil, errorMessage);
+			return;
+		}
+		
+		if (completion) completion([GRDRegion regionsFromTimezones:items], nil);
 		return;
 	}];
 }

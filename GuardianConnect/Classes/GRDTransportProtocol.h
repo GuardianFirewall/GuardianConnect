@@ -37,6 +37,12 @@ typedef NS_OPTIONS(NSUInteger, TransportProtocol) {
 /// If no user preferred transport protocol has been set yet it will return TransportIKEv2
 + (TransportProtocol)getUserPreferredTransportProtocol;
 
+/// Convenience function to determine wether a user preferred transport protocol
+/// has been set yet. If NO/false is returned 'setUserPreferredTransportProtocol:(TransportProtocol)protocol' should
+/// be called immediately with the default transport protocol
+/// If no default is set, GuardianConnect will always default to IKEv2 at runtime but will not set a permanent default itself
++ (BOOL)userPreferredTransportProtocolSet;
+
 /// Convenience function to convert a (non-pretty) transport protocol string
 /// into a TransportProtocol object
 + (TransportProtocol)transportProtocolFromString:(NSString *)protocolString;

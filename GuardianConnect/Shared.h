@@ -108,5 +108,17 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
 
+
+#pragma mark - Device Filter Config
+
+static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
+
+// Note from CJ 2023-03-23
+// These are now deprecated, but we may want to use them in the future. They can be deleted at any time
+static NSString * const kGRDDeviceFilterConfigBlockNone 			= @"kGRDDeviceFilterConfigBlockNone";
+static NSString * const kGRDDeviceFilterConfigBlockAds 				= @"kGRDDeviceFilterConfigBlockAds";
+static NSString * const kGRDDeviceFilterConfigBlockPhishing 		= @"kGRDDeviceFilterConfigBlockPhishing";
+static NSString * const kGRDDeviceFilterConfigUsePredictiveBlocking = @"kGRDDeviceFilterConfigUsePredictiveBlocking";
+
 NS_ASSUME_NONNULL_END
 #endif /* Shared_h */

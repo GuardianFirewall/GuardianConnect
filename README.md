@@ -1,6 +1,6 @@
 # GuardianConnect
 
-A complete framework for iOS and macOS applications written in Objective-C or Swift to integrate with the Guardian Connect API and establish VPN connections to the Guardian Firewall infrastructure. All lower lever components are exposed but the use of high level APIs in `GRDVPNHelper` are recommended.  
+A complete framework for iOS and macOS applications written in Objective-C or Swift to integrate with the Guardian Connect API and establish VPN connections to the Guardian Firewall infrastructure. All lower level components are exposed but the use of high level APIs in `GRDVPNHelper` are recommended.  
 This framework includes everything to establish an IKEv2 connection through the builtin IKEv2 daemon on iOS & macOS, as well as a WireGuard connection through an external library provided by Guardian.  
 _(The WireGuard library is not required to build this framework locally)_
 

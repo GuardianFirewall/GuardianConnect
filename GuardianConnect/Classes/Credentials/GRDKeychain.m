@@ -51,7 +51,7 @@
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
     if (status != errSecSuccess) {
         if (status == errSecDuplicateItem) {
-            [self removeKeychanItemForAccount:accountKeyStr];
+            [self removeKeychainItemForAccount:accountKeyStr];
             return [self storePassword:passwordStr forAccount:accountKeyStr];
         }
         GRDErrorLogg(@"Error storing password item '%@' OSStatus error: %ld", accountKeyStr, (long)status);
@@ -86,7 +86,7 @@
 	OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
 	if (status != errSecSuccess) {
 		if (status == errSecDuplicateItem) {
-			[self removeKeychanItemForAccount:accountKeyString];
+			[self removeKeychainItemForAccount:accountKeyString];
 			return [self storeData:data forAccount:accountKeyString];
 		}
 		GRDErrorLogg(@"Error storing data item '%@' OSStatus error: %ld", accountKeyString, (long)status);
@@ -132,7 +132,7 @@
         (__bridge id)kSecReturnPersistentRef : (__bridge id)kCFBooleanTrue,
     };
     OSStatus results = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&copyResult);
-    if (results != errSecSuccess) {
+    if (results != errSecSuccess && results != errSecItemNotFound) {
 		GRDErrorLogg(@"Failed to  obtain keychain data for item '%@': %ld", accountKeyStr, (long)results);
     }
     
@@ -172,7 +172,7 @@
                               kKeychainStr_APIAuthToken,
 							  kKeychainStr_WireGuardConfig];
     [guardianKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [self removeKeychanItemForAccount:obj];
+        [self removeKeychainItemForAccount:obj];
     }];
 	[GRDCredentialManager clearMainCredentials];
 }
@@ -180,7 +180,7 @@
 + (OSStatus)removeSubscriberCredentialWithRetries:(NSInteger)retryCount {
     OSStatus status = errSecSuccess;
     for (NSInteger i = 0; i < retryCount; i++) {
-        status = [self removeKeychanItemForAccount:kKeychainStr_SubscriberCredential];
+        status = [self removeKeychainItemForAccount:kKeychainStr_SubscriberCredential];
         NSString *sanityCheck = [self getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
         if (status == errSecSuccess || sanityCheck == nil || status == errSecItemNotFound) {
             GRDDebugLog(@"Subscriber Credential keychain removal success on try %li", (long)i);
@@ -198,7 +198,7 @@
     return status;
 }
 
-+ (OSStatus)removeKeychanItemForAccount:(NSString *)accountKeyStr {
++ (OSStatus)removeKeychainItemForAccount:(NSString *)accountKeyStr {
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
     NSDictionary *query = @{
                             (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,

@@ -17,6 +17,8 @@ static NSString * const kKeychainStr_WireGuardConfig 		= @"kGuardianWireGuardCon
 static NSString * const kKeychainStr_DayPassAccountingToken = @"kGuardianDayPassAccountingToken";
 static NSString * const kGuardianCredentialsList 			= @"kGuardianCredentialsList";
 
+static NSString * const kGuardianConnectSubscriberSecret 	= @"kGuardianConnectSubscriberSecret";
+
 @interface GRDKeychain : NSObject
 
 + (OSStatus)storePassword:(NSString *)passwordStr forAccount:(NSString *)accountKeyStr;
@@ -25,7 +27,7 @@ static NSString * const kGuardianCredentialsList 			= @"kGuardianCredentialsList
 + (NSString *)getPasswordStringForAccount:(NSString *)accountKeyStr;
 + (NSData *)getPasswordRefForAccount:(NSString *)accountKeyStr;
 + (NSData *)getDataForAccount:(NSString *)accountKeyString;
-+ (OSStatus)removeKeychanItemForAccount:(NSString *)accountKeyStr;
++ (OSStatus)removeKeychainItemForAccount:(NSString *)accountKeyStr;
 + (OSStatus)removeSubscriberCredentialWithRetries:(NSInteger)retryCount;
 
 + (void)removeAllKeychainItems;

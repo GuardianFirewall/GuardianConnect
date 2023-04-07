@@ -10,14 +10,8 @@
 
 #import "GRDRegion.h"
 #import <GuardianConnect/GRDServerManager.h>
-@implementation GRDRegion
 
-+ (GRDRegion *)automaticRegion {
-    GRDRegion *reg = [[GRDRegion alloc] init];
-    [reg setDisplayName:NSLocalizedString(@"Automatic", nil)];
-    [reg setIsAutomatic:true];
-    return reg;
-}
+@implementation GRDRegion
 
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
@@ -76,6 +70,13 @@
 			}
 		}
 	}];
+}
+
++ (GRDRegion *)automaticRegion {
+	GRDRegion *reg = [[GRDRegion alloc] init];
+	[reg setDisplayName:NSLocalizedString(@"Automatic", nil)];
+	[reg setIsAutomatic:true];
+	return reg;
 }
 
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {

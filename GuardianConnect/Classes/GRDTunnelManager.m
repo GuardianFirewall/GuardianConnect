@@ -21,31 +21,14 @@
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
 
-@interface GRDTunnelManager() {
-    BOOL _isLoading;
-	BOOL _tunnelLoaded;
-}
+@interface GRDTunnelManager()
+@property (nonatomic, readwrite) BOOL isLoading;
+@property (nonatomic, readwrite) BOOL tunnelLoaded;
 @end
 
 @implementation GRDTunnelManager
 
-- (BOOL)isLoading {
-	return _isLoading;
-}
-
-- (void)setIsLoading:(BOOL)loading {
-	_isLoading = loading;
-}
-
-- (BOOL)tunnelLoaded {
-	return _tunnelLoaded;
-}
-
-- (void)setTunnelLoaded:(BOOL)loaded {
-	_tunnelLoaded = loaded;
-}
-
-+ (id)sharedManager {
++ (instancetype)sharedManager {
     static dispatch_once_t pred;
     static GRDTunnelManager *shared;
     dispatch_once(&pred, ^{
@@ -60,9 +43,12 @@
 			[shared setTunnelLoaded:YES];
             if ([managers count] == 0) {
                 GRDWarningLogg(@"No tunnel manager to load. Not creating a new one");
-                
+				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(NEVPNStatusInvalid, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No tunnel manager available"]);
+				
             } else {
-                shared.tunnelProviderManager = [managers firstObject];
+				NETunnelProviderManager *manager = [managers firstObject];
+                shared.tunnelProviderManager = manager;
+				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(manager.connection.status, nil);
             }
         }];
     });
@@ -80,9 +66,9 @@
 		return;
 	}
 	
-	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
-		if (errorMessage && ![errorMessage isEqualToString:@"No tunnel provider managers setup!"]) {
-			if (completion) completion(nil, errorMessage);
+	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
+		if (errorMessage && ![[errorMessage localizedDescription] isEqualToString:@"No tunnel provider managers setup!"]) {
+			if (completion) completion(nil, [errorMessage localizedDescription]);
 			return;
 		
 		} else if (manager == nil) {
@@ -121,10 +107,10 @@
 	}];
 }
 
-- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSString * __nullable errorMessage))completion {
+- (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSError * __nullable errorMessage))completion {
 	if ([self isLoading]) {
 		if (completion) {
-			completion(nil, @"Already loading tunnel manager preferences, dont do it again!");
+			completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Already loading tunnel manager preferences, dont do it again!"]);
 		}
 		return;
 	}
@@ -132,6 +118,12 @@
 	[self setIsLoading:YES];
 	[NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
 		[self setIsLoading:NO];
+		if (error != nil) {
+			if (completion) completion(nil, error);
+			if (self.tunnelLoadedCallback) self.tunnelLoadedCallback(NEVPNStatusInvalid, error);
+			return;
+		}
+		
 		[self setTunnelLoaded:YES];
 		
 		if (managers.count == 0) {
@@ -147,7 +139,9 @@
 				}];
 			}
 			
-			if (completion) completion(managers[0], nil);
+			NETunnelProviderManager *manager = managers[0];
+			if (completion) completion(manager, nil);
+			if (self.tunnelLoadedCallback) self.tunnelLoadedCallback(manager.connection.status, nil);
 		}
 	}];
 }
@@ -177,7 +171,7 @@
 			return currentStatus;
 		}
 		
-        [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSString * _Nullable errorMessage) {
+        [self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
             if (manager && !errorMessage) {
                 currentStatus = manager.connection.status;
             }
@@ -187,6 +181,36 @@
     } else {
         return self.tunnelProviderManager.connection.status;
     }
+}
+
+- (void)currentTunnelProviderStateWithCompletion:(void (^)(NEVPNStatus, NSError * _Nullable))completion {
+	if (self.tunnelProviderManager != nil) {
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
+		return;
+	}
+
+	if ([self tunnelLoaded] == YES) {
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
+		return;
+	}
+
+	if ([self isLoading] == YES) {
+		NSDate *start = [NSDate date];
+		while ([self isLoading]) {
+			NSDate *now = [NSDate date];
+			if ([now timeIntervalSinceDate:start] > 5) {
+				break;
+			}
+		}
+		
+		if (completion) completion(self.tunnelProviderManager.connection.status, nil);
+		return;
+	}
+	
+	[self loadTunnelManagerFromPreferences:^(NETunnelProviderManager * _Nullable manager, NSError * _Nullable errorMessage) {
+		if (completion) completion(manager.connection.status, errorMessage);
+		return;
+	}];
 }
 
 @end

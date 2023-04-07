@@ -14,7 +14,6 @@
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDCredentialManager.h>
-#import <GuardianConnect/GRDDebugHelper.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/Shared.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
@@ -34,6 +33,13 @@
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
+#import <GuardianConnect/GRDAPIError.h>
+#import <GuardianConnect/GRDConnectSubscriber.h>
+#import <GuardianConnect/GRDConnectDevice.h>
+#import <GuardianConnect/GRDDNSHelper.h>
+#import <GuardianConnect/GRDErrorHelper.h>
+#import <GuardianConnect/GRDPEToken.h>
+#import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
 
 //! Project version number for GuardianConnectMac.
 FOUNDATION_EXPORT double GuardianConnectMacVersionNumber;
