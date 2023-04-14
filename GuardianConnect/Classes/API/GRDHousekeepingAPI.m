@@ -197,7 +197,7 @@
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
 	if ([self publicKey] != nil) {
-		[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+		[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	}
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -517,7 +517,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscribers/new"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -569,7 +569,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/update"];
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -621,7 +621,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/validate"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -673,7 +673,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/logout"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -722,7 +722,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/add"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -774,7 +774,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/update"];
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -826,7 +826,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/list"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -878,7 +878,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/delete"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -923,7 +923,7 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device/validate"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Public-Key"];
+	[request setValue:[self publicKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
