@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 @property NSString *peToken;
 
 /// GuardianConnect app public key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable publicKey;
+@property (nonatomic, strong) NSString *_Nullable publishableKey;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for

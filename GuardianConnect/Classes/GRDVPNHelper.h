@@ -58,7 +58,7 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 @property NSString *connectAPIHostname;
 
 /// GuardianConnect app key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable connectPublicKey;
+@property (nonatomic, strong) NSString *_Nullable connectPublishableKey;
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
