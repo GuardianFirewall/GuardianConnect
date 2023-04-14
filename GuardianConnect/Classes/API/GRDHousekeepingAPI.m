@@ -58,7 +58,7 @@
     }
 }
 
-- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
+- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptLineItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/verify-receipt"]];
 	if (encodedReceipt == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
@@ -104,9 +104,9 @@
                 return;
                 
             } else {
-				__block NSMutableArray <GRDReceiptItem *> *items = [NSMutableArray new];
+				__block NSMutableArray <GRDReceiptLineItem *> *items = [NSMutableArray new];
 				[validLineItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-					[items addObject:[[GRDReceiptItem alloc] initWithDictionary:obj]];
+					[items addObject:[[GRDReceiptLineItem alloc] initWithDictionary:obj]];
 				}];
                 if (completion) completion(items, YES, nil);
                 return;
@@ -128,6 +128,61 @@
         }
     }];
     [task resume];
+}
+
+- (void)verifyReceiptData:(NSString *)encodedReceiptData bundleId:(NSString *)bundleId completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.172:8080/api/v1.3/verify-receipt"]];
+	if (encodedReceiptData == nil) {
+		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+		if (receiptData == nil) {
+			GRDDebugLog(@"This device has no App Store receipt");
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No App Store receipt data present"]);
+			return;
+		}
+		
+		encodedReceiptData = [receiptData base64EncodedStringWithOptions:0];
+	}
+	
+	NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":encodedReceiptData, @"bundle-id": bundleId} options:0 error:nil];
+	[request setHTTPBody:postData];
+	[request setHTTPMethod:@"POST"];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDLog(@"Failed to retrieve receipt data: %@", error);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to retrieve receipt data from server"]);
+			return;
+		}
+		
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			if (statusCode == 204) {
+				if (completion) completion(nil, nil);
+				return;
+			}
+			
+			GRDAPIError *error = [[GRDAPIError alloc] initWithData:data];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error.message]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSDictionary *responseData = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode JSON response data: %@", [jsonErr localizedDescription]]]);
+			return;
+		}
+		
+		if (completion) completion(responseData, nil);
+	}];
+	[task resume];
 }
 
 - (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {

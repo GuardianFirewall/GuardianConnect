@@ -10,7 +10,7 @@
 #import <StoreKit/StoreKit.h>
 
 #import <GuardianConnect/GRDVPNHelper.h>
-#import <GuardianConnect/GRDReceiptItem.h>
+#import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GRDSubscriptionDelegate <NSObject>
 
 /// Informs the delegate that the paymnet was successfully processed and returns the latest valid receipt line item
-- (void)purchasedSuccessfully:(GRDReceiptItem *)receiptItem;
+- (void)purchasedSuccessfully:(GRDReceiptLineItem *)receiptItem;
 
 /// Informs the delegate that the receipt is invalid and could not be validated by Apple's servers
 - (void)receiptInvalid;
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)validatingReceipt;
 
 /// Informs the delegate that hte subscription was successfully restored and returns the latest valid receipt line item
-- (void)purchaseRestored:(GRDReceiptItem *)receiptItem;
+- (void)purchaseRestored:(GRDReceiptLineItem *)receiptItem;
 
 
 // Deprecated functions

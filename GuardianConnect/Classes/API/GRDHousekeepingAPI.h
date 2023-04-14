@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
 #import <GuardianConnect/GRDVPNHelper.h>
-#import <GuardianConnect/GRDReceiptItem.h>
+#import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDAPIError.h>
 
 #define kConnectAPIHostname @"connect-api.guardianapp.com"
@@ -57,7 +57,9 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// @param encodedReceipt Base64 encoded AppStore receipt. If the value is NULL, [NSBundle mainBundle] appStoreReceiptURL] will be used to grab the system App Store receipt
 /// @param bundleId The apps bundle id used to identify the shared secret server side to decrypt the receipt data
 /// @param completion completion block returning array only containing valid subscriptions / purchases, success indicator and a error message containing actionable information for the user if the request failed
-- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptLineItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion;
+
+- (void)verifyReceiptData:(NSString * _Nullable)receiptData bundleId:(NSString * _Nonnull)bundleId completion:(void (^_Nullable)(NSDictionary * _Nullable receipt, NSError * _Nullable error))completion;
 
 /// endpoint: /api/v1.2/subscriber-credential/create
 /// Used to obtain a signed JWT from housekeeping for later authentication with zoe-agent
