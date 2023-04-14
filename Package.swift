@@ -19,8 +19,8 @@ let package = Package(
 	targets: [
 		.binaryTarget(
 			name: "GuardianConnect",
-			url:"https://github.com/GuardianFirewall/GuardianConnect/releases/download/1.8.1/GuardianConnect.xcframework.zip",
-			checksum: "48315dd29e08e656667aae67c0b76deb151400b3c431a5baecdedce4d8ff6aa1"
+			url:"https://github.com/GuardianFirewall/GuardianConnect/releases/download/1.8.2-dev-1/GuardianConnect.xcframework.zip",
+			checksum: "fe5de8a4a6718e68bf18c6444dc72a60f88974b286789e7c2bfb1b8fb93639c5"
 		)
 	]
 )
