@@ -161,11 +161,11 @@
 			encodedReceipt = [receipt base64EncodedStringWithOptions:0];
 		}
 		
-		[[GRDHousekeepingAPI new] verifyReceipt:encodedReceipt bundleId:self.bundleId completion:^(NSArray<GRDReceiptItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
+		[[GRDHousekeepingAPI new] verifyReceipt:encodedReceipt bundleId:self.bundleId completion:^(NSArray<GRDReceiptLineItem *> * _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage) {
 			NSArray *sortedValidLineItems = validLineItems;
 			if (filtered == YES) {
 				NSMutableArray *arrayWithoutIgnoredProductIds = [NSMutableArray new];
-				for (GRDReceiptItem *receiptItem in validLineItems) {
+				for (GRDReceiptLineItem *receiptItem in validLineItems) {
 					if (![self.ignoredProductIds containsObject:receiptItem.productId]) {
 						[arrayWithoutIgnoredProductIds addObject:receiptItem];
 					}
@@ -178,7 +178,7 @@
 			}
 			
 			if (success == YES && sortedValidLineItems.count > 0) {
-				GRDReceiptItem *latestItem = [sortedValidLineItems lastObject];
+				GRDReceiptLineItem *latestItem = [sortedValidLineItems lastObject];
 				dispatch_async(dispatch_get_main_queue(), ^{
 					if (self_weak_.isRestore) {
 						if ([self_weak_.delegate respondsToSelector:@selector(subscriptionRestored)]) {

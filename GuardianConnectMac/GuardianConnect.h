@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <GuardianConnect/GRDLogger.h>
 #import <GuardianConnect/NSObject+Dictionary.h>
-#import <GuardianConnect/GRDReceiptItem.h>
+#import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDCredential.h>
@@ -40,6 +40,8 @@
 #import <GuardianConnect/GRDErrorHelper.h>
 #import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
+#import <GuardianConnect/GRDReceiptLineItemMetadata.h>
+#import <GuardianConnect/GRDIAPReceiptResponse.h>
 
 //! Project version number for GuardianConnectMac.
 FOUNDATION_EXPORT double GuardianConnectMacVersionNumber;

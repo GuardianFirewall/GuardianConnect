@@ -61,6 +61,14 @@
 		23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9D37C272FEEE000CDDB5B /* GRDLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		23FCE58929DEADE400E735E9 /* GRDWireGuardKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */; };
 		23FCE58A29DEADE400E735E9 /* GRDWireGuardKit.xcframework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 23187E01292F796E00ED302A /* GRDWireGuardKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		23FCE59029E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FCE58E29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23FCE59129E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FCE58E29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23FCE59229E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FCE58F29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m */; };
+		23FCE59329E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FCE58F29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m */; };
+		23FCE59629E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FCE59429E6F8EF00E735E9 /* GRDIAPReceiptResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23FCE59729E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FCE59429E6F8EF00E735E9 /* GRDIAPReceiptResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23FCE59829E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FCE59529E6F8EF00E735E9 /* GRDIAPReceiptResponse.m */; };
+		23FCE59929E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FCE59529E6F8EF00E735E9 /* GRDIAPReceiptResponse.m */; };
 		321BA148261404A100E876CB /* GuardianConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA146261404A100E876CB /* GuardianConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321BA1A0261408B800E876CB /* Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 321BA19F261408B800E876CB /* Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3224BC1526531A5E00E5B4AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3224BC1426531A5E00E5B4AD /* AppDelegate.swift */; };
@@ -83,7 +91,7 @@
 		3252D6502693924F00FE7402 /* GRDIAPDiscountDetails.m in Sources */ = {isa = PBXBuildFile; fileRef = 3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */; };
 		3252D6512693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3252D6522693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */ = {isa = PBXBuildFile; fileRef = 3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		328035AE2666C3FD00A173CE /* GRDReceiptItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		328035AE2666C3FD00A173CE /* GRDReceiptLineItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptLineItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		328035B22666C53700A173CE /* NSString+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A47265B1ABE00F5C33B /* NSString+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32855B19263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
 		32855B1A263640B90088086E /* GRDRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855B17263640B90088086E /* GRDRegion.m */; };
@@ -113,9 +121,9 @@
 		32939A9526167D20007A4DFA /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32A664B326531C34008277E0 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 321BA143261404A100E876CB /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
-		32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptItem.m */; };
-		32D80A46265B195A00F5C33B /* GRDReceiptItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptItem.m */; };
+		32D80A44265B195200F5C33B /* GRDReceiptLineItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptLineItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D80A45265B195200F5C33B /* GRDReceiptLineItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptLineItem.m */; };
+		32D80A46265B195A00F5C33B /* GRDReceiptLineItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A43265B195200F5C33B /* GRDReceiptLineItem.m */; };
 		32D80A49265B1ABE00F5C33B /* NSString+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A47265B1ABE00F5C33B /* NSString+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D80A48265B1ABE00F5C33B /* NSString+Extras.m */; };
 		32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -231,6 +239,10 @@
 		23E5FA9427304ABA000FC70F /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		23F9D37B272FEEE000CDDB5B /* GRDLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDLogger.m; sourceTree = "<group>"; };
 		23F9D37C272FEEE000CDDB5B /* GRDLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDLogger.h; sourceTree = "<group>"; };
+		23FCE58E29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDReceiptLineItemMetadata.h; sourceTree = "<group>"; };
+		23FCE58F29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDReceiptLineItemMetadata.m; sourceTree = "<group>"; };
+		23FCE59429E6F8EF00E735E9 /* GRDIAPReceiptResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDIAPReceiptResponse.h; sourceTree = "<group>"; };
+		23FCE59529E6F8EF00E735E9 /* GRDIAPReceiptResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDIAPReceiptResponse.m; sourceTree = "<group>"; };
 		321BA143261404A100E876CB /* GuardianConnect.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GuardianConnect.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		321BA146261404A100E876CB /* GuardianConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GuardianConnect.h; sourceTree = "<group>"; };
 		321BA147261404A100E876CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -282,8 +294,8 @@
 		32A49C48263944C700D15910 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 		32A664BA26532583008277E0 /* iOSSampleApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOSSampleApp.entitlements; sourceTree = "<group>"; };
 		32A664BB26532583008277E0 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
-		32D80A42265B195200F5C33B /* GRDReceiptItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDReceiptItem.h; sourceTree = "<group>"; };
-		32D80A43265B195200F5C33B /* GRDReceiptItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDReceiptItem.m; sourceTree = "<group>"; };
+		32D80A42265B195200F5C33B /* GRDReceiptLineItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDReceiptLineItem.h; sourceTree = "<group>"; };
+		32D80A43265B195200F5C33B /* GRDReceiptLineItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDReceiptLineItem.m; sourceTree = "<group>"; };
 		32D80A47265B1ABE00F5C33B /* NSString+Extras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Extras.h"; sourceTree = "<group>"; };
 		32D80A48265B1ABE00F5C33B /* NSString+Extras.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extras.m"; sourceTree = "<group>"; };
 		32E1AE142698E2DF0057D80A /* NSObject+Dictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+Dictionary.h"; sourceTree = "<group>"; };
@@ -405,8 +417,12 @@
 				3252D62A26938DC000FE7402 /* GRDSubscriptionManager.m */,
 				3252D64E2693924F00FE7402 /* GRDIAPDiscountDetails.h */,
 				3252D64D2693924F00FE7402 /* GRDIAPDiscountDetails.m */,
-				32D80A42265B195200F5C33B /* GRDReceiptItem.h */,
-				32D80A43265B195200F5C33B /* GRDReceiptItem.m */,
+				23FCE59429E6F8EF00E735E9 /* GRDIAPReceiptResponse.h */,
+				23FCE59529E6F8EF00E735E9 /* GRDIAPReceiptResponse.m */,
+				32D80A42265B195200F5C33B /* GRDReceiptLineItem.h */,
+				32D80A43265B195200F5C33B /* GRDReceiptLineItem.m */,
+				23FCE58E29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h */,
+				23FCE58F29E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m */,
 			);
 			path = StoreKit;
 			sourceTree = "<group>";
@@ -546,6 +562,7 @@
 				32939A6F26167D0E007A4DFA /* metamacros.h in Headers */,
 				32939A9226167D20007A4DFA /* GRDServerManager.h in Headers */,
 				32939A9526167D20007A4DFA /* GRDGatewayAPIResponse.h in Headers */,
+				23FCE59029E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h in Headers */,
 				23DCA2B327E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				236251F0299CE48C00C11DDC /* GRDDNSHelper.h in Headers */,
 				32939A8626167D20007A4DFA /* GRDKeychain.h in Headers */,
@@ -553,9 +570,10 @@
 				2362523A29A7CE7000C11DDC /* GRDErrorHelper.h in Headers */,
 				32939A7326167D0E007A4DFA /* EXTKeyPathCoding.h in Headers */,
 				3252D6512693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */,
-				32D80A44265B195200F5C33B /* GRDReceiptItem.h in Headers */,
+				32D80A44265B195200F5C33B /* GRDReceiptLineItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
 				235E3E682993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
+				23FCE59629E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
 				23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
@@ -587,6 +605,7 @@
 				32E92C27262A1BC100A3202C /* metamacros.h in Headers */,
 				32E92C23262A1BA700A3202C /* GRDVPNHelper.h in Headers */,
 				32E92C1F262A1BA700A3202C /* GRDKeychain.h in Headers */,
+				23FCE59129E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h in Headers */,
 				23DCA2B427E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				236251F1299CE48C00C11DDC /* GRDDNSHelper.h in Headers */,
 				32E92C1C262A1BA700A3202C /* GRDGatewayAPI.h in Headers */,
@@ -595,8 +614,9 @@
 				32E92C19262A1BA700A3202C /* GRDCredential.h in Headers */,
 				3252D6522693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */,
 				32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */,
-				328035AE2666C3FD00A173CE /* GRDReceiptItem.h in Headers */,
+				328035AE2666C3FD00A173CE /* GRDReceiptLineItem.h in Headers */,
 				32E92C24262A1BAE00A3202C /* NSDate+Extras.h in Headers */,
+				23FCE59729E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				235E3E692993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
 				23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */,
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
@@ -808,6 +828,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23FCE59829E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */,
 				32939A8826167D20007A4DFA /* GRDServerManager.m in Sources */,
 				32E1AE182698E2DF0057D80A /* NSObject+Dictionary.m in Sources */,
 				32D80A4A265B1ABE00F5C33B /* NSString+Extras.m in Sources */,
@@ -815,7 +836,7 @@
 				2311773129CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.m in Sources */,
 				232ED3DB278604C6008B1FCE /* GRDTransportProtocol.m in Sources */,
 				32939A7026167D0E007A4DFA /* EXTScope.m in Sources */,
-				32D80A45265B195200F5C33B /* GRDReceiptItem.m in Sources */,
+				32D80A45265B195200F5C33B /* GRDReceiptLineItem.m in Sources */,
 				32855B19263640B90088086E /* GRDRegion.m in Sources */,
 				3247E9F32628F253007D4E7E /* GRDCredential.m in Sources */,
 				32939A8B26167D20007A4DFA /* GRDVPNHelper.m in Sources */,
@@ -833,6 +854,7 @@
 				235E3E702993F8B6008E915B /* GRDConnectDevice.m in Sources */,
 				3247E9F12628F253007D4E7E /* GRDCredentialManager.m in Sources */,
 				235E3E6A2993F8A5008E915B /* GRDConnectSubscriber.m in Sources */,
+				23FCE59229E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m in Sources */,
 				23DCA2B527E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				32939A8D26167D20007A4DFA /* GRDGatewayAPI.m in Sources */,
 				2362524529C2273600C11DDC /* GRDPEToken.m in Sources */,
@@ -859,10 +881,11 @@
 				3252D62E26938DC000FE7402 /* GRDSubscriptionManager.m in Sources */,
 				32E92C15262A1B6100A3202C /* GRDServerManager.m in Sources */,
 				32E92C0C262A1B5400A3202C /* EXTScope.m in Sources */,
-				32D80A46265B195A00F5C33B /* GRDReceiptItem.m in Sources */,
+				32D80A46265B195A00F5C33B /* GRDReceiptLineItem.m in Sources */,
 				32855B1A263640B90088086E /* GRDRegion.m in Sources */,
 				32E92C14262A1B6100A3202C /* GRDKeychain.m in Sources */,
 				32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */,
+				23FCE59329E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m in Sources */,
 				235E3E712993F8B6008E915B /* GRDConnectDevice.m in Sources */,
 				32E92C12262A1B6100A3202C /* GRDGatewayAPIResponse.m in Sources */,
 				32E92C13262A1B6100A3202C /* GRDHousekeepingAPI.m in Sources */,
@@ -871,6 +894,7 @@
 				32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */,
 				2362523D29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */,
 				2311773229CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.m in Sources */,
+				23FCE59929E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */,
 				23DCA2B627E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */,
 				232ED3DC278604C6008B1FCE /* GRDTransportProtocol.m in Sources */,
@@ -1124,7 +1148,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1139,7 +1163,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = NO;
@@ -1156,7 +1180,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1171,7 +1195,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = NO;
@@ -1296,7 +1320,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1312,7 +1336,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -1329,7 +1353,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1345,7 +1369,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.8.1;
+				MARKETING_VERSION = 1.8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
