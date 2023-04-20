@@ -933,14 +933,14 @@
 		[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"[GRDTunnel] Failed to save packet tunnel provider manager: %@", error);
-				if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"[GRDTunnel] Failed to save tunnel provider. Please try again. Error: %@", error]]);
+				if (completion) completion(GRDVPNHelperFail, error);
 				return;
 			}
 			
 			[tunnelManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 				if (error != nil) {
 					GRDErrorLogg(@"[GRDTunnel] Failed to load packet tunnel provider manager preferences that were just saved: %@", error);
-					if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"[GRDTunnel] Failed to save tunnel provider. Please try again. Error: %@", error]]);
+					if (completion) completion(GRDVPNHelperFail, error);
 					return;
 				}
 				
@@ -994,7 +994,7 @@
 				[session startTunnelWithOptions:@{@"activationAttemptId": activationAttemptId} andReturnError:&startErr];
 				if (startErr != nil) {
 					GRDErrorLogg(@"[GRDTunnel] Failed to start VPN: %@", startErr);
-					if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"[GRDTunnel] Failed to start tunnel provider. Please try again"]);
+					if (completion) completion(GRDVPNHelperFail, startErr);
 					return;
 					
 				} else {
