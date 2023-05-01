@@ -39,8 +39,6 @@
         
         [shared setIsLoading:YES];
         [NETunnelProviderManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETunnelProviderManager *> * _Nullable managers, NSError * _Nullable error) {
-            [shared setIsLoading:NO];
-			[shared setTunnelLoaded:YES];
             if ([managers count] == 0) {
                 GRDWarningLogg(@"No tunnel manager to load. Not creating a new one");
 				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(NEVPNStatusInvalid, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No tunnel manager available"]);
@@ -50,6 +48,9 @@
                 shared.tunnelProviderManager = manager;
 				if (shared.tunnelLoadedCallback) shared.tunnelLoadedCallback(manager.connection.status, nil);
             }
+			
+			[shared setIsLoading:NO];
+			[shared setTunnelLoaded:YES];
         }];
     });
 	
