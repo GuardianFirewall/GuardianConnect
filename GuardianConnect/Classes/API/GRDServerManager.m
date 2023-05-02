@@ -93,13 +93,8 @@
         GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
         if (selectedRegion) {
 			GRDDebugLog(@"Using custom selected region: %@", selectedRegion.regionName);
-			regionName = selectedRegion.regionName;
-			
-		} else {
-			// Send the matched region to the callback handler to notify the app
-			// of the GRDRegion that was selected if it runs in "automatic" mode
-			if ([GRDVPNHelper sharedInstance].lastKnownRegionCallbackHandler) [GRDVPNHelper sharedInstance].lastKnownRegionCallbackHandler(region);
-		}
+            regionName = selectedRegion.regionName;
+        }
         
         // This is only meant as a fallback to have something
         // when absolutely everything seems to have fallen apart

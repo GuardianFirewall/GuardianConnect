@@ -139,10 +139,6 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 @property UIBackgroundTaskIdentifier bgTask;
 #endif
 
-/// Set this callback handler to be notified of the last known GRDRegion that
-/// was selected whenever the framework is running into "automatic" mode
-@property (nonatomic, nullable) void (^lastKnownRegionCallbackHandler)(GRDRegion *region);
-
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
     GRDVPNHelperSuccess,
     GRDVPNHelperFail,

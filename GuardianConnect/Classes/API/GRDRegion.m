@@ -24,8 +24,7 @@
 }
 
 - (NSString *)description {
-    NSString *sup = [super description];
-    return [NSString stringWithFormat:@"%@: regionName: %@ displayName: %@", sup, _regionName, _displayName];
+	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO"];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
@@ -62,7 +61,7 @@
 }
 
 - (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
-    [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
         if (!error) {
             if (completion) {
                 self.bestHost = host;
@@ -80,7 +79,7 @@
 
 - (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)feautreEnv betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:feautreEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+	[serverManager findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
 		if (!error) {
 			if (completion) {
 				self.bestHost = host;
