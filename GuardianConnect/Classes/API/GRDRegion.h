@@ -11,14 +11,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GRDRegion : NSObject
+@interface GRDRegion : NSObject <NSSecureCoding>
 
-@property NSString *continent; //continent
-@property NSString *regionName; //name
-@property NSString *displayName; //name-pretty
-@property NSString *bestHost; //defaults to nil, is populated upon get server detail completion
-@property NSString *bestHostLocation; //defaults to nil, is populated upon get server detail completion
-@property BOOL isAutomatic; //experimental
+@property NSString *continent; 			//continent
+@property NSString *countryISOCode; 	//country-iso-code
+@property NSString *regionName; 		//name
+@property NSString *displayName; 		//name-pretty
+@property NSString *bestHost; 			//defaults to nil, is populated upon get server detail completion
+@property NSString *bestHostLocation; 	//defaults to nil, is populated upon get server detail completion
+@property BOOL isAutomatic; 			//experimental
 
 
 /// Convenience method to parse an API response to a GRDRegion object
