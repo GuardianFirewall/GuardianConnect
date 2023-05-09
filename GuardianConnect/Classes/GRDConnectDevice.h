@@ -47,7 +47,7 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 /// This method should only be used in the context of a Connect device being the main user on the device
 /// It does not retrieve the device's PE-Token as it should only be fetched if needed from the keychain
 /// - Parameter completion: completion block containing the current Connect device or nil if an error occured or no device has been stored yet. In case of a failure to get the current device an error message is provided, otherwise it is nil
-+ (void)currentDeviceWithCompletion:(void (^)(GRDConnectDevice * _Nullable device, NSError * _Nullable error))completion;
++ (void)currentDeviceWithCompletion:(void (^)(GRDConnectDevice * _Nullable_result device, NSError * _Nullable error))completion;
 
 /// Stores an encoded GRDConnectDevice object in NSUserDefaults
 ///

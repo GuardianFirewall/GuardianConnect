@@ -34,12 +34,12 @@
 		return nil;
 	}
 	
-	NSNumber *petExpires = [NSNumber numberWithInteger:[[NSUserDefaults standardUserDefaults] integerForKey:kGuardianPETokenExpirationDate]];
+	NSDate *petExpires = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianPETokenExpirationDate];
 	
 	GRDPEToken *pet = [GRDPEToken new];
 	[pet setToken:petString];
-	[pet setExpirationDate:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]]];
-	[pet setExpirationDateUnix:[petExpires integerValue]];
+	[pet setExpirationDate:petExpires];
+	[pet setExpirationDateUnix:[petExpires timeIntervalSince1970]];
 	
 	return pet;
 }
@@ -75,7 +75,7 @@
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to store PE-Token in the local keychain"];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setInteger:self.expirationDateUnix forKey:kGuardianPETokenExpirationDate];
+	[[NSUserDefaults standardUserDefaults] setObject:self.expirationDate forKey:kGuardianPETokenExpirationDate];
 	
 	return nil;
 }

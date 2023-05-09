@@ -178,8 +178,8 @@
 			return;
 		}
 		
-		[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:postCredentialCallback completion:^(BOOL success, NSString * _Nullable errorMessage) {
-			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
+		[self configureUserFirstTimeForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:postCredentialCallback completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+			if (completion) completion(errorMessage);
 			return;
 		}];
 	}];
@@ -335,6 +335,58 @@
 		} else { //no error, but creds are nil too!
 			if (completion) {
 				completion(NO, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again.");
+			}
+		}
+	}];
+}
+
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol hostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[GRDVPNHelper saveAllInOneBoxHostname:host];
+	[defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
+	
+	[self createStandaloneCredentialsForTransportProtocol:protocol days:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			GRDErrorLogg(@"%@", errorMessage);
+			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
+			return;
+			
+		} else if (creds) {
+			if (mid) mid();
+			
+			NSMutableDictionary *fullCreds = [creds mutableCopy];
+			fullCreds[kGRDHostnameOverride] = host;
+			fullCreds[kGRDVPNHostLocation] = hostLocation;
+			
+			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
+			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:fullCreds validFor:adjustedDays isMain:YES];
+			if (protocol == TransportIKEv2) {
+				[self.mainCredential saveToKeychain];
+			}
+			
+			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
+			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
+			[self configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+				dispatch_async(dispatch_get_main_queue(), ^{
+					if (status == GRDVPNHelperFail) {
+						if (errorMessage != nil) {
+							if (completion) completion(status, errorMessage);
+							
+						} else {
+							if (completion) {
+								completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a unknown reason. Please reset your connection and try again."]);
+							}
+						}
+						
+					} else {
+						if (completion) completion(YES, nil);
+					}
+				});
+			}];
+			
+		} else { //no error, but creds are nil too!
+			if (completion) {
+				completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again."]);
 			}
 		}
 	}];

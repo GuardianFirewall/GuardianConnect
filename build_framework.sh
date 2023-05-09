@@ -10,12 +10,9 @@ rm -rf GuardianConnect.xcframework
 # remove the old copy of the xcframework zip if it already exists
 rm -rf GuardianConnect.xcframework.zip
 
-# build simulator and iphoneos frameworks
-
-# -z checks to see if a value is empty, if xcpretty is not found, build normally, if it is found then use it to clean up our output.
-
-xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -archivePath './build-archives/GuardianConnect-iossimulator.xcarchive'
-xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -archivePath './build-archives/GuardianConnect-ios.xcarchive'
+# Build for iphoneos, iphonesimulator & macosx targets
+xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -archivePath './build-archives/GuardianConnect-iossimulator.xcarchive' SKIP_INSTALL=NO
+xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -archivePath './build-archives/GuardianConnect-ios.xcarchive' SKIP_INSTALL=NO
 xcodebuild clean archive -scheme GuardianConnectMac -target GuardianConnectMac -configuration Release -sdk macosx -archivePath './build-archives/GuardianConnect-macos.xcarchive'
 
 
@@ -31,6 +28,7 @@ mac_path="$pwd/build-archives/GuardianConnect-macos.xcarchive/Products/Library/F
 mac_debugpath="$pwd/build-archives/GuardianConnect-macos.xcarchive/dSYMs/GuardianConnect.framework.dSYM"
 
 # create the xcframework
+printf "Creating XCFramework\n"
 xcodebuild -create-xcframework -framework "$ios_fwpath" -debug-symbols "$ios_debugpath" -framework "$sim_fwpath" -debug-symbols "$sim_debugpath" -framework "$mac_path" -debug-symbols "$mac_debugpath" -output GuardianConnect.xcframework
 
 printf "\n\n"

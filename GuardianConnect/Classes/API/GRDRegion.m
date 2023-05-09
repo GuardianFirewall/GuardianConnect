@@ -6,8 +6,6 @@
 //  Copyright © 2021 Sudo Security Group Inc. All rights reserved.
 //
 
-//experimental, should probably end up being a framework class
-
 #import "GRDRegion.h"
 #import <GuardianConnect/GRDServerManager.h>
 
@@ -16,18 +14,43 @@
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
     if (self) {
-        _continent = regionDict[@"continent"]; //ie europe
-        _regionName = regionDict[@"name"]; //ie eu-es
-        _displayName = regionDict[@"name-pretty"]; //ie Spain
-        _isAutomatic = false;
+        self.continent 		= regionDict[@"continent"]; 		// ie europe
+		self.countryISOCode = regionDict[@"country-iso-code"]; 	// ie ES
+        self.regionName 	= regionDict[@"name"]; 				// ie eu-es
+        self.displayName 	= regionDict[@"name-pretty"]; 		// ie Spain
+        self.isAutomatic 	= false;
     }
     return self;
 }
 
 - (NSString *)description {
-    NSString *sup = [super description];
-    return [NSString stringWithFormat:@"%@: regionName: %@ displayName: %@", sup, _regionName, _displayName];
+	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO"];
 }
+
+- (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
+	self = [super init];
+	if (self) {
+		self.continent 		= [coder decodeObjectForKey:@"continent"];
+		self.countryISOCode = [coder decodeObjectForKey:@"country-iso-code"];
+		self.regionName 	= [coder decodeObjectForKey:@"name"];
+		self.displayName 	= [coder decodeObjectForKey:@"name-pretty"];
+		self.isAutomatic 	= [[coder decodeObjectForKey:@"is-automatic"] boolValue];
+	}
+	return self;
+}
+
+- (void)encodeWithCoder:(nonnull NSCoder *)coder {
+	[coder encodeObject:self.continent forKey:@"continent"];
+	[coder encodeObject:self.countryISOCode forKey:@"country-iso-code"];
+	[coder encodeObject:self.regionName forKey:@"name"];
+	[coder encodeObject:self.displayName forKey:@"name-pretty"];
+	[coder encodeObject:[NSNumber numberWithBool:self.isAutomatic] forKey:@"is-automatic"];
+}
+
++ (BOOL)supportsSecureCoding {
+	return YES;
+}
+
 
 //overriding equality check because we MIGHT be missint contitent if we are recreated by GRDVPNHelper during credential loading.
 - (BOOL)isEqual:(id)object {
@@ -38,7 +61,7 @@
 }
 
 - (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
-    [[GRDServerManager new] findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
         if (!error) {
             if (completion) {
                 self.bestHost = host;
@@ -56,7 +79,7 @@
 
 - (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)feautreEnv betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:feautreEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:_regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+	[serverManager findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
 		if (!error) {
 			if (completion) {
 				self.bestHost = host;

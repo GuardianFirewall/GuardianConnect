@@ -63,7 +63,7 @@
 	return YES;
 }
 
-+ (void)currentDeviceWithCompletion:(void (^)(GRDConnectDevice * _Nullable, NSError * _Nullable))completion {
++ (void)currentDeviceWithCompletion:(void (^)(GRDConnectDevice * _Nullable_result, NSError * _Nullable))completion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSData *deviceDict = [defaults objectForKey:kGuardianConnectDevice];
 	if (deviceDict == nil) {
