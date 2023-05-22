@@ -72,7 +72,7 @@
 - (NSError *)store {
 	OSStatus storeStatus = [GRDKeychain storePassword:self.token forAccount:kKeychainStr_PEToken];
 	if (storeStatus != errSecSuccess) {
-		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to store PE-Token in the local keychain"];
+		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store PE-Token in the local keychain. Keychain error code: %d", storeStatus]];
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:self.expirationDate forKey:kGuardianPETokenExpirationDate];
@@ -83,7 +83,7 @@
 - (NSError *)destroy {
 	OSStatus deleteStatus = [GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
 	if (deleteStatus != errSecSuccess && deleteStatus != errSecItemNotFound) {
-		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete PE-Token from the local keychain"];
+		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to delete PE-Token from the local keychain. Keychain error code: %d", deleteStatus]];
 	}
 	
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey:kGuardianPETokenExpirationDate];
