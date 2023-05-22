@@ -22,6 +22,8 @@
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
+	[self checkCustomValues];
+	
 	NSString *baseHostname = kConnectAPIHostname;
 	if (self.connectAPIHostname != nil || [self.connectAPIHostname isEqualToString:@""] == NO) {
 		baseHostname = self.connectAPIHostname;
@@ -30,6 +32,9 @@
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", baseHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	if ([self publishableKey] != nil) {
+		[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
+	}
 	
 	return request;
 }
@@ -131,7 +136,7 @@
 }
 
 - (void)verifyReceiptData:(NSString *)encodedReceiptData bundleId:(NSString *)bundleId completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.172:8080/api/v1.3/verify-receipt"]];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.3/verify-receipt"]];
 	if (encodedReceiptData == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 		if (receiptData == nil) {
@@ -186,7 +191,6 @@
 }
 
 - (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
-	[self checkCustomValues];
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
 	
 	NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
@@ -251,9 +255,6 @@
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
-	if ([self publishableKey] != nil) {
-		[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
-	}
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -360,8 +361,8 @@
     [task resume];
 }
 
-- (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable, NSString * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/info-for-pe-token"]];
+- (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1/users/info-for-pe-token"];
     
     NSData *jsonDict = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": token} options:0 error:nil];
     [request setHTTPBody:jsonDict];
@@ -376,35 +377,27 @@
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
             GRDLog(@"Failed to send request: %@", [error localizedDescription]);
-            if (completion) completion(nil, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]], NO);
+            if (completion) completion(nil, error);
             return;
         }
         
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Internal server error");
-            if (completion) completion(nil, @"Internal server error requesting information for your authentication token. Please try again. If this issue persists please contact our technical support.", NO);
-            return;
+        if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
             
-        } else if (statusCode == 400) {
-            GRDLog(@"Bad request");
-            if (completion) completion(nil, @"Badly formatted server request try to query information for your authentication token. Please try again. If this issue persists please contact our technical support.", NO);
-            return;
-            
-        } else if (statusCode == 401) {
-            GRDLog(@"Couldn't find pe-token in database");
-            if (completion) completion(nil, @"Unable to find authentication token in database. Please try again. If this issue persists please contact our technical support.", NO);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSDictionary *petInfo = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(petInfo, nil, YES);
-            return;
-            
-        } else {
-            GRDLog(@"Unknown server error: %ld", statusCode);
-            if (completion) completion(nil, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode], NO);
         }
+
+		NSDictionary *petInfo = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+		if (completion) completion(petInfo, nil);
+		return;
     }];
     [task resume];
 }
@@ -561,7 +554,6 @@
 # pragma mark - Connect Subscriber
 
 - (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -572,7 +564,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscribers/new"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -613,7 +604,6 @@
 }
 
 - (void)updateConnectSubscriberWith:(NSString *)email identifier:(NSString *)identifier secret:(NSString *)secret andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -624,7 +614,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/update"];
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -665,7 +654,6 @@
 }
 
 - (void)validateConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, kKeychainStr_PEToken: pet} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -676,7 +664,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/validate"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -717,7 +704,6 @@
 }
 
 - (void)logoutConnectSubscriberWithPEToken:(NSString *)pet andCompletion:(void (^)(NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_PEToken: pet} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -728,7 +714,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/logout"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -766,7 +751,6 @@
 # pragma mark - Connect Devices
 
 - (void)addConnectDeviceWith:(NSString *)peToken nickname:(NSString *)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-nickname": nickname, @"ep-grd-device-accepted-tos": [NSNumber numberWithBool:acceptedTOS]} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -777,7 +761,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/add"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -818,7 +801,6 @@
 }
 
 - (void)updateConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken nickname:(NSString *)nickname andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-nickname": nickname, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -829,7 +811,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/update"];
 	[request setHTTPMethod:@"PUT"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -870,7 +851,6 @@
 }
 
 - (void)listConnectDevicesFor:(NSString *)peToken withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -881,7 +861,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/list"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -922,7 +901,6 @@
 }
 
 - (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -933,7 +911,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/delete"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -967,7 +944,6 @@
 }
 
 - (void)validateConnectDevicePEToken:(NSString *)peToken andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
-	[self checkCustomValues];
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
@@ -978,7 +954,6 @@
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device/validate"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
-	[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	[request setTimeoutInterval:30];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];

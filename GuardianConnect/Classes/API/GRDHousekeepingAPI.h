@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
 /// @param completion completion block returning NSDictionary with information for the requested token, an error message and a bool indicating success of the request
-- (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable peTokenInfo, NSString * _Nullable errorMessage, BOOL success))completion;
+- (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable peTokenInfo, NSError * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1.2/verify-receipt
 /// Used to verify the current subscription status of a user if they subscribed through an in-app purchase. Returns an array containing only valid subscriptions / purchases
