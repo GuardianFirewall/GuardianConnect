@@ -67,6 +67,13 @@
 		region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
 		region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
 		_selectedRegion = region;
+		
+	} else {
+		//
+		// Note from CJ 2023-05-26
+		// Ensure that the automatic region is selected if
+		// no region override is detected
+		[self selectRegion:nil];
 	}
 }
 
