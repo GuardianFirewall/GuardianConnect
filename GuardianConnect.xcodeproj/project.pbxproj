@@ -1342,7 +1342,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SERIALIZE_DEBUGGING_OPTIONS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1376,7 +1376,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 				SWIFT_SERIALIZE_DEBUGGING_OPTIONS = NO;
 				SWIFT_VERSION = 5.0;
 			};
