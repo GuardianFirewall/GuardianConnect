@@ -45,6 +45,8 @@ static NSString * const kGRDWGIPv4Address                               = @"mapp
 static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
 static NSString * const kGRDClientId                               		= @"client-id";
 
+
+static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
 static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
 static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
 static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
