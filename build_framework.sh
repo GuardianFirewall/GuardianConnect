@@ -13,7 +13,7 @@ rm -rf GuardianConnect.xcframework.zip
 # Build for iphoneos, iphonesimulator & macosx targets
 xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -archivePath './build-archives/GuardianConnect-iossimulator.xcarchive' SKIP_INSTALL=NO
 xcodebuild clean archive -scheme GuardianConnect -target GuardianConnect -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -archivePath './build-archives/GuardianConnect-ios.xcarchive' SKIP_INSTALL=NO
-xcodebuild clean archive -scheme GuardianConnectMac -target GuardianConnectMac -configuration Release -sdk macosx -archivePath './build-archives/GuardianConnect-macos.xcarchive'
+xcodebuild clean archive -scheme GuardianConnectMac -target GuardianConnectMac -configuration Release -sdk macosx -archivePath './build-archives/GuardianConnect-macos.xcarchive' SKIP_INSTALL=NO
 
 
 # keep track of our current working directory
