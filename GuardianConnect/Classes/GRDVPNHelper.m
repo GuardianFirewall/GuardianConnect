@@ -59,14 +59,29 @@
 }
 
 - (void)_loadCredentialsFromKeychain {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	GRDCredential *main = [GRDCredentialManager mainCredentials];
 	[self setMainCredential:main];
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([defaults boolForKey:kGuardianUseFauxTimeZone]) {
-		GRDRegion *region = [[GRDRegion alloc] init];
-		region.regionName = [defaults valueForKey:kGuardianFauxTimeZone];
-		region.displayName = [defaults valueForKey:kGuardianFauxTimeZonePretty];
-		_selectedRegion = region;
+	
+	GRDPEToken *pet = [GRDPEToken currentPEToken];
+	if (pet != nil) {
+		self.connectAPIHostname = pet.connectAPIEnv;
+	}
+	
+	if ([defaults valueForKey:kGuardianRegionOverride] != nil) {
+		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
+		
+		NSError *unarchiveErr;
+		GRDRegion *region = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], nil] fromData:regionData error:&unarchiveErr];
+		if (unarchiveErr != nil) {
+			GRDErrorLogg(@"Failed to restore selected region from user defaults: %@", [unarchiveErr localizedDescription]);
+			[defaults removeObjectForKey:kGuardianRegionOverride];
+			
+			self.selectedRegion = nil;
+			return;
+		}
+		
+		self.selectedRegion = region;
 		
 	} else {
 		//
@@ -1496,27 +1511,30 @@
 	}];
 }
 
-- (void)selectRegion:(GRDRegion * _Nullable)selectedRegion {
+- (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)selectedRegion {
 	_selectedRegion = selectedRegion;
-	NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if (selectedRegion != nil && selectedRegion.isAutomatic == NO) {
-		[def setBool:YES forKey:kGuardianUseFauxTimeZone];
-		[def setObject:selectedRegion.regionName forKey:kGuardianFauxTimeZone];
-		[def setObject:selectedRegion.displayName forKey:kGuardianFauxTimeZonePretty];
+		NSError *archiveErr;
+		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:selectedRegion requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			return archiveErr;
+		}
+		[defaults setObject:regionData forKey:kGuardianRegionOverride];
 		
 	} else {
 		//resetting the value to nil, (Automatic)
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
-		_selectedRegion = nil;
-		[def removeObjectForKey:kGRDHostnameOverride];
-		[def removeObjectForKey:kGRDVPNHostLocation];
-		[def setBool:NO forKey:kGuardianUseFauxTimeZone];
-		[def removeObjectForKey:kGuardianFauxTimeZone];
-		[def removeObjectForKey:kGuardianFauxTimeZonePretty];
+		self.selectedRegion = nil;
+		[defaults removeObjectForKey:kGRDHostnameOverride];
+		[defaults removeObjectForKey:kGRDVPNHostLocation];
+		[defaults setBool:NO forKey:kGuardianUseFauxTimeZone];
+		[defaults removeObjectForKey:kGuardianFauxTimeZone];
+		[defaults removeObjectForKey:kGuardianFauxTimeZonePretty];
 	}
+	
+	return nil;
 }
-
-
 
 - (void)clearLocalCache {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

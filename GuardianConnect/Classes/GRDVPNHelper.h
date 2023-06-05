@@ -10,6 +10,7 @@
 #import <NetworkExtension/NetworkExtension.h>
 
 #import <GuardianConnect/Shared.h>
+#import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
@@ -291,7 +292,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
-- (void)selectRegion:(GRDRegion * _Nullable)region;
+- (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)region;
 
 /// Migrate the user to a new server. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;
