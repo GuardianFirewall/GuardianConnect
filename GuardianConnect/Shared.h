@@ -85,6 +85,7 @@ static NSString * const kGuardianSubscriptionTypeProfessionalBrave      = @"brav
 static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRDFreeTrialPETokenSet";
 static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
 static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
+static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
 
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 

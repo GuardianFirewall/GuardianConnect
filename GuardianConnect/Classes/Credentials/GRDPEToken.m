@@ -24,7 +24,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"[GRDPEToken] \rtoken: %@ \rexpiration-date: %@ (unix: %ld)", self.token, self.expirationDate, self.expirationDateUnix];
+	return [NSString stringWithFormat:@"[GRDPEToken] \rtoken: %@ \rconnect-api-env: %@ \rexpiration-date: %@ (unix: %ld)", self.token, self.connectAPIEnv, self.expirationDate, self.expirationDateUnix];
 }
 
 
@@ -33,11 +33,16 @@
 	if (petString == nil || [petString isEqualToString:@""]) {
 		return nil;
 	}
-	
-	NSDate *petExpires = [[NSUserDefaults standardUserDefaults] objectForKey:kGuardianPETokenExpirationDate];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *connectAPIEnv = [defaults stringForKey:kGuardianPETConnectAPIEnv];
+//	if (connectAPIEnv == nil || [connectAPIEnv isEqualToString:@""]) {
+//		connectAPIEnv = kConnectAPIHostname;
+//	}
+	NSDate *petExpires = [defaults objectForKey:kGuardianPETokenExpirationDate];
 	
 	GRDPEToken *pet = [GRDPEToken new];
 	[pet setToken:petString];
+	[pet setConnectAPIEnv:connectAPIEnv];
 	[pet setExpirationDate:petExpires];
 	[pet setExpirationDateUnix:[petExpires timeIntervalSince1970]];
 	
@@ -75,7 +80,9 @@
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store PE-Token in the local keychain. Keychain error code: %d", storeStatus]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setObject:self.expirationDate forKey:kGuardianPETokenExpirationDate];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setObject:self.connectAPIEnv forKey:kGuardianPETConnectAPIEnv];
+	[defaults setObject:self.expirationDate forKey:kGuardianPETokenExpirationDate];
 	
 	return nil;
 }
@@ -86,7 +93,9 @@
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to delete PE-Token from the local keychain. Keychain error code: %d", deleteStatus]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] removeObjectForKey:kGuardianPETokenExpirationDate];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:kGuardianPETConnectAPIEnv];
+	[defaults removeObjectForKey:kGuardianPETokenExpirationDate];
 	
 	return nil;
 }
