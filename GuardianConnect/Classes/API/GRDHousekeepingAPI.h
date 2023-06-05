@@ -12,7 +12,7 @@
 #import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDAPIError.h>
 
-#define kConnectAPIHostname @"connect-api.guardianapp.com"
+//#define kConnectAPIHostname @"connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 

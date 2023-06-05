@@ -35,9 +35,9 @@
 	}
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *connectAPIEnv = [defaults stringForKey:kGuardianPETConnectAPIEnv];
-//	if (connectAPIEnv == nil || [connectAPIEnv isEqualToString:@""]) {
-//		connectAPIEnv = kConnectAPIHostname;
-//	}
+	if (connectAPIEnv == nil || [connectAPIEnv isEqualToString:@""]) {
+		connectAPIEnv = kConnectAPIHostname;
+	}
 	NSDate *petExpires = [defaults objectForKey:kGuardianPETokenExpirationDate];
 	
 	GRDPEToken *pet = [GRDPEToken new];
