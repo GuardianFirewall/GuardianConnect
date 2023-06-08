@@ -17,6 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// The Password Equivalent Token itself
 @property (nullable) NSString 	*token;
 
+/// The GuardianConnect API environment the PET is associated with
+@property (nullable) NSString 	*connectAPIEnv;
+
 /// The PETs expiration date
 @property (nullable) NSDate 	*expirationDate;
 

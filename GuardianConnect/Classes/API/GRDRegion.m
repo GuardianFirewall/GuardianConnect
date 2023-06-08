@@ -36,6 +36,7 @@
 		self.displayName 	= [coder decodeObjectForKey:@"name-pretty"];
 		self.isAutomatic 	= [[coder decodeObjectForKey:@"is-automatic"] boolValue];
 	}
+	
 	return self;
 }
 

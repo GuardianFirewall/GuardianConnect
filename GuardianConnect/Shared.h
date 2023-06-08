@@ -22,6 +22,9 @@ static NSString * const kAppNeedsSelfRepair                             = @"guar
 
 #pragma mark - Housekeeping / Region / Timezone
 
+/// Public production Connect API environment
+static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
+
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
@@ -45,6 +48,8 @@ static NSString * const kGRDWGIPv4Address                               = @"mapp
 static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
 static NSString * const kGRDClientId                               		= @"client-id";
 
+
+static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
 static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
 static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
 static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
@@ -85,6 +90,7 @@ static NSString * const kGuardianSubscriptionTypeProfessionalBrave      = @"brav
 static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRDFreeTrialPETokenSet";
 static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
 static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
+static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
 
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
