@@ -47,6 +47,10 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// GuardianConnect app public key used to authenticate API requests
 @property (nonatomic, strong) NSString *_Nullable publishableKey;
 
+/// Helper function to quickly determine the correct Connect API env the request should be send to
+/// @param apiEndpoint the Connect REST API endpoint that the request should be sent to
+- (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint;
+
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
 /// @param completion completion block returning NSDictionary with information for the requested token, an error message and a bool indicating success of the request
