@@ -19,6 +19,9 @@
 		self.connectAPIHostname = customConnectAPIHostname;
 	}
 	self.publishableKey = [[GRDVPNHelper sharedInstance] connectPublishableKey];
+	
+	GRDDebugLog(@"Connect API: %@", self.connectAPIHostname);
+	GRDDebugLog(@"Connect API publishable key: %@", self.publishableKey);
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
