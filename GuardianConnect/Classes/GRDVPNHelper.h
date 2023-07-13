@@ -56,10 +56,10 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
 /// If no custom hostname is provided, the default public Connect API hostname is going to be used
-@property NSString *connectAPIHostname;
+@property (nonatomic, strong) NSString * _Nullable connectAPIHostname;
 
 /// GuardianConnect app key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable connectPublishableKey;
+@property (nonatomic, strong) NSString * _Nullable connectPublishableKey;
 
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
