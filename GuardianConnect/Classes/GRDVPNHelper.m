@@ -416,7 +416,7 @@
 
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode statusCode))completion {
 	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [defaults objectForKey:kGRDHostnameOverride];
+	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
 	
 	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
 		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
@@ -533,7 +533,7 @@
 
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [defaults objectForKey:kGRDHostnameOverride];
+	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
 	
 	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
 		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
