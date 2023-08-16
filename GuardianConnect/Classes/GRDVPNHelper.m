@@ -1139,6 +1139,7 @@
 - (void)disconnectVPNWithCompletion:(void (^)(NSError * _Nullable))completion {
 	NEVPNManager *vpnManager = [NEVPNManager sharedManager];
 	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
+	__block BOOL completionHandlerCalled = NO;
 	
 	if (vpnManager.enabled == YES) {
 		GRDLogg(@"Disconnecting IKEv2 VPN");
@@ -1153,6 +1154,7 @@
 		[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
 			[[vpnManager connection] stopVPNTunnel];
 			if (completion) completion(saveErr);
+			completionHandlerCalled = YES;
 		}];
 	}
 	
@@ -1172,6 +1174,7 @@
 		[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 			if (error != nil) {
 				if (completion) completion(error);
+				completionHandlerCalled = YES;
 			}
 		}];
 		// Note from CJ 2023-02-20
@@ -1181,13 +1184,19 @@
 		// This might seem very dangerous but should remain as is for now
 		[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
 		if (completion) completion(nil);
+		completionHandlerCalled = YES;
 		
 #else
 		[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
 			[(NETunnelProviderSession *)tunnelManager.connection stopVPNTunnel];
 			if (completion) completion(saveErr);
+			completionHandlerCalled = YES;
 		}];
 #endif
+	}
+	
+	if (completionHandlerCalled == NO) {
+		if (completion) completion(nil);
 	}
 }
 
