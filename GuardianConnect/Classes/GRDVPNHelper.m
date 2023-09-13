@@ -864,6 +864,11 @@
 		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username = [self.mainCredential clientId];
+		
+		NEProxySettings *proxSettings = [self proxySettings];
+		if (proxSettings) {
+			protocol.proxySettings = proxSettings;
+		}
         
         if (@available(iOS 14.2, *)) {
             protocol.includeAllNetworks = self.killSwitchEnabled;
@@ -987,6 +992,11 @@
 		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username = [self.mainCredential clientId];
+		
+		NEProxySettings *proxSettings = [self proxySettings];
+		if (proxSettings) {
+			protocol.proxySettings = proxSettings;
+		}
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.killSwitchEnabled;
