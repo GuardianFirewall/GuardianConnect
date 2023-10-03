@@ -52,13 +52,13 @@
 	return YES;
 }
 
-
 //overriding equality check because we MIGHT be missint contitent if we are recreated by GRDVPNHelper during credential loading.
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:self.class]) {
         return false;
     }
-    return (self.regionName == [object regionName] && self.displayName == [object displayName]);
+	
+	return ([self.regionName isEqualToString:[object regionName]] && [self.displayName isEqualToString:[object displayName]]);
 }
 
 - (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
