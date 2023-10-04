@@ -126,7 +126,7 @@
 }
 
 + (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] listConnectDevicesFor:peToken withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
+	[[GRDHousekeepingAPI new] listConnectDevicesForPEToken:peToken orIdentifier:nil andSecret:nil withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -143,8 +143,8 @@
 	}];
 }
 
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken andCompletion:^(NSError * _Nullable errorMessage) {
+- (void)deleteDeviceWithPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken orIdentifier:identifier andSecret:secret andCompletion:^(NSError * _Nullable errorMessage) {
 		if (completion) completion(errorMessage);
 		return;
 	}];

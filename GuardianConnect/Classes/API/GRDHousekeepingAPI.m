@@ -853,9 +853,23 @@
 	[task resume];
 }
 
-- (void)listConnectDevicesFor:(NSString *)peToken withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+- (void)listConnectDevicesForPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	if (peToken == nil && [peToken isEqualToString:@""] && identifier == nil && [identifier isEqualToString:@""] && secret == nil && [secret isEqualToString:@""]) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to send API request. Did not receive a PE-Token or a subscriber identifier & secret!"]);
+		return;
+	}
+	
+	NSMutableDictionary *body = [NSMutableDictionary new];
+	if (peToken != nil) {
+		[body setObject:peToken forKey:@"pe-token"];
+		
+	} else {
+		[body setObject:identifier forKey:@"ep-grd-subscriber-identifier"];
+		[body setObject:secret forKey:@"ep-grd-subscriber-secret"];
+	}
+	
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
@@ -903,9 +917,25 @@
 	[task resume];
 }
 
-- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
+- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable))completion {
+	if (peToken == nil && [peToken isEqualToString:@""] && identifier == nil && [identifier isEqualToString:@""] && secret == nil && [secret isEqualToString:@""]) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to send API request. Did not receive a PE-Token or a subscriber identifier & secret!"]);
+		return;
+	}
+	
+	NSMutableDictionary *body = [NSMutableDictionary new];
+	[body setObject:deviceUUID forKey:@"ep-grd-device-uuid"];
+	
+	if (peToken != nil) {
+		[body setObject:peToken forKey:@"pe-token"];
+		
+	} else {
+		[body setObject:identifier forKey:@"ep-grd-subscriber-identifier"];
+		[body setObject:secret forKey:@"ep-grd-subscriber-secret"];
+	}
+	
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;

@@ -123,14 +123,19 @@
 }
 
 - (void)allDevicesWithCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
-	NSString *peToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-	if (peToken == nil || [peToken isEqualToString:@""]) {
-		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to fetch devices. No PE-Token available"]);
-		return;
-	}
-	
-	[GRDConnectDevice listConnectDevicesForPEToken:peToken withCompletion:^(NSArray<GRDConnectDevice *> * _Nullable devices, NSError * _Nullable errorMessage) {
-		if (completion) completion(devices, errorMessage);
+	[[GRDHousekeepingAPI new] listConnectDevicesForPEToken:nil orIdentifier:self.identifier andSecret:self.identifier withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			if (completion) completion(nil, errorMessage);
+			return;
+		}
+		
+		NSMutableArray *parsedDevices = [NSMutableArray new];
+		for (NSDictionary *deviceDict in devices) {
+			GRDConnectDevice *device = [[GRDConnectDevice alloc] initFromDictionary:deviceDict];
+			[parsedDevices addObject:device];
+		}
+		
+		if (completion) completion(parsedDevices, nil);
 		return;
 	}];
 }

@@ -81,9 +81,11 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 
 /// Convenience wrapper around the Connect API endpoint to delete a Connect device permanently. Once complete the Connect device is unable to reconnect as it cannot create new Subscriber Credentials
 /// - Parameters:
-///   - peToken: the Connect subscriber's PET this device is associated with
+///   - peToken: the Connect Subscriber's PET this device is associated with (not-preferred; support may be deprecated at any moment)
+///   - identifier: the Connect Subscriber's identifier to authenticate the user's action alongside the Connect Subscriber's secret
+///   - secret: the Connect Subscriber's secret to authenticate the user's action alongside the Connect Subscriber' identifier
 ///   - completion: completion block containing an error message in case of a failure. If nil is returned the action was successful
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
+- (void)deleteDeviceWithPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 
 /// Convenience wrapper around the Connect API endpoint to validate the Connect device's PET.

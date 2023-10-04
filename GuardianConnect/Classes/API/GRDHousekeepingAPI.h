@@ -109,9 +109,9 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 - (void)updateConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)listConnectDevicesFor:(NSString * _Nonnull)peToken withCompletion:(void (^)(NSArray * _Nullable devices, NSError * _Nullable errorMessage))completion;
+- (void)listConnectDevicesForPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret withCompletion:(void (^)(NSArray * _Nullable devices, NSError * _Nullable errorMessage))completion;
 
-- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
+- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 - (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
