@@ -37,6 +37,9 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 /// The timestamp at which the device was created. The date is passed as a JSON encoded Unix timestamp in API calls and is computed into an NSDate
 @property NSDate 	*createdAt;
 
+/// Indicator to allow the user to identify which device in a list of GRDConnectDevices is the current device the user is interacting with
+@property BOOL currentDevice;
+
 
 /// Convenience method to quickly create a GRDConnectDevice object from a dictionary containing key/value pairs returned by the GuardianConnect API
 /// - Parameter deviceDictionary: a dictionary containing key/value pairs that represent a GRDConnectDevice object

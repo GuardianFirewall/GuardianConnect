@@ -28,7 +28,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"\r[GRDConnectDevice]\r nickname: %@\r uuid: %@\r created-at: %@ (unix: %ld)", self.nickname, self.uuid, self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
+	return [NSString stringWithFormat:@"\r[GRDConnectDevice]\r  nickname: %@\r  uuid: %@\r  created-at: %@ (unix: %ld)\r  current-device: %@", self.nickname, self.uuid, self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970], self.currentDevice ? @"YES" : @"NO"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
