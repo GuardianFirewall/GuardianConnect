@@ -123,20 +123,25 @@
 }
 
 - (void)allDevicesWithCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] listConnectDevicesForPEToken:nil orIdentifier:self.identifier andSecret:self.identifier withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
-		if (errorMessage != nil) {
-			if (completion) completion(nil, errorMessage);
+	[GRDConnectDevice currentDeviceWithCompletion:^(GRDConnectDevice * _Nullable_result currentDevice, NSError * _Nullable error) {
+		[[GRDHousekeepingAPI new] listConnectDevicesForPEToken:nil orIdentifier:self.identifier andSecret:self.secret withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
+			if (errorMessage != nil) {
+				if (completion) completion(nil, errorMessage);
+				return;
+			}
+			
+			NSMutableArray *parsedDevices = [NSMutableArray new];
+			for (NSDictionary *deviceDict in devices) {
+				GRDConnectDevice *device = [[GRDConnectDevice alloc] initFromDictionary:deviceDict];
+				if ([device.uuid isEqualToString:currentDevice.uuid] == YES) {
+					device.currentDevice = YES;
+				}
+				[parsedDevices addObject:device];
+			}
+			
+			if (completion) completion(parsedDevices, nil);
 			return;
-		}
-		
-		NSMutableArray *parsedDevices = [NSMutableArray new];
-		for (NSDictionary *deviceDict in devices) {
-			GRDConnectDevice *device = [[GRDConnectDevice alloc] initFromDictionary:deviceDict];
-			[parsedDevices addObject:device];
-		}
-		
-		if (completion) completion(parsedDevices, nil);
-		return;
+		}];
 	}];
 }
 
