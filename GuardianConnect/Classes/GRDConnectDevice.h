@@ -12,6 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString * const kGuardianConnectDeviceKey		 	= @"ep-grd-device";
 static NSString * const kGuardianConnectDeviceNicknameKey 	= @"ep-grd-device-nickname";
 static NSString * const kGuardianConnectDeviceUUIDKey 		= @"ep-grd-device-uuid";
 static NSString * const kGuardianConnectDeviceCreatedAtKey 	= @"ep-grd-device-created-at";
@@ -54,10 +55,15 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 
 /// Stores an encoded GRDConnectDevice object in NSUserDefaults
 ///
-/// This method should only be used in the context of a Connect device being the main user on the device
+/// This method should only be used in the context of a Connect Device being the main user on the local device
 /// This method ensures that the device's PET is never written into NSUserDeafults in plaintext and it is instead stored securely on device in the keychain
 - (NSError *)store;
 
+
+/// Destroys the current GRDConnectDevice object in NSUserDefaults and associated information
+///
+/// This method should only be used in the context of a Connect Device being the main user on the local device
++ (NSError *)destroy;
 
 # pragma mark - API Wrappers
 

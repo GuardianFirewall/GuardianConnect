@@ -72,7 +72,7 @@
 	}
 	
 	NSError *unarchiveErr;
-	GRDConnectDevice *device = [NSKeyedUnarchiver unarchivedObjectOfClass:[GRDConnectDevice class] fromData:deviceDict error:&unarchiveErr];
+	GRDConnectDevice *device = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDConnectDevice class], [NSString class], [NSNumber class], [NSDate class], nil] fromData:deviceDict error:&unarchiveErr];
 	
 	if (completion) completion(device, unarchiveErr);
 }
@@ -88,6 +88,18 @@
 	
 	[[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:kGuardianConnectDevice];
 	
+	return nil;
+}
+
++ (NSError *)destroy {
+	[[NSUserDefaults standardUserDefaults] removeObjectForKey:kGuardianConnectDevice];
+	
+	//
+	// Note from CJ 2023-11-23
+	// Making this return a NSError now even though we will never need it at the moment, hence the
+	// the hardcoded nil return value. We may interact with the keychain in future iterations
+	// at which point we will need to communicate errors back to the caller, so this is me
+	// attempting to future proof this method
 	return nil;
 }
 
