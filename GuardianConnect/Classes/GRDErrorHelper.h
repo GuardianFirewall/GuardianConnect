@@ -16,6 +16,11 @@ static NSInteger const kGRDGenericErrorCode = 0;
 
 @interface GRDErrorHelper : NSObject
 
+typedef NS_ENUM(NSInteger, GRDErrorHelperErrorCode) {
+	GRDErrGenericErrorCode,
+	GRDErrGuardianAccountNotSetup,
+};
+
 + (NSError *)errorWithErrorCode:(NSInteger)code andErrorMessage:(NSString *)errorMessage;
 
 @end
