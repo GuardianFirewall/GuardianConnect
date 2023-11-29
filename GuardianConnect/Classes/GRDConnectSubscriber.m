@@ -23,6 +23,11 @@
 		
 		NSNumber *createdAtDateUnix = [dict objectForKey:kGuardianConnectSubscriberCreatedAtKey];
 		self.createdAt = [NSDate dateWithTimeIntervalSince1970:[createdAtDateUnix integerValue]];
+		
+		NSDictionary *deviceDict = [dict objectForKey:kGuardianConnectDeviceKey];
+		if (deviceDict != nil) {
+			self.device = [[GRDConnectDevice alloc] initFromDictionary:deviceDict];
+		}
 	}
 	
 	return self;
@@ -45,6 +50,8 @@
 		
 		NSNumber *createdAtUnix = [coder decodeObjectForKey:kGuardianConnectSubscriberCreatedAtKey];
 		self.createdAt = [NSDate dateWithTimeIntervalSince1970:[createdAtUnix integerValue]];
+		
+		self.device = [coder decodeObjectForKey:kGuardianConnectDeviceKey];
 	}
 	
 	return self;
@@ -61,6 +68,8 @@
 	
 	NSNumber *createdAtUnix = [NSNumber numberWithInteger:[self.createdAt timeIntervalSince1970]];
 	[coder encodeObject:createdAtUnix forKey:kGuardianConnectSubscriberCreatedAtKey];
+	
+	[coder encodeObject:self.device forKey:kGuardianConnectDeviceKey];
 }
 
 + (BOOL)supportsSecureCoding {
@@ -76,10 +85,18 @@
 	}
 
 	NSError *unarchiveErr;
-	GRDConnectSubscriber *subscriber = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDConnectSubscriber class], [NSString class], [NSNumber class], [NSDate class], nil] fromData:subscriberDict error:&unarchiveErr];
+	GRDConnectSubscriber *subscriber = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDConnectSubscriber class], [GRDConnectDevice class], [NSString class], [NSNumber class], [NSDate class], nil] fromData:subscriberDict error:&unarchiveErr];
 	subscriber.secret = [GRDKeychain getPasswordStringForAccount:kGuardianConnectSubscriberSecret];
 	
-	if (completion) completion(subscriber, unarchiveErr);
+	[GRDConnectDevice currentDeviceWithCompletion:^(GRDConnectDevice * _Nullable_result device, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, error);
+			return;
+		}
+		
+		subscriber.device = device;
+		if (completion) completion(subscriber, unarchiveErr);
+	}];
 }
 
 - (NSError *)store {
@@ -101,6 +118,14 @@
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:subscriberData forKey:kGuardianConnectSubscriber];
+	
+	if (self.device != nil) {
+		NSError *storeErr = [self.device store];
+		if (storeErr != nil) {
+			return storeErr;
+		}
+	}
+	
 	return nil;
 }
 
@@ -142,6 +167,31 @@
 			if (completion) completion(parsedDevices, nil);
 			return;
 		}];
+	}];
+}
+
+- (void)connectDeviceReferenceWithCompletion:(void (^)(GRDConnectDevice * _Nullable, NSError * _Nullable))completion {
+	GRDPEToken *peToken = [GRDPEToken currentPEToken];
+	if (peToken == nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No PE-Token present on device"]);
+		return;
+	}
+	
+	[[GRDHousekeepingAPI new] connectDeviceReferenceForConnectSubscriber:self.identifier secret:self.secret PEToken:peToken.token completion:^(NSDictionary * _Nullable deviceDetails, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to obtain Connect Device reference: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		GRDConnectDevice *device = [[GRDConnectDevice alloc] initFromDictionary:deviceDetails];
+		[device setPeToken:peToken.token];
+		[device setPetExpires:peToken.expirationDate];
+		//
+		// Note from CJ 2023-11-22
+		// The 'currentDevice' property is hard coded to YES here as we are grabbing 
+		// a Connect Device reference for the Connect Subscriber's PET from the API.
+		[device setCurrentDevice:YES];
+		if (completion) completion(device, nil);
 	}];
 }
 
@@ -190,6 +240,18 @@
 		
 		if (completion) completion(newSubscriber, nil);
 		return;
+	}];
+}
+
+- (void)checkGuardianAccountSetupStateWithCompletion:(void (^)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] checkConnectSubscriberGuardianAccountCreationStateWithIdentifier:self.identifier secret:self.secret completion:^(NSError * _Nullable error) {
+		if (error != nil) {
+			if (error.code == GRDErrGuardianAccountNotSetup) {
+				GRDErrorLogg(@"Guardian account not yet setup");
+			}
+		}
+		
+		if (completion) completion(error);
 	}];
 }
 

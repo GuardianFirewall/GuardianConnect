@@ -48,6 +48,8 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 /// The date the Connect subscriber was first registered. The date is passed as a JSON encoded Unix timestamp in the API calls and is computed into an NSDate
 @property NSDate 	*createdAt;
 
+@property GRDConnectDevice * _Nullable device;
+
 
 /// Convenience function to quickly create a GRDConnectSubscriber from a dictionary containing key/value pairs returned by the GuardianConnect API
 /// - Parameter dict: NSDictionary with decoded from JSON data containing key value pairs that represent a GRDConnectSubscriber object
@@ -67,6 +69,10 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 /// - Parameter completion: completion block containing the GRDConnectDevice objects as well as an error message. errorMessage will be returned as nil if no error occurred in the process of getting the list of devices
 - (void)allDevicesWithCompletion:(void (^)(NSArray <GRDConnectDevice *> * _Nullable devices, NSError * _Nullable errorMessage))completion;
 
+/// Convenience function to grab the Connect Device reference for the Connect Subscriber's current PET
+/// - Parameter completion: completion block containing the GRDConnectDevice reference as well as an error. error will be returned as nil if no error occured in the process of fetching the device reference
+- (void)connectDeviceReferenceWithCompletion:(void (^)(GRDConnectDevice * _Nullable device, NSError * _Nullable error))completion;
+
 
 # pragma mark - API Wrappers
 
@@ -75,6 +81,8 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 ///   - acceptedTOS: indicator to ensure that the new subscriber has accepted the TOS
 ///   - completion: completion block returning a GRDConnectSubscriber object of the new subscriber if registration was successful. If an error occurred during registration an error message is provided. If no error occured the errorMessage will be nil
 - (void)registerNewConnectSubscriber:(BOOL)acceptedTOS withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion;
+
+- (void)checkGuardianAccountSetupStateWithCompletion:(void (^)(NSError * _Nullable error))completion;
 
 /// Convenience wrapper around the Connect API endpoint to quickly update a GuardianConnect subscriber's E-Mail address. If successful the Connect subscriber will be stored automatically on the device
 /// - Parameters:
