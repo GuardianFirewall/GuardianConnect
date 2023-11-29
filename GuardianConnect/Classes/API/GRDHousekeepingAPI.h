@@ -96,11 +96,17 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 - (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
+- (void)connectDeviceReferenceForConnectSubscriber:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret PEToken:(NSString * _Nonnull)peToken completion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable error))completion;
+
 - (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
 - (void)validateConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret pet:(NSString * _Nonnull)pet andCompletion:(void (^)(NSDictionary * _Nullable details, NSError * _Nullable errorMessage))completion;
 
 - (void)logoutConnectSubscriberWithPEToken:(NSString *)pet andCompletion:(void (^)(NSError * _Nullable error))completion;
+
+
+
+- (void)checkConnectSubscriberGuardianAccountCreationStateWithIdentifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret completion:(void (^)(NSError * _Nullable error))completion;
 
 
 # pragma mark - Connect Subscriber Devices
