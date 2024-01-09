@@ -1037,7 +1037,7 @@
 		return;
 	}
 	
-	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/delete"];
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device/delete"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
