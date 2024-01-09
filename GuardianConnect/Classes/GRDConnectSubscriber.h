@@ -19,6 +19,7 @@ static NSString * const kGuardianConnectSubscriber 								= @"kGuardianConnectS
 static NSString * const kGuardianConnectSubscriberIdentifierKey 				= @"ep-grd-subscriber-identifier";
 static NSString * const kGuardianConnectSubscriberSecretKey 					= @"ep-grd-subscriber-secret";
 static NSString * const kGuardianConnectSubscriberEmailKey 						= @"ep-grd-subscriber-email";
+static NSString * const kGuardianConnectSubscriberPETNicknameKey				= @"ep-grd-subscriber-pet-nickname";
 static NSString * const kGuardianConnectSubscriberSubscriptionSKUKey 			= @"ep-grd-subscription-sku";
 static NSString * const kGuardianConnectSubscriberSubscriptionNameFormattedKey 	= @"ep-grd-subscription-name-formatted";
 static NSString * const kGuardianConnectSubscriberSubscriptionExpirationDateKey = @"ep-grd-subscription-expiration-date";
@@ -80,7 +81,7 @@ static NSString * const kGuardianConnectSubscriberCreatedAtKey 					= @"ep-grd-s
 /// - Parameters:
 ///   - acceptedTOS: indicator to ensure that the new subscriber has accepted the TOS
 ///   - completion: completion block returning a GRDConnectSubscriber object of the new subscriber if registration was successful. If an error occurred during registration an error message is provided. If no error occured the errorMessage will be nil
-- (void)registerNewConnectSubscriber:(BOOL)acceptedTOS withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion;
+- (void)registerNewConnectSubscriber:(BOOL)acceptedTOS deviceNickname:(NSString * _Nonnull)deviceNickname withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion;
 
 - (void)checkGuardianAccountSetupStateWithCompletion:(void (^)(NSError * _Nullable error))completion;
 

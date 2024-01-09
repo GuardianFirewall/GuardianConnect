@@ -198,7 +198,7 @@
 
 # pragma mark - API Wrappers
 
-- (void)registerNewConnectSubscriber:(BOOL)acceptedTOS withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion {
+- (void)registerNewConnectSubscriber:(BOOL)acceptedTOS deviceNickname:(NSString *)deviceNickname withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion {
 	if (self.identifier == NULL || self.secret == NULL) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to register new Connect subscriber. Either the Connect identifier or secret is missing"]);
 		return;
@@ -208,7 +208,7 @@
 		self.email = @"";
 	}
 	
-	[[GRDHousekeepingAPI new] newConnectSubscriberWith:self.identifier secret:self.secret acceptedTOS:acceptedTOS email:self.email andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
+	[[GRDHousekeepingAPI new] newConnectSubscriberWith:self.identifier secret:self.secret deviceNickname:deviceNickname acceptedTOS:acceptedTOS email:self.email andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;

@@ -94,7 +94,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 # pragma mark - Connect Subscriber
 
-- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
+- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret deviceNickname:(NSString * _Nonnull)deviceNickname  acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
 - (void)connectDeviceReferenceForConnectSubscriber:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret PEToken:(NSString * _Nonnull)peToken completion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable error))completion;
 
