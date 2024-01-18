@@ -61,6 +61,14 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// GuardianConnect app key used to authenticate API requests
 @property (nonatomic, strong) NSString * _Nullable connectPublishableKey;
 
+/// Keeps track of the current preferred Susbcriber Credential validation method
+///
+/// Setting this property will force the -getValidSubscriberCredentialWithCompletion: method
+/// to always use the selected validation method during attempts to generate a new Subscriber Credential.
+/// Use [GRDSubscriberCredential setPreferredValidationMethod:] to store the validation method preference
+/// persistently. GRDVPNHelper will automatically pick the preference up during initialization
+@property (nonatomic) GRDHousekeepingValidationMethod preferredSubscriberCredentialValidationMethod;
+
 /// can be set to true to make - (void)getEvents return dummy alerts for debugging purposes
 @property BOOL dummyDataForDebugging;
 
@@ -254,7 +262,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Safely disconnect from the current VPN node if applicable. This is best to call upon doing disconnections upon app launches. For instance, if a subscription expiration has been detected on launch, disconnect the active VPN connection. This will make certain not to disconnect the VPN if a valid state isnt detected.
 - (void)forceDisconnectVPNIfNecessary;
-
 
 /// There should be no need to call this directly, this is for internal use only.
 - (void)getValidSubscriberCredentialWithCompletion:(void(^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error))completion;

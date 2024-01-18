@@ -68,6 +68,13 @@
 		self.connectAPIHostname = pet.connectAPIEnv;
 	}
 	
+	//
+	// Note from CJ 2024-01-18
+	// This ensures that the property is set to ValidationMethodInvalid if no
+	// preferred validation method is set, which is crucial for the rest of the
+	// system to do the right thing
+	self.preferredSubscriberCredentialValidationMethod = [GRDSubscriberCredential getPreferredValidationMethod];
+	
 	if ([defaults valueForKey:kGuardianRegionOverride] != nil) {
 		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
 		
@@ -1251,15 +1258,6 @@
 # pragma mark - Credential Creation Helper
 
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable errorMessage))completion {
-	// Note from CJ 2023-03-29
-	// This has been a little nonsensical in the current state
-//	if (![GRDSubscriptionManager isPayingUser]) {
-//		if (completion) {
-//			completion(nil, @"A paid account is required to create a subscriber credential.");
-//			return;
-//		}
-//	}
-	
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	BOOL expired = [subCred tokenExpired];
@@ -1268,17 +1266,35 @@
 		// No subscriber credential yet or it is expired. We have to create a new one
 		GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
 		
-		// Default to AppStore Receipt
-		GRDHousekeepingValidationMethod valmethod = ValidationMethodAppStoreReceipt;
+		//
+		// Prepare local variables to generate a new Subscriber Crednetial
+		GRDHousekeepingValidationMethod valmethod = ValidationMethodInvalid;
 		NSMutableDictionary *customKeys = [NSMutableDictionary new];
 		
-		// Check to see if we have a PEToken
-		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-		if (petToken.length > 0) {
-			valmethod = ValidationMethodPEToken;
+		// Check whether a preferred validation method is pre-defined and if yes
+		// exclusively attempt to generate Subscriber Credentials with this validation method
+		if (self.preferredSubscriberCredentialValidationMethod != ValidationMethodInvalid) {
+			valmethod = self.preferredSubscriberCredentialValidationMethod;
+			
+		} else {
+			//
+			// Auto mode attempting to detect what kind of subscription
+			// the current user most likely has...
+			
+			// Default to AppStore Receipt
+			valmethod = ValidationMethodAppStoreReceipt;
+			
+			// Check to see if we have a PEToken
+			NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+			if (petToken.length > 0) {
+				valmethod = ValidationMethodPEToken;
+				
+			} else if (self.customSubscriberCredentialAuthKeys != nil) {
+				valmethod = ValidationMethodCustom;
+			}
+		}
 		
-		} else if (self.customSubscriberCredentialAuthKeys != nil) {
-			valmethod = ValidationMethodCustom;
+		if (valmethod == ValidationMethodCustom) {
 			customKeys = self.customSubscriberCredentialAuthKeys;
 		}
 		
