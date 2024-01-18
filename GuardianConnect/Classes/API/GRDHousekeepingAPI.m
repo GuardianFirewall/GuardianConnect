@@ -231,8 +231,8 @@
 	} else if (validationMethod == ValidationMethodPEToken) {
 		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
 		if (petToken == nil) {
-			GRDLog(@"Failed to retrieve PEToken from keychain");
-			if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
+			GRDLog(@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
+			if (completion) completion(nil, NO, @"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
 			return;
 		}
 		

@@ -18,14 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDHousekeepingAPI : NSObject
 
-/// Validation Method used to obtain a signed JWT from housekeeping
-typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
-    ValidationMethodInvalid = -1,
-    ValidationMethodAppStoreReceipt,
-    ValidationMethodPEToken,
-	ValidationMethodCustom
-};
-
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
