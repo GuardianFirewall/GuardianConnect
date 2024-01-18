@@ -7,7 +7,6 @@
 //
 
 #import <GuardianConnect/GRDSubscriberCredential.h>
-#import <GuardianConnect/GRDVPNHelper.h>
 
 @implementation GRDSubscriberCredential
 
@@ -76,6 +75,26 @@
 + (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
 	NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
 	return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
+}
+
++ (void)setPreferredValidationMethod:(GRDHousekeepingValidationMethod)validationMethod {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if (validationMethod == ValidationMethodInvalid) {
+		[defaults removeVolatileDomainForName:kGuardianPreferredSubscriberCredentialValidationMethod];
+		
+	} else {
+		[defaults setInteger:validationMethod forKey:kGuardianPreferredSubscriberCredentialValidationMethod];
+	}
+}
+
++ (GRDHousekeepingValidationMethod)getPreferredValidationMethod {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([defaults objectForKey:kGuardianPreferredSubscriberCredentialValidationMethod] == nil) {
+		return ValidationMethodInvalid;
+	}
+	
+	GRDHousekeepingValidationMethod valMethod = [[NSUserDefaults standardUserDefaults] integerForKey:kGuardianPreferredSubscriberCredentialValidationMethod];
+	return valMethod;
 }
 
 @end
