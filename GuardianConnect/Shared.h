@@ -39,6 +39,8 @@ static NSString * const kAppNeedsSelfRepair                             = @"guar
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
 
+static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
+
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
