@@ -8,11 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
+#import <GuardianConnect/GRDAPIError.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
-#import <GuardianConnect/GRDAPIError.h>
-
-//#define kConnectAPIHostname @"connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -114,8 +112,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
 # pragma mark - Misc
-
-- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable userInfo, BOOL success, NSString * _Nullable errorMessage))completion;
 
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion;
 

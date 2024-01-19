@@ -9,8 +9,26 @@
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/NSObject+Dictionary.h>
 
+@interface GRDHousekeepingAPI()
+
+@property NSString *housekeepingHostname;
+
+@end
+
+
 @implementation GRDHousekeepingAPI
 
+- (instancetype)init {
+	self = [super init];
+	if (self) {
+		//
+		// Ensure that housekeeping API requests always have
+		// a valid hostname set to begin with
+		self.housekeepingHostname = kConnectAPIHostname;
+	}
+	
+	return self;
+}
 
 - (void)checkCustomValues {
 	self.connectAPIHostname = kConnectAPIHostname;
@@ -20,8 +38,25 @@
 	}
 	self.publishableKey = [[GRDVPNHelper sharedInstance] connectPublishableKey];
 	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
+		self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
+	}
+	
 	GRDDebugLog(@"Connect API: %@", self.connectAPIHostname);
 	GRDDebugLog(@"Connect API publishable key: %@", self.publishableKey);
+	GRDDebugLog(@"Housekeeipng API hostname: %@", self.housekeepingHostname);
+}
+
+- (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint {
+	[self checkCustomValues];
+	
+	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", self.housekeepingHostname, apiEndpoint]];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:15];
+	
+	return request;
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
@@ -66,12 +101,14 @@
     }
 }
 
+# pragma mark - IAP Receipt Validation
+
 - (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptLineItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/verify-receipt"]];
 	if (encodedReceipt == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 		if (receiptData == nil) {
-			GRDDebugLog(@"This device has no App Store receipt");
+			GRDLog(@"This device has no App Store receipt");
 			if (completion) completion(nil, NO, @"No App Store receipt data present");
 			return;
 		}
@@ -99,7 +136,7 @@
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 204) {
-            GRDDebugLog(@"Successful request. No active subscription found");
+            GRDLog(@"Successful request. No active subscription found");
             if (completion) completion(nil, YES, nil);
             return;
             
@@ -143,7 +180,7 @@
 	if (encodedReceiptData == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 		if (receiptData == nil) {
-			GRDDebugLog(@"This device has no App Store receipt");
+			GRDLog(@"This device has no App Store receipt");
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No App Store receipt data present"]);
 			return;
 		}
@@ -192,6 +229,9 @@
 	}];
 	[task resume];
 }
+
+
+# pragma mark - Subscriber Credentials
 
 - (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
@@ -307,62 +347,8 @@
 	[task resume];
 }
 
-- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/signup-token-for-iap"]];
-    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-    if (receiptData == nil) {
-        GRDLog(@"receiptData == nil");
-        if (completion) {
-            completion(nil, NO, @"No App Store receipt data present");
-        }
-        return;
-    }
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
-    [request setHTTPBody:postData];
-    [request setHTTPMethod:@"POST"];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send request: %@", error);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Internal server error!");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: Internal Server Error");
-            return;
-            
-        } else if (statusCode == 412) {
-            GRDLog(@"Information missing from receipt!");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: Missing information in AppStore receipt. If this issue persists please contact our technical support");
-            return;
-            
-        } else if (statusCode == 204) {
-            GRDLog(@"No Pro subscription found in receipt or receipt already used to generate an account");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: No Pro subscription found in AppStore receipt or this receipt was already used to generate an account. If this issue persist please contact our technical support");
-            return;
-            
-        } else if (statusCode == 200) {
-            NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(userInfo, YES, nil);
-            return;
-            
-        } else {
-            GRDLog(@"Unknown server error. Status code: %ld", statusCode);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error. Status code: %ld", statusCode]);
-        }
-    }];
-    [task resume];
-}
+
+#pragma mark - PET Magic Link
 
 - (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1/users/info-for-pe-token"];
@@ -405,12 +391,11 @@
     [task resume];
 }
 
-#pragma mark - Time Zone & VPN Hostname endpoints
+
+#pragma mark - Time Zone & VPN Hostnames
 
 - (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com/api/v1.1/servers/timezones-for-regions"]]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-	[request setTimeoutInterval:20];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/timezones-for-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -439,11 +424,10 @@
 - (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, BOOL))completion {
 	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
     NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment], @"beta-capable": @(betaCapable)} options:0 error:nil];
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/servers/hostnames-for-region"]];
+	
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.2/servers/hostnames-for-region"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestJSON];
-    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-	[request setTimeoutInterval:20];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -483,9 +467,7 @@
 }
 
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/servers/all-hostnames"]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:20];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/all-hostnames"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -518,9 +500,7 @@
 }
 
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:15];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/servers/all-server-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
