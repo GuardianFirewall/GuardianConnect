@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;
 
+- (instancetype)initWithRegionPrecision:(NSString *)precision serverFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;
+
 /// Used to find and return the VPN server node we will connect to based on the results of a call to 'getGuardianHostsWithCompletion:"
 /// @param completion Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
 - (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage))completion;
@@ -49,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns all currently supported VPN server regions
 /// @param completion completion block containing a NSArray of all server regions if the operation was succesful. If a problem occured errorMessage will not be nil
 - (void)regionsWithCompletion:(void(^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage))completion;
+
+- (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage))completion;
 
 @end
 

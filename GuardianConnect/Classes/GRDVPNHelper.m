@@ -37,7 +37,7 @@
             }
         }];
 		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
-        [shared _loadCredentialsFromKeychain];
+        [shared refreshVariables];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
     });
     
@@ -58,7 +58,7 @@
 	return (ikev2Status == NEVPNStatusConnecting || grdTunnelstatus == NEVPNStatusConnecting);
 }
 
-- (void)_loadCredentialsFromKeychain {
+- (void)refreshVariables {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	GRDCredential *main = [GRDCredentialManager mainCredentials];
 	[self setMainCredential:main];
@@ -75,6 +75,10 @@
 	// system to do the right thing
 	self.preferredSubscriberCredentialValidationMethod = [GRDSubscriberCredential getPreferredValidationMethod];
 	
+	//
+	// Note from CJ 2024-01-26
+	// If a preferred region is set ensure that it is properly
+	// decoded and set so that the SDK routes devices to the desired servers
 	if ([defaults valueForKey:kGuardianRegionOverride] != nil) {
 		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
 		
@@ -96,6 +100,17 @@
 		// Ensure that the automatic region is selected if
 		// no region override is detected
 		[self selectRegion:nil];
+	}
+	
+	//
+	// Note from CJ 2024-01-26
+	// Ensure that the preferred region precision is fetched from NSUserDefaults
+	self.regionPrecision = kGRDRegionPrecisionDefault;
+	if ([defaults valueForKey:kGRDPreferredRegionPrecision] != nil) {
+		self.regionPrecision = [defaults stringForKey:kGRDPreferredRegionPrecision];
+		if ([self.regionPrecision isEqualToString:kGRDRegionPrecisionDefault] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCity] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCountry] == NO) {
+			GRDWarningLog(@"Preferred region precision '%@' does not match any of the known constants!", self.regionPrecision);
+		}
 	}
 }
 
@@ -186,7 +201,7 @@
 }
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
 			[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
@@ -200,7 +215,7 @@
 }
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(errorMessage);
@@ -239,7 +254,7 @@
 	GRDDebugLog(@"Configure with region: %@ location: %@", region.bestHost, region.bestHostLocation);
 	[self selectRegion:region];
 	if (!region.bestHost && !region.bestHostLocation && region) {
-		[region findBestServerWithServerFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers completion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+		[region findBestServerWithServerFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers regionPrecision:self.regionPrecision completion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
 			if (success) {
 				[self configureFirstTimeUserForTransportProtocol:protocol hostname:server andHostLocation:serverLocation postCredential:nil completion:completion];
 				
@@ -1570,6 +1585,23 @@
 	}
 	
 	return nil;
+}
+
+- (void)setPreferredRegionPrecision:(NSString *)precision {
+	self.regionPrecision = precision;
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([precision isEqualToString:kGRDRegionPrecisionDefault] == YES) {
+		//
+		// Note from CJ 2024-01-26
+		// By removing the key we attempt to guarantee that the SDK will
+		// always return back to the desired default value defined in the
+		// initalization function for GRDVPNHelper
+		[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
+		
+	} else {
+		[defaults setObject:precision forKey:kGRDPreferredRegionPrecision];
+	}
 }
 
 - (void)clearLocalCache {

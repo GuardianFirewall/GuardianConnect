@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 	GRDServerFeatureEnvironment _featureEnvironment;
 }
 
-@property (readonly) BOOL preferBetaCapableServers;
+@property (readonly) BOOL 						preferBetaCapableServers;
 @property (readonly) GRDServerFeatureEnvironment featureEnvironment;
 
 /// a read only reference to the global NEVPNManager which handles
@@ -74,6 +74,12 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 
 /// don't set this value manually, it is set upon the region selection code working successfully
 @property (nullable) GRDRegion *selectedRegion;
+
+/// Do not assign this value directly if you would like the preference to persist across app launches.
+/// Contains the preferred regionPrecision. Never nil and defaults to the constant string 'default'
+///
+/// In order to set a preferred region precision persistently use -setPreferredRegionPrecision:
+@property (strong, nonatomic) NSString *regionPrecision;
 
 /// Indicates whether load from preferences was successfull upon init
 @property BOOL vpnLoaded;
@@ -173,7 +179,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (BOOL)isConnecting;
 
 /// retrieves values out of the system keychain and stores them in the sharedInstance singleton object in memory for other functions to use in the future
-- (void)_loadCredentialsFromKeychain;
+- (void)refreshVariables;
 
 /// Used to determine if an active connection is possible, do we have all the necessary credentials (EAPUsername, Password, Host, etc)
 + (BOOL)activeConnectionPossible;
@@ -300,6 +306,12 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)region;
+
+/// Sets the preferred region precision persistently for the SDK to request VPN hostnames with
+///
+/// The constants 'kGRDRegionPrecisionDefault', 'kGRDRegionPrecisionCity' or 'kGRDRegionPrecisionCountry' should be used
+/// @param precision the preferred region precision
+- (void)setPreferredRegionPrecision:(NSString * _Nonnull)precision;
 
 /// Migrate the user to a new server. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;
