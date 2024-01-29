@@ -166,7 +166,8 @@
 
 + (void)createCredentialForRegion:(NSString *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void (^)(GRDCredential * _Nullable, NSString * _Nullable))completion {
 	//first get a host name
-	[[GRDServerManager new] findBestHostInRegion:region completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:[[GRDVPNHelper sharedInstance] regionPrecision] serverFeatureEnvironment:[[GRDVPNHelper sharedInstance] featureEnvironment] betaCapableServers:NO];
+	[serverManager findBestHostInRegion:region completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
 		if (!error) {
 			//now get the new credentials for said hostname
 			[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays hostname:host completion:^(NSDictionary * _Nonnull credentials, NSString * _Nonnull errorMessage) {
