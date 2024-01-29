@@ -128,6 +128,14 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 #define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
 
+
+#pragma mark - Region precision constant
+static NSString * const kGRDPreferredRegionPrecision = @"kGRDPreferredRegionPrecision";
+static NSString * const kGRDRegionPrecisionDefault 	= @"default";
+static NSString * const kGRDRegionPrecisionCity 	= @"city";
+static NSString * const kGRDRegionPrecisionCountry 	= @"country";
+
+
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
 
