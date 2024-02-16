@@ -108,7 +108,7 @@
 	self.regionPrecision = kGRDRegionPrecisionDefault;
 	if ([defaults valueForKey:kGRDPreferredRegionPrecision] != nil) {
 		self.regionPrecision = [defaults stringForKey:kGRDPreferredRegionPrecision];
-		if ([self.regionPrecision isEqualToString:kGRDRegionPrecisionDefault] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCity] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCountry] == NO) {
+		if ([self.regionPrecision isEqualToString:kGRDRegionPrecisionDefault] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCity] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCountry] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCityByCountry] == NO) {
 			GRDWarningLog(@"Preferred region precision '%@' does not match any of the known constants!", self.regionPrecision);
 		}
 	}

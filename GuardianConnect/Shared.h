@@ -130,10 +130,11 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 
 
 #pragma mark - Region precision constant
-static NSString * const kGRDPreferredRegionPrecision = @"kGRDPreferredRegionPrecision";
-static NSString * const kGRDRegionPrecisionDefault 	= @"default";
-static NSString * const kGRDRegionPrecisionCity 	= @"city";
-static NSString * const kGRDRegionPrecisionCountry 	= @"country";
+static NSString * const kGRDPreferredRegionPrecision 		= @"kGRDPreferredRegionPrecision";
+static NSString * const kGRDRegionPrecisionDefault 			= @"default";
+static NSString * const kGRDRegionPrecisionCity 			= @"city";
+static NSString * const kGRDRegionPrecisionCountry 			= @"country";
+static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 
 
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
