@@ -130,7 +130,11 @@
 				regionName = @"us-east";
 			}
 			
-			[self.housekeeping requestServersForRegion:regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+			//
+			// Note from CJ 2024-02-19
+			// Hard coding the region precision to default here because we're going by the device's
+			// time zone which are mapped to the default regions in our system.
+			[self.housekeeping requestServersForRegion:regionName regionPrecision:kGRDRegionPrecisionDefault paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
 				if (completion) completion(servers, error);
 			}];
 		}];
