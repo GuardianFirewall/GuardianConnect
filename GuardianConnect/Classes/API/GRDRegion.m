@@ -20,6 +20,8 @@
         self.displayName 		= regionDict[@"name-pretty"]; 		// ie Spain
         self.isAutomatic 		= false;
 		self.regionPrecision 	= regionDict[@"region-precision"];
+		self.latitude			= regionDict[@"latitude"];
+		self.longitude			= regionDict[@"longitude"];
 		
 		NSArray *rawCities = regionDict[@"cities"];
 		NSMutableArray *cities = [NSMutableArray new];
@@ -50,6 +52,8 @@
 		self.displayName 		= [coder decodeObjectForKey:@"name-pretty"];
 		self.isAutomatic 		= [[coder decodeObjectForKey:@"is-automatic"] boolValue];
 		self.regionPrecision 	= [coder decodeObjectForKey:@"region-precision"];
+		self.latitude 			= [coder decodeObjectForKey:@"latitude"];
+		self.longitude			= [coder decodeObjectForKey:@"longitude"];
 		self.cities				= [coder decodeObjectForKey:@"cities"];
 	}
 	
@@ -63,6 +67,8 @@
 	[coder encodeObject:self.displayName forKey:@"name-pretty"];
 	[coder encodeObject:[NSNumber numberWithBool:self.isAutomatic] forKey:@"is-automatic"];
 	[coder encodeObject:self.regionPrecision forKey:@"region-precision"];
+	[coder encodeObject:self.latitude forKey:@"latitude"];
+	[coder encodeObject:self.longitude forKey:@"longitude"];
 	[coder encodeObject:self.cities forKey:@"cities"];
 }
 
