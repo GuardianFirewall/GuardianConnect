@@ -14,10 +14,11 @@
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
     if (self) {
-        self.continent 			= regionDict[@"continent"]; 		// ie europe
-		self.countryISOCode 	= regionDict[@"country-iso-code"]; 	// ie ES
-        self.regionName 		= regionDict[@"name"]; 				// ie eu-es
-        self.displayName 		= regionDict[@"name-pretty"]; 		// ie Spain
+        self.continent 			= regionDict[@"continent"];
+		self.country 			= regionDict[@"country"];
+		self.countryISOCode 	= regionDict[@"country-iso-code"];
+        self.regionName 		= regionDict[@"name"];
+        self.displayName 		= regionDict[@"name-pretty"];
         self.isAutomatic 		= false;
 		self.regionPrecision 	= regionDict[@"region-precision"];
 		self.latitude			= regionDict[@"latitude"];
@@ -47,6 +48,7 @@
 	self = [super init];
 	if (self) {
 		self.continent 			= [coder decodeObjectForKey:@"continent"];
+		self.country 			= [coder decodeObjectForKey:@"country"];
 		self.countryISOCode 	= [coder decodeObjectForKey:@"country-iso-code"];
 		self.regionName 		= [coder decodeObjectForKey:@"name"];
 		self.displayName 		= [coder decodeObjectForKey:@"name-pretty"];
@@ -62,6 +64,7 @@
 
 - (void)encodeWithCoder:(nonnull NSCoder *)coder {
 	[coder encodeObject:self.continent forKey:@"continent"];
+	[coder encodeObject:self.country forKey:@"country"];
 	[coder encodeObject:self.countryISOCode forKey:@"country-iso-code"];
 	[coder encodeObject:self.regionName forKey:@"name"];
 	[coder encodeObject:self.displayName forKey:@"name-pretty"];

@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GRDRegion : NSObject <NSSecureCoding>
 
 @property NSString 				*continent; 		//continent
+@property NSString				*country;			//country
 @property NSString 				*countryISOCode; 	//country-iso-code
 @property NSString 				*regionName; 		//name
 @property NSString 				*displayName; 		//name-pretty
