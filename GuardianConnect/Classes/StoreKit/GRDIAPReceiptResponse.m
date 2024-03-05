@@ -15,7 +15,7 @@
 	if (self) {
 		NSArray *lineItems = receiptResponse[@"line-items"];
 		NSMutableArray <GRDReceiptLineItem *> *parsedLineItems = [NSMutableArray new];
-		if (lineItems != nil) {
+		if (lineItems != nil && [lineItems isEqual:[NSNull null]] == NO) {
 			for (NSDictionary *lineItem in lineItems) {
 				[parsedLineItems addObject:[[GRDReceiptLineItem alloc] initWithDictionary:lineItem]];
 			}
@@ -25,7 +25,7 @@
 		
 		NSArray *lineItemsMetadata = receiptResponse[@"line-items-metadata"];
 		NSMutableArray <GRDReceiptLineItemMetadata *> *parsedLineItemsMetadata = [NSMutableArray new];
-		if (lineItemsMetadata != nil) {
+		if (lineItemsMetadata != nil && [lineItemsMetadata isEqual:[NSNull null]] == NO) {
 			for (NSDictionary *metadata in lineItemsMetadata) {
 				[parsedLineItemsMetadata addObject:[[GRDReceiptLineItemMetadata alloc] initWithDictionary:metadata]];
 			}

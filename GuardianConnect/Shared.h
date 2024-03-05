@@ -12,6 +12,20 @@
 typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
 
+//
+// Note from CJ 2024-01-18:
+// I have moved this enum in the shared framework header in order to resolve
+// the problem of circular imports being very difficult to get right
+// between various classes with regards to enums specifically
+// ---
+/// Validation Method used to obtain a signed JWT from housekeeping
+typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
+	ValidationMethodInvalid = -1,
+	ValidationMethodAppStoreReceipt,
+	ValidationMethodPEToken,
+	ValidationMethodCustom
+};
+
 // Define below to 0 to make guardian specific code inactive
 #define GUARDIAN_INTERNAL 1
 
@@ -24,6 +38,8 @@ static NSString * const kAppNeedsSelfRepair                             = @"guar
 
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
+
+static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
 
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
@@ -95,7 +111,8 @@ static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardi
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
 // Used to hard to code IAP receipts and create Subscriber Credentials
-static NSString * const kGuardianEncodedAppStoreReceipt = @"kGuardianEncodedAppStoreReceipt";
+static NSString * const kGuardianEncodedAppStoreReceipt 						= @"kGuardianEncodedAppStoreReceipt";
+static NSString * const kGuardianPreferredSubscriberCredentialValidationMethod 	= @"kGuardianPreferredSubscriberCredentialValidationMethod";
 
 //moved to make framework friendly
 static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
@@ -110,6 +127,15 @@ typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
 #define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
 #define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
+
+
+#pragma mark - Region precision constant
+static NSString * const kGRDPreferredRegionPrecision 		= @"kGRDPreferredRegionPrecision";
+static NSString * const kGRDRegionPrecisionDefault 			= @"default";
+static NSString * const kGRDRegionPrecisionCity 			= @"city";
+static NSString * const kGRDRegionPrecisionCountry 			= @"country";
+static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
+
 
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";

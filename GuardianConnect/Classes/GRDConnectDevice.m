@@ -28,7 +28,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"\r[GRDConnectDevice]\r nickname: %@\r uuid: %@\r created-at: %@ (unix: %ld)", self.nickname, self.uuid, self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970]];
+	return [NSString stringWithFormat:@"\r[GRDConnectDevice]\r  nickname: %@\r  uuid: %@\r  created-at: %@ (unix: %ld)\r  current-device: %@", self.nickname, self.uuid, self.createdAt, (NSUInteger)[self.createdAt timeIntervalSince1970], self.currentDevice ? @"YES" : @"NO"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -72,7 +72,7 @@
 	}
 	
 	NSError *unarchiveErr;
-	GRDConnectDevice *device = [NSKeyedUnarchiver unarchivedObjectOfClass:[GRDConnectDevice class] fromData:deviceDict error:&unarchiveErr];
+	GRDConnectDevice *device = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDConnectDevice class], [NSString class], [NSNumber class], [NSDate class], nil] fromData:deviceDict error:&unarchiveErr];
 	
 	if (completion) completion(device, unarchiveErr);
 }
@@ -88,6 +88,18 @@
 	
 	[[NSUserDefaults standardUserDefaults] setObject:deviceData forKey:kGuardianConnectDevice];
 	
+	return nil;
+}
+
++ (NSError *)destroy {
+	[[NSUserDefaults standardUserDefaults] removeObjectForKey:kGuardianConnectDevice];
+	
+	//
+	// Note from CJ 2023-11-23
+	// Making this return a NSError now even though we will never need it at the moment, hence the
+	// the hardcoded nil return value. We may interact with the keychain in future iterations
+	// at which point we will need to communicate errors back to the caller, so this is me
+	// attempting to future proof this method
 	return nil;
 }
 
@@ -126,7 +138,7 @@
 }
 
 + (void)listConnectDevicesForPEToken:(NSString *)peToken withCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] listConnectDevicesFor:peToken withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
+	[[GRDHousekeepingAPI new] listConnectDevicesForPEToken:peToken orIdentifier:nil andSecret:nil withCompletion:^(NSArray * _Nullable devices, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -143,8 +155,8 @@
 	}];
 }
 
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken andCompletion:^(NSError * _Nullable errorMessage) {
+- (void)deleteDeviceWithPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] deleteConnectDevice:self.uuid withPEToken:peToken orIdentifier:identifier andSecret:secret andCompletion:^(NSError * _Nullable errorMessage) {
 		if (completion) completion(errorMessage);
 		return;
 	}];

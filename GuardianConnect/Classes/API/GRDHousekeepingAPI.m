@@ -9,8 +9,26 @@
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/NSObject+Dictionary.h>
 
+@interface GRDHousekeepingAPI()
+
+@property NSString *housekeepingHostname;
+
+@end
+
+
 @implementation GRDHousekeepingAPI
 
+- (instancetype)init {
+	self = [super init];
+	if (self) {
+		//
+		// Ensure that housekeeping API requests always have
+		// a valid hostname set to begin with
+		self.housekeepingHostname = kConnectAPIHostname;
+	}
+	
+	return self;
+}
 
 - (void)checkCustomValues {
 	self.connectAPIHostname = kConnectAPIHostname;
@@ -19,6 +37,26 @@
 		self.connectAPIHostname = customConnectAPIHostname;
 	}
 	self.publishableKey = [[GRDVPNHelper sharedInstance] connectPublishableKey];
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
+		self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
+	}
+	
+	GRDDebugLog(@"Connect API: %@", self.connectAPIHostname);
+	GRDDebugLog(@"Connect API publishable key: %@", self.publishableKey);
+	GRDDebugLog(@"Housekeeipng API hostname: %@", self.housekeepingHostname);
+}
+
+- (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint {
+	[self checkCustomValues];
+	
+	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", self.housekeepingHostname, apiEndpoint]];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:15];
+	
+	return request;
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
@@ -63,12 +101,14 @@
     }
 }
 
+# pragma mark - IAP Receipt Validation
+
 - (void)verifyReceipt:(NSString * _Nullable)encodedReceipt bundleId:(NSString * _Nonnull)bundleId completion:(void (^)(NSArray <GRDReceiptLineItem *>* _Nullable validLineItems, BOOL success, NSString * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/verify-receipt"]];
 	if (encodedReceipt == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 		if (receiptData == nil) {
-			GRDDebugLog(@"This device has no App Store receipt");
+			GRDLog(@"This device has no App Store receipt");
 			if (completion) completion(nil, NO, @"No App Store receipt data present");
 			return;
 		}
@@ -96,7 +136,7 @@
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode == 204) {
-            GRDDebugLog(@"Successful request. No active subscription found");
+            GRDLog(@"Successful request. No active subscription found");
             if (completion) completion(nil, YES, nil);
             return;
             
@@ -140,7 +180,7 @@
 	if (encodedReceiptData == nil) {
 		NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 		if (receiptData == nil) {
-			GRDDebugLog(@"This device has no App Store receipt");
+			GRDLog(@"This device has no App Store receipt");
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No App Store receipt data present"]);
 			return;
 		}
@@ -190,6 +230,9 @@
 	[task resume];
 }
 
+
+# pragma mark - Subscriber Credentials
+
 - (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
 	
@@ -228,8 +271,8 @@
 	} else if (validationMethod == ValidationMethodPEToken) {
 		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
 		if (petToken == nil) {
-			GRDLog(@"Failed to retrieve PEToken from keychain");
-			if (completion) completion(nil, NO, @"Failed to retrieve PEToken from keychain. Please try again");
+			GRDLog(@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
+			if (completion) completion(nil, NO, @"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
 			return;
 		}
 		
@@ -304,62 +347,8 @@
 	[task resume];
 }
 
-- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/users/signup-token-for-iap"]];
-    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
-    if (receiptData == nil) {
-        GRDLog(@"receiptData == nil");
-        if (completion) {
-            completion(nil, NO, @"No App Store receipt data present");
-        }
-        return;
-    }
-    NSData *postData = [NSJSONSerialization dataWithJSONObject:@{@"receipt-data":[receiptData base64EncodedStringWithOptions:0]} options:0 error:nil];
-    [request setHTTPBody:postData];
-    [request setHTTPMethod:@"POST"];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send request: %@", error);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Internal server error!");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: Internal Server Error");
-            return;
-            
-        } else if (statusCode == 412) {
-            GRDLog(@"Information missing from receipt!");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: Missing information in AppStore receipt. If this issue persists please contact our technical support");
-            return;
-            
-        } else if (statusCode == 204) {
-            GRDLog(@"No Pro subscription found in receipt or receipt already used to generate an account");
-            if (completion) completion(nil, NO, @"Failed to generate signup token: No Pro subscription found in AppStore receipt or this receipt was already used to generate an account. If this issue persist please contact our technical support");
-            return;
-            
-        } else if (statusCode == 200) {
-            NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(userInfo, YES, nil);
-            return;
-            
-        } else {
-            GRDLog(@"Unknown server error. Status code: %ld", statusCode);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error. Status code: %ld", statusCode]);
-        }
-    }];
-    [task resume];
-}
+
+#pragma mark - PET Magic Link
 
 - (void)requestPETokenInformationForToken:(NSString *)token completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1/users/info-for-pe-token"];
@@ -402,12 +391,11 @@
     [task resume];
 }
 
-#pragma mark - Time Zone & VPN Hostname endpoints
+
+#pragma mark - Time Zone & VPN Hostnames
 
 - (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://connect-api.guardianapp.com/api/v1.1/servers/timezones-for-regions"]]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-	[request setTimeoutInterval:20];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/timezones-for-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -436,11 +424,10 @@
 - (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, BOOL))completion {
 	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
     NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment], @"beta-capable": @(betaCapable)} options:0 error:nil];
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.2/servers/hostnames-for-region"]];
+	
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.2/servers/hostnames-for-region"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestJSON];
-    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-	[request setTimeoutInterval:20];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -479,10 +466,58 @@
     [task resume];
 }
 
+- (void)requestServersForRegion:(NSString *)region regionPrecision:(NSString *)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, NSError *))completion {
+	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
+	NSNumber *featureEnvAsInt = [NSNumber numberWithInt:(int)featureEnvironment];
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": featureEnvAsInt, @"beta-capable": @(betaCapable), @"region-precision": precision} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON encode request data: %@", [jsonErr localizedDescription]]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.3/servers/hostnames-for-region"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestData];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:20];
+	[sessionConf setTimeoutIntervalForResource:20];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSArray *servers = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]]);
+			return;
+		}
+		
+		if (completion) completion(servers, nil);
+	}];
+	[task resume];
+}
+
 - (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1.1/servers/all-hostnames"]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:20];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/all-hostnames"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -515,9 +550,7 @@
 }
 
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/servers/all-server-regions"]];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:15];
+    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/servers/all-server-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
@@ -550,18 +583,52 @@
     [task resume];
 }
 
+- (void)requestAllServerRegionsWithPrecision:(NSString * _Nonnull)precision completion:(void (^)(NSArray <NSDictionary *> * _Nullable items, NSError * _Nullable error))completion {
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:[NSString stringWithFormat:@"/api/v1.3/servers/all-server-regions/%@", precision]];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:15];
+	[sessionConf setTimeoutIntervalForResource:15];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to get retrieve all regions: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		NSArray *returnItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+		if (completion) completion(returnItems, nil);
+		return;
+	}];
+	[task resume];
+}
+
 
 # pragma mark - Connect Subscriber
 
-- (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+- (void)newConnectSubscriberWith:(NSString *)identifier secret:(NSString *)secret deviceNickname:(NSString *)deviceNickname acceptedTOS:(BOOL)acceptedTOS email:(NSString *)email andCompletion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"ep-grd-subscriber-pet-nickname": deviceNickname, @"ep-grd-subscriber-accepted-tos": [NSNumber numberWithBool:acceptedTOS], @"ep-grd-subscriber-email": email} options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
-	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscribers/new"];
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.3/partners/subscribers/new"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
@@ -585,7 +652,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -599,6 +666,55 @@
 		
 		if (completion) completion(subscriber, nil);
 		return;
+	}];
+	[task resume];
+}
+
+- (void)connectDeviceReferenceForConnectSubscriber:(NSString *)identifier secret:(NSString *)secret PEToken:(NSString *)peToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret, @"pe-token": peToken} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device-reference"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestData];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSDictionary *deviceDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to decode response data: %@", [jsonErr localizedDescription]]] );
+			return;
+		}
+		
+		if (completion) completion(deviceDict, nil);
 	}];
 	[task resume];
 }
@@ -635,7 +751,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -685,7 +801,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -735,13 +851,60 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
 		
 		if (completion) completion(nil);
 		return;
+	}];
+	[task resume];
+}
+
+- (void)checkConnectSubscriberGuardianAccountCreationStateWithIdentifier:(NSString *)identifier secret:(NSString *)secret completion:(void (^)(NSError * _Nullable))completion {
+	NSError *jsonErr;
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"ep-grd-subscriber-identifier": identifier, @"ep-grd-subscriber-secret": secret} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/account-creation-state"];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestData];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
+			if (apiErr.parseError != nil) {
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
+				return;
+			}
+			
+			if ([apiErr.message containsString:@"not yet setup"]) {
+				if (completion) completion([GRDErrorHelper errorWithErrorCode:GRDErrGuardianAccountNotSetup andErrorMessage:@"Guardian account setup not yet completed"]);
+				return;
+			}
+			
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+		
+		if (completion) completion(nil);
 	}];
 	[task resume];
 }
@@ -782,7 +945,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -832,7 +995,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -850,9 +1013,23 @@
 	[task resume];
 }
 
-- (void)listConnectDevicesFor:(NSString *)peToken withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+- (void)listConnectDevicesForPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret withCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	if (peToken == nil && [peToken isEqualToString:@""] && identifier == nil && [identifier isEqualToString:@""] && secret == nil && [secret isEqualToString:@""]) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to send API request. Did not receive a PE-Token or a subscriber identifier & secret!"]);
+		return;
+	}
+	
+	NSMutableDictionary *body = [NSMutableDictionary new];
+	if (peToken != nil) {
+		[body setObject:peToken forKey:@"pe-token"];
+		
+	} else {
+		[body setObject:identifier forKey:@"ep-grd-subscriber-identifier"];
+		[body setObject:secret forKey:@"ep-grd-subscriber-secret"];
+	}
+	
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
@@ -882,7 +1059,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -900,15 +1077,31 @@
 	[task resume];
 }
 
-- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable))completion {
+- (void)deleteConnectDevice:(NSString *)deviceUUID withPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable))completion {
+	if (peToken == nil && [peToken isEqualToString:@""] && identifier == nil && [identifier isEqualToString:@""] && secret == nil && [secret isEqualToString:@""]) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to send API request. Did not receive a PE-Token or a subscriber identifier & secret!"]);
+		return;
+	}
+	
+	NSMutableDictionary *body = [NSMutableDictionary new];
+	[body setObject:deviceUUID forKey:@"ep-grd-device-uuid"];
+	
+	if (peToken != nil) {
+		[body setObject:peToken forKey:@"pe-token"];
+		
+	} else {
+		[body setObject:identifier forKey:@"ep-grd-subscriber-identifier"];
+		[body setObject:secret forKey:@"ep-grd-subscriber-secret"];
+	}
+	
 	NSError *jsonErr;
-	NSData *requestData = [NSJSONSerialization dataWithJSONObject:@{@"pe-token": peToken, @"ep-grd-device-uuid": deviceUUID} options:0 error:&jsonErr];
+	NSData *requestData = [NSJSONSerialization dataWithJSONObject:body options:0 error:&jsonErr];
 	if (jsonErr != nil) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode request data: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
-	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/devices/delete"];
+	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/partners/subscriber/device/delete"];
 	[request setHTTPMethod:@"POST"];
 	[request setHTTPBody:requestData];
 	[request setTimeoutInterval:30];
@@ -932,7 +1125,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}
@@ -975,7 +1168,7 @@
 				return;
 			}
 			
-			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
 		}

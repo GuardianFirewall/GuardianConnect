@@ -13,13 +13,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDRegion : NSObject <NSSecureCoding>
 
-@property NSString *continent; 			//continent
-@property NSString *countryISOCode; 	//country-iso-code
-@property NSString *regionName; 		//name
-@property NSString *displayName; 		//name-pretty
-@property NSString *bestHost; 			//defaults to nil, is populated upon get server detail completion
-@property NSString *bestHostLocation; 	//defaults to nil, is populated upon get server detail completion
-@property BOOL isAutomatic; 			//experimental
+@property NSString 				*continent; 		//continent
+@property NSString				*country;			//country
+@property NSString 				*countryISOCode; 	//country-iso-code
+@property NSString 				*regionName; 		//name
+@property NSString 				*displayName; 		//name-pretty
+@property NSString 				*bestHost; 			//defaults to nil, is populated upon get server detail completion
+@property NSString 				*bestHostLocation; 	//defaults to nil, is populated upon get server detail completion
+@property BOOL 					isAutomatic; 		//experimental
+@property NSString 				*regionPrecision;	//defines what region precision the region is representing
+@property NSNumber				*latitude;			//GPS latitude of the region to identify the region on a map to the user
+@property NSNumber				*longitude;			//GPS longitude of the region to identify the region on a map to the user
+@property NSArray <GRDRegion *>	*cities;			//array of regions if the region precision is set to 'city-by-country'
 
 
 /// Convenience method to parse an API response to a GRDRegion object
@@ -35,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - feautreEnv: the desired Guardian server feature environment
 ///   - betaCapable: indicator whether the returned server should include beta features
 ///   - completion: completion handler containing the VPN node hostname, location description and an indicator communicating successful or failed API interactions & processing
-- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)feautreEnv betaCapableServers:(BOOL)betaCapable completion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion;
+- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion;
 
 /// Convenience method to return a GRDRegion object to set the client back to automatic routing to the nearest VPN server
 + (GRDRegion *)automaticRegion;

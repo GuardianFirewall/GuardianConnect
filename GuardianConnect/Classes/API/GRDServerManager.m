@@ -16,9 +16,10 @@
 
 @interface GRDServerManager()
 
-@property GRDHousekeepingAPI *housekeeping;
-@property GRDServerFeatureEnvironment featureEnv;
-@property BOOL betaCapable;
+@property GRDHousekeepingAPI 			*housekeeping;
+@property NSString 						*regionPrecision;
+@property GRDServerFeatureEnvironment 	featureEnv;
+@property BOOL 							betaCapable;
 
 @end
 
@@ -26,9 +27,10 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.housekeeping = [[GRDHousekeepingAPI alloc] init];
-		self.featureEnv = ServerFeatureEnvironmentProduction;
-		self.betaCapable = NO;
+        self.housekeeping 		= [[GRDHousekeepingAPI alloc] init];
+		self.regionPrecision 	= kGRDRegionPrecisionDefault;
+		self.featureEnv 		= ServerFeatureEnvironmentProduction;
+		self.betaCapable 		= NO;
     }
     return self;
 }
@@ -36,9 +38,22 @@
 - (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable {
 	self = [super init];
 	if (self) {
-		self.housekeeping = [[GRDHousekeepingAPI alloc] init];
-		self.featureEnv = featureEnv;
-		self.betaCapable = betaCapable;
+		self.housekeeping 		= [[GRDHousekeepingAPI alloc] init];
+		self.regionPrecision 	= kGRDRegionPrecisionDefault;
+		self.featureEnv 		= featureEnv;
+		self.betaCapable 		= betaCapable;
+	}
+	
+	return self;
+}
+
+- (instancetype)initWithRegionPrecision:(NSString *)precision serverFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable {
+	self = [super init];
+	if (self) {
+		self.housekeeping 		= [[GRDHousekeepingAPI alloc] init];
+		self.regionPrecision 	= precision;
+		self.featureEnv 		= featureEnv;
+		self.betaCapable 		= betaCapable;
 	}
 	
 	return self;
@@ -76,46 +91,54 @@
 }
 
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSError * _Nullable errorMessage))completion {
-    [self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
-        if (success == NO) {
-            GRDErrorLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
-            if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
-            return;
-        }
-        
-        GRDRegion *region = [GRDServerManager localRegionFromTimezones:timeZones];
-        NSString *regionName = region.regionName;
-        NSTimeZone *local = [NSTimeZone localTimeZone];
-        GRDDebugLog(@"Found region: %@", regionName);
-		GRDDebugLog(@"Real local time zone: %@", local);
-        
-        // This is how region / server selection works, if the selected credential isnt nil, we are using a custom region.
-        GRDRegion *selectedRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
-        if (selectedRegion) {
-			GRDDebugLog(@"Using custom selected region: %@", selectedRegion.regionName);
-            regionName = selectedRegion.regionName;
-        }
-        
-        // This is only meant as a fallback to have something
-        // when absolutely everything seems to have fallen apart
-        // The same strategy is taken server side
-        if (regionName == nil) {
-            GRDWarningLogg(@"Failed to find time zone: %@", local);
-			GRDWarningLogg(@"Setting time zone to us-east");
-            regionName = @"us-east";
-        }
-        
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
-            if (success == false) {
-				GRDWarningLogg(@"Failed to get servers for region");
-                if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers."]);
-                return;
-                
-            } else {
-                if (completion) completion(servers, nil);
-            }
-        }];
-    }];
+	GRDRegion *preferredRegion = [[GRDVPNHelper sharedInstance] selectedRegion];
+	if (preferredRegion != nil) {
+		NSString *regionName = preferredRegion.regionName;
+		// This is only meant as a fallback to have something
+		// when absolutely everything seems to have fallen apart
+		// The same strategy is taken server side
+		if (regionName == nil) {
+			GRDWarningLogg(@"Setting region to us-east to recover");
+			regionName = @"us-east";
+		}
+		
+		[self.housekeeping requestServersForRegion:regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+			if (completion) completion(servers, error);
+			return;
+		}];
+		
+	} else {
+		[self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
+			if (success == NO) {
+				GRDErrorLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
+				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
+				return;
+			}
+			
+			GRDRegion *automaticRegion = [GRDServerManager localRegionFromTimezones:timeZones];
+			NSString *regionName = automaticRegion.regionName;
+			NSTimeZone *local = [NSTimeZone localTimeZone];
+			GRDDebugLog(@"Found region: %@", regionName);
+			GRDDebugLog(@"Real local time zone: %@", local);
+			
+			// This is only meant as a fallback to have something
+			// when absolutely everything seems to have fallen apart
+			// The same strategy is taken server side
+			if (regionName == nil) {
+				GRDWarningLogg(@"Failed to find time zone: %@", local);
+				GRDWarningLogg(@"Setting time zone to us-east");
+				regionName = @"us-east";
+			}
+			
+			//
+			// Note from CJ 2024-02-19
+			// Hard coding the region precision to default here because we're going by the device's
+			// time zone which are mapped to the default regions in our system.
+			[self.housekeeping requestServersForRegion:regionName regionPrecision:kGRDRegionPrecisionDefault paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+				if (completion) completion(servers, error);
+			}];
+		}];
+	}
 }
 
 - (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion {
@@ -154,7 +177,7 @@
     }
 	
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
+		[self.housekeeping requestServersForRegion:regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -183,7 +206,7 @@
 }
 
 - (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion {
-    GRDLog(@"Requested Region: %@", regionName);
+    GRDDebugLog(@"Requested Region: %@", regionName);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
             if (servers.count < 1) {
@@ -250,6 +273,18 @@
 		if (!success) {
 			GRDErrorLogg(@"Failed to fetch server regions from API");
 			if (completion) completion(nil, errorMessage);
+			return;
+		}
+		
+		if (completion) completion([GRDRegion regionsFromTimezones:items], nil);
+		return;
+	}];
+}
+
+- (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
+	[self.housekeeping requestAllServerRegionsWithPrecision:self.regionPrecision completion:^(NSArray<NSDictionary *> * _Nullable items, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, error);
 			return;
 		}
 		

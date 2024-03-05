@@ -12,6 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString * const kGuardianConnectDeviceKey		 	= @"ep-grd-device";
 static NSString * const kGuardianConnectDeviceNicknameKey 	= @"ep-grd-device-nickname";
 static NSString * const kGuardianConnectDeviceUUIDKey 		= @"ep-grd-device-uuid";
 static NSString * const kGuardianConnectDeviceCreatedAtKey 	= @"ep-grd-device-created-at";
@@ -37,6 +38,9 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 /// The timestamp at which the device was created. The date is passed as a JSON encoded Unix timestamp in API calls and is computed into an NSDate
 @property NSDate 	*createdAt;
 
+/// Indicator to allow the user to identify which device in a list of GRDConnectDevices is the current device the user is interacting with
+@property BOOL currentDevice;
+
 
 /// Convenience method to quickly create a GRDConnectDevice object from a dictionary containing key/value pairs returned by the GuardianConnect API
 /// - Parameter deviceDictionary: a dictionary containing key/value pairs that represent a GRDConnectDevice object
@@ -51,10 +55,15 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 
 /// Stores an encoded GRDConnectDevice object in NSUserDefaults
 ///
-/// This method should only be used in the context of a Connect device being the main user on the device
+/// This method should only be used in the context of a Connect Device being the main user on the local device
 /// This method ensures that the device's PET is never written into NSUserDeafults in plaintext and it is instead stored securely on device in the keychain
 - (NSError *)store;
 
+
+/// Destroys the current GRDConnectDevice object in NSUserDefaults and associated information
+///
+/// This method should only be used in the context of a Connect Device being the main user on the local device
++ (NSError *)destroy;
 
 # pragma mark - API Wrappers
 
@@ -81,9 +90,11 @@ static NSString * const kGuardianConnectDevice				= @"kGuardianConnectDevice";
 
 /// Convenience wrapper around the Connect API endpoint to delete a Connect device permanently. Once complete the Connect device is unable to reconnect as it cannot create new Subscriber Credentials
 /// - Parameters:
-///   - peToken: the Connect subscriber's PET this device is associated with
+///   - peToken: the Connect Subscriber's PET this device is associated with (not-preferred; support may be deprecated at any moment)
+///   - identifier: the Connect Subscriber's identifier to authenticate the user's action alongside the Connect Subscriber's secret
+///   - secret: the Connect Subscriber's secret to authenticate the user's action alongside the Connect Subscriber' identifier
 ///   - completion: completion block containing an error message in case of a failure. If nil is returned the action was successful
-- (void)deleteDeviceWithPEToken:(NSString *)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
+- (void)deleteDeviceWithPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 
 /// Convenience wrapper around the Connect API endpoint to validate the Connect device's PET.

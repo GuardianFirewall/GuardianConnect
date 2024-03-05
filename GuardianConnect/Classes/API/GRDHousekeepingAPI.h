@@ -8,23 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
+#import <GuardianConnect/GRDAPIError.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
-#import <GuardianConnect/GRDAPIError.h>
-
-//#define kConnectAPIHostname @"connect-api.guardianapp.com"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDHousekeepingAPI : NSObject
-
-/// Validation Method used to obtain a signed JWT from housekeeping
-typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
-    ValidationMethodInvalid = -1,
-    ValidationMethodAppStoreReceipt,
-    ValidationMethodPEToken,
-	ValidationMethodCustom
-};
 
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
@@ -46,6 +36,10 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 
 /// GuardianConnect app public key used to authenticate API requests
 @property (nonatomic, strong) NSString *_Nullable publishableKey;
+
+/// Helper function to quickly determine the correct Connect API env the request should be send to
+/// @param apiEndpoint the Connect REST API endpoint that the request should be sent to
+- (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint;
 
 /// endpoint: /api/v1/users/info-for-pe-token
 /// @param token password equivalent token for which to request information for
@@ -76,7 +70,9 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion;
+- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestServersForRegion:regionPrecision:paidServers:featureEnvironment:betaCapableServers:completion instead");
+
+- (void)requestServersForRegion:(NSString * _Nonnull)region regionPrecision:(NSString * _Nonnull)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion;
 
 /// endpint: /api/v1/servers/all-hostnames
 /// @param completion completion block returning an array of all hostnames and indicating request success
@@ -85,12 +81,16 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 /// endpoint: /api/v1/servers/all-server-regions
 /// Used to retrieve all available Server Regions from housekeeping to allow users to override the selected Server Region
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
-- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion;
+- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestAllServerRegionsWithPrecision: instead");
+
+- (void)requestAllServerRegionsWithPrecision:(NSString * _Nonnull)precision completion:(void (^)(NSArray <NSDictionary *> * _Nullable items, NSError * _Nullable error))completion;
 
 
 # pragma mark - Connect Subscriber
 
-- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
+- (void)newConnectSubscriberWith:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret deviceNickname:(NSString * _Nonnull)deviceNickname  acceptedTOS:(BOOL)acceptedTOS email:(NSString * _Nullable)email andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
+
+- (void)connectDeviceReferenceForConnectSubscriber:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret PEToken:(NSString * _Nonnull)peToken completion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable error))completion;
 
 - (void)updateConnectSubscriberWith:(NSString * _Nonnull)email identifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret andCompletion:(void (^)(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage))completion;
 
@@ -99,21 +99,23 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 - (void)logoutConnectSubscriberWithPEToken:(NSString *)pet andCompletion:(void (^)(NSError * _Nullable error))completion;
 
 
+
+- (void)checkConnectSubscriberGuardianAccountCreationStateWithIdentifier:(NSString * _Nonnull)identifier secret:(NSString * _Nonnull)secret completion:(void (^)(NSError * _Nullable error))completion;
+
+
 # pragma mark - Connect Subscriber Devices
 
 - (void)addConnectDeviceWith:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname acceptedTOS:(BOOL)acceptedTOS andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
 - (void)updateConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken nickname:(NSString * _Nonnull)nickname andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
-- (void)listConnectDevicesFor:(NSString * _Nonnull)peToken withCompletion:(void (^)(NSArray * _Nullable devices, NSError * _Nullable errorMessage))completion;
+- (void)listConnectDevicesForPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret withCompletion:(void (^)(NSArray * _Nullable devices, NSError * _Nullable errorMessage))completion;
 
-- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
+- (void)deleteConnectDevice:(NSString * _Nonnull)deviceUUID withPEToken:(NSString * _Nullable)peToken orIdentifier:(NSString * _Nullable)identifier andSecret:(NSString * _Nullable)secret andCompletion:(void (^)(NSError * _Nullable errorMessage))completion;
 
 - (void)validateConnectDevicePEToken:(NSString * _Nonnull)peToken andCompletion:(void (^)(NSDictionary * _Nullable deviceDetails, NSError * _Nullable errorMessage))completion;
 
 # pragma mark - Misc
-
-- (void)generateSignupTokenForIAPPro:(void (^)(NSDictionary * _Nullable userInfo, BOOL success, NSString * _Nullable errorMessage))completion;
 
 - (void)getDeviceToken:(void (^)(id  _Nullable token, NSError * _Nullable error))completion;
 

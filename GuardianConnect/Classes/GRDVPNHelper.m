@@ -37,7 +37,7 @@
             }
         }];
 		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
-        [shared _loadCredentialsFromKeychain];
+        [shared refreshVariables];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
     });
     
@@ -58,7 +58,7 @@
 	return (ikev2Status == NEVPNStatusConnecting || grdTunnelstatus == NEVPNStatusConnecting);
 }
 
-- (void)_loadCredentialsFromKeychain {
+- (void)refreshVariables {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	GRDCredential *main = [GRDCredentialManager mainCredentials];
 	[self setMainCredential:main];
@@ -68,6 +68,17 @@
 		self.connectAPIHostname = pet.connectAPIEnv;
 	}
 	
+	//
+	// Note from CJ 2024-01-18
+	// This ensures that the property is set to ValidationMethodInvalid if no
+	// preferred validation method is set, which is crucial for the rest of the
+	// system to do the right thing
+	self.preferredSubscriberCredentialValidationMethod = [GRDSubscriberCredential getPreferredValidationMethod];
+	
+	//
+	// Note from CJ 2024-01-26
+	// If a preferred region is set ensure that it is properly
+	// decoded and set so that the SDK routes devices to the desired servers
 	if ([defaults valueForKey:kGuardianRegionOverride] != nil) {
 		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
 		
@@ -89,6 +100,17 @@
 		// Ensure that the automatic region is selected if
 		// no region override is detected
 		[self selectRegion:nil];
+	}
+	
+	//
+	// Note from CJ 2024-01-26
+	// Ensure that the preferred region precision is fetched from NSUserDefaults
+	self.regionPrecision = kGRDRegionPrecisionDefault;
+	if ([defaults valueForKey:kGRDPreferredRegionPrecision] != nil) {
+		self.regionPrecision = [defaults stringForKey:kGRDPreferredRegionPrecision];
+		if ([self.regionPrecision isEqualToString:kGRDRegionPrecisionDefault] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCity] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCountry] == NO && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCityByCountry] == NO) {
+			GRDWarningLog(@"Preferred region precision '%@' does not match any of the known constants!", self.regionPrecision);
+		}
 	}
 }
 
@@ -179,7 +201,7 @@
 }
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
 			[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
@@ -193,7 +215,7 @@
 }
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(errorMessage);
@@ -232,7 +254,7 @@
 	GRDDebugLog(@"Configure with region: %@ location: %@", region.bestHost, region.bestHostLocation);
 	[self selectRegion:region];
 	if (!region.bestHost && !region.bestHostLocation && region) {
-		[region findBestServerWithServerFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers completion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
+		[region findBestServerWithServerFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers regionPrecision:self.regionPrecision completion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
 			if (success) {
 				[self configureFirstTimeUserForTransportProtocol:protocol hostname:server andHostLocation:serverLocation postCredential:nil completion:completion];
 				
@@ -416,7 +438,7 @@
 
 - (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode statusCode))completion {
 	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [defaults objectForKey:kGRDHostnameOverride];
+	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
 	
 	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
 		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
@@ -533,7 +555,7 @@
 
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [defaults objectForKey:kGRDHostnameOverride];
+	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
 	
 	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
 		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
@@ -864,6 +886,11 @@
 		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username = [self.mainCredential clientId];
+		
+		NEProxySettings *proxSettings = [self proxySettings];
+		if (proxSettings) {
+			protocol.proxySettings = proxSettings;
+		}
         
         if (@available(iOS 14.2, *)) {
             protocol.includeAllNetworks = self.killSwitchEnabled;
@@ -987,6 +1014,11 @@
 		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username = [self.mainCredential clientId];
+		
+		NEProxySettings *proxSettings = [self proxySettings];
+		if (proxSettings) {
+			protocol.proxySettings = proxSettings;
+		}
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.killSwitchEnabled;
@@ -1139,56 +1171,83 @@
 - (void)disconnectVPNWithCompletion:(void (^)(NSError * _Nullable))completion {
 	NEVPNManager *vpnManager = [NEVPNManager sharedManager];
 	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
+	__block NSError *tunnelError = nil;
+	dispatch_group_t group = dispatch_group_create();
 	
-	if (vpnManager.enabled == YES) {
-		GRDLogg(@"Disconnecting IKEv2 VPN");
-		// Note from CJ 2022-02-23:
-		// You may think that we do not want to disable the VPN profile
-		// but as it turns out we are triggering some other bananas bug with the
-		// WireGuard integration which means that if it's not set to enable == NO
-		// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
-		// will get stuck in a connection loop
-		[vpnManager setEnabled:NO];
-		[vpnManager setOnDemandEnabled:NO];
-		[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-			[[vpnManager connection] stopVPNTunnel];
-			if (completion) completion(saveErr);
-		}];
-	}
+	dispatch_group_enter(group);
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+		if (vpnManager.enabled == YES) {
+			GRDWarningLogg(@"Disconnecting IKEv2 VPN");
+			// Note from CJ 2022-02-23:
+			// You may think that we do not want to disable the VPN profile
+			// but as it turns out we are triggering some other bananas bug with the
+			// WireGuard integration which means that if it's not set to enable == NO
+			// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
+			// will get stuck in a connection loop
+			[vpnManager setEnabled:NO];
+			[vpnManager setOnDemandEnabled:NO];
+			[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+				if (saveErr != nil) {
+					GRDErrorLogg(@"Failed to disconnect IKEv2 tunnel: %@", saveErr);
+					tunnelError = saveErr;
+				}
+				[[vpnManager connection] stopVPNTunnel];
+				dispatch_group_leave(group);
+			}];
+			
+		} else {
+			dispatch_group_leave(group);
+		}
+	});
 	
-	if (tunnelManager.enabled == YES) {
-		GRDLogg(@"Disconnecting WireGuard VPN");
-		// Note from CJ 2022-02-22:
-		// This is a complete and utter hack that took
-		// me 9 hours to track and down and finess.
-		// The first one to touch this without explicit approval
-		// will die a painful death
-		[tunnelManager setEnabled:NO];
-		[tunnelManager setOnDemandEnabled:NO];
-		
+	dispatch_group_enter(group);
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+		if (tunnelManager.enabled == YES) {
+			GRDWarningLogg(@"Disconnecting WireGuard VPN");
+			// Note from CJ 2022-02-22:
+			// This is a complete and utter hack that took
+			// me 9 hours to track and down and finess.
+			// The first one to touch this without explicit approval
+			// will die a painful death
+			[tunnelManager setEnabled:NO];
+			[tunnelManager setOnDemandEnabled:NO];
+			
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
-		[tunnelManager setOnDemandRules:@[]];
-		[tunnelManager setProtocolConfiguration:nil];
-		[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-			if (error != nil) {
-				if (completion) completion(error);
-			}
-		}];
-		// Note from CJ 2023-02-20
-		// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
-		// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
-		// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
-		// This might seem very dangerous but should remain as is for now
-		[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-		if (completion) completion(nil);
-		
+			[tunnelManager setOnDemandRules:@[]];
+			[tunnelManager setProtocolConfiguration:nil];
+			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				if (error != nil) {
+					tunnelError = error;
+				}
+				dispatch_group_leave(group);
+			}];
+			// Note from CJ 2023-02-20
+			// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
+			// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
+			// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
+			// This might seem very dangerous but should remain as is for now
+			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+			
 #else
-		[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-			[(NETunnelProviderSession *)tunnelManager.connection stopVPNTunnel];
-			if (completion) completion(saveErr);
-		}];
+			[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+				if (saveErr != nil) {
+					GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
+					tunnelError = saveErr;
+				}
+				[(NETunnelProviderSession *)tunnelManager.connection stopVPNTunnel];
+				dispatch_group_leave(group);
+			}];
 #endif
-	}
+			
+		} else {
+			dispatch_group_leave(group);
+		}
+	});
+	
+
+	dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+		if (completion) completion(tunnelError);
+	});
 }
 
 - (void)forceDisconnectVPNIfNecessary {
@@ -1232,15 +1291,6 @@
 # pragma mark - Credential Creation Helper
 
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable errorMessage))completion {
-	// Note from CJ 2023-03-29
-	// This has been a little nonsensical in the current state
-//	if (![GRDSubscriptionManager isPayingUser]) {
-//		if (completion) {
-//			completion(nil, @"A paid account is required to create a subscriber credential.");
-//			return;
-//		}
-//	}
-	
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	BOOL expired = [subCred tokenExpired];
@@ -1249,17 +1299,35 @@
 		// No subscriber credential yet or it is expired. We have to create a new one
 		GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
 		
-		// Default to AppStore Receipt
-		GRDHousekeepingValidationMethod valmethod = ValidationMethodAppStoreReceipt;
+		//
+		// Prepare local variables to generate a new Subscriber Crednetial
+		GRDHousekeepingValidationMethod valmethod = ValidationMethodInvalid;
 		NSMutableDictionary *customKeys = [NSMutableDictionary new];
 		
-		// Check to see if we have a PEToken
-		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-		if (petToken.length > 0) {
-			valmethod = ValidationMethodPEToken;
+		// Check whether a preferred validation method is pre-defined and if yes
+		// exclusively attempt to generate Subscriber Credentials with this validation method
+		if (self.preferredSubscriberCredentialValidationMethod != ValidationMethodInvalid) {
+			valmethod = self.preferredSubscriberCredentialValidationMethod;
+			
+		} else {
+			//
+			// Auto mode attempting to detect what kind of subscription
+			// the current user most likely has...
+			
+			// Default to AppStore Receipt
+			valmethod = ValidationMethodAppStoreReceipt;
+			
+			// Check to see if we have a PEToken
+			NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+			if (petToken.length > 0) {
+				valmethod = ValidationMethodPEToken;
+				
+			} else if (self.customSubscriberCredentialAuthKeys != nil) {
+				valmethod = ValidationMethodCustom;
+			}
+		}
 		
-		} else if (self.customSubscriberCredentialAuthKeys != nil) {
-			valmethod = ValidationMethodCustom;
+		if (valmethod == ValidationMethodCustom) {
 			customKeys = self.customSubscriberCredentialAuthKeys;
 		}
 		
@@ -1526,6 +1594,7 @@
 		//resetting the value to nil, (Automatic)
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
 		self.selectedRegion = nil;
+		[defaults removeObjectForKey:kGuardianRegionOverride];
 		[defaults removeObjectForKey:kGRDHostnameOverride];
 		[defaults removeObjectForKey:kGRDVPNHostLocation];
 		[defaults setBool:NO forKey:kGuardianUseFauxTimeZone];
@@ -1534,6 +1603,23 @@
 	}
 	
 	return nil;
+}
+
+- (void)setPreferredRegionPrecision:(NSString *)precision {
+	self.regionPrecision = precision;
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([precision isEqualToString:kGRDRegionPrecisionDefault] == YES) {
+		//
+		// Note from CJ 2024-01-26
+		// By removing the key we attempt to guarantee that the SDK will
+		// always return back to the desired default value defined in the
+		// initalization function for GRDVPNHelper
+		[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
+		
+	} else {
+		[defaults setObject:precision forKey:kGRDPreferredRegionPrecision];
+	}
 }
 
 - (void)clearLocalCache {
