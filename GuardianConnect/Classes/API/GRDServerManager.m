@@ -59,10 +59,10 @@
 	return self;
 }
 
-- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage))completion {
+- (void)selectGuardianHostWithCompletion:(void (^)(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage))completion {
     [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSError * _Nullable errorMessage) {
         if (servers == nil) {
-            if (completion) completion(nil, nil, errorMessage);
+            if (completion) completion(nil, errorMessage);
             return;
         }
         
@@ -83,10 +83,9 @@
         // Get a random index based on the length of availableServers
         // Then use that random index to select a hostname and return it to the caller
         NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
-        NSString *host = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
-        NSString *hostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
-        GRDLogg(@"Selected hostname: %@", host);
-        if (completion) completion(host, hostLocation, nil);
+		NSDictionary *serverDict = [availableServers objectAtIndex:randomIndex];
+		GRDSGWServer *server = [[GRDSGWServer alloc] initFromDictionary:serverDict];
+        if (completion) completion(server, nil);
     }];
 }
 
@@ -141,7 +140,7 @@
 	}
 }
 
-- (void)findBestHostInRegion:(NSString * _Nullable )regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion {
+- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
     if (regionName == nil) { //if the region is nil, use the current one
         GRDDebugLog(@"Nil region, use the default!");
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
@@ -155,19 +154,19 @@
         
         if (host && hl) {
             if (completion) {
+				GRDSGWServer *server = [creds sgwServerFormat];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(host, hl, nil);
+                    completion(server, nil);
                 });
             }
             
         } else {
-            //we dont have a host and hostlocation yet.
-            GRDLog(@"we dont have a host or host location yet");
-            [self selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+			GRDDebugLog(@"Host or host location not yet set");
+            [self selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        GRDLog(@"host: %@ loc: %@ error: %@", guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
-                        completion(guardianHost, guardianHostLocation, [errorMessage localizedDescription]);
+                        GRDLog(@"host: %@ loc: %@ error: %@", server.hostname, server.displayName, [errorMessage localizedDescription]);
+                        completion(server, errorMessage);
                     });
                 }
             }];
@@ -181,7 +180,8 @@
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(nil, nil, NSLocalizedString(@"No server found", nil));
+						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:NSLocalizedString(@"No server found", nil)]);
+						return;
                     });
                 }
 				
@@ -192,12 +192,12 @@
                 }
                 
                 NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
-                NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
-                NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
-                GRDLog(@"Selected host: %@", guardianHost);
+				NSDictionary *serverDict = [availableServers objectAtIndex:randomIndex];
+				GRDSGWServer *server = [[GRDSGWServer alloc] initFromDictionary:serverDict];
+                GRDDebugLog(@"Selected host: %@", server);
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(guardianHost, guardianHostLocation, nil);
+                        completion(server, nil);
                     });
                 }
             }
