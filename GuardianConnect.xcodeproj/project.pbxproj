@@ -20,6 +20,10 @@
 		232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232ED3F0278F16FB008B1FCE /* Curve25519.swift */; };
 		232ED3F4278F172C008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F3278F172C008B1FCE /* CryptoKit.framework */; };
 		232ED3F6278F1733008B1FCE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 232ED3F5278F1733008B1FCE /* CryptoKit.framework */; platformFilter = maccatalyst; };
+		234D03962BAADBD300F136CC /* GRDSGWServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 234D03942BAADBD300F136CC /* GRDSGWServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		234D03972BAADBD300F136CC /* GRDSGWServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 234D03942BAADBD300F136CC /* GRDSGWServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		234D03982BAADBD300F136CC /* GRDSGWServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 234D03952BAADBD300F136CC /* GRDSGWServer.m */; };
+		234D03992BAADBD300F136CC /* GRDSGWServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 234D03952BAADBD300F136CC /* GRDSGWServer.m */; };
 		235E3E622993EF3D008E915B /* GRDAPIError.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E602993EF3D008E915B /* GRDAPIError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235E3E632993EF3D008E915B /* GRDAPIError.h in Headers */ = {isa = PBXBuildFile; fileRef = 235E3E602993EF3D008E915B /* GRDAPIError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		235E3E642993EF3D008E915B /* GRDAPIError.m in Sources */ = {isa = PBXBuildFile; fileRef = 235E3E612993EF3D008E915B /* GRDAPIError.m */; };
@@ -214,6 +218,8 @@
 		232ED3F0278F16FB008B1FCE /* Curve25519.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve25519.swift; sourceTree = "<group>"; };
 		232ED3F3278F172C008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = System/Library/Frameworks/CryptoKit.framework; sourceTree = SDKROOT; };
 		232ED3F5278F1733008B1FCE /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/System/Library/Frameworks/CryptoKit.framework; sourceTree = DEVELOPER_DIR; };
+		234D03942BAADBD300F136CC /* GRDSGWServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDSGWServer.h; sourceTree = "<group>"; };
+		234D03952BAADBD300F136CC /* GRDSGWServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDSGWServer.m; sourceTree = "<group>"; };
 		235E3E602993EF3D008E915B /* GRDAPIError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDAPIError.h; sourceTree = "<group>"; };
 		235E3E612993EF3D008E915B /* GRDAPIError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDAPIError.m; sourceTree = "<group>"; };
 		235E3E662993F8A5008E915B /* GRDConnectSubscriber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDConnectSubscriber.h; sourceTree = "<group>"; };
@@ -530,6 +536,8 @@
 				235E3E612993EF3D008E915B /* GRDAPIError.m */,
 				32939A8126167D1F007A4DFA /* GRDServerManager.h */,
 				32939A7726167D1F007A4DFA /* GRDServerManager.m */,
+				234D03942BAADBD300F136CC /* GRDSGWServer.h */,
+				234D03952BAADBD300F136CC /* GRDSGWServer.m */,
 				32855B18263640B90088086E /* GRDRegion.h */,
 				32855B17263640B90088086E /* GRDRegion.m */,
 			);
@@ -588,6 +596,7 @@
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
 				23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
+				234D03962BAADBD300F136CC /* GRDSGWServer.h in Headers */,
 				321BA148261404A100E876CB /* GuardianConnect.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -631,6 +640,7 @@
 				23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
 				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
+				234D03972BAADBD300F136CC /* GRDSGWServer.h in Headers */,
 				32E92C28262A1BC500A3202C /* EXTScope.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -848,6 +858,7 @@
 				236251F2299CE48C00C11DDC /* GRDDNSHelper.m in Sources */,
 				32939A8926167D20007A4DFA /* GRDSubscriberCredential.m in Sources */,
 				235E3E642993EF3D008E915B /* GRDAPIError.m in Sources */,
+				234D03982BAADBD300F136CC /* GRDSGWServer.m in Sources */,
 				32939A6C26167D0E007A4DFA /* NSPredicate+Additions.m in Sources */,
 				232ED3F1278F16FB008B1FCE /* Curve25519.swift in Sources */,
 				2362523C29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */,
@@ -880,6 +891,7 @@
 				32E92C17262A1B6100A3202C /* GRDVPNHelper.m in Sources */,
 				3252D62E26938DC000FE7402 /* GRDSubscriptionManager.m in Sources */,
 				32E92C15262A1B6100A3202C /* GRDServerManager.m in Sources */,
+				234D03992BAADBD300F136CC /* GRDSGWServer.m in Sources */,
 				32E92C0C262A1B5400A3202C /* EXTScope.m in Sources */,
 				32D80A46265B195A00F5C33B /* GRDReceiptLineItem.m in Sources */,
 				32855B1A263640B90088086E /* GRDRegion.m in Sources */,
