@@ -188,9 +188,9 @@
 
 - (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
-			[self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
+			[self configureFirstTimeUserForHostname:server.hostname andHostLocation:server.displayName postCredential:mid completion:completion];
 			
 		} else {
 			if (completion) {
@@ -202,9 +202,9 @@
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (!errorMessage) {
-			[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:mid completion:completion];
+			[self configureFirstTimeUserForTransportProtocol:protocol hostname:server.hostname andHostLocation:server.displayName postCredential:mid completion:completion];
 			
 		} else {
 			if (completion) {
@@ -216,13 +216,13 @@
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(errorMessage);
 			return;
 		}
 		
-		[self configureUserFirstTimeForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:postCredentialCallback completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+		[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:postCredentialCallback completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 			if (completion) completion(errorMessage);
 			return;
 		}];
@@ -342,12 +342,13 @@
 				mid();
 			}
 			
-			NSMutableDictionary *fullCreds = [creds mutableCopy];
-			fullCreds[kGRDHostnameOverride] = host;
-			fullCreds[kGRDVPNHostLocation] = hostLocation;
+			GRDSGWServer *server = [GRDSGWServer new];
+			[server setHostname:host];
+			[server setDisplayName:hostLocation];
+#warning is there a way to get a GRDRegion in here somehow?
 
 			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:fullCreds validFor:adjustedDays isMain:YES];
+			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:creds server:server validFor:adjustedDays isMain:YES];
 			if (protocol == TransportIKEv2) {
 				[self.mainCredential saveToKeychain];
 			}
@@ -384,10 +385,10 @@
 	}];
 }
 
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol hostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion {
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[GRDVPNHelper saveAllInOneBoxHostname:host];
-	[defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
+	[GRDVPNHelper saveAllInOneBoxHostname:server.hostname];
+	[defaults setObject:server.displayName forKey:kGRDVPNHostLocation];
 	
 	[self createStandaloneCredentialsForTransportProtocol:protocol days:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
 		if (errorMessage != nil) {
@@ -398,12 +399,8 @@
 		} else if (creds) {
 			if (mid) mid();
 			
-			NSMutableDictionary *fullCreds = [creds mutableCopy];
-			fullCreds[kGRDHostnameOverride] = host;
-			fullCreds[kGRDVPNHostLocation] = hostLocation;
-			
 			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:fullCreds validFor:adjustedDays isMain:YES];
+			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:creds server:server validFor:adjustedDays isMain:YES];
 			if (protocol == TransportIKEv2) {
 				[self.mainCredential saveToKeychain];
 			}
@@ -1389,9 +1386,14 @@
 }
 
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol days:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {
-	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults]valueForKey:kGRDHostnameOverride] completion:completion];
+	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride] completion:completion];
 }
 
+//
+// Note from CJ 2024-04-20
+// This function should probably take a GRDCredential or a GRDSGWServer object 
+// instead of just a hostname so that I have enough details down the road
+// to store relevant metadata alongside the credential
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days hostname:(NSString *)hostname completion:(void (^)(NSDictionary * credentials, NSString * errorMessage))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSString *error) {
 		if (subscriberCredential != nil) {
@@ -1553,7 +1555,7 @@
 
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if (errorMessage != nil) {
 				if (completion) {
@@ -1561,7 +1563,7 @@
 				}
 				
 			} else {
-				[self configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:completion];
+				[self configureFirstTimeUserForHostname:server.hostname andHostLocation:server.displayName postCredential:nil completion:completion];
 			}
 		});
 	}];
@@ -1569,13 +1571,13 @@
 
 - (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage) {
+	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(NO, [errorMessage localizedDescription]);
 			return;
 		}
 		
-		[self configureFirstTimeUserForTransportProtocol:protocol hostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:completion];
+		[self configureFirstTimeUserForTransportProtocol:protocol hostname:server.hostname andHostLocation:server.displayName postCredential:nil completion:completion];
 	}];
 }
 

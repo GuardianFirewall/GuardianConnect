@@ -240,11 +240,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a transport protocol, host, a host location, a postCredential callback block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
-/// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
-/// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
+/// @param server GRDSGWServer reference passing hostname, host display name as well as GRDRegion reference to be processed within the function
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol hostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion;
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
