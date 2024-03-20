@@ -313,6 +313,8 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param precision the preferred region precision
 - (void)setPreferredRegionPrecision:(NSString * _Nonnull)precision;
 
+- (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
+
 /// Migrate the user to a new server. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
 - (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;
 

@@ -1622,6 +1622,13 @@
 	}
 }
 
+- (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:ServerFeatureEnvironmentProduction betaCapableServers:NO];
+	[serverManager allRegionsWithCompletion:^(NSArray<GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage) {
+		if (completion) completion(regions, errorMessage);
+	}];
+}
+
 - (void)clearLocalCache {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	// Note from CJ 2021-10-28:
