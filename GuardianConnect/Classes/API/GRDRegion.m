@@ -89,12 +89,12 @@
 }
 
 - (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
-    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
         if (!error) {
             if (completion) {
-                self.bestHost = host;
-                self.bestHostLocation = hostLocation;
-                completion(host, hostLocation, true);
+                self.bestHost = server.hostname;
+                self.bestHostLocation = server.displayName;
+                completion(server.hostname, server.displayName, true);
             }
             
         } else {
@@ -107,12 +107,12 @@
 
 - (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:regionPrecision serverFeatureEnvironment:featureEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:self.regionName completion:^(NSString * _Nonnull host, NSString * _Nonnull hostLocation, NSString * _Nonnull error) {
+	[serverManager findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 		if (!error) {
 			if (completion) {
-				self.bestHost = host;
-				self.bestHostLocation = hostLocation;
-				completion(host, hostLocation, true);
+				self.bestHost = server.hostname;
+				self.bestHostLocation = server.displayName;
+				completion(server.hostname, server.displayName, true);
 			}
 			
 		} else {
