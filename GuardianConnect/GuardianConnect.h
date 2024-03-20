@@ -42,6 +42,7 @@
 #import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
 #import <GuardianConnect/GRDReceiptLineItemMetadata.h>
 #import <GuardianConnect/GRDIAPReceiptResponse.h>
+#import <GuardianConnect/GRDSGWServer.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;
