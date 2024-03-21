@@ -29,22 +29,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSDate 	        *expirationDate;
 @property NSString 	        *hostname;
 @property NSString 	        *hostnameDisplayValue;
-@property GRDRegion 		*region;
+@property GRDRegion 		* _Nullable region;
 
 @property NSString          *clientId;
 @property NSString          *apiAuthToken;
 
 // IKEv2 related properties
-@property NSString 	*username;
-@property NSString 	*password;
-@property NSData 	*passwordRef;
+@property NSString 	* _Nullable username;
+@property NSString 	* _Nullable password;
+@property NSData 	* _Nullable passwordRef;
 
 // WireGuard related properties
-@property NSString *devicePublicKey;
-@property NSString *devicePrivateKey;
-@property NSString *serverPublicKey;
-@property NSString *IPv4Address;
-@property NSString *IPv6Address;
+@property NSString * _Nullable devicePublicKey;
+@property NSString * _Nullable devicePrivateKey;
+@property NSString * _Nullable serverPublicKey;
+@property NSString * _Nullable IPv4Address;
+@property NSString * _Nullable IPv6Address;
 
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;
