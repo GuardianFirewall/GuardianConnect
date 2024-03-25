@@ -10,9 +10,16 @@
 
 #import <GuardianConnect/GRDTransportProtocol.h>
 
+//
+// Note from CJ 2024-04-20
+// GRDRegion is being imported via the @class operator here to prevent
+// a circular import and the compiler being very sad
+@class GRDRegion;
+@class GRDSGWServer;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GRDCredential : NSObject
+@interface GRDCredential : NSObject <NSSecureCoding>
 
 // Properties used by all credentials
 @property NSString 	        *name;
@@ -22,26 +29,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSDate 	        *expirationDate;
 @property NSString 	        *hostname;
 @property NSString 	        *hostnameDisplayValue;
+@property GRDRegion 		* _Nullable region;
 
 @property NSString          *clientId;
 @property NSString          *apiAuthToken;
 
 // IKEv2 related properties
-@property NSString 	*username;
-@property NSString 	*password;
-@property NSData 	*passwordRef;
+@property NSString 	* _Nullable username;
+@property NSString 	* _Nullable password;
+@property NSData 	* _Nullable passwordRef;
 
 // WireGuard related properties
-@property NSString *devicePublicKey;
-@property NSString *devicePrivateKey;
-@property NSString *serverPublicKey;
-@property NSString *IPv4Address;
-@property NSString *IPv6Address;
+@property NSString * _Nullable devicePublicKey;
+@property NSString * _Nullable devicePrivateKey;
+@property NSString * _Nullable serverPublicKey;
+@property NSString * _Nullable IPv4Address;
+@property NSString * _Nullable IPv6Address;
 
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;
 - (id)initWithFullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
-- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
+- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
 - (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate;
 - (void)updateWithItem:(GRDCredential *)cred;
 - (NSString *)truncatedHost;
@@ -50,6 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSInteger)daysLeft; //days until it does expire
 - (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
 - (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion;
+
+/// Helper function to quickly convert a GRDCredential into a GRDSGWServer representation
+- (GRDSGWServer *)sgwServerFormat;
 
 
 // Note from CJ 2022-05-03

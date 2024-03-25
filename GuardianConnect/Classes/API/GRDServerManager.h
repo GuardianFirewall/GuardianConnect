@@ -10,6 +10,7 @@
 
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDSGWServer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Used to find and return the VPN server node we will connect to based on the results of a call to 'getGuardianHostsWithCompletion:"
 /// @param completion Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
-- (void)selectGuardianHostWithCompletion:(void (^)(NSString * _Nullable guardianHost, NSString * _Nullable guardianHostLocation, NSError * _Nullable errorMessage))completion;
+- (void)selectGuardianHostWithCompletion:(void (^)(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage))completion;
 
 /// Used to get available VPN server nodes based on NSUserDefault settings OR the users time zone. Explained further below.
 /// if kGuardianUseFauxTimeZone is true kGuardianFauxTimeZone and kGuardianFauxTimeZonePretty will be used to find our host (this is how region selection works)
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Used to find the best VPN server node in a specified region, useful if you want to get VPN server node & its host location without creating a VPN connection.
 /// @param regionName NSString. The region we want to find the best available VPN node in.
 /// @param completion block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
-- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(NSString *host, NSString *hostLocation, NSString *error))completion;
+- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion;
 
 /// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
 /// @param timezones NSArray of timezones that is from GRDHousekeepingAPI 'requestTimeZonesForRegionsWithTimestamp:' method

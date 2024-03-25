@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/NSDate+Extras.h>
+#import <GuardianConnect/GRDSGWServer.h>
 
 @interface GRDCredential() {
     BOOL _checkedExpiration;
@@ -67,7 +68,7 @@
     return self;
 }
 
-- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
+- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
 	self = [super init];
 	if (self) {
 		self.identifier 	= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
@@ -77,9 +78,11 @@
 			self.identifier = @"main";
 		}
 		self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
-		self.hostname 				= credDict[kGRDHostnameOverride];
+		self.hostname 				= server.hostname;
 		self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
-		self.hostnameDisplayValue 	= credDict[kGRDVPNHostLocation];
+		self.hostnameDisplayValue 	= server.displayName;
+		
+		self.region = server.region;
 		
 		_checkedExpiration = false;
 		_expired = false;
@@ -143,6 +146,7 @@
 		self.expirationDate 		= [aDecoder decodeObjectForKey:@"expirationDate"];
 		self.hostname 				= [aDecoder decodeObjectForKey:@"hostname"];
 		self.hostnameDisplayValue 	= [aDecoder decodeObjectForKey:@"hostnameDisplayValue"];
+		self.region 				= [aDecoder decodeObjectForKey:@"region"];
 		self.apiAuthToken 			= [aDecoder decodeObjectForKey:@"apiAuthToken"];
 		self.transportProtocol		= [[aDecoder decodeObjectForKey:@"transportProtocol"] integerValue];
 		
@@ -176,6 +180,7 @@
     [aCoder encodeObject:self.expirationDate forKey:@"expirationDate"];
 	[aCoder encodeObject:self.hostname forKey:@"hostname"];
 	[aCoder encodeObject:self.hostnameDisplayValue forKey:@"hostnameDisplayValue"];
+	[aCoder encodeObject:self.region forKey:@"region"];
 	[aCoder encodeObject:self.apiAuthToken forKey:@"apiAuthToken"];
 	[aCoder encodeObject:[NSNumber numberWithInteger:self.transportProtocol] forKey:@"transportProtocol"];
 	
@@ -190,6 +195,10 @@
 	[aCoder encodeObject:self.clientId forKey:@"clientId"];
 	
     [aCoder encodeBool:self.mainCredential forKey:@"mainCredential"];
+}
+
++ (BOOL)supportsSecureCoding {
+	return YES;
 }
 
 //the only thing the user can change is the name
@@ -273,18 +282,28 @@
     if (self.username.length > 0 && self.apiAuthToken.length > 0) {
         [[GRDGatewayAPI new] invalidateEAPCredentials:self.username andAPIToken:self.apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
             if (success) {
-                GRDLog(@"[DEBUG] successfully revoked our credential!");
+                GRDDebugLog(@"Successfully revoked our credential!");
 				
             } else {
-                GRDLog(@"[DEBUG] failed to revoke the credential with error: %@", errorMessage);
+                GRDErrorLogg(@"Failed to revoke the credential with error: %@", errorMessage);
             }
+			
             if (completion)completion(success, errorMessage);
         }];
 		
     } else {
-        GRDLog(@"[DEBUG] cant revoke this credential, missing necessary data!");
+        GRDWarningLogg(@"Cant revoke this credential, missing necessary data!");
         if (completion)completion(false, @"Cant revoke this credential, missing necessary data!");
     }
+}
+
+- (GRDSGWServer *)sgwServerFormat {
+	GRDSGWServer *server = [GRDSGWServer new];
+	server.hostname = self.hostname;
+	server.displayName = self.hostnameDisplayValue;
+	server.region = self.region;
+	
+	return server;
 }
 
 @end
