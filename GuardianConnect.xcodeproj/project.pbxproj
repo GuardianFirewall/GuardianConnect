@@ -48,6 +48,8 @@
 		2362524429C2273600C11DDC /* GRDPEToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 2362524129C2273600C11DDC /* GRDPEToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2362524529C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
 		2362524629C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
+		23A450502BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
+		23A450512BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
 		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */; };
 		23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -233,6 +235,7 @@
 		2362524129C2273600C11DDC /* GRDPEToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDPEToken.h; sourceTree = "<group>"; };
 		2362524229C2273600C11DDC /* GRDPEToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDPEToken.m; sourceTree = "<group>"; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		23BBBC5D2923E70D00BAEC41 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -365,6 +368,7 @@
 		321BA139261404A100E876CB = {
 			isa = PBXGroup;
 			children = (
+				23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */,
 				23A3D13D285B76B400AC2B0C /* Package.swift */,
 				32A49C3D263900E100D15910 /* README.md */,
 				32E92C62262F3F3800A3202C /* build_framework.sh */,
@@ -803,6 +807,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23A450502BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -820,6 +825,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23A450512BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
