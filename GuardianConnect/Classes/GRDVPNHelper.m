@@ -112,6 +112,14 @@
 			GRDWarningLog(@"Preferred region precision '%@' does not match any of the known constants!", self.regionPrecision);
 		}
 	}
+	
+	if ([defaults valueForKey:kGRDDisconnectOnTrustedNetworks] != nil) {
+		self.disconnectOnTrustedNetworks = [defaults boolForKey:kGRDDisconnectOnTrustedNetworks];
+	}
+	
+	if ([defaults valueForKey:kGRDTrustedNetworksArray] != nil) {
+		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
+	}
 }
 
 + (BOOL)activeConnectionPossible {
@@ -683,7 +691,7 @@
             
 			if ([self onDemand]) {
                 vpnManager.onDemandEnabled = YES;
-                vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+                vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:NO trustedNetworks:nil];
 				
             } else {
                 vpnManager.onDemandEnabled = NO;
@@ -747,7 +755,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -841,16 +849,35 @@
 	}
 }
 
-+ (NSArray *)_vpnOnDemandRulesWithProbeURL:(BOOL)probeURLEnabled {
-	// RULE: connect to VPN automatically if server reports that it is running OK
++ (NSArray *)_vpnOnDemandRulesWithProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
+	// Create mutable array to throw on-demand rules into
+	NSMutableArray *onDemandRules = [NSMutableArray new];
+	
+	// Create rule to disconnect the VPN automatically if the device is
+	// connected to certain WiFi SSIDs.
+	if (trustedNetworks != nil) {
+		if ([trustedNetworks count] > 0) {
+			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
+			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
+			if (disconntTrustedNetworks == YES) {
+				disconnect.SSIDMatch = trustedNetworks;
+				[onDemandRules addObject:disconnect];
+			}
+		}
+	}
+	
+	// Create rule to connect to the VPN automatically if server reports that it is running OK
+	// This is done by using the probe URL. It is a GET request which has to return 200 OK as the
+	// HTTP response status code. No other indicator is considered and everything but 200 OK is
+	// an automatic failure preventing the device to get stuck in a loop trying to connect
 	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
 	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
 	if (probeURLEnabled == YES) {
 		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride]]];
 	}
 	
-	NSArray *onDemandArr = @[vpnServerConnectRule];
-	return onDemandArr;
+	[onDemandRules addObject:vpnServerConnectRule];
+	return onDemandRules;
 }
 
 /// Starting the VPN connection via the WireGuard transport protocol with the help
@@ -897,7 +924,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:NO trustedNetworks:nil];
 
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -1025,7 +1052,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -1282,6 +1309,24 @@
 	// This way we can prevent any network race conditions in other
 	// API calls
 	sleep(1);
+}
+
+- (void)resetAllGuardianConnectValues {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:kGuardianRegionOverride];
+	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
+	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults removeObjectForKey:kAppNeedsSelfRepair];
+	[defaults removeObjectForKey:kGRDTunnelEnabled];
+	[defaults removeObjectForKey:kGuardianTransportProtocol];
+	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
+	
+	[GRDKeychain removeAllKeychainItems];
+	[GRDKeychain removeSubscriberCredentialWithRetries:3];
+	[GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
+	[GRDKeychain removeKeychainItemForAccount:kGuardianCredentialsList];
+	[GRDKeychain removeKeychainItemForAccount:kGuardianConnectSubscriberSecret];
 }
 
 
@@ -1622,6 +1667,21 @@
 	} else {
 		[defaults setObject:precision forKey:kGRDPreferredRegionPrecision];
 	}
+}
+
+- (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
+		self.disconnectOnTrustedNetworks = NO;
+		self.trustedNetworks = nil;
+		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+	}
+	
+	self.disconnectOnTrustedNetworks = enabled;
+	self.trustedNetworks = trustedNetworks;
+	[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
 }
 
 - (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {

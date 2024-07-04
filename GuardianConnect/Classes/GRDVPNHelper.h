@@ -106,7 +106,6 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// and it is not recommended to set the same values for both tunnels to avoid customers confusion
 @property NSString *tunnelLocalizedDescription;
 
-
 /// Indicate whether or not GRDVPNHelper should append a formatted server
 /// location string at the end of the localized tunnel description string
 ///
@@ -134,6 +133,27 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 ///
 /// Default: (Cloudflare) 1.1.1.1, 1.0.0.1
 @property NSString *preferredDNSServers;
+
+/// Enables or disables the device automatically
+/// disconnecting the VPN once connected to trusted
+/// WiFi networks.
+/// Works with IKEv2 & WireGuard
+///
+/// This feature entirely relies on SSID strings as well as
+/// the system trusting and connecting to a network. No additional
+/// checks are performed if the SSID of the network matches the one
+/// provided to this feature
+@property BOOL disconnectOnTrustedNetworks;
+
+/// Array of the names of trusted networks on which the VPN
+/// will automatically disconnect with the help of the
+/// NetworkExtension.framework on-demand rules capabiltity
+/// Works with IKEv2 & WireGuard
+///
+/// In order to enable this feature please set disconnectOnTrustedNetworks to YES/true.
+///
+/// An empty array will lead to the feature not being enabled at all
+@property NSArray<NSString *> * _Nullable trustedNetworks;
 
 /// Indicate whether or not GRDVPNHelper should append a formatted server
 /// location string at the end of the localized tunnel provider manager description string
@@ -268,6 +288,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Safely disconnect from the current VPN node if applicable. This is best to call upon doing disconnections upon app launches. For instance, if a subscription expiration has been detected on launch, disconnect the active VPN connection. This will make certain not to disconnect the VPN if a valid state isnt detected.
 - (void)forceDisconnectVPNIfNecessary;
 
+/// This is a convenience function to reset the state of the SDK back
+/// as though the device had never connected to a VPN before.
+///
+/// This app should specifically be called after the
+/// app launches on a device for the first time
+- (void)resetAllGuardianConnectValues;
+
 /// There should be no need to call this directly, this is for internal use only.
 - (void)getValidSubscriberCredentialWithCompletion:(void(^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error))completion;
 
@@ -311,6 +338,14 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// The constants 'kGRDRegionPrecisionDefault', 'kGRDRegionPrecisionCity' or 'kGRDRegionPrecisionCountry' should be used
 /// @param precision the preferred region precision
 - (void)setPreferredRegionPrecision:(NSString * _Nonnull)precision;
+
+/// Convenience function to store trusted networks persistently and enabling the feature
+///
+/// The array of trusted network SSIDs will be stored in NSUserDefaults and
+/// the trustedNetworks property will be populated to read it back.
+/// Providing nil will disable the feature and remove the array of trusted networks
+/// out of NSUserDefaults
+- (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks;
 
 - (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
 
