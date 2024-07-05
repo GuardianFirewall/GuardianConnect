@@ -88,30 +88,12 @@
 	return ([self.regionName isEqualToString:[object regionName]] && [self.displayName isEqualToString:[object displayName]]);
 }
 
-- (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
-    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-        if (!error) {
-            if (completion) {
-                self.bestHost = server.hostname;
-                self.bestHostLocation = server.displayName;
-                completion(server.hostname, server.displayName, true);
-            }
-            
-        } else {
-            if (completion) {
-                completion(nil, nil, false);
-            }
-        }
-    }];
-}
-
+#warning change callback function signature to return GRDSGWServer
 - (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:regionPrecision serverFeatureEnvironment:featureEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+	[serverManager findBestHostInRegion:self completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 		if (!error) {
 			if (completion) {
-				self.bestHost = server.hostname;
-				self.bestHostLocation = server.displayName;
 				completion(server.hostname, server.displayName, true);
 			}
 			

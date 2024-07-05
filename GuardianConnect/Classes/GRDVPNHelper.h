@@ -207,9 +207,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
 + (void)clearVpnConfiguration;
 
-/// Sets our kGRDHostnameOverride variable in NSUserDefaults
-+ (void)saveAllInOneBoxHostname:(NSString *)host;
-
 /// Send out two notifications to make any listener
 /// aware that the hostname and hostname location values
 /// should be updated in the interface
@@ -218,13 +215,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
-
-/// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no VPN credentials or a Subscriber Credential exist yet and a new connection should be established to a server chosen automatically.
-/// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
-/// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
-/// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
+- (void)configureFirstTimeUserPostCredential:(void(^ _Nullable)(void))mid completion:(void (^ _Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion;
 
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no VPN credentials or a Subscriber Credential exist yet and a new connection should be established to a server chosen automatically.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
@@ -233,30 +224,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^ _Nullable)(void))postCredentialCallback completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
-/// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
-/// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion;
-
-/// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
 /// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion;
-
-/// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
-/// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
-/// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
-/// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
-/// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForHostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
-
-/// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a transport protocol, host, a host location, a postCredential callback block and a completion block.
-/// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
-/// @param host NSString specific host you want to connect to ie saopaulo-ipsec-4.sudosecuritygroup.com
-/// @param hostLocation NSString the display version of the location of the host you are connecting to ie: Sao, Paulo, Brazil
-/// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
-/// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol hostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion;
+- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^__nullable)(NSError * _Nullable error))completion;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a transport protocol, host, a host location, a postCredential callback block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
@@ -266,15 +237,8 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
-/// @param completion block This completion block will return a message to display to the user and a status code, if the connection is successful, the message will be empty.
-- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode status))completion;
-
-/// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return an error to display to the user and a status code, if the connection is successful, the error will be empty.
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage))completion;
-
-/// Used to disconnect from the current VPN node
-- (void)disconnectVPN;
 
 /// Used to disconnect from the current VPN node
 ///
@@ -298,35 +262,20 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// There should be no need to call this directly, this is for internal use only.
 - (void)getValidSubscriberCredentialWithCompletion:(void(^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error))completion;
 
-/// Used to create standalone eap-username & eap-password on an automatically chosen host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
-/// @param validForDays NSInteger number of days these credentials will be valid for
-/// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion;
-
-/// Used to create standalone eap-username & eap-password on a specified host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
-/// @param validForDays NSInteger number of days these credentials will be valid for
-/// @param hostname NSString hostname to connect to ie: saopaulo-ipsec-4.sudosecuritygroup.com
-/// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * _Nonnull, NSString * _Nonnull))completion;
-
-/// Used to create standalone VPN credentials on an automatically chosen host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
-/// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
-/// @param validForDays NSInteger number of days these credentials will be valid for
-/// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol days:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion;
 
 /// Used to create standalone VPN credentials on a specified host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
 /// @param days NSInteger number of days these credentials will be valid for
-/// @param hostname NSString hostname to connect to ie: saopaulo-ipsec-4.sudosecuritygroup.com
+/// @param server GRDSGWServer containing the hostname to connect to ie: frankfurt-10.sgw.guardianapp.com
 /// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days hostname:(NSString *)hostname completion:(void (^)(NSDictionary * credentials, NSString * errorMessage))completion;
+- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSString * errorMessage))completion;
 
-
-/// Verify that current EAP credentials are valid if applicable. A valid Subscriber Credential is automatically obtained and provided to the VPN node alongside the credential details. If the device is currently connected and the server indicates that the VPN credentials are no longer valid the device is automatically migrated to a new server within the same region
-- (void)verifyMainEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString *errorMessage))completion;
-
-/// Verify that the current main VPN credentials are valid if applicable. A valid Subscriber Credential is automatically obtained and provided to the VPN node alongside the credential details. If the device is currently connected and the server indicates that the VPN credentials are no longer valid the device is automatically migrated to a new server within the same region
+/// Verify that the current main VPN credentials are valid if applicable. 
+/// A valid Subscriber Credential is automatically obtained and provided to
+/// the VPN node alongside the credential details.
+/// If the device is currently connected and the server indicates that
+/// the VPN credentials are no longer valid the device is automatically
+/// migrated to a new server within the same region
 - (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion;
 
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
@@ -348,9 +297,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks;
 
 - (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
-
-/// Migrate the user to a new server. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
-- (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;
 
 /// Migrate the user to a new server for the user preferred transport protocol. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
 - (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;

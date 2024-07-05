@@ -102,93 +102,30 @@
     }
 }
 
-+ (BOOL)migrateKeychainItemsToGRDCredential {
-    NSString *eapUsername = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapUsername];
-    NSString *eapPassword = [GRDKeychain getPasswordStringForAccount:kKeychainStr_EapPassword];
-    NSString *apiAuthToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_APIAuthToken];
-    
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSString *hostname = [defaults stringForKey:kGRDHostnameOverride];
-    NSString *hostnameLocation = [defaults stringForKey:kGRDVPNHostLocation];
-    
-    if (eapUsername != nil || eapPassword == nil || apiAuthToken == nil || hostname == nil || hostnameLocation == nil) {
-        GRDWarningLogg(@"nil value detected. Nothing to migrate");
-        GRDWarningLogg(@"\neap username: %@\neap password: %@\napi auth token: %@\nhostname: %@\nhostname location: %@", eapUsername, eapPassword, apiAuthToken, hostname, hostnameLocation);
-        return NO;
-    }
-    
-    GRDCredential *newMain = [[GRDCredential alloc] initWithFullDictionary:@{kKeychainStr_EapUsername: eapUsername, kKeychainStr_EapPassword: eapPassword, kKeychainStr_APIAuthToken: apiAuthToken, kGRDHostnameOverride: hostname, kGRDVPNHostLocation: hostnameLocation} validFor:30 isMain:YES];
-    [self addOrUpdateCredential:newMain];
-    
-    [[GRDVPNHelper sharedInstance] setMainCredential:newMain];
-	[newMain saveToKeychain];
-    return YES;
-}
-
-+ (void)createCredentialForRegion:(NSString *)regionString numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void(^)(GRDCredential * _Nullable cred, NSError * _Nullable error))completion {
-	//first get a host
-	[[GRDServerManager new] findBestHostInRegion:regionString completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-		if (!error) {
-			//now get the new credentials for said hostname
-			[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForDays:numberOfDays hostname:server.hostname completion:^(NSDictionary * _Nonnull creds, NSString * _Nonnull errorMessage) {
-				if (!errorMessage) {
-					//we got a hostname & credentials, got all we need!
-					NSMutableDictionary *credCopy = [creds mutableCopy];
-					credCopy[kGRDHostnameOverride] = server.hostname;
-					credCopy[kGRDVPNHostLocation] = server.displayName;
-					GRDCredential *credential = [[GRDCredential alloc] initWithFullDictionary:credCopy validFor:numberOfDays isMain:mainCredential];
-					OSStatus keychainSaving = [credential saveToKeychain];
-					if (keychainSaving == errSecSuccess) {
-						if (completion) {
-							completion(credential, nil);
-						}
-						
-					} else {
-						if (completion) {
-							completion(nil, [GRDErrorHelper errorWithErrorCode:GRDErrGenericErrorCode andErrorMessage:@"Failed to save credential password to the keychain."]);
-						}
-					}
-					
-				} else {
-					if (completion) {
-						completion(nil, error);
-					}
-				}
-			}];
-			
-		} else {
-			if (completion) {
-				completion(nil, error);
-			}
-		}
-	}];
-}
-
-+ (void)createCredentialForRegion:(NSString *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void (^)(GRDCredential * _Nullable, NSError * _Nullable))completion {
-	//first get a host name
++ (void)createCredentialForRegion:(GRDRegion *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void (^)(GRDCredential * _Nullable, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:[[GRDVPNHelper sharedInstance] regionPrecision] serverFeatureEnvironment:[[GRDVPNHelper sharedInstance] featureEnvironment] betaCapableServers:NO];
 	[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-		if (!error) {
-			//now get the new credentials for said hostname
-			[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays hostname:server.hostname completion:^(NSDictionary * _Nonnull credentials, NSString * _Nonnull errorMessage) {
-				if (!errorMessage) {
-					GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
-					if (completion) {
-						completion(credential, nil);
-					}
-					
-				} else {
-					if (completion) {
-						completion(nil, error);
-					}
-				}
-			}];
-			
-		} else {
+		if (error != nil) {
 			if (completion) {
 				completion(nil, error);
+				return;
 			}
 		}
+		
+		//now get the new credentials for said hostname
+		[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays server:server completion:^(NSDictionary * _Nonnull credentials, NSString * _Nonnull errorMessage) {
+			if (!errorMessage) {
+				GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
+				if (completion) {
+					completion(credential, nil);
+				}
+				
+			} else {
+				if (completion) {
+					completion(nil, error);
+				}
+			}
+		}];
 	}];
 }
 

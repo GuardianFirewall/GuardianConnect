@@ -17,7 +17,8 @@
 
 + (OSStatus)storePassword:(NSString *)passwordStr forAccount:(NSString *)accountKeyStr {
     if (passwordStr == nil) {
-        return errSecParam; //technically it IS a parameter issue, so this makes sense.
+		GRDErrorLogg(@"No EAP password provided!");
+        return errSecParam;
     }
 	
     CFTypeRef result = NULL;

@@ -140,21 +140,13 @@
 	}
 }
 
-- (void)findBestHostInRegion:(NSString * _Nullable)regionName completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
-    if (regionName == nil) { //if the region is nil, use the current one
+- (void)findBestHostInRegion:(GRDRegion * _Nullable)region completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
+    if (region == nil) { //if the region is nil, use the current one
         GRDDebugLog(@"Nil region, use the default!");
-        NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-        GRDCredential *creds = [GRDCredentialManager mainCredentials];
-        NSString *host = [def objectForKey:kGRDHostnameOverride];
-        NSString *hl = [def objectForKey:kGRDVPNHostLocation];
-        if (creds) {
-            host = [creds hostname];
-            hl = [creds hostnameDisplayValue];
-        }
-        
-        if (host && hl) {
+        GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
+        if (mainCredentials != nil) {
             if (completion) {
-				GRDSGWServer *server = [creds sgwServerFormat];
+				GRDSGWServer *server = [mainCredentials sgwServerFormat];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completion(server, nil);
                 });
@@ -176,7 +168,7 @@
     }
 	
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-		[self.housekeeping requestServersForRegion:regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+		[self.housekeeping requestServersForRegion:region.regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -205,51 +197,6 @@
     });
 }
 
-- (void)selectBestHostFromRegion:(NSString *)regionName completion:(void(^_Nullable)(NSString *errorMessage, BOOL success))completion {
-    GRDDebugLog(@"Requested Region: %@", regionName);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [self.housekeeping requestServersForRegion:regionName paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nonnull servers, BOOL success) {
-            if (servers.count < 1) {
-                if (completion) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(@"No server found in the specified region", NO);
-                    });
-                }
-                
-            } else {
-                NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
-                if (availableServers.count < 2) {
-                    GRDDebugLog(@"Less than 2 low capacity servers: %@", availableServers);
-                    availableServers = servers;
-                }
-                
-                NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
-                NSString *guardianHost = [[availableServers objectAtIndex:randomIndex] objectForKey:@"hostname"];
-                NSString *guardianHostLocation = [[availableServers objectAtIndex:randomIndex] objectForKey:@"display-name"];
-                GRDLog(@"Selected host: %@", guardianHost);
-                GRDVPNHelper *vpnHelper = [GRDVPNHelper sharedInstance];
-				[vpnHelper configureFirstTimeUserForHostname:guardianHost andHostLocation:guardianHostLocation postCredential:nil completion:^(BOOL success, NSString * _Nonnull errorMessage) {
-                    if (!success) {
-                        if (completion) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(errorMessage, NO);
-                            });
-                        }
-                        
-                    } else {
-                        GRDDebugLog(@"Configured first time user successfully!");
-                        if (completion) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(nil, YES);
-                            });
-                        }
-                    }
-                }];
-            }
-        }];
-    });
-}
-
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones {
     NSDictionary *found = [[timezones filteredArrayUsingPredicate:[NSPredicate timezonePredicate]] lastObject];
     return [[GRDRegion alloc] initWithDictionary:found];
@@ -264,19 +211,6 @@
 		}
 		
 		if (completion) completion([GRDRegion regionsFromTimezones:items]);
-		return;
-	}];
-}
-
-- (void)regionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
-		if (!success) {
-			GRDErrorLogg(@"Failed to fetch server regions from API");
-			if (completion) completion(nil, errorMessage);
-			return;
-		}
-		
-		if (completion) completion([GRDRegion regionsFromTimezones:items], nil);
 		return;
 	}];
 }

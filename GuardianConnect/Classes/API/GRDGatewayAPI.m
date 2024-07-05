@@ -42,7 +42,8 @@
     if (main) {
         return [main hostname];
     }
-    return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride];
+	
+	return nil;
 }
 
 - (BOOL)_canMakeApiRequests {
