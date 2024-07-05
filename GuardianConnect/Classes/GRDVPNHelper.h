@@ -227,7 +227,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
 /// @param region GRDRegion, the region to create fresh VPN connection to, upon nil it will revert to automatic selection based upon the users current time zone.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^__nullable)(NSError * _Nullable error))completion;
+- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^__nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable error))completion;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a transport protocol, host, a host location, a postCredential callback block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
@@ -260,7 +260,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)resetAllGuardianConnectValues;
 
 /// There should be no need to call this directly, this is for internal use only.
-- (void)getValidSubscriberCredentialWithCompletion:(void(^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error))completion;
+- (void)getValidSubscriberCredentialWithCompletion:(void(^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable error))completion;
 
 
 /// Used to create standalone VPN credentials on a specified host that is valid for a certain number of days. Good for exporting VPN credentials for use on other devices.
@@ -268,7 +268,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param days NSInteger number of days these credentials will be valid for
 /// @param server GRDSGWServer containing the hostname to connect to ie: frankfurt-10.sgw.guardianapp.com
 /// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSString * errorMessage))completion;
+- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * _Nullable credentials, NSError * _Nullable errorMessage))completion;
 
 /// Verify that the current main VPN credentials are valid if applicable. 
 /// A valid Subscriber Credential is automatically obtained and provided to
@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// If the device is currently connected and the server indicates that
 /// the VPN credentials are no longer valid the device is automatically
 /// migrated to a new server within the same region
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion;
+- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable errorMessage))completion;
 
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
@@ -299,8 +299,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 - (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
 
 /// Migrate the user to a new server for the user preferred transport protocol. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
-- (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion;
-
+- (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode statusCode, NSError * _Nullable error))completion;
 
 /// Clear all on device cache related to cached Guardian hosts & keychain items including the Subscriber Credential
 - (void)clearLocalCache;
