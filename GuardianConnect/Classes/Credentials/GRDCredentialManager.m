@@ -113,17 +113,16 @@
 		}
 		
 		//now get the new credentials for said hostname
-		[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays server:server completion:^(NSDictionary * _Nonnull credentials, NSString * _Nonnull errorMessage) {
-			if (!errorMessage) {
-				GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
-				if (completion) {
-					completion(credential, nil);
-				}
-				
-			} else {
-				if (completion) {
-					completion(nil, error);
-				}
+		[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
+			if (errorMessage != nil) {
+				if (completion) completion(nil, error);
+				return;
+			}
+			
+			
+			GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
+			if (completion) {
+				completion(credential, nil);
 			}
 		}];
 	}];

@@ -47,6 +47,7 @@ static NSString * const kGuardianSuccessfulSubscription                 = @"succ
 static NSString * const kGRDDefaultGatewayUUID                          = @"kGRDDefaultGatewayUUID";
 
 static NSString * const kVPNHadNetworkHealthDisconnect                  = @"vpnHadNetworkHealthDisconnect";
+#warning DELETE!!!
 static NSString * const kGRDHostnameOverride                            = @"APIHostname-Override";
 static NSString * const kGRDEAPSharedHostname                           = @"SharedAPIHostname";
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";

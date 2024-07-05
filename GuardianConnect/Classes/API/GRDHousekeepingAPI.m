@@ -233,7 +233,7 @@
 
 # pragma mark - Subscriber Credentials
 
-- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
 	
 	NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
@@ -249,10 +249,7 @@
 			// Apple in-app purchase receipts copied from the Guardian Firewall iOS app
 			NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
 			if (userDefaultsEncodedIAPReceipt == nil) {
-				GRDLog(@"ReceiptData is nil");
-				if (completion) {
-					completion(nil, NO, @"AppStore receipt missing");
-				}
+				if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"AppStore receipt missing"]);
 				return;
 			}
 			
@@ -271,8 +268,7 @@
 	} else if (validationMethod == ValidationMethodPEToken) {
 		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
 		if (petToken == nil) {
-			GRDLog(@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
-			if (completion) completion(nil, NO, @"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device"]);
 			return;
 		}
 		
@@ -283,15 +279,14 @@
 		jsonDict = dict;
 		
 	} else {
-		if (completion) completion(nil, NO, @"validation method missing");
+		if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"validation method missing"]);
 		return;
 	}
 	
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		GRDErrorLog(@"Failed to encode JSON request body: %@", jsonErr);
-		if (completion) completion(nil, NO, @"Failed to encode JSON request body");
+		if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode JSON request body: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -306,25 +301,22 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]]);
 			return;
 		}
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode == 500) {
-			GRDLog(@"Housekeeping failed to return subscriber credential");
-			if (completion) completion(nil, NO, @"Internal server error - couldn't create subscriber credential");
+#warning parse API error response and act right
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Internal server error - couldn't create subscriber credential"]);
 			return;
 			
 		} else if (statusCode == 400) {
-			GRDLog(@"Failed to create subscriber credential. Faulty input values");
-			if (completion) completion(nil, NO, @"Failed to create subscriber credential. Faulty input values");
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to create subscriber credential. Faulty input values"]);
 			return;
 			
 		} else if (statusCode == 401) {
-			GRDLog(@"No subscription present");
-			if (completion) completion(nil, NO, @"No subscription present");
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No subscription present"]);
 			return;
 			
 		} else if (statusCode == 410) {
@@ -341,7 +333,7 @@
 			
 		} else {
 			GRDLog(@"Unknown server error");
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown server error: %ld", statusCode]]);
 		}
 	}];
 	[task resume];

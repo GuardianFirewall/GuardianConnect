@@ -88,23 +88,6 @@
 	return ([self.regionName isEqualToString:[object regionName]] && [self.displayName isEqualToString:[object displayName]]);
 }
 
-#warning change callback function signature to return GRDSGWServer
-- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:regionPrecision serverFeatureEnvironment:featureEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:self completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-		if (!error) {
-			if (completion) {
-				completion(server.hostname, server.displayName, true);
-			}
-			
-		} else {
-			if (completion) {
-				completion(nil, nil, false);
-			}
-		}
-	}];
-}
-
 + (GRDRegion *)automaticRegion {
 	GRDRegion *reg = [[GRDRegion alloc] init];
 	[reg setDisplayName:NSLocalizedString(@"Automatic", nil)];

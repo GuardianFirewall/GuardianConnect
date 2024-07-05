@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param validationMethod set to determine how to authenticate with housekeeping
 /// @param dict NSDictionary only used when the 'validationMethod' is set to 'ValidationMethodCustom'
 /// @param completion completion block returning a signed JWT, indicating request success and a user actionable error message if the request failed
-- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones

@@ -29,15 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Parameter regionDict: the dictionary with Guardian Connect API compatible key/value pairs
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict;
 
-
-/// Returns the best server closest in proximity to the device
-/// - Parameters:
-///   - feautreEnv: the desired Guardian server feature environment
-///   - betaCapable: indicator whether the returned server should include beta features
-///   - completion: completion handler containing the VPN node hostname, location description and an indicator communicating successful or failed API interactions & processing
-#warning this does not belong here. Move function as is to GRDServerManager!
-- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion;
-
 /// Convenience method to return a GRDRegion object to set the client back to automatic routing to the nearest VPN server
 + (GRDRegion *)automaticRegion;
 
