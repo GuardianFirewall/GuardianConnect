@@ -306,35 +306,15 @@
 		}
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-		if (statusCode == 500) {
-#warning parse API error response and act right
-			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Internal server error - couldn't create subscriber credential"]);
+		if (statusCode != 200) {
+			GRDAPIError *apiError = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to create Subscriber Credential: %@", apiError]]);
 			return;
-			
-		} else if (statusCode == 400) {
-			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to create subscriber credential. Faulty input values"]);
-			return;
-			
-		} else if (statusCode == 401) {
-			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No subscription present"]);
-			return;
-			
-		} else if (statusCode == 410) {
-			GRDLog(@"Subscription expired");
-			// Not sending an error message back so that we're not showing a useless error to the user
-			// The app should transition to free/unpaid if required
-			if (completion) completion(nil, NO, nil);
-			return;
-			
-		} else if (statusCode == 200) {
-			NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-			if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
-			return;
-			
-		} else {
-			GRDLog(@"Unknown server error");
-			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown server error: %ld", statusCode]]);
 		}
+
+		NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+		if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
+		return;
 	}];
 	[task resume];
 }
