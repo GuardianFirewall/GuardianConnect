@@ -273,7 +273,6 @@
 }
 
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
-	__block NSUserDefaults *defaults 		= [NSUserDefaults standardUserDefaults];
 	__block GRDCredential *mainCredentials 	= [GRDCredentialManager mainCredentials];
 	__block NSString *vpnServer 			= [mainCredentials hostname];
 	
