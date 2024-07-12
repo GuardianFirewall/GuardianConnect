@@ -80,8 +80,18 @@
 			//should NOT happen...
 			[credentialList insertObject:newObject atIndex:0];
 		}
+		
 	} else {
 		[credentialList insertObject:newObject atIndex:0];
+	}
+	
+	if (credential.mainCredential == YES) {
+		OSStatus status = [GRDKeychain storePassword:credential.password forAccount:credential.identifier];
+		if (status != errSecSuccess) {
+			[NSThread sleepForTimeInterval:2];
+			[GRDKeychain storePassword:credential.password forAccount:credential.identifier];
+		}
+		credential.passwordRef = [GRDKeychain getPasswordRefForAccount:credential.identifier];
 	}
 	
 	[GRDKeychain storeData:[NSKeyedArchiver archivedDataWithRootObject:credentialList] forAccount:kGuardianCredentialsList];
@@ -89,8 +99,18 @@
 }
 
 + (void)removeCredential:(GRDCredential *)credential {
-    if (!credential) { return; }
-    [credential removeFromKeychain];
+    if (!credential) return;
+	
+	// Ensure that the passwordref required for IKEv2 is removed as well
+	if (credential.mainCredential == YES && credential.transportProtocol == TransportIKEv2) {
+		OSStatus deleteStatus = [GRDKeychain removeKeychainItemForAccount:credential.identifier];
+		if (deleteStatus != errSecSuccess) {
+			GRDErrorLogg(@"Failed to delete IKEv2 password ref");
+			[NSThread sleepForTimeInterval:1];
+			[GRDKeychain removeKeychainItemForAccount:credential.identifier];
+		}
+	}
+	
 	NSArray *storedItems = [self credentials];
     NSMutableArray *credentialList = [NSMutableArray arrayWithArray:storedItems];
     if (credentialList.count > 0) {
@@ -112,14 +132,12 @@
 			}
 		}
 		
-		//now get the new credentials for said hostname
 		[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
 			if (errorMessage != nil) {
 				if (completion) completion(nil, error);
 				return;
 			}
-			
-			
+				
 			GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
 			if (completion) {
 				completion(credential, nil);
@@ -127,6 +145,5 @@
 		}];
 	}];
 }
-
 
 @end

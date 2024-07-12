@@ -51,7 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
 - (void)updateWithItem:(GRDCredential *)cred;
 - (NSString *)truncatedHost;
-- (NSString *)authTokenIdentifier;
 - (BOOL)expired;
 - (NSInteger)daysLeft; //days until it does expire
 - (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
@@ -59,17 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Helper function to quickly convert a GRDCredential into a GRDSGWServer representation
 - (GRDSGWServer *)sgwServerFormat;
-
-
-// Note from CJ 2022-05-03
-// Both of these are deprecated and only remain in the codebase
-// to leave existing codepaths untouched. They should never be used directly
-// nor should they be adopted anywhere else in newly written code since
-// all credentials are now saved together as a data blob in the keychain
-// and managed by GRDCredentialManager
-- (OSStatus)saveToKeychain;
-- (BOOL)loadFromKeychain;
-- (OSStatus)removeFromKeychain;
 
 @end
 

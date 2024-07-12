@@ -241,11 +241,8 @@
 			
 			NSInteger adjustedDays = [self _sgwCredentialValidFor];
 			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:adjustedDays isMain:YES];
-			if (protocol == TransportIKEv2) {
-				[self.mainCredential saveToKeychain];
-			}
-			
 			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
+			
 			[self configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 				dispatch_async(dispatch_get_main_queue(), ^{
 					if (status == GRDVPNHelperFail) {
@@ -264,7 +261,7 @@
 				});
 			}];
 			
-		} else { //no error, but creds are nil too!
+		} else {
 			if (completion) {
 				completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again."]);
 			}
@@ -296,14 +293,7 @@
 		}
 		
 		if ([self.mainCredential transportProtocol] == TransportIKEv2) {
-			NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
-			NSString *eapUsername   = [self.mainCredential username];
-			NSData *eapPassword     = [self.mainCredential passwordRef];
-			
-			if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
-				GRDDebugLog(@"EAP username: %@", eapUsername);
-				GRDDebugLog(@"EAP password: %@", eapPassword);
-				GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
+			if ([self.mainCredential username] == nil || [self.mainCredential passwordRef] == nil || [self.mainCredential apiAuthToken] == nil) {
 				GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
 				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
 				return;
