@@ -65,7 +65,7 @@ static NSString * const kGRDWGIPv4Address                               = @"mapp
 static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
 static NSString * const kGRDClientId                               		= @"client-id";
 
-
+# warning DELETE?
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
 static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
 static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
@@ -76,6 +76,11 @@ static NSString * const kGuardianAllRegions                             = @"kGRD
 static NSString * const kGuardianAllRegionsTimeStamp                    = @"kGRDAllRegionsTimeStamp";
 static NSString * const kKnownGuardianHosts                             = @"kKnownGuardianHosts";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
+
+/// Used to determine whether the device has changed regions in automatic
+/// routing mode and the user may want to reconsider reconnecting to a different
+/// server for a faster connection
+static NSString * const kGRDLastKnownAutomaticRegion	 				= @"kGRDLastKnownAutomaticRegion";
 
 
 #pragma mark - Subscription types + related
