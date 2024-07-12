@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
 /// @param completion completion block returning an array with all timezones, indicating request success, and the response status code
-- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode))completion;
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, NSError * _Nullable error))completion;
 
 /// endpoint: /api/v1/servers/hostnames-for-region
 /// @param region the selected region for which hostnames should be returned

@@ -11,12 +11,13 @@
 @implementation GRDAPIError
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"error-title: %@; error-message: '%@'", self.title, self.message];
+	return [NSString stringWithFormat:@"status-code: %ld; error-title: %@; error-message: '%@'", self.statusCode, self.title, self.message];
 }
 
-- (instancetype)initWithData:(NSData *)jsonData {
+- (instancetype)initWithData:(NSData *)jsonData andStatusCode:(NSInteger)statusCode {
 	self = [super init];
 	if (self) {
+		self.statusCode = statusCode;
 		if (jsonData == nil) {
 			self.title 		= @"Failed to parse error";
 			self.message 	= @"Failed to parse the API error message returned by the server";
@@ -25,9 +26,9 @@
 			NSError *jsonErr;
 			self.apiErrorDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&jsonErr];
 			if (jsonErr != nil) {
-				self.parseError = jsonErr;
-				self.title 		= @"JSON Parse Error";
-				self.message 	= [NSString stringWithFormat:@"Failed to parse JSON API error message data: %@", jsonErr];
+				self.jsonParseError = jsonErr;
+				self.title 			= @"JSON Parse Error";
+				self.message 		= [NSString stringWithFormat:@"Failed to parse JSON API error message data: %@", jsonErr];
 				
 			} else {
 				self.title 		= [self.apiErrorDictionary objectForKey:@"error-title"];

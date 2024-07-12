@@ -213,7 +213,7 @@
 				return;
 			}
 			
-			GRDAPIError *error = [[GRDAPIError alloc] initWithData:data];
+			GRDAPIError *error = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error.message]);
 			return;
 		}
@@ -364,12 +364,7 @@
         
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -386,7 +381,7 @@
 
 #pragma mark - Time Zone & VPN Hostnames
 
-- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
     NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/timezones-for-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -396,18 +391,20 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            GRDLog(@"Failed to hit endpoint: %@", error);
-            if (completion) completion(nil, NO, 0);
+            GRDDebugLog(@"Failed to hit endpoint: %@", error);
+            if (completion) completion(nil, error);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode != 200) {
-            if (completion) completion(nil, NO, statusCode);
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			GRDDebugLog(@"Failed to obtain list of known timezones. Error: %@", apiErr);
+            if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[apiErr description]]);
             
         } else {
             NSArray *timezones = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(timezones, YES, statusCode);
+            if (completion) completion(timezones, nil);
         }
     }];
     [task resume];
@@ -485,12 +482,7 @@
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -557,12 +549,7 @@
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -591,12 +578,7 @@
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -638,12 +620,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 201) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -688,12 +665,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -737,12 +709,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -787,12 +754,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -837,12 +799,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -880,12 +837,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			if ([apiErr.message containsString:@"not yet setup"]) {
 				if (completion) completion([GRDErrorHelper errorWithErrorCode:GRDErrGuardianAccountNotSetup andErrorMessage:@"Guardian account setup not yet completed"]);
 				return;
@@ -931,12 +883,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -981,12 +928,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1045,12 +987,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1111,12 +1048,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1154,12 +1086,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;

@@ -14,14 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSString 		*title;
 @property NSString 		*message;
+@property NSInteger		statusCode;
 
 @property NSDictionary 	*apiErrorDictionary;
-@property NSError 		*parseError;
+@property NSError 		*jsonParseError;
 
 
 /// Helper method to quickly parse error messages returned from API requests
 /// - Parameter jsonData: raw data object returned from a NSURLSession
-- (instancetype)initWithData:(NSData *)jsonData;
+- (instancetype)initWithData:(NSData *)jsonData andStatusCode:(NSInteger)statusCode;
 
 @end
 

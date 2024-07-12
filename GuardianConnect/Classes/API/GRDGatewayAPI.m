@@ -884,12 +884,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -934,12 +929,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
