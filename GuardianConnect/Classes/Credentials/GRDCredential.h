@@ -48,8 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)prettyHost;
 - (NSString *)defaultFileName;
-- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
-- (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate;
+- (instancetype)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds;
 - (void)updateWithItem:(GRDCredential *)cred;
 - (NSString *)truncatedHost;
 - (NSString *)authTokenIdentifier;

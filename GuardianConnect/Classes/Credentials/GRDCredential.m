@@ -21,31 +21,12 @@
 
 @implementation GRDCredential
 
-//i dont like this, but i need a unique id for the auth token as well and i dont want to create two completely unique ID's for this
+// I dont like this, but i need a unique id for the auth token as well and i dont want to create two completely unique ID's for this
 - (NSString *)authTokenIdentifier {
     return [self.identifier stringByAppendingString:@"-authToken"];
 }
 
-//used for legacy EAP credentials, APIAuthToken will be empty because we were not saving those details when creating additional EAP's before.
-- (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate {
-    self = [super init];
-    if (self) {
-		self.transportProtocol 	= TransportIKEv2;
-        self.identifier 		= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
-        self.username 			= credDict[kKeychainStr_EapUsername];
-        self.password 			= credDict[kKeychainStr_EapPassword];
-        self.apiAuthToken 		= credDict[kKeychainStr_APIAuthToken];
-        self.hostname 			= hostname;
-        self.expirationDate 	= expirationDate;
-        self.name 				= [self defaultFileName];
-        _checkedExpiration 		= false;
-        _expired 				= false;
-        [self _checkExpiration];
-    }
-    return self;
-}
-
-- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
+- (instancetype)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
 	self = [super init];
 	if (self) {
 		self.identifier 	= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords

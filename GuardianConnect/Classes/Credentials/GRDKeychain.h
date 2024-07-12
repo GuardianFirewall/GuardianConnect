@@ -9,7 +9,6 @@
 
 static NSString * const kKeychainStr_EapUsername 			= @"eap-username";
 static NSString * const kKeychainStr_EapPassword 			= @"eap-password";
-static NSString * const kKeychainStr_AuthToken				= @"auth-token";
 static NSString * const kKeychainStr_APIAuthToken 			= @"api-auth-token";
 static NSString * const kKeychainStr_SubscriberCredential 	= @"subscriber-credential";
 static NSString * const kKeychainStr_PEToken 				= @"pe-token";
