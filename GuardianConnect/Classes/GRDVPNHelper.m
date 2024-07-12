@@ -83,7 +83,7 @@
 		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
 		
 		NSError *unarchiveErr;
-		GRDRegion *region = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], nil] fromData:regionData error:&unarchiveErr];
+		GRDRegion *region = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:regionData error:&unarchiveErr];
 		if (unarchiveErr != nil) {
 			GRDErrorLogg(@"Failed to restore selected region from user defaults: %@", [unarchiveErr localizedDescription]);
 			[defaults removeObjectForKey:kGuardianRegionOverride];
