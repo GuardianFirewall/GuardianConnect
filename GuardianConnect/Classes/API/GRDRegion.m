@@ -41,7 +41,12 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO"];
+	NSUInteger citiesCount = 0;
+	if (self.cities != nil) {
+		citiesCount = [self.cities count];
+	}
+	
+	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@; latitude: %@; longitude: %@; cities-count: %ld; time-zone-name: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO", self.latitude, self.longitude, citiesCount, self.timeZoneName];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
