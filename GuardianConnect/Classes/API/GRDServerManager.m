@@ -130,7 +130,14 @@
 				// the device has potentially physically moved to another region where
 				// it should
 				automaticRegion.timeZoneName = [[NSTimeZone localTimeZone] name];
-				[[NSUserDefaults standardUserDefaults] setObject:automaticRegion forKey:kGRDLastKnownAutomaticRegion];
+				NSError *encodeError;
+				NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:automaticRegion requiringSecureCoding:YES error:&encodeError];
+				if (encodeError != nil) {
+					GRDErrorLogg(@"Failed to encode GRDRegion for storage in NSUserDefaults: %@", [encodeError localizedDescription]);
+					
+				} else {
+					[[NSUserDefaults standardUserDefaults] setObject:regionData forKey:kGRDLastKnownAutomaticRegion];
+				}
 			}
 			
 			//

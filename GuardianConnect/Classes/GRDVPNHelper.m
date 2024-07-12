@@ -83,7 +83,7 @@
 		NSData *regionData = [defaults objectForKey:kGuardianRegionOverride];
 		
 		NSError *unarchiveErr;
-		GRDRegion *region = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], nil] fromData:regionData error:&unarchiveErr];
+		GRDRegion *region = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:regionData error:&unarchiveErr];
 		if (unarchiveErr != nil) {
 			GRDErrorLogg(@"Failed to restore selected region from user defaults: %@", [unarchiveErr localizedDescription]);
 			[defaults removeObjectForKey:kGuardianRegionOverride];
@@ -1024,17 +1024,29 @@
 
 - (void)checkTimezoneChanged {
 	// Don't bother doing anything if there is no callback handler set
-	if (self.timezoneNotificationBlock == nil) return;
+	if (self.timezoneChangedBlock == nil) return;
 	
 	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
-	GRDRegion *__block lastKnownRegion 	= [defaults objectForKey:kGRDLastKnownAutomaticRegion];
-	if (lastKnownRegion == nil || [lastKnownRegion.timeZoneName isEqualToString:@""]) {
+	if ([defaults valueForKey:kGRDLastKnownAutomaticRegion] == nil) {
 		GRDDebugLog(@"No previous known automatic region found.");
 		return;
 	}
 	
+	NSData *regionData = [defaults objectForKey:kGRDLastKnownAutomaticRegion];
+	NSError *decodeError;
+	GRDRegion * __block lastKnownAutomaticRegion = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:regionData error:&decodeError];
+	if (decodeError != nil) {
+		GRDErrorLogg(@"Failed to decode archived automatic GRDRegion out of NSUserDefaults: %@", [decodeError localizedDescription]);
+		return;
+	}
+	
+	if (lastKnownAutomaticRegion == nil || [lastKnownAutomaticRegion.timeZoneName isEqualToString:@""]) {
+		GRDDebugLog(@"No previous known automatic region found or time zone name key missing.");
+		return;
+	}
+	
 	NSTimeZone *local = [NSTimeZone localTimeZone];
-	if ([lastKnownRegion.timeZoneName isEqualToString:[local name]] == NO) {
+	if ([lastKnownAutomaticRegion.timeZoneName isEqualToString:[local name]] == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager selectAutomaticModeRegion:^(GRDRegion * _Nullable automaticRegion, NSError * _Nullable error) {
 			if (error != nil) {
@@ -1042,7 +1054,7 @@
 				return;
 			}
 			
-			if (self.timezoneNotificationBlock) self.timezoneNotificationBlock(YES, lastKnownRegion, automaticRegion);
+			if (self.timezoneChangedBlock) self.timezoneChangedBlock(YES, lastKnownAutomaticRegion, automaticRegion);
 		}];
 	}
 }

@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// This block will be automatically called due to the SDK listening to the Apple provided
 /// NSNotificationCenter NSSystemTimeZoneDidChangeNotification key as well as upon calling
 /// -checkTimezoneChanged directly
-@property (nonatomic, strong, nullable) void (^timezoneNotificationBlock)(BOOL changed, GRDRegion * _Nonnull oldRegion, GRDRegion * _Nonnull newRegion);
+@property (nonatomic, strong, nullable) void (^timezoneChangedBlock)(BOOL changed, GRDRegion * _Nonnull oldRegion, GRDRegion * _Nonnull newRegion);
 
 /// Do not assign this value directly if you would like the preference to persist across app launches.
 /// Contains the preferred regionPrecision. Never nil and defaults to the constant string 'default'
