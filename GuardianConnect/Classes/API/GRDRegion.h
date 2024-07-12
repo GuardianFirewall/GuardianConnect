@@ -13,16 +13,51 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDRegion : NSObject <NSSecureCoding>
 
-@property NSString 				*continent; 		//continent
-@property NSString				*country;			//country
-@property NSString 				*countryISOCode; 	//country-iso-code
-@property NSString 				*regionName; 		//name
-@property NSString 				*displayName; 		//name-pretty
-@property BOOL 					isAutomatic; 		//experimental
-@property NSString 				*regionPrecision;	//defines what region precision the region is representing
-@property NSNumber				*latitude;			//GPS latitude of the region to identify the region on a map to the user
-@property NSNumber				*longitude;			//GPS longitude of the region to identify the region on a map to the user
-@property NSArray <GRDRegion *>	*cities;			//array of regions if the region precision is set to 'city-by-country'
+/// Region continent, eg. 'Europe' or 'North-America'
+@property NSString *continent;
+
+/// Region country, eg. 'Germany' or 'Canada'
+@property NSString *country;
+
+/// Region ISO 3166 1 Alpha 2 country code, eg. 'US' or 'DE'
+@property NSString *countryISOCode;
+
+/// Region name, eg. 'us-east' or 'eu-de'
+///
+/// This is the key that is used to match it up with SGW servers
+@property NSString *regionName;
+
+/// Region formated name, eg. 'USA (Central)' or 'Czech-Republic'
+@property NSString *displayName;
+
+/// Convenience indicator to easily identify whether this is the automatic region or not
+@property BOOL isAutomatic;
+
+/// Region precision indicator
+///
+/// Can only be one of
+/// - kGRDRegionPrecisionDefault
+/// - kGRDRegionPrecisionCity
+/// - kGRDRegionPrecisionCountry
+/// - kGRDRegionPrecisionCityByCountry
+@property NSString *regionPrecision;
+
+/// Region latitude to show the location on a map
+@property NSNumber *latitude;
+
+/// Region longitude to show the location on a map
+@property NSNumber *longitude;
+
+/// If the region precision kGRDRegionPrecisionCityByCountry is
+/// selected this property will contain an array of regions pointing
+/// to cities that are mapped to the country
+@property NSArray <GRDRegion *>	*cities;
+
+/// Region time zone name eg. 'America/Los_Angeles' or 'Europe/Berlin'
+///
+/// This will only be populated with information if the selected region
+/// was populated with the automatic routing mode, otherwise empty string or nil
+@property NSString *timeZoneName;
 
 
 /// Convenience method to parse an API response to a GRDRegion object
@@ -31,6 +66,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Convenience method to return a GRDRegion object to set the client back to automatic routing to the nearest VPN server
 + (GRDRegion *)automaticRegion;
+
+/// This function returns the US-East-Coast server equivalent for
+/// a given region precision. Only used internally within GuardianConnect
+/// and serves no other purpose
++ (GRDRegion *)failSafeRegionForRegionPrecision:(NSString *)precision;
 
 /// Convenience method to convert timezones from the server into more useful GRDRegion instances, handy for region picker views
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray *_Nullable)timezones;

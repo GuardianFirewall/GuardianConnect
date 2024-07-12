@@ -57,6 +57,7 @@
 		self.latitude 			= [coder decodeObjectForKey:@"latitude"];
 		self.longitude			= [coder decodeObjectForKey:@"longitude"];
 		self.cities				= [coder decodeObjectForKey:@"cities"];
+		self.timeZoneName		= [coder decodeObjectForKey:@"time-zone-name"];
 	}
 	
 	return self;
@@ -73,6 +74,7 @@
 	[coder encodeObject:self.latitude forKey:@"latitude"];
 	[coder encodeObject:self.longitude forKey:@"longitude"];
 	[coder encodeObject:self.cities forKey:@"cities"];
+	[coder encodeObject:self.timeZoneName forKey:@"time-zone-name"];
 }
 
 + (BOOL)supportsSecureCoding {
@@ -93,6 +95,46 @@
 	[reg setDisplayName:NSLocalizedString(@"Automatic", nil)];
 	[reg setIsAutomatic:true];
 	return reg;
+}
+
++ (GRDRegion *)failSafeRegionForRegionPrecision:(NSString *)precision {
+	GRDRegion *region = [GRDRegion new];
+	
+	if ([precision isEqualToString:kGRDRegionPrecisionDefault]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"us-east"];
+		[region setDisplayName:@"USA (East)"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:36.51503161797652]];
+		[region setLongitude:[NSNumber numberWithDouble:-82.25735946455545]];
+		
+	} else if ([precision isEqualToString:kGRDRegionPrecisionCity] || [precision isEqualToString:kGRDRegionPrecisionCityByCountry]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"us-nyc"];
+		[region setDisplayName:@"New York City"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:40.714292433330336]];
+		[region setLongitude:[NSNumber numberWithDouble:-74.00615560237677]];
+		
+	} else if ([precision isEqualToString:kGRDRegionPrecisionCountry]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"na-usa"];
+		[region setDisplayName:@"USA"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:39.338586642335414]];
+		[region setLongitude:[NSNumber numberWithDouble:-101.69432971778862]];
+	}
+	
+	return region;
 }
 
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {
