@@ -75,6 +75,13 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// don't set this value manually, it is set upon the region selection code working successfully
 @property (nullable) GRDRegion *selectedRegion;
 
+/// Central callback block that apps should implement in order to be notified about
+/// the device changing timezones
+/// This block will be automatically called due to the SDK listening to the Apple provided
+/// NSNotificationCenter NSSystemTimeZoneDidChangeNotification key as well as upon calling
+/// -checkTimezoneChanged directly
+@property (nonatomic, strong, nullable) void (^timezoneNotificationBlock)(BOOL changed, GRDRegion * _Nonnull oldRegion, GRDRegion * _Nonnull newRegion);
+
 /// Do not assign this value directly if you would like the preference to persist across app launches.
 /// Contains the preferred regionPrecision. Never nil and defaults to the constant string 'default'
 ///
@@ -281,6 +288,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)region;
+
+/// Function to trigger manual verification whether or not the device's time zone
+/// has changed to notify the app to either automatically migrate or let the user
+/// know about it and take action on it to ensure that the user always uses the best
+/// server available to them.
+/// The app will be notified by implementing the propery @timezoneNotificationBlock
+- (void)checkTimezoneChanged;
 
 /// Sets the preferred region precision persistently for the SDK to request VPN hostnames with
 ///

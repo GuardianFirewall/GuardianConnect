@@ -120,6 +120,10 @@
 	if ([defaults valueForKey:kGRDTrustedNetworksArray] != nil) {
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
+	
+	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
+		[self checkTimezoneChanged];
+	}];
 }
 
 + (BOOL)activeConnectionPossible {
@@ -1013,6 +1017,31 @@
 	[serverManager allRegionsWithCompletion:^(NSArray<GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage) {
 		if (completion) completion(regions, errorMessage);
 	}];
+}
+
+- (void)checkTimezoneChanged {
+	// Don't bother doing anything if there is no callback handler set
+	if (self.timezoneNotificationBlock == nil) return;
+	
+	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
+	GRDRegion *__block lastKnownRegion 	= [defaults objectForKey:kGRDLastKnownAutomaticRegion];
+	if (lastKnownRegion == nil || [lastKnownRegion.timeZoneName isEqualToString:@""]) {
+		GRDDebugLog(@"No previous known automatic region found.");
+		return;
+	}
+	
+	NSTimeZone *local = [NSTimeZone localTimeZone];
+	if ([lastKnownRegion.timeZoneName isEqualToString:[local name]] == NO) {
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		[serverManager selectAutomaticModeRegion:^(GRDRegion * _Nullable automaticRegion, NSError * _Nullable error) {
+			if (error != nil) {
+				GRDErrorLogg(@"Failed to match automatic mode to local time zone: %@", [error localizedDescription]);
+				return;
+			}
+			
+			if (self.timezoneNotificationBlock) self.timezoneNotificationBlock(YES, lastKnownRegion, automaticRegion);
+		}];
+	}
 }
 
 - (void)clearLocalCache {
