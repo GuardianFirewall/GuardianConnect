@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion Completion block with an NSArray of full server address nodes OR an error message if the call fails.
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSError * _Nullable errorMessage))completion;
 
+/// Fetches the list of available regions alongside matched up time zones
+/// and tries to identify which region the user should connect to given
+/// the time zone name.
+- (void)selectAutomaticModeRegion:(void (^)(GRDRegion * _Nullable automaticRegion, NSError * _Nullable error))completion;
+
 /// Used to find the best VPN server node in a specified region, useful if you want to get VPN server node & its host location without creating a VPN connection.
 /// @param regionName NSString. The region we want to find the best available VPN node in.
 /// @param completion block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.

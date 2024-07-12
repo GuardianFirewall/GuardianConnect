@@ -107,37 +107,59 @@
 		}];
 		
 	} else {
-		[self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nonnull timeZones, BOOL success, NSUInteger responseStatusCode) {
-			if (success == NO) {
-				GRDErrorLogg(@"Failed to get timezones from housekeeping: %ld", responseStatusCode);
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
+		[self selectAutomaticModeRegion:^(GRDRegion *automaticRegion, NSError *error) {
+			if (error != nil) {
+				if (completion) completion(nil, error);
 				return;
 			}
 			
-			GRDRegion *automaticRegion = [GRDServerManager localRegionFromTimezones:timeZones];
-			NSString *regionName = automaticRegion.regionName;
-			NSTimeZone *local = [NSTimeZone localTimeZone];
-			GRDDebugLog(@"Found region: %@", regionName);
-			GRDDebugLog(@"Real local time zone: %@", local);
 			
 			// This is only meant as a fallback to have something
 			// when absolutely everything seems to have fallen apart
 			// The same strategy is taken server side
-			if (regionName == nil) {
-				GRDWarningLogg(@"Failed to find time zone: %@", local);
-				GRDWarningLogg(@"Setting time zone to us-east");
-				regionName = @"us-east";
+			if (automaticRegion == nil) {
+				GRDWarningLogg(@"Failed to find time zone: %@", [NSTimeZone localTimeZone]);
+				GRDWarningLogg(@"Setting time zone to us-east-coast");
+				automaticRegion = [GRDRegion failSafeRegionForRegionPrecision:self.regionPrecision];
+				
+			} else {
+				//
+				// Note from CJ 2024-07-12
+				// Storing a GRDRegion reference to the last known automatic region
+				// incl. the time zone name to be able to check later on whether
+				// the device has potentially physically moved to another region where
+				// it should
+				automaticRegion.timeZoneName = [[NSTimeZone localTimeZone] name];
+				[[NSUserDefaults standardUserDefaults] setObject:automaticRegion forKey:kGRDLastKnownAutomaticRegion];
 			}
 			
 			//
 			// Note from CJ 2024-02-19
 			// Hard coding the region precision to default here because we're going by the device's
 			// time zone which are mapped to the default regions in our system.
-			[self.housekeeping requestServersForRegion:regionName regionPrecision:kGRDRegionPrecisionDefault paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+			[self.housekeeping requestServersForRegion:automaticRegion.regionName regionPrecision:kGRDRegionPrecisionDefault paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
 				if (completion) completion(servers, error);
 			}];
 		}];
 	}
+}
+
+- (void)selectAutomaticModeRegion:(void (^)(GRDRegion *automaticRegion, NSError *error))completion {
+	[self.housekeeping requestTimeZonesForRegionsWithCompletion:^(NSArray * _Nullable timeZones, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to get timezones from housekeeping: %@", [error localizedDescription]);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to request list of servers"]);
+			return;
+		}
+		
+		GRDRegion *automaticRegion = [GRDServerManager localRegionFromTimezones:timeZones];
+		NSString *regionName = automaticRegion.regionName;
+		NSTimeZone *local = [NSTimeZone localTimeZone];
+		GRDDebugLog(@"Found region: %@", regionName);
+		GRDDebugLog(@"Real local time zone: %@", local);
+		
+		if (completion) completion(automaticRegion, nil);
+	}];
 }
 
 - (void)findBestHostInRegion:(GRDRegion * _Nullable)region completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
