@@ -20,7 +20,7 @@ static NSString * const kGuardianConnectSubscriberSecret 	= @"kGuardianConnectSu
 
 @interface GRDKeychain : NSObject
 
-+ (OSStatus)storePassword:(NSString *)passwordStr forAccount:(NSString *)accountKeyStr;
++ (OSStatus)storePassword:(NSString *)password forAccount:(NSString *)accountKey;
 + (OSStatus)storeData:(NSData *)data forAccount:(NSString *)accountKeyString;
 
 + (NSString *)getPasswordStringForAccount:(NSString *)accountKeyStr;
