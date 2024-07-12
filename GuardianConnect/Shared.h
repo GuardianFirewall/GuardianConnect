@@ -9,6 +9,8 @@
 #ifndef Shared_h
 #define Shared_h
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
 
@@ -25,14 +27,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodPEToken,
 	ValidationMethodCustom
 };
-
-// Define below to 0 to make guardian specific code inactive
-#define GUARDIAN_INTERNAL 1
-
-#pragma mark - Misc
-
-NS_ASSUME_NONNULL_BEGIN
-static NSString * const kAppNeedsSelfRepair                             = @"guardianNeedsSelfRepair";
 
 #pragma mark - Housekeeping / Region / Timezone
 

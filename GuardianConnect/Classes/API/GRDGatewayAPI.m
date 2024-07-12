@@ -489,16 +489,7 @@
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
         NSString *apiAuthToken = [self apiAuthToken];
         if (apiAuthToken == nil || [apiAuthToken isEqualToString:@""]) {
-            // Note from CJ 2021-01-19:
-            // I am not happy about this class doing all of this at all
-            // but it appears to not be doing crazy amounts of harm
-            // as of right now. This needs to be reworked though
-            GRDLogg(@"API Auth Token is null or not useable. Resetting keychain items");
-            GRDLog(@"API Atuh Token out of keychain: %@", apiAuthToken);
-            [GRDKeychain removeGuardianKeychainItems];
-            [GRDKeychain removeSubscriberCredentialWithRetries:3];
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kAppNeedsSelfRepair];
-            if (completion) completion(nil, NO, @"Corrupted keychain. Aborting");
+            if (completion) completion(nil, NO, @"API auth token missing!");
             return;
         }
         

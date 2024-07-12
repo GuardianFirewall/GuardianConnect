@@ -176,8 +176,6 @@
     [GRDKeychain removeGuardianKeychainItems];
     [GRDCredentialManager clearMainCredentials];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setBool:NO forKey:kAppNeedsSelfRepair];
     
 	[GRDVPNHelper sendServerUpdateNotifications];
 }
@@ -248,7 +246,6 @@
 			}
 			
 			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
-			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
 			[self configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 				dispatch_async(dispatch_get_main_queue(), ^{
 					if (status == GRDVPNHelperFail) {
@@ -276,11 +273,12 @@
 }
 
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
-	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
+	__block NSUserDefaults *defaults 		= [NSUserDefaults standardUserDefaults];
+	__block GRDCredential *mainCredentials 	= [GRDCredentialManager mainCredentials];
+	__block NSString *vpnServer 			= [mainCredentials hostname];
 	
-	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
-		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
+	if (mainCredentials == nil) {
+		GRDErrorLogg(@"Main credentials missing, migrating user!");
 		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:completion];
 		return;
 	}
@@ -726,7 +724,6 @@
 	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
 	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
 	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
-	[defaults removeObjectForKey:kAppNeedsSelfRepair];
 	[defaults removeObjectForKey:kGRDTunnelEnabled];
 	[defaults removeObjectForKey:kGuardianTransportProtocol];
 	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
