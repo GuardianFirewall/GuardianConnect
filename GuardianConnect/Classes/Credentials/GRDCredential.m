@@ -45,29 +45,6 @@
     return self;
 }
 
-- (id)initWithFullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
-    self = [super init];
-    if (self) {
-		self.transportProtocol 		= TransportIKEv2;
-        self.identifier 			= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
-        self.username 				= credDict[kKeychainStr_EapUsername];
-        self.password 				= credDict[kKeychainStr_EapPassword];
-        self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
-        self.hostname 				= credDict[kGRDHostnameOverride];
-        self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
-        self.hostnameDisplayValue 	= credDict[kGRDVPNHostLocation];
-        self.name 					= [self defaultFileName];
-        _checkedExpiration 			= false;
-        _expired 					= false;
-        self.mainCredential = mainCreds;
-        if (mainCreds) {
-            self.identifier = @"main";
-        }
-        [self _checkExpiration];
-    }
-    return self;
-}
-
 - (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
 	self = [super init];
 	if (self) {

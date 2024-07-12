@@ -241,7 +241,7 @@
 		} else if (credentials) {
 			if (mid) mid();
 			
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
+			NSInteger adjustedDays = [self _sgwCredentialValidFor];
 			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:adjustedDays isMain:YES];
 			if (protocol == TransportIKEv2) {
 				[self.mainCredential saveToKeychain];
@@ -823,7 +823,7 @@
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * errorMessage))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
+			NSInteger adjustedDays = [self _sgwCredentialValidFor];
 			//adjust the day count in case 30 is too many
 
 			if (protocol == TransportIKEv2) {
@@ -856,23 +856,26 @@
 			}
 						
 		} else {
-			completion(nil, error);
+			if (completion) completion(nil, error);
 		}
 	}];
 }
 
-#warning probably want to improve this
-+ (NSInteger)_subCredentialDays {
+- (NSInteger)_sgwCredentialValidFor {
 	NSInteger eapCredentialsValidFor = 30;
-	GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:[GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential]];
+	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	if (!subCred) {
 		GRDWarningLogg(@"No Subscriber Credential present");
 	}
 	
 	// Note from CJ 2020-11-24
 	// This is incredibly primitive and will be improved soon
+	//
 	// Note from CJ 2021-11-01
 	// This was a lie
+	//
+	// Note from CJ 2024-07-12
+	// Still not fixed, still working
 	if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
 		eapCredentialsValidFor = 3;
 	}
@@ -1045,16 +1048,6 @@
 }
 
 - (void)clearLocalCache {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	// Note from CJ 2021-10-28:
-	// Nodes should no longer be locally cached so this should be
-	// remove all together soon
-	[defaults removeObjectForKey:kKnownGuardianHosts];
-	[defaults removeObjectForKey:housekeepingTimezonesTimestamp];
-	[defaults removeObjectForKey:kKnownHousekeepingTimeZonesForRegions];
-	[defaults removeObjectForKey:kGuardianAllRegions];
-	[defaults removeObjectForKey:kGuardianAllRegionsTimeStamp];
-	[defaults removeObjectForKey:kGRDEAPSharedHostname];
 	[GRDKeychain removeGuardianKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }

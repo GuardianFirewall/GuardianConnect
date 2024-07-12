@@ -44,15 +44,8 @@ static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPI
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
-static NSString * const kGRDDefaultGatewayUUID                          = @"kGRDDefaultGatewayUUID";
-
-static NSString * const kVPNHadNetworkHealthDisconnect                  = @"vpnHadNetworkHealthDisconnect";
-#warning DELETE!!!
-static NSString * const kGRDHostnameOverride                            = @"APIHostname-Override";
-static NSString * const kGRDEAPSharedHostname                           = @"SharedAPIHostname";
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
-static NSString * const kGRDExcludeLocalNetworks                        = @"kGRDExcludeLocalNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
 static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
 static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
@@ -65,16 +58,10 @@ static NSString * const kGRDWGIPv4Address                               = @"mapp
 static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
 static NSString * const kGRDClientId                               		= @"client-id";
 
-# warning DELETE?
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
 static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
 static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
 static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
-static NSString * const kKnownHousekeepingTimeZonesForRegions           = @"kKnownHousekeepingTimeZonesForRegions";
-static NSString * const housekeepingTimezonesTimestamp                  = @"housekeepingTimezonesTimestamp";
-static NSString * const kGuardianAllRegions                             = @"kGRDAllRegions";
-static NSString * const kGuardianAllRegionsTimeStamp                    = @"kGRDAllRegionsTimeStamp";
-static NSString * const kKnownGuardianHosts                             = @"kKnownGuardianHosts";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 
 /// Used to determine whether the device has changed regions in automatic
