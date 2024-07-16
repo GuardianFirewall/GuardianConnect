@@ -170,8 +170,8 @@
 }
 
 - (void)findBestHostInRegion:(GRDRegion * _Nullable)region completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
-    if (region == nil) { //if the region is nil, use the current one
-        GRDDebugLog(@"Nil region, use the default!");
+    if (region == nil) {
+        GRDDebugLog(@"Region is nil, using automatic routing logic!");
         GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
         if (mainCredentials != nil) {
             if (completion) {
@@ -186,7 +186,7 @@
             [self selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        GRDLog(@"host: %@ loc: %@ error: %@", server.hostname, server.displayName, [errorMessage localizedDescription]);
+                        GRDDebugLog(@"hostname: %@; display-name: %@; error: %@", server.hostname, server.displayName, [errorMessage localizedDescription]);
                         completion(server, errorMessage);
                     });
                 }
@@ -197,7 +197,7 @@
     }
 	
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-		[self.housekeeping requestServersForRegion:region.regionName regionPrecision:self.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
+		[self.housekeeping requestServersForRegion:region.regionName regionPrecision:region.regionPrecision paidServers:[GRDSubscriptionManager isPayingUser] featureEnvironment:self.featureEnv betaCapableServers:self.betaCapable completion:^(NSArray * _Nullable servers, NSError * _Nullable error) {
             if (servers.count < 1) {
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
