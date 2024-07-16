@@ -122,28 +122,4 @@
     }
 }
 
-+ (void)createCredentialForRegion:(GRDRegion *)region withTransportProtocol:(TransportProtocol)protocol numberOfDays:(NSInteger)numberOfDays main:(BOOL)mainCredential completion:(void (^)(GRDCredential * _Nullable, NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:[[GRDVPNHelper sharedInstance] regionPrecision] serverFeatureEnvironment:[[GRDVPNHelper sharedInstance] featureEnvironment] betaCapableServers:NO];
-	[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-		if (error != nil) {
-			if (completion) {
-				completion(nil, error);
-				return;
-			}
-		}
-		
-		[[GRDVPNHelper sharedInstance] createStandaloneCredentialsForTransportProtocol:protocol validForDays:numberOfDays server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
-			if (errorMessage != nil) {
-				if (completion) completion(nil, error);
-				return;
-			}
-				
-			GRDCredential *credential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:numberOfDays isMain:mainCredential];
-			if (completion) {
-				completion(credential, nil);
-			}
-		}];
-	}];
-}
-
 @end
