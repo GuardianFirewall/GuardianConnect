@@ -24,9 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion Completion block that will contain the selected host, hostLocation upon success or an error message upon failure.
 - (void)selectGuardianHostWithCompletion:(void (^)(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage))completion;
 
-/// Used to get available VPN server nodes based on NSUserDefault settings OR the users time zone. Explained further below.
-/// if kGuardianUseFauxTimeZone is true kGuardianFauxTimeZone and kGuardianFauxTimeZonePretty will be used to find our host (this is how region selection works)
-/// If kGuardianUseFauxTimeZone is nil or false we will automatically choose the best host based on the users timezone.
+/// Used to get available VPN server nodes. If no user preferred region is set the best possbile
+/// VPN server will be chosen based on the device's timezone
 /// @param completion Completion block with an NSArray of full server address nodes OR an error message if the call fails.
 - (void)getGuardianHostsWithCompletion:(void (^)(NSArray * _Nullable servers, NSError * _Nullable errorMessage))completion;
 
@@ -40,9 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion block. Will return a fully qualified server address, and the display friendly host location upon success, and the error NSString upon failure.
 - (void)findBestHostInRegion:(GRDRegion * _Nullable)regionName completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion;
 
-/// Used in selectGuardianHostWithCompletion: to get an NSDictionary representation of our 'local' region.
-/// @param timezones NSArray of timezones that is from GRDHousekeepingAPI 'requestTimeZonesForRegionsWithTimestamp:' method
-/// @return GRDRegion of our local hostname representation. This will be a custom region from 'kGuardianFauxTimeZone' if 'kGuardianUseFauxTimeZone' is true.
+/// Used to identify the GRDRegion representation of the device's local region
+/// @param timezones NSArray of regions with associated time zone names
+/// @return GRDRegion object that best matches the device's time zone
 + (GRDRegion *)localRegionFromTimezones:(NSArray *)timezones;
 
 /// Returns all currently supported VPN server regions

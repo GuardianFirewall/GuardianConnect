@@ -961,9 +961,6 @@
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
-		[defaults setBool:NO forKey:kGuardianUseFauxTimeZone];
-		[defaults removeObjectForKey:kGuardianFauxTimeZone];
-		[defaults removeObjectForKey:kGuardianFauxTimeZonePretty];
 	}
 	
 	return nil;

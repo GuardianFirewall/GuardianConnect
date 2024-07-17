@@ -53,9 +53,6 @@ static NSString * const kGRDWGIPv6Address                               = @"mapp
 static NSString * const kGRDClientId                               		= @"client-id";
 
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
-static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
-static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
-static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 
 /// Used to determine whether the device has changed regions in automatic
