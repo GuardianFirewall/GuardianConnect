@@ -219,8 +219,8 @@
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
 	[self selectRegion:region];
-	if (region != nil) {
-		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+	if (region != nil && region.isAutomatic == NO) {
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:nil completion:completion];
 		}];
