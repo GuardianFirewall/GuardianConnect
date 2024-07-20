@@ -23,6 +23,7 @@
 		self.regionPrecision 	= regionDict[@"region-precision"];
 		self.latitude			= regionDict[@"latitude"];
 		self.longitude			= regionDict[@"longitude"];
+		self.serverCount		= regionDict[@"server-count"];
 		
 		NSArray *rawCities = regionDict[@"cities"];
 		NSMutableArray *cities = [NSMutableArray new];
@@ -56,6 +57,7 @@
 		self.regionPrecision 	= [coder decodeObjectForKey:@"region-precision"];
 		self.latitude 			= [coder decodeObjectForKey:@"latitude"];
 		self.longitude			= [coder decodeObjectForKey:@"longitude"];
+		self.serverCount		= [coder decodeObjectForKey:@"server-count"];
 		self.cities				= [coder decodeObjectForKey:@"cities"];
 	}
 	
@@ -72,6 +74,7 @@
 	[coder encodeObject:self.regionPrecision forKey:@"region-precision"];
 	[coder encodeObject:self.latitude forKey:@"latitude"];
 	[coder encodeObject:self.longitude forKey:@"longitude"];
+	[coder encodeObject:self.serverCount forKey:@"server-count"];
 	[coder encodeObject:self.cities forKey:@"cities"];
 }
 
