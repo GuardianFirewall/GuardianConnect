@@ -571,6 +571,41 @@
 	[task resume];
 }
 
+- (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/smart-proxy-routing/hosts"];
+	[request setHTTPMethod:@"GET"];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, error);
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to fetch smart proxy hosts with HTTP response status code: %ld; error-title: %@; error-message: %@", statusCode, apiErr.title, apiErr.message]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSArray *hostsArray = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON decode response data: %@", jsonErr]]);
+			return;
+		}
+		
+		if (completion) completion(hostsArray, nil);
+	}];
+	[task resume];
+}
+
 
 # pragma mark - Connect Subscriber
 

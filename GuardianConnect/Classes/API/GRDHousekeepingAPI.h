@@ -83,7 +83,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestAllServerRegionsWithPrecision: instead");
 
+/// endpoint: /api/v1.3/servers/all-server-regions/:precision
+/// @param precision one of the region precision constants
+/// @param completion completion block containing an error or the array of all regions for the requested region-precision
 - (void)requestAllServerRegionsWithPrecision:(NSString * _Nonnull)precision completion:(void (^)(NSArray <NSDictionary *> * _Nullable items, NSError * _Nullable error))completion;
+
+
+/// endpoint: /api/v1/smart-proxy-routing/hosts
+/// @param completion completion block containing an error or the array of smart routing proxy hosts
+- (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error))completion;
 
 
 # pragma mark - Connect Subscriber
