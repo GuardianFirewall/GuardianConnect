@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString 				*regionPrecision;	//defines what region precision the region is representing
 @property NSNumber				*latitude;			//GPS latitude of the region to identify the region on a map to the user
 @property NSNumber				*longitude;			//GPS longitude of the region to identify the region on a map to the user
+@property NSNumber				*serverCount;
 @property NSArray <GRDRegion *>	*cities;			//array of regions if the region precision is set to 'city-by-country'
 
 
