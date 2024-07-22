@@ -48,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Region longitude to show the location on a map
 @property NSNumber *longitude;
 
+/// The total count of available servers for the current
+/// user in any given region
+@property NSNumber *serverCount;
+
 /// If the region precision kGRDRegionPrecisionCityByCountry is
 /// selected this property will contain an array of regions pointing
 /// to cities that are mapped to the country
