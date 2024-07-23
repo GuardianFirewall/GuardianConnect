@@ -14,6 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
 
+
+typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
+	ServerFeatureEnvironmentProduction = 1,
+	ServerFeatureEnvironmentInternal,
+	ServerFeatureEnvironmentDevelopment,
+	ServerFeatureEnvironmentDualStack,
+	ServerFeatureEnvironmentUnstable
+};
+
 //
 // Note from CJ 2024-01-18:
 // I have moved this enum in the shared framework header in order to resolve
