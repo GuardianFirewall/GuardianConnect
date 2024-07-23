@@ -36,7 +36,7 @@
                 shared.vpnLoaded = YES;
             }
         }];
-		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
+		shared->_serverFeatureEnvironment = ServerFeatureEnvironmentProduction;
         [shared refreshVariables];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
     });
@@ -121,6 +121,19 @@
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
 	
+	/*
+	if ([defaults boolForKey:@"grd-smart-proxy-routing"] == YES) {
+		[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
+			if (error != nil) {
+				GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
+			}
+//			[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+		}];
+		
+	} else {
+//		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+	}*/
+	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
 		[self checkTimezoneChanged];
 	}];
@@ -189,7 +202,7 @@
 # pragma mark - VPN Convenience
 
 - (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void (^)(GRDVPNHelperStatusCode, NSError *))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) {
@@ -203,7 +216,7 @@
 }
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(errorMessage);
@@ -220,7 +233,7 @@
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
 	[self selectRegion:region];
 	if (region != nil && region.isAutomatic == NO) {
-		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:nil completion:completion];
 		}];
@@ -894,7 +907,7 @@
 					if ([self isConnected] == NO) {
 						[self forceDisconnectVPNIfNecessary];
 						//create a fresh set of credentials (new user) in our current region.
-						GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+						GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 						[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 							[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server postCredential:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 								if (completion) completion(YES, errorMessage);
@@ -911,7 +924,7 @@
 				if ([self isConnected] == NO) {
 					[self forceDisconnectVPNIfNecessary];
 					//create a fresh set of credentials (new user) in our current region.
-					GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+					GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 					[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 						[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server postCredential:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 							if (errorMessage != nil) {
@@ -934,7 +947,7 @@
 # pragma mark - Migration Helper
 
 - (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -1030,7 +1043,7 @@
 	
 	NSTimeZone *local = [NSTimeZone localTimeZone];
 	if ([lastKnownAutomaticRegion.timeZoneName isEqualToString:[local name]] == NO) {
-		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager selectAutomaticModeRegion:^(GRDRegion * _Nullable automaticRegion, NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"Failed to match automatic mode to local time zone: %@", [error localizedDescription]);
@@ -1046,5 +1059,83 @@
 	[GRDKeychain removeGuardianKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
+
+#pragma mark - Internal setters
+
+#warning test if this does the right thing to prevent basic ABI changes
+- (void)setConnectAPIHostname:(NSString *)connectAPIHostname {
+	_connectAPIHostname = connectAPIHostname;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	if (connectAPIHostname == nil) {
+		[defaults removeObjectForKey:@"kGRDConnectAPIHostname"];
+		
+	} else {
+		[defaults setObject:connectAPIHostname forKey:@"kGRDConnectAPIHostname"];
+	}
+}
+
+- (void)setServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment {
+	_serverFeatureEnvironment = featureEnvironment;
+	[[NSUserDefaults standardUserDefaults] setInteger:featureEnvironment forKey:kGRDServerFeatureEnvironment];
+}
+
+- (void)setPreferBetaCapableServers:(BOOL)preferBetaCapableServers {
+	_preferBetaCapableServers = preferBetaCapableServers;
+	[[NSUserDefaults standardUserDefaults] setBool:preferBetaCapableServers forKey:kGRDBetaCapablePreferred];
+}
+
+
+# pragma mark - Smart Routing Proxy
+/*
++ (void)setSmartProxyRouting:(BOOL)enabled {
+	if (enabled == YES) {
+		[GRDVPNHelper enableSmartProxyRouting];
+		
+	} else {
+		[GRDVPNHelper disableSmartProxyRouting];
+	}
+}
+
++ (void)enableSmartProxyRouting {
+	[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
+		}
+//		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+		
+		if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+			GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
+			[[GRDVPNHelper sharedInstance] disconnectVPNWithCompletion:^(NSError * _Nullable error) {
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+					[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+						if (status != GRDVPNHelperSuccess) {
+							GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+						}
+					}];
+				});
+			}];
+		}
+	}];
+}
+
++ (void)disableSmartProxyRouting {
+	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
+//	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+	
+	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+		GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
+		[[GRDVPNHelper sharedInstance] disconnectVPNWithCompletion:^(NSError * _Nullable error) {
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+					if (status != GRDVPNHelperSuccess) {
+						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+					}
+				}];
+			});
+		}];
+	}
+}
+*/
 
 @end

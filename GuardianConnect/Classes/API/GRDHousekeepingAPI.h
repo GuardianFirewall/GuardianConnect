@@ -8,19 +8,26 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
+
 #import <GuardianConnect/GRDAPIError.h>
-#import <GuardianConnect/GRDVPNHelper.h>
+//#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDHousekeepingAPI : NSObject
 
+@property (nonatomic, strong) NSString *housekeepingHostname;
+
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
 /// If no custom hostname is provided, the default public Connect API hostname is going to be used
-@property NSString *connectAPIHostname;
+@property (nonatomic, strong) NSString *connectAPIHostname;
+
+/// GuardianConnect app public key used to authenticate API requests
+@property (nonatomic, strong) NSString *_Nullable publishableKey;
 
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
@@ -33,9 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// PET or PE Token == Password Equivalent Token
 /// Currently only used by Guardian for subscriptions & purchases conducted via the web
 @property NSString *peToken;
-
-/// GuardianConnect app public key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable publishableKey;
 
 /// Helper function to quickly determine the correct Connect API env the request should be send to
 /// @param apiEndpoint the Connect REST API endpoint that the request should be sent to
@@ -67,11 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion completion block returning an array with all timezones, indicating request success, and the response status code
 - (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, NSError * _Nullable error))completion;
 
-/// endpoint: /api/v1/servers/hostnames-for-region
+/// endpoint: /api/v1.3/servers/hostnames-for-region/
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestServersForRegion:regionPrecision:paidServers:featureEnvironment:betaCapableServers:completion instead");
-
 - (void)requestServersForRegion:(NSString * _Nonnull)region regionPrecision:(NSString * _Nonnull)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion;
 
 /// endpint: /api/v1/servers/all-hostnames

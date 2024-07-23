@@ -9,13 +9,6 @@
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/NSObject+Dictionary.h>
 
-@interface GRDHousekeepingAPI()
-
-@property NSString *housekeepingHostname;
-
-@end
-
-
 @implementation GRDHousekeepingAPI
 
 - (instancetype)init {
@@ -25,43 +18,30 @@
 		// Ensure that housekeeping API requests always have
 		// a valid hostname set to begin with
 		self.housekeepingHostname = kConnectAPIHostname;
+		
+#warning pickup all the variables here out of user defaults
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
+			self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
+		}
 	}
 	
 	return self;
 }
 
-- (void)checkCustomValues {
-	self.connectAPIHostname = kConnectAPIHostname;
-	NSString *customConnectAPIHostname = [[GRDVPNHelper sharedInstance] connectAPIHostname];
-	if (customConnectAPIHostname != nil) {
-		self.connectAPIHostname = customConnectAPIHostname;
-	}
-	self.publishableKey = [[GRDVPNHelper sharedInstance] connectPublishableKey];
-	
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
-		self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
-	}
-	
-	GRDDebugLog(@"Connect API: %@", self.connectAPIHostname);
-	GRDDebugLog(@"Connect API publishable key: %@", self.publishableKey);
-	GRDDebugLog(@"Housekeeipng API hostname: %@", self.housekeepingHostname);
-}
-
 - (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint {
-	[self checkCustomValues];
-	
+#warning this is completely broken because I removed the NSUserDefaults parsing here. Make sure that all references to GRDHousekeeping API set the hostname correctly
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", self.housekeepingHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
 	[request setTimeoutInterval:15];
 	
+	GRDDebugLog(@"housekeeping-api-hostname: %@", self.housekeepingHostname);
+	
 	return request;
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
-	[self checkCustomValues];
-	
 	NSString *baseHostname = kConnectAPIHostname;
 	if (self.connectAPIHostname != nil || [self.connectAPIHostname isEqualToString:@""] == NO) {
 		baseHostname = self.connectAPIHostname;
@@ -385,51 +365,6 @@
         } else {
             NSArray *timezones = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             if (completion) completion(timezones, nil);
-        }
-    }];
-    [task resume];
-}
-
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, BOOL))completion {
-	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment], @"beta-capable": @(betaCapable)} options:0 error:nil];
-	
-	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.2/servers/hostnames-for-region"];
-	[request setHTTPMethod:@"POST"];
-	[request setHTTPBody:requestJSON];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:20];
-	[sessionConf setTimeoutIntervalForResource:20];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to hit endpoint: %@", error);
-            if (completion) completion(nil, NO);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 400) {
-            GRDLog(@"region key missing or mangled in JSON");
-            if (completion) completion(nil, NO);
-            return;
-            
-        } else if (statusCode == 500) {
-            GRDLog(@"Internal server error");
-            if (completion) completion(nil, NO);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSArray *servers = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) {
-                completion(servers, YES);
-            }
-        } else {
-            GRDLog(@"Uncaught http response status: %ld", statusCode);
-            if (completion) completion(nil, NO);
-            return;
         }
     }];
     [task resume];

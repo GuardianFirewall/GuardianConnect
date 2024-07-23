@@ -47,6 +47,11 @@ static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPI
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
+#pragma mark - SGW Features
+static NSString * const kGRDBetaCapablePreferred 						= @"kGRDBetaCapablePreferred";
+static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureEnvironment";
+
+
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";

@@ -10,11 +10,13 @@
 #import <NetworkExtension/NetworkExtension.h>
 
 #import <GuardianConnect/Shared.h>
+#import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
-
+#import <GuardianConnect/GRDSmartProxyHost.h>
+#import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
@@ -24,7 +26,9 @@
 // Using @class here for GRDRegion to prevent circular imports since
 // we need GRDServerFeatureEnvironment in GRDRegion.h for a correct
 // function signature
-@class GRDRegion;
+//@class GRDRegion;
+
+//@class GRDSmartProxyHost;
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
@@ -32,21 +36,8 @@
 #import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
-	ServerFeatureEnvironmentProduction = 1,
-	ServerFeatureEnvironmentInternal,
-	ServerFeatureEnvironmentDevelopment,
-	ServerFeatureEnvironmentDualStack,
-	ServerFeatureEnvironmentUnstable
-};
 
-@interface GRDVPNHelper : NSObject {
-	BOOL _preferBetaCapableServers;
-	GRDServerFeatureEnvironment _featureEnvironment;
-}
-
-@property (readonly) BOOL 						preferBetaCapableServers;
-@property (readonly) GRDServerFeatureEnvironment featureEnvironment;
+@interface GRDVPNHelper : NSObject
 
 /// a read only reference to the global NEVPNManager which handles
 /// IKEv2 connections. This should be used as a read-only reference to convenient access
@@ -58,6 +49,7 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// If no custom hostname is provided, the default public Connect API hostname is going to be used
 @property (nonatomic, strong) NSString * _Nullable connectAPIHostname;
 
+#warning store all of these properly in user defaults
 /// GuardianConnect app key used to authenticate API requests
 @property (nonatomic, strong) NSString * _Nullable connectPublishableKey;
 
@@ -88,13 +80,24 @@ typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 /// In order to set a preferred region precision persistently use -setPreferredRegionPrecision:
 @property (strong, nonatomic) NSString *regionPrecision;
 
+#warning add documentation!
+@property BOOL 						preferBetaCapableServers;
+
+@property GRDServerFeatureEnvironment serverFeatureEnvironment;
+
+#warning I think I should delete this deal and the thing below this
 /// Indicates whether load from preferences was successfull upon init
 @property BOOL vpnLoaded;
-
 /// If vpnLoaded == NO this will contain the error message return from NEVPNManager
-@property (nullable) NSString *lastErrorMessage;
+@property NSString * _Nullable lastErrorMessage;
 
-@property (nullable) NEProxySettings *proxySettings;
+
+
+@property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
+
+@property NEProxySettings * _Nullable proxySettings;
+
+
 
 /// a separate reference is kept of the mainCredential because the credential manager instance needs to be fetched from preferences & the keychain every time its called.
 @property (nullable) GRDCredential *mainCredential;
@@ -302,6 +305,12 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param precision the preferred region precision
 - (void)setPreferredRegionPrecision:(NSString * _Nonnull)precision;
 
+//- (void)setHousekeepingAPIHostname:(NSString *)hostname;
+//
+//- (void)setConnectAPIHostname:(NSString *)hostname;
+//
+//- (void)setConnectPublishableKey:(NSString *)key;
+
 /// Convenience function to store trusted networks persistently and enabling the feature
 ///
 /// The array of trusted network SSIDs will be stored in NSUserDefaults and
@@ -317,6 +326,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Clear all on device cache related to cached Guardian hosts & keychain items including the Subscriber Credential
 - (void)clearLocalCache;
+
+
+# pragma mark - Smart Routing Proxy
+
+//+ (void)setSmartProxyRouting:(BOOL)enabled;
+//+ (void)enableSmartProxyRouting;
+//+ (void)disableSmartProxyRouting;
 
 @end
 
