@@ -48,6 +48,10 @@
 		2362524429C2273600C11DDC /* GRDPEToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 2362524129C2273600C11DDC /* GRDPEToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2362524529C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
 		2362524629C2273600C11DDC /* GRDPEToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 2362524229C2273600C11DDC /* GRDPEToken.m */; };
+		2365E6122C4EAF1500FFE0CD /* GRDSmartProxyHost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2365E6102C4EAF1400FFE0CD /* GRDSmartProxyHost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2365E6132C4EAF1500FFE0CD /* GRDSmartProxyHost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2365E6102C4EAF1400FFE0CD /* GRDSmartProxyHost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2365E6142C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */; };
+		2365E6152C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */; };
 		23A450502BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
 		23A450512BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
 		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
@@ -234,6 +238,8 @@
 		2362523929A7CE7000C11DDC /* GRDErrorHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDErrorHelper.m; sourceTree = "<group>"; };
 		2362524129C2273600C11DDC /* GRDPEToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRDPEToken.h; sourceTree = "<group>"; };
 		2362524229C2273600C11DDC /* GRDPEToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GRDPEToken.m; sourceTree = "<group>"; };
+		2365E6102C4EAF1400FFE0CD /* GRDSmartProxyHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSmartProxyHost.h; sourceTree = "<group>"; };
+		2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSmartProxyHost.m; sourceTree = "<group>"; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -354,6 +360,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2365E6092C4EADC700FFE0CD /* Proxy Tooling */ = {
+			isa = PBXGroup;
+			children = (
+				2365E6102C4EAF1400FFE0CD /* GRDSmartProxyHost.h */,
+				2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */,
+			);
+			path = "Proxy Tooling";
+			sourceTree = "<group>";
+		};
 		23BBBC5A2923E70D00BAEC41 /* WireGuardPTP */ = {
 			isa = PBXGroup;
 			children = (
@@ -468,9 +483,10 @@
 		32939A962616837F007A4DFA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3252D68726939F3700FE7402 /* StoreKit */,
 				32ABCF5026352BCF0030B258 /* API */,
+				3252D68726939F3700FE7402 /* StoreKit */,
 				32ABCF4F26352BAC0030B258 /* Credentials */,
+				2365E6092C4EADC700FFE0CD /* Proxy Tooling */,
 				23F9D37C272FEEE000CDDB5B /* GRDLogger.h */,
 				23F9D37B272FEEE000CDDB5B /* GRDLogger.m */,
 				32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */,
@@ -584,6 +600,7 @@
 				3252D6512693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */,
 				32D80A44265B195200F5C33B /* GRDReceiptLineItem.h in Headers */,
 				32939A7226167D0E007A4DFA /* EXTScope.h in Headers */,
+				2365E6122C4EAF1500FFE0CD /* GRDSmartProxyHost.h in Headers */,
 				235E3E682993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
 				23FCE59629E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
@@ -628,6 +645,7 @@
 				3252D6522693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */,
 				32E92C06262A1B3D00A3202C /* GuardianConnect.h in Headers */,
 				328035AE2666C3FD00A173CE /* GRDReceiptLineItem.h in Headers */,
+				2365E6132C4EAF1500FFE0CD /* GRDSmartProxyHost.h in Headers */,
 				32E92C24262A1BAE00A3202C /* NSDate+Extras.h in Headers */,
 				23FCE59729E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				235E3E692993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
@@ -878,6 +896,7 @@
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
 				32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */,
+				2365E6142C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -910,6 +929,7 @@
 				32E92C0F262A1B6100A3202C /* GRDCredentialManager.m in Sources */,
 				32E92C16262A1B6100A3202C /* GRDSubscriberCredential.m in Sources */,
 				32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */,
+				2365E6152C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */,
 				2362523D29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */,
 				2311773229CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.m in Sources */,
 				23FCE59929E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */,
