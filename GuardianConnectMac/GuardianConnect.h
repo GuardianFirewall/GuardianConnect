@@ -43,6 +43,7 @@
 #import <GuardianConnect/GRDReceiptLineItemMetadata.h>
 #import <GuardianConnect/GRDIAPReceiptResponse.h>
 #import <GuardianConnect/GRDSGWServer.h>
+#import <GuardianConnect/GRDSmartProxyHost.h>
 
 //! Project version number for GuardianConnectMac.
 FOUNDATION_EXPORT double GuardianConnectMacVersionNumber;
