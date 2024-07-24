@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *connectAPIHostname;
 
 /// GuardianConnect app public key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable publishableKey;
+@property (nonatomic, strong) NSString *_Nullable connectPublishableKey;
 
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter

@@ -19,39 +19,45 @@
 		// a valid hostname set to begin with
 		self.housekeepingHostname = kConnectAPIHostname;
 		
-#warning pickup all the variables here out of user defaults
 		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-		if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
+		if ([defaults valueForKey:kGRDHousekeepingAPIHostname] != nil) {
 			self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
 		}
+		
+		if ([defaults valueForKey:kGRDConnectAPIHostname] != nil) {
+			self.connectAPIHostname = [defaults stringForKey:kGRDConnectAPIHostname];
+		}
+		
+		self.connectPublishableKey = [GRDKeychain getPasswordStringForAccount:kGRDConnectPublishableKey];
+		
+		GRDDebugLog(@"housekeeping-api-hostname: %@; connect-api-hostname: %@; connect-publishable-key: %@", self.housekeepingHostname, self.connectAPIHostname, self.connectPublishableKey);
 	}
 	
 	return self;
 }
 
 - (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint {
-#warning this is completely broken because I removed the NSUserDefaults parsing here. Make sure that all references to GRDHousekeeping API set the hostname correctly
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", self.housekeepingHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
 	[request setTimeoutInterval:15];
-	
-	GRDDebugLog(@"housekeeping-api-hostname: %@", self.housekeepingHostname);
 	
 	return request;
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
 	NSString *baseHostname = kConnectAPIHostname;
-	if (self.connectAPIHostname != nil || [self.connectAPIHostname isEqualToString:@""] == NO) {
-		baseHostname = self.connectAPIHostname;
+	if (self.connectAPIHostname != nil) {
+		if ([self.connectAPIHostname isEqualToString:@""] == NO) {
+			baseHostname = self.connectAPIHostname;
+		}
 	}
 	
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", baseHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	if ([self publishableKey] != nil) {
-		[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
+	if ([self connectPublishableKey] != nil) {
+		[request setValue:[self connectPublishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	}
 	
 	return request;
