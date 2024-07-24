@@ -9,8 +9,6 @@
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
-#warning remove this form the prefix header, not every class needs to import this!
-#import <GuardianConnect/NSPredicate+Additions.h>
 #import <GuardianConnect/Shared.h>
 #import <GuardianConnect/GRDLogger.h>
 #import <GuardianConnect/GRDErrorHelper.h>

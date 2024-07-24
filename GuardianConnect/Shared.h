@@ -6,6 +6,8 @@
 //  Copyright © 2020 Sudo Security Group Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #ifndef Shared_h
 #define Shared_h
 
@@ -43,6 +45,8 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
 
 static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
+static NSString * const kGRDConnectAPIHostname							= @"kGRDConnectAPIHostname";
+static NSString * const kGRDConnectPublishableKey						= @"kGRDConnectPublishableKey";
 
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
