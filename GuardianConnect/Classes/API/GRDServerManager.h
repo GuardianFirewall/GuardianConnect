@@ -11,6 +11,7 @@
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDSGWServer.h>
+#import <GuardianConnect/NSPredicate+Additions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
