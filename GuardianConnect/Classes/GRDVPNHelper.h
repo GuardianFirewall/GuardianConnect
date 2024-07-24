@@ -36,12 +36,7 @@
 #import <GuardianConnect/GRDCredentialManager.h>
 NS_ASSUME_NONNULL_BEGIN
 
-
 @interface GRDVPNHelper : NSObject
-
-/// a read only reference to the global NEVPNManager which handles
-/// IKEv2 connections. This should be used as a read-only reference to convenient access
-@property NEVPNManager *ikev2VPNManager;
 
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
@@ -49,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// If no custom hostname is provided, the default public Connect API hostname is going to be used
 @property (nonatomic, strong) NSString * _Nullable connectAPIHostname;
 
-#warning store all of these properly in user defaults
 /// GuardianConnect app key used to authenticate API requests
 @property (nonatomic, strong) NSString * _Nullable connectPublishableKey;
 
@@ -80,29 +74,31 @@ NS_ASSUME_NONNULL_BEGIN
 /// In order to set a preferred region precision persistently use -setPreferredRegionPrecision:
 @property (strong, nonatomic) NSString *regionPrecision;
 
-#warning add documentation!
-@property BOOL 						preferBetaCapableServers;
+/// Instructs GRDServerManager to obtain beta capable secure gateway servers during
+/// server selection, regardless of it running in automatic mode or not
+@property (nonatomic) BOOL preferBetaCapableServers;
 
-@property GRDServerFeatureEnvironment serverFeatureEnvironment;
+/// Change the server feature environment to test specific capabilities
+/// Change requires secure gateway servers to be tagged correctly as such
+/// in the backend database
+@property (nonatomic) GRDServerFeatureEnvironment serverFeatureEnvironment;
 
-#warning I think I should delete this deal and the thing below this
-/// Indicates whether load from preferences was successfull upon init
-@property BOOL vpnLoaded;
-/// If vpnLoaded == NO this will contain the error message return from NEVPNManager
-@property NSString * _Nullable lastErrorMessage;
-
-
-
+/// The list of smart routing proxy hosts that are going to be applied
+/// to the VPN tunnel settings
 @property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
 
+/// The proxy settings that are going to applied to the VPN tunnel settings.
+/// These settings include the options to enable things such as the
+/// smart routing capabilites
 @property NEProxySettings * _Nullable proxySettings;
 
+/// Class internal main credential reference
+@property (nonatomic, strong) GRDCredential * _Nullable mainCredential;
 
-
-/// a separate reference is kept of the mainCredential because the credential manager instance needs to be fetched from preferences & the keychain every time its called.
-@property (nullable) GRDCredential *mainCredential;
-
-@property (readwrite, assign) BOOL onDemand; //defaults to yes
+/// Provides the ability to disable the NetworkExtension's on-demand
+/// features.
+/// Defaults to YES/true
+@property (readwrite, assign) BOOL onDemand;
 
 /// bool used to indicate whether the user wants the VPN to run in a super strict
 /// mode, ensuring no data leaks. Puts the device into an almost unusable state
@@ -330,9 +326,9 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 # pragma mark - Smart Routing Proxy
 
-//+ (void)setSmartProxyRouting:(BOOL)enabled;
-//+ (void)enableSmartProxyRouting;
-//+ (void)disableSmartProxyRouting;
++ (void)setSmartProxyRouting:(BOOL)enabled;
++ (void)enableSmartProxyRouting;
++ (void)disableSmartProxyRouting;
 
 @end
 

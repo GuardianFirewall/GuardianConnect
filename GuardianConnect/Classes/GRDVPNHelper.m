@@ -26,14 +26,9 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = YES;
-		shared.ikev2VPNManager = [NEVPNManager sharedManager];
-        [shared.ikev2VPNManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-            if (error) {
-                shared.vpnLoaded = NO;
-                shared.lastErrorMessage = error.localizedDescription;
-				
-            } else {
-                shared.vpnLoaded = YES;
+        [[NEVPNManager sharedManager] loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+            if (error != nil) {
+				GRDErrorLogg(@"Failed to load IKEv2 tunnel manager preferences: %@", [error localizedDescription]);
             }
         }];
 		shared->_serverFeatureEnvironment = ServerFeatureEnvironmentProduction;
@@ -138,6 +133,43 @@
 		[self checkTimezoneChanged];
 	}];
 }
+
+
+#pragma mark - Internal setters
+
+- (void)setConnectAPIHostname:(NSString *)connectAPIHostname {
+	_connectAPIHostname = connectAPIHostname;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	if (connectAPIHostname == nil) {
+		[defaults removeObjectForKey:@"kGRDConnectAPIHostname"];
+		
+	} else {
+		[defaults setObject:connectAPIHostname forKey:@"kGRDConnectAPIHostname"];
+	}
+}
+
+- (void)setConnectPublishableKey:(NSString *)connectPublishableKey {
+	_connectPublishableKey = connectPublishableKey;
+	
+	if (connectPublishableKey == nil) {
+		[GRDKeychain removeKeychainItemForAccount:kGRDConnectPublishableKey];
+		
+	} else {
+		[GRDKeychain storePassword:connectPublishableKey forAccount:kGRDConnectPublishableKey];
+	}
+}
+
+- (void)setServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment {
+	_serverFeatureEnvironment = featureEnvironment;
+	[[NSUserDefaults standardUserDefaults] setInteger:featureEnvironment forKey:kGRDServerFeatureEnvironment];
+}
+
+- (void)setPreferBetaCapableServers:(BOOL)preferBetaCapableServers {
+	_preferBetaCapableServers = preferBetaCapableServers;
+	[[NSUserDefaults standardUserDefaults] setBool:preferBetaCapableServers forKey:kGRDBetaCapablePreferred];
+}
+
 
 + (BOOL)activeConnectionPossible {
     GRDCredential *cred = [GRDCredentialManager mainCredentials];
@@ -1060,34 +1092,9 @@
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
 
-#pragma mark - Internal setters
-
-#warning test if this does the right thing to prevent basic ABI changes
-- (void)setConnectAPIHostname:(NSString *)connectAPIHostname {
-	_connectAPIHostname = connectAPIHostname;
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	
-	if (connectAPIHostname == nil) {
-		[defaults removeObjectForKey:@"kGRDConnectAPIHostname"];
-		
-	} else {
-		[defaults setObject:connectAPIHostname forKey:@"kGRDConnectAPIHostname"];
-	}
-}
-
-- (void)setServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment {
-	_serverFeatureEnvironment = featureEnvironment;
-	[[NSUserDefaults standardUserDefaults] setInteger:featureEnvironment forKey:kGRDServerFeatureEnvironment];
-}
-
-- (void)setPreferBetaCapableServers:(BOOL)preferBetaCapableServers {
-	_preferBetaCapableServers = preferBetaCapableServers;
-	[[NSUserDefaults standardUserDefaults] setBool:preferBetaCapableServers forKey:kGRDBetaCapablePreferred];
-}
-
 
 # pragma mark - Smart Routing Proxy
-/*
+
 + (void)setSmartProxyRouting:(BOOL)enabled {
 	if (enabled == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
@@ -1136,6 +1143,6 @@
 		}];
 	}
 }
-*/
+
 
 @end
