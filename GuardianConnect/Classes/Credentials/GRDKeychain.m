@@ -179,7 +179,8 @@
     NSArray *guardianKeys = @[kKeychainStr_EapUsername,
                               kKeychainStr_EapPassword,
                               kKeychainStr_APIAuthToken,
-							  kKeychainStr_WireGuardConfig];
+							  kKeychainStr_WireGuardConfig,
+							  kGRDConnectPublishableKey];
     [guardianKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self removeKeychainItemForAccount:obj];
     }];
