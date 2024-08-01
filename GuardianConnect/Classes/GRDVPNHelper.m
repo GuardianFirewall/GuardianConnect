@@ -1054,7 +1054,7 @@
 	// Don't bother doing anything if there is no callback handler set
 	if (self.timezoneChangedBlock == nil) return;
 	
-	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if ([defaults valueForKey:kGRDLastKnownAutomaticRegion] == nil) {
 		GRDDebugLog(@"No previous known automatic region found.");
 		return;
