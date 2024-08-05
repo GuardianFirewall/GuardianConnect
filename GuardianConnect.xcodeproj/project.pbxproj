@@ -54,6 +54,16 @@
 		2365E6152C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */; };
 		23A450502BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
 		23A450512BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */; };
+		23B53A242C5CF2F000B56594 /* GRDBlocklistGroupItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A1F2C5CF2EF00B56594 /* GRDBlocklistGroupItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A252C5CF2F000B56594 /* GRDBlocklistGroupItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A1F2C5CF2EF00B56594 /* GRDBlocklistGroupItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A262C5CF2F000B56594 /* GRDBlocklistItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B53A202C5CF2EF00B56594 /* GRDBlocklistItem.m */; };
+		23B53A272C5CF2F000B56594 /* GRDBlocklistItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B53A202C5CF2EF00B56594 /* GRDBlocklistItem.m */; };
+		23B53A282C5CF2F000B56594 /* GRDBlocklistType.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A212C5CF2F000B56594 /* GRDBlocklistType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A292C5CF2F000B56594 /* GRDBlocklistType.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A212C5CF2F000B56594 /* GRDBlocklistType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A2A2C5CF2F000B56594 /* GRDBlocklistItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A222C5CF2F000B56594 /* GRDBlocklistItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A2B2C5CF2F000B56594 /* GRDBlocklistItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B53A222C5CF2F000B56594 /* GRDBlocklistItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		23B53A2C2C5CF2F000B56594 /* GRDBlocklistGroupItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B53A232C5CF2F000B56594 /* GRDBlocklistGroupItem.m */; };
+		23B53A2D2C5CF2F000B56594 /* GRDBlocklistGroupItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B53A232C5CF2F000B56594 /* GRDBlocklistGroupItem.m */; };
 		23BBBC592923E70D00BAEC41 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		23BBBC5C2923E70D00BAEC41 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */; };
 		23BBBC612923E70D00BAEC41 /* WireGuardPTP.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -242,6 +252,11 @@
 		2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSmartProxyHost.m; sourceTree = "<group>"; };
 		23A3D13D285B76B400AC2B0C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		23A4504F2BBB1C2E00FC90AA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		23B53A1F2C5CF2EF00B56594 /* GRDBlocklistGroupItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlocklistGroupItem.h; sourceTree = "<group>"; };
+		23B53A202C5CF2EF00B56594 /* GRDBlocklistItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDBlocklistItem.m; sourceTree = "<group>"; };
+		23B53A212C5CF2F000B56594 /* GRDBlocklistType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlocklistType.h; sourceTree = "<group>"; };
+		23B53A222C5CF2F000B56594 /* GRDBlocklistItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDBlocklistItem.h; sourceTree = "<group>"; };
+		23B53A232C5CF2F000B56594 /* GRDBlocklistGroupItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDBlocklistGroupItem.m; sourceTree = "<group>"; };
 		23BBBC582923E70D00BAEC41 /* WireGuardPTP.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WireGuardPTP.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		23BBBC5B2923E70D00BAEC41 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		23BBBC5D2923E70D00BAEC41 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -363,10 +378,23 @@
 		2365E6092C4EADC700FFE0CD /* Proxy Tooling */ = {
 			isa = PBXGroup;
 			children = (
+				23B53A1E2C5CF1C500B56594 /* Blocklist */,
 				2365E6102C4EAF1400FFE0CD /* GRDSmartProxyHost.h */,
 				2365E6112C4EAF1500FFE0CD /* GRDSmartProxyHost.m */,
 			);
 			path = "Proxy Tooling";
+			sourceTree = "<group>";
+		};
+		23B53A1E2C5CF1C500B56594 /* Blocklist */ = {
+			isa = PBXGroup;
+			children = (
+				23B53A1F2C5CF2EF00B56594 /* GRDBlocklistGroupItem.h */,
+				23B53A232C5CF2F000B56594 /* GRDBlocklistGroupItem.m */,
+				23B53A222C5CF2F000B56594 /* GRDBlocklistItem.h */,
+				23B53A202C5CF2EF00B56594 /* GRDBlocklistItem.m */,
+				23B53A212C5CF2F000B56594 /* GRDBlocklistType.h */,
+			);
+			path = Blocklist;
 			sourceTree = "<group>";
 		};
 		23BBBC5A2923E70D00BAEC41 /* WireGuardPTP */ = {
@@ -605,6 +633,7 @@
 				23FCE59629E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				232ED3D9278604C6008B1FCE /* GRDTransportProtocol.h in Headers */,
 				23F9D37E272FEEE000CDDB5B /* GRDLogger.h in Headers */,
+				23B53A282C5CF2F000B56594 /* GRDBlocklistType.h in Headers */,
 				3247E9F22628F253007D4E7E /* GRDCredential.h in Headers */,
 				32939A9326167D20007A4DFA /* GRDHousekeepingAPI.h in Headers */,
 				3252D62B26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
@@ -613,12 +642,14 @@
 				32E1AE162698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
 				235E3E6E2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
 				2311772F29CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.h in Headers */,
+				23B53A2A2C5CF2F000B56594 /* GRDBlocklistItem.h in Headers */,
 				2362524329C2273600C11DDC /* GRDPEToken.h in Headers */,
 				32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */,
 				23C2144427986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32855B1B263640B90088086E /* GRDRegion.h in Headers */,
 				234D03962BAADBD300F136CC /* GRDSGWServer.h in Headers */,
 				321BA148261404A100E876CB /* GuardianConnect.h in Headers */,
+				23B53A242C5CF2F000B56594 /* GRDBlocklistGroupItem.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -650,6 +681,7 @@
 				23FCE59729E6F8EF00E735E9 /* GRDIAPReceiptResponse.h in Headers */,
 				235E3E692993F8A5008E915B /* GRDConnectSubscriber.h in Headers */,
 				23E5FA9227304AA7000FC70F /* GRDLogger.h in Headers */,
+				23B53A292C5CF2F000B56594 /* GRDBlocklistType.h in Headers */,
 				32E92C18262A1B9A00A3202C /* Shared.h in Headers */,
 				32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */,
 				3252D62C26938DC000FE7402 /* GRDSubscriptionManager.h in Headers */,
@@ -658,12 +690,14 @@
 				32E1AE172698E2DF0057D80A /* NSObject+Dictionary.h in Headers */,
 				235E3E6F2993F8B6008E915B /* GRDConnectDevice.h in Headers */,
 				2311773029CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.h in Headers */,
+				23B53A2B2C5CF2F000B56594 /* GRDBlocklistItem.h in Headers */,
 				2362524429C2273600C11DDC /* GRDPEToken.h in Headers */,
 				23C2144527986ABF0061B2BC /* GRDTunnelManager.h in Headers */,
 				32E92C22262A1BA700A3202C /* GRDSubscriberCredential.h in Headers */,
 				32855B1C263640B90088086E /* GRDRegion.h in Headers */,
 				234D03972BAADBD300F136CC /* GRDSGWServer.h in Headers */,
 				32E92C28262A1BC500A3202C /* EXTScope.h in Headers */,
+				23B53A252C5CF2F000B56594 /* GRDBlocklistGroupItem.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -880,6 +914,7 @@
 				32939A8526167D20007A4DFA /* GRDHousekeepingAPI.m in Sources */,
 				32939A7126167D0E007A4DFA /* EXTRuntimeExtensions.m in Sources */,
 				236251F2299CE48C00C11DDC /* GRDDNSHelper.m in Sources */,
+				23B53A262C5CF2F000B56594 /* GRDBlocklistItem.m in Sources */,
 				32939A8926167D20007A4DFA /* GRDSubscriberCredential.m in Sources */,
 				235E3E642993EF3D008E915B /* GRDAPIError.m in Sources */,
 				234D03982BAADBD300F136CC /* GRDSGWServer.m in Sources */,
@@ -896,6 +931,7 @@
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
 				32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */,
+				23B53A2C2C5CF2F000B56594 /* GRDBlocklistGroupItem.m in Sources */,
 				2365E6142C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -933,6 +969,7 @@
 				2362523D29A7CE7000C11DDC /* GRDErrorHelper.m in Sources */,
 				2311773229CB48B8007FD6AA /* GRDDeviceFilterConfigBlocklist.m in Sources */,
 				23FCE59929E6F8EF00E735E9 /* GRDIAPReceiptResponse.m in Sources */,
+				23B53A2D2C5CF2F000B56594 /* GRDBlocklistGroupItem.m in Sources */,
 				23DCA2B627E37AE000130BE4 /* GRDWireGuardConfiguration.m in Sources */,
 				232ED3F2278F16FB008B1FCE /* Curve25519.swift in Sources */,
 				232ED3DC278604C6008B1FCE /* GRDTransportProtocol.m in Sources */,
@@ -947,6 +984,7 @@
 				2362524629C2273600C11DDC /* GRDPEToken.m in Sources */,
 				32E92C0A262A1B4900A3202C /* NSDate+Extras.m in Sources */,
 				235E3E652993EF3D008E915B /* GRDAPIError.m in Sources */,
+				23B53A272C5CF2F000B56594 /* GRDBlocklistItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

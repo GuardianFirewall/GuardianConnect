@@ -7,7 +7,7 @@
 //
 
 #import "GRDSmartProxyHost.h"
-//#import <GuardianCore/GRDVPNHelper.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 
 @implementation GRDSmartProxyHost
 
@@ -28,7 +28,7 @@
 			if (completion) completion(error);
 			
 		} else {
-//			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
+			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
 			if (completion) completion(nil);
 		}
 	}];

@@ -60,6 +60,12 @@ static NSString * const kGRDVPNHostLocation                             = @"kGRD
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
 static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
+static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
+//
+// Note from CJ 2024-08-05
+// This is deprecated and should be removed asap!
+static NSString * const kGRDBlacklistGroups							 	= @"GRDBlacklistGroups";
+static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
 
