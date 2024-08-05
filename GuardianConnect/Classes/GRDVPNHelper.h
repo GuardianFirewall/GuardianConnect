@@ -16,19 +16,12 @@
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
 #import <GuardianConnect/GRDSmartProxyHost.h>
+#import <GuardianConnect/GRDBlocklistItem.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
-
-// Note from CJ 2022-02-02
-// Using @class here for GRDRegion to prevent circular imports since
-// we need GRDServerFeatureEnvironment in GRDRegion.h for a correct
-// function signature
-//@class GRDRegion;
-
-//@class GRDSmartProxyHost;
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
@@ -329,6 +322,16 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (void)setSmartProxyRouting:(BOOL)enabled;
 + (void)enableSmartProxyRouting;
 + (void)disableSmartProxyRouting;
+
++ (NEProxySettings *)proxySettings;
++ (NSString *)proxyPACString;
++ (NSArray<GRDBlocklistGroupItem *> *)blocklistGroups;
++ (NSArray<GRDBlocklistItem *> *)enabledBlocklistItems;
++ (void)addBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem;
++ (void)updateOrAddGroup:(GRDBlocklistGroupItem *)group;
++ (void)mergeOrAddGroup:(GRDBlocklistGroupItem *)group;
++ (void)removeBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem;
++ (void)clearBlocklistData;
 
 @end
 

@@ -8,9 +8,12 @@
 
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDBlocklistItem.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GuardianConnect-Swift.h>
+#import <GuardianConnect/GRDBlocklistGroupItem.h>
+
 
 @import UserNotifications;
 
@@ -1109,7 +1112,7 @@
 		if (error != nil) {
 			GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
 		}
-//		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 		
 		if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 			GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
@@ -1128,7 +1131,7 @@
 
 + (void)disableSmartProxyRouting {
 	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
-//	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
+	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 	
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 		GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
@@ -1144,5 +1147,216 @@
 	}
 }
 
++ (NEProxySettings *)proxySettings {
+	NEProxySettings *proxSettings = [NEProxySettings new];
+	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
+	if (blocklistJS != nil) { //only add these changes if the blocklist has any enabled items.
+		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
+		proxSettings.autoProxyConfigurationEnabled = YES;
+		proxSettings.proxyAutoConfigurationJavaScript = blocklistJS;
+	}
+	
+	return proxSettings;
+}
+
++ (NSString *)proxyPACString {
+	NSArray <GRDBlocklistItem *> *blocklist = [GRDVPNHelper enabledBlocklistItems];
+
+	// Start the if statement
+	NSMutableString *matchString = [[NSMutableString alloc] initWithString:@"if ("];
+	NSMutableString *proxyMatchString = [[NSMutableString alloc] initWithString:@"if ("];
+	NSString *badRouteProxy = @"\"PROXY 192.0.2.222:3421\"";
+	NSString *dcProxy = @"\"PROXY 10.183.10.11:3128; DIRECT\"";
+
+	NSMutableArray *smartProxyItems = [NSMutableArray new];
+	NSMutableArray *proxyItems = [NSMutableArray new];
+	for (GRDBlocklistItem *item in blocklist) {
+		if (item.smartProxyType == YES) {
+			[smartProxyItems addObject:item];
+
+		} else {
+			[proxyItems addObject:item];
+		}
+	}
+
+	NSArray *smm = [[GRDVPNHelper sharedInstance] smartProxyRoutingHosts];
+	for (GRDSmartProxyHost *smartProxyHost in smm) {
+		GRDBlocklistItem *conv = [GRDBlocklistItem new];
+		conv.value = smartProxyHost.host;
+		conv.type = GRDBlocklistTypeDNS;
+		conv.enabled = YES;
+		conv.smartProxyType = YES;
+		[smartProxyItems addObject:conv];
+	}
+
+	for (int idx = 0; idx < [proxyItems count]; idx++) {
+		NSString *formattedString = nil;
+		GRDBlocklistItem *item = proxyItems[idx];
+
+		if (item.type == GRDBlocklistTypeDNS) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == proxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, badRouteProxy];
+			}
+
+		} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == proxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@; ", item.value, badRouteProxy];
+			}
+
+		} else {
+			GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
+			continue;
+		}
+
+		[matchString appendString:formattedString];
+	}
+
+	for (int idx = 0; idx < [smartProxyItems count]; idx++) {
+		NSString *formattedString = nil;
+		GRDBlocklistItem *item = smartProxyItems[idx];
+		if (item.type == GRDBlocklistTypeDNS) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == smartProxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, dcProxy];
+			}
+
+		} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == smartProxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@;", item.value, dcProxy];
+			}
+
+		} else {
+			GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
+			continue;
+		}
+
+		[proxyMatchString appendString:formattedString];
+	}
+
+	NSString *pacString = @"function FindProxyForURL(url, host) { ";
+	if ([blocklist count] > 0 || [smartProxyItems count] > 0) {
+		if ([proxyItems count] > 0) { //only add these changes if the blocklist has any enabled items.
+			pacString = [pacString stringByAppendingString:matchString];
+		}
+
+		if ([smartProxyItems count] > 0) {
+			pacString = [pacString stringByAppendingString:proxyMatchString];
+		}
+
+		return [pacString stringByAppendingString:@"return \"DIRECT\";}"];
+	}
+
+	return nil;
+}
+
++ (NSArray<GRDBlocklistItem *> *)enabledBlocklistItems {
+	BOOL blocklistsEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:kGRDBlocklistsEnabled];
+	if (blocklistsEnabled == NO) {
+		return nil;
+	}
+	
+	__block NSMutableArray *enabledItems = [NSMutableArray new];
+	NSArray <GRDBlocklistGroupItem*> *enabledGroups = [[GRDVPNHelper blocklistGroups] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"allDisabled == false"]];
+	[enabledGroups enumerateObjectsUsingBlock:^(GRDBlocklistGroupItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		if ([obj allEnabled]) {
+			[enabledItems addObjectsFromArray:obj.items];
+			
+		} else { //check individually
+			NSArray *enabled = [[obj items] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == true"]];
+			[enabledItems addObjectsFromArray:enabled];
+		}
+	}];
+	
+	return enabledItems;
+}
+
++ (NSArray<GRDBlocklistGroupItem *> *)blocklistGroups {
+	NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+	NSMutableArray<GRDBlocklistGroupItem*> *blocklistGroups = [NSMutableArray array];
+	for (NSData *item in items) {
+		GRDBlocklistGroupItem *blocklistGroup = [NSKeyedUnarchiver unarchiveObjectWithData:item];
+		[blocklistGroups addObject:blocklistGroup];
+	}
+	return blocklistGroups;
+}
+
++ (void)updateOrAddGroup:(GRDBlocklistGroupItem *)group {
+	NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
+	GRDBlocklistGroupItem *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+	NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
+	if (objectIndex == NSNotFound) {
+		[GRDVPNHelper addBlocklistGroup:group];
+		return;
+		
+	} else {
+		NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:group];
+		[modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
+	}
+	[[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
+}
+
++ (GRDBlocklistGroupItem *)groupWithIdentifier:(NSString *)groupIdentifier {
+	NSArray <GRDBlocklistGroupItem*> *groups = [GRDVPNHelper blocklistGroups];
+	return [[groups filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", groupIdentifier]] lastObject];
+}
+
++ (void)addBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem {
+	if (!blocklistGroupItem) { return; }
+	NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+	NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
+	if (!blocklistGroups.count) {
+		blocklistGroups = [NSMutableArray array];
+	}
+	[blocklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem] atIndex:0];
+	[[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
+//	[GRDWhitelistManager syncBlacklistHosts];
+}
+
++ (void)mergeOrAddGroup:(GRDBlocklistGroupItem *)group {
+    NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
+    GRDBlocklistGroupItem *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+    NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
+    if (objectIndex == NSNotFound) {
+        [GRDVPNHelper addBlocklistGroup:group];
+        return;
+
+    } else {
+        GRDBlocklistGroupItem *mergedGroup = [oldGroup updateIfNeeded:group];
+        NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:mergedGroup];
+        [modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
+    }
+    [[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
+}
+
++ (void)removeBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem {
+    if (!blocklistGroupItem) { return; }
+    NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+    NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
+    if (blocklistGroups.count) {
+        NSData *itemData = [NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem];
+        [blocklistGroups removeObject:itemData];
+        [[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
+    }
+//    [GRDWhitelistManager syncBlacklistHosts];
+}
+
++ (void)clearBlocklistData {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kGRDBlocklistGroups];
+}
 
 @end
