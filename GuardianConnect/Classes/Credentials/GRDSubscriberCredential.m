@@ -80,7 +80,7 @@
 + (void)setPreferredValidationMethod:(GRDHousekeepingValidationMethod)validationMethod {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if (validationMethod == ValidationMethodInvalid) {
-		[defaults removeVolatileDomainForName:kGuardianPreferredSubscriberCredentialValidationMethod];
+		[defaults removeObjectForKey:kGuardianPreferredSubscriberCredentialValidationMethod];
 		
 	} else {
 		[defaults setInteger:validationMethod forKey:kGuardianPreferredSubscriberCredentialValidationMethod];
