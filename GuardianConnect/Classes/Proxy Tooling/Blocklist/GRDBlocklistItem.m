@@ -10,10 +10,6 @@
 
 @implementation GRDBlocklistItem
 
-- (BOOL)isSpecialGroup {
-    return FALSE;
-}
-
 - (void)encodeWithCoder:(nonnull NSCoder *)aCoder {
     [aCoder encodeObject:self.identifier forKey:@"identifier"];
     [aCoder encodeObject:self.label forKey:@"label"];

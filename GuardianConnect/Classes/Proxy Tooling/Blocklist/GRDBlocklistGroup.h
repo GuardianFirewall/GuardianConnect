@@ -1,5 +1,5 @@
 //
-//  GRDBlocklistGroupItem.h
+//  GRDBlocklistGroup.h
 //  Guardian
 //
 //  Created by Constantin Jacob on 08/02/24.
@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
     GRDBlocklistCustomGroupType
 };
 
-@interface GRDBlocklistGroupItem : NSObject
+@interface GRDBlocklistGroup : NSObject
 @property NSString *identifier;
 @property NSString *title;
 @property NSString *groupDescription;
@@ -28,7 +28,6 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
 
 + (NSString *)guardianName;
 + (NSString *)customName;
-- (BOOL)isSpecialGroup;
 
 - (BOOL)anyDisabled;
 - (BOOL)anyEnabled; //for mixed state
@@ -37,16 +36,15 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
 - (void)enableAll;
 - (void)disableAll;
 - (id)initWithDictionary:(NSDictionary *)blocklistGroupDictionary;
-+ (NSArray <GRDBlocklistGroupItem *> *)blocklistGroupsFromJSON:(NSArray *)blocklistArray;
-+ (NSArray <GRDBlocklistGroupItem *> *)dummyGroups;
++ (NSArray <GRDBlocklistGroup *> *)blocklistGroupsFromJSON:(NSArray *)blocklistArray;
++ (NSArray <GRDBlocklistGroup *> *)dummyGroups;
 - (void)addItem:(GRDBlocklistItem *)item;
 - (void)removeItem:(GRDBlocklistItem *)item;
 - (void)saveChanges;
-- (GRDBlocklistGroupItem *)updateIfNeeded:(GRDBlocklistGroupItem *)group;
+- (GRDBlocklistGroup *)updateIfNeeded:(GRDBlocklistGroup *)group;
 - (void)selectInverse;
 - (BOOL)allReallyOff;
 - (BOOL)allReallyOn;
-- (void)refreshItemGroup; //only needed on macOS side, will set group details for all contained items.
 @end
 
 NS_ASSUME_NONNULL_END

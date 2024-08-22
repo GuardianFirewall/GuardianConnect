@@ -12,7 +12,7 @@
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GuardianConnect-Swift.h>
-#import <GuardianConnect/GRDBlocklistGroupItem.h>
+#import <GuardianConnect/GRDBlocklistGroup.h>
 
 
 @import UserNotifications;
@@ -119,6 +119,7 @@
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
 	
+#warning improve this overall and create constants to automatically grab the list of new hosts
 	/*
 	if ([defaults boolForKey:@"grd-smart-proxy-routing"] == YES) {
 		[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
@@ -1098,7 +1099,7 @@
 
 # pragma mark - Smart Routing Proxy
 
-+ (void)setSmartProxyRouting:(BOOL)enabled {
++ (void)toggleSmartProxyRouting:(BOOL)enabled {
 	if (enabled == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
 		
@@ -1271,8 +1272,8 @@
 	}
 	
 	__block NSMutableArray *enabledItems = [NSMutableArray new];
-	NSArray <GRDBlocklistGroupItem*> *enabledGroups = [[GRDVPNHelper blocklistGroups] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"allDisabled == false"]];
-	[enabledGroups enumerateObjectsUsingBlock:^(GRDBlocklistGroupItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+	NSArray <GRDBlocklistGroup*> *enabledGroups = [[GRDVPNHelper blocklistGroups] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"allDisabled == false"]];
+	[enabledGroups enumerateObjectsUsingBlock:^(GRDBlocklistGroup * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
 		if ([obj allEnabled]) {
 			[enabledItems addObjectsFromArray:obj.items];
 			
@@ -1285,19 +1286,19 @@
 	return enabledItems;
 }
 
-+ (NSArray<GRDBlocklistGroupItem *> *)blocklistGroups {
++ (NSArray<GRDBlocklistGroup *> *)blocklistGroups {
 	NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
-	NSMutableArray<GRDBlocklistGroupItem*> *blocklistGroups = [NSMutableArray array];
+	NSMutableArray<GRDBlocklistGroup*> *blocklistGroups = [NSMutableArray array];
 	for (NSData *item in items) {
-		GRDBlocklistGroupItem *blocklistGroup = [NSKeyedUnarchiver unarchiveObjectWithData:item];
+		GRDBlocklistGroup *blocklistGroup = [NSKeyedUnarchiver unarchiveObjectWithData:item];
 		[blocklistGroups addObject:blocklistGroup];
 	}
 	return blocklistGroups;
 }
 
-+ (void)updateOrAddGroup:(GRDBlocklistGroupItem *)group {
++ (void)updateOrAddGroup:(GRDBlocklistGroup *)group {
 	NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
-	GRDBlocklistGroupItem *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+	GRDBlocklistGroup *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
 	NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
 	if (objectIndex == NSNotFound) {
 		[GRDVPNHelper addBlocklistGroup:group];
@@ -1310,12 +1311,12 @@
 	[[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
 }
 
-+ (GRDBlocklistGroupItem *)groupWithIdentifier:(NSString *)groupIdentifier {
-	NSArray <GRDBlocklistGroupItem*> *groups = [GRDVPNHelper blocklistGroups];
++ (GRDBlocklistGroup *)groupWithIdentifier:(NSString *)groupIdentifier {
+	NSArray <GRDBlocklistGroup*> *groups = [GRDVPNHelper blocklistGroups];
 	return [[groups filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", groupIdentifier]] lastObject];
 }
 
-+ (void)addBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem {
++ (void)addBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem {
 	if (!blocklistGroupItem) { return; }
 	NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
 	NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
@@ -1327,23 +1328,23 @@
 //	[GRDWhitelistManager syncBlacklistHosts];
 }
 
-+ (void)mergeOrAddGroup:(GRDBlocklistGroupItem *)group {
++ (void)mergeOrAddGroup:(GRDBlocklistGroup *)group {
     NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
-    GRDBlocklistGroupItem *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+    GRDBlocklistGroup *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
     NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
     if (objectIndex == NSNotFound) {
         [GRDVPNHelper addBlocklistGroup:group];
         return;
 
     } else {
-        GRDBlocklistGroupItem *mergedGroup = [oldGroup updateIfNeeded:group];
+        GRDBlocklistGroup *mergedGroup = [oldGroup updateIfNeeded:group];
         NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:mergedGroup];
         [modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
     }
     [[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
 }
 
-+ (void)removeBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem {
++ (void)removeBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem {
     if (!blocklistGroupItem) { return; }
     NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
     NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];

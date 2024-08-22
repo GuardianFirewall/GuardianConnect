@@ -44,7 +44,7 @@
 #import <GuardianConnect/GRDIAPReceiptResponse.h>
 #import <GuardianConnect/GRDSGWServer.h>
 #import <GuardianConnect/GRDSmartProxyHost.h>
-#import <GuardianConnect/GRDBlocklistGroupItem.h>
+#import <GuardianConnect/GRDBlocklistGroup.h>
 #import <GuardianConnect/GRDBlocklistItem.h>
 #import <GuardianConnect/GRDBlocklistType.h>
 

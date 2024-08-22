@@ -319,18 +319,18 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 # pragma mark - Smart Routing Proxy
 
-+ (void)setSmartProxyRouting:(BOOL)enabled;
++ (void)toggleSmartProxyRouting:(BOOL)enabled;
 + (void)enableSmartProxyRouting;
 + (void)disableSmartProxyRouting;
 
 + (NEProxySettings *)proxySettings;
 + (NSString *)proxyPACString;
-+ (NSArray<GRDBlocklistGroupItem *> *)blocklistGroups;
++ (NSArray<GRDBlocklistGroup *> *)blocklistGroups;
 + (NSArray<GRDBlocklistItem *> *)enabledBlocklistItems;
-+ (void)addBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem;
-+ (void)updateOrAddGroup:(GRDBlocklistGroupItem *)group;
-+ (void)mergeOrAddGroup:(GRDBlocklistGroupItem *)group;
-+ (void)removeBlocklistGroup:(GRDBlocklistGroupItem *)blocklistGroupItem;
++ (void)addBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem;
++ (void)updateOrAddGroup:(GRDBlocklistGroup *)group;
++ (void)mergeOrAddGroup:(GRDBlocklistGroup *)group;
++ (void)removeBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem;
 + (void)clearBlocklistData;
 
 @end

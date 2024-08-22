@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <GuardianConnect/GRDBlocklistType.h>
 
-@class GRDBlocklistGroupItem;
+@class GRDBlocklistGroup;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface GRDBlocklistItem : NSObject <NSCoding, NSCopying>
@@ -19,13 +19,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) 	GRDBlocklistType type;
 @property (nonatomic, copy) 	NSString *value;
 @property (nonatomic, assign) 	BOOL enabled;
-@property (nonatomic, weak) 	GRDBlocklistGroupItem *group;
+@property (nonatomic, weak) 	GRDBlocklistGroup *group;
 @property (nonatomic) 			BOOL smartProxyType;
 
 - (BOOL)isLeaf;
 - (void)updateWithItem:(GRDBlocklistItem *)item;
 - (NSString *)title;
-- (BOOL)isSpecialGroup;
 
 @end
 NS_ASSUME_NONNULL_END

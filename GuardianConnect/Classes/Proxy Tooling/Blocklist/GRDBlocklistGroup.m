@@ -1,12 +1,12 @@
 //
-//  GRDBlocklistGroupItem.m
+//  GRDBlocklistGroup.m
 //  Guardian
 //
 //  Created by Constantin Jacob on 08/02/24.
 //  Copyright © 2024 Sudo Security Group Inc. All rights reserved.
 //
 
-#import <GuardianConnect/GRDBlocklistGroupItem.h>
+#import <GuardianConnect/GRDBlocklistGroup.h>
 #import <GuardianConnect/GRDVPNHelper.h>
 //#import <GuardianConnect/GRDSettingsController.h>
 /*
@@ -21,12 +21,12 @@
  
  */
 
-@implementation GRDBlocklistGroupItem
+@implementation GRDBlocklistGroup
 
 + (NSString *)guardianName { return @"GUARDIAN"; }
 + (NSString *)customName { return @"CUSTOM"; }
 - (BOOL)isSpecialGroup {
-    return ([self.title isEqualToString:[GRDBlocklistGroupItem guardianName]] || [self.title isEqualToString:[GRDBlocklistGroupItem customName]]);
+    return ([self.title isEqualToString:[GRDBlocklistGroup guardianName]] || [self.title isEqualToString:[GRDBlocklistGroup customName]]);
 }
 
 - (BOOL)isLeaf {
@@ -34,11 +34,11 @@
     return FALSE;
 }
 
-+ (NSArray <GRDBlocklistGroupItem *> *)blocklistGroupsFromJSON:(NSArray <NSDictionary *> *)blocklistArray {
++ (NSArray <GRDBlocklistGroup *> *)blocklistGroupsFromJSON:(NSArray <NSDictionary *> *)blocklistArray {
     __block NSMutableArray *newArray = [NSMutableArray new];
     [blocklistArray enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
        
-        GRDBlocklistGroupItem *item = [[GRDBlocklistGroupItem alloc] initWithDictionary:obj];
+        GRDBlocklistGroup *item = [[GRDBlocklistGroup alloc] initWithDictionary:obj];
         item.groupType = GRDBlocklistGuardianGroupType;
         [newArray addObject:item];
         
@@ -53,7 +53,7 @@
  
  */
 
-- (GRDBlocklistGroupItem *)updateIfNeeded:(GRDBlocklistGroupItem *)group {
+- (GRDBlocklistGroup *)updateIfNeeded:(GRDBlocklistGroup *)group {
     __block BOOL hasNewItem = false;
     if (group.items.count > self.items.count){
         //NSLog(@"remote group: %@ with count: %lu has more items than local group: %@ with count %lu", group,group.items.count, self, self.items.count);
@@ -86,7 +86,7 @@
     return self;//it will always get here, and that should encompass any changes made above if necessary.
 }
 
-+ (NSArray<GRDBlocklistGroupItem *> *)dummyGroups {
++ (NSArray<GRDBlocklistGroup *> *)dummyGroups {
     
     GRDBlocklistItem *fbItem = [GRDBlocklistItem new];
     fbItem.label = @"Facebook";
@@ -96,7 +96,7 @@
     googleItem.label = @"Google";
     googleItem.value = @"google.com";
     googleItem.type = GRDBlocklistTypeDNS;
-    GRDBlocklistGroupItem *group = [GRDBlocklistGroupItem new];
+    GRDBlocklistGroup *group = [GRDBlocklistGroup new];
     group.items = @[fbItem, googleItem];
     group.title = @"Social Media";
     group.groupType = GRDBlocklistGuardianGroupType;
@@ -109,7 +109,7 @@
     customItemTwo.label = @"Item Two";
     customItemTwo.value = @"192.168.0.2";
     customItemTwo.type = GRDBlocklistTypeIPv4;
-    GRDBlocklistGroupItem *groupTwo = [GRDBlocklistGroupItem new];
+    GRDBlocklistGroup *groupTwo = [GRDBlocklistGroup new];
     groupTwo.items = @[customItemOne, customItemTwo];
     groupTwo.title = @"86";
     groupTwo.groupType = GRDBlocklistCustomGroupType;
@@ -145,7 +145,7 @@
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-    GRDBlocklistGroupItem *item = [[GRDBlocklistGroupItem allocWithZone:zone] init];
+    GRDBlocklistGroup *item = [[GRDBlocklistGroup allocWithZone:zone] init];
     item.title = self.title;
     item.identifier = self.identifier;
     item.groupDescription = self.groupDescription;
@@ -271,22 +271,6 @@
 - (void)disableAll {
     self.allDisabled = true;
     [self saveChanges];
-}
-
-- (void)refreshItemGroup {
-    if ([self isSpecialGroup]) {
-        [self.items enumerateObjectsUsingBlock:^(GRDBlocklistItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            GRDBlocklistGroupItem *group = (GRDBlocklistGroupItem*)obj;
-            [group.items enumerateObjectsUsingBlock:^(GRDBlocklistItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
-                [item setGroup:group];
-            }];
-        }];
-		
-    } else {
-        [self.items enumerateObjectsUsingBlock:^(GRDBlocklistItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
-            [item setGroup:self];
-        }];
-    }
 }
 
 - (void)populateFromDictionary:(NSDictionary *)dict {
