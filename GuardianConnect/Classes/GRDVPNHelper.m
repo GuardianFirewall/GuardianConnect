@@ -146,10 +146,10 @@
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	
 	if (connectAPIHostname == nil) {
-		[defaults removeObjectForKey:@"kGRDConnectAPIHostname"];
+		[defaults removeObjectForKey:kGRDConnectAPIHostname];
 		
 	} else {
-		[defaults setObject:connectAPIHostname forKey:@"kGRDConnectAPIHostname"];
+		[defaults setObject:connectAPIHostname forKey:kGRDConnectAPIHostname];
 	}
 }
 
@@ -1325,7 +1325,6 @@
 	}
 	[blocklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem] atIndex:0];
 	[[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
-//	[GRDWhitelistManager syncBlacklistHosts];
 }
 
 + (void)mergeOrAddGroup:(GRDBlocklistGroup *)group {
@@ -1353,7 +1352,6 @@
         [blocklistGroups removeObject:itemData];
         [[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
     }
-//    [GRDWhitelistManager syncBlacklistHosts];
 }
 
 + (void)clearBlocklistData {
