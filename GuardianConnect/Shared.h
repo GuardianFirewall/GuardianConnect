@@ -47,6 +47,11 @@ static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.c
 static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
 static NSString * const kGRDConnectAPIHostname							= @"kGRDConnectAPIHostname";
 static NSString * const kGRDConnectPublishableKey						= @"kGRDConnectPublishableKey";
+// The valuel below and the kGRDConnectAPIHostname may seem redundant
+// but duplicated values are retained in order to allow for the scenario
+// in which a certain Connect API env needs to be hit while no PET exists yet
+static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
+static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
 
 static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
@@ -113,8 +118,6 @@ static NSString * const kGuardianSubscriptionTypeProfessionalBrave      = @"brav
 
 static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRDFreeTrialPETokenSet";
 static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
-static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
-static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
 
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
