@@ -762,7 +762,6 @@
 	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
 	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
 	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
-	[defaults removeObjectForKey:kGRDTunnelEnabled];
 	[defaults removeObjectForKey:kGuardianTransportProtocol];
 	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
 	

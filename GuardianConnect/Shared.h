@@ -71,7 +71,6 @@ static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
 // This is deprecated and should be removed asap!
 static NSString * const kGRDBlacklistGroups							 	= @"GRDBlacklistGroups";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
-static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
 
 static NSString * const kGRDWGDevicePublicKey                           = @"wg-device-public-key";
