@@ -275,7 +275,13 @@
 		}];
 		
 	} else {
-		[self configureUserFirstTimeForTransportProtocol:protocol postCredentialCallback:nil completion:nil];
+		[self configureUserFirstTimeForTransportProtocol:protocol postCredentialCallback:nil completion:^(NSError * _Nullable error) {
+			GRDVPNHelperStatusCode status = GRDVPNHelperSuccess;
+			if (error != nil) {
+				status = GRDVPNHelperFail;
+			}
+			if (completion) completion(status, error);
+		}];
 	}
 }
 
