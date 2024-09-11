@@ -39,7 +39,6 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
-#pragma mark - Housekeeping / Region / Timezone
 
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
@@ -47,13 +46,13 @@ static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.c
 static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
 static NSString * const kGRDConnectAPIHostname							= @"kGRDConnectAPIHostname";
 static NSString * const kGRDConnectPublishableKey						= @"kGRDConnectPublishableKey";
-// The valuel below and the kGRDConnectAPIHostname may seem redundant
+
+// The value below and the kGRDConnectAPIHostname may seem redundant
 // but duplicated values are retained in order to allow for the scenario
 // in which a certain Connect API env needs to be hit while no PET exists yet
 static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
 static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
 
-static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
 #pragma mark - SGW Features
@@ -64,12 +63,7 @@ static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureE
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
-static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
 static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
-//
-// Note from CJ 2024-08-05
-// This is deprecated and should be removed asap!
-static NSString * const kGRDBlacklistGroups							 	= @"GRDBlacklistGroups";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
 
@@ -156,16 +150,8 @@ static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpira
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
 
 
-#pragma mark - Device Filter Config
 
 static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
-
-// Note from CJ 2023-03-23
-// These are now deprecated, but we may want to use them in the future. They can be deleted at any time
-static NSString * const kGRDDeviceFilterConfigBlockNone 			= @"kGRDDeviceFilterConfigBlockNone";
-static NSString * const kGRDDeviceFilterConfigBlockAds 				= @"kGRDDeviceFilterConfigBlockAds";
-static NSString * const kGRDDeviceFilterConfigBlockPhishing 		= @"kGRDDeviceFilterConfigBlockPhishing";
-static NSString * const kGRDDeviceFilterConfigUsePredictiveBlocking = @"kGRDDeviceFilterConfigUsePredictiveBlocking";
 
 NS_ASSUME_NONNULL_END
 #endif /* Shared_h */
