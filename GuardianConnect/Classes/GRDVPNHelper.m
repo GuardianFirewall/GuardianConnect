@@ -300,18 +300,11 @@
 			
 			[self configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 				dispatch_async(dispatch_get_main_queue(), ^{
-					if (status == GRDVPNHelperFail) {
-						if (errorMessage != nil) {
-							if (completion) completion(status, errorMessage);
-							
-						} else {
-							if (completion) {
-								completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a unknown reason. Please reset your connection and try again."]);
-							}
-						}
+					if (errorMessage == nil && status != GRDVPNHelperSuccess) {
+						if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a unknown reason. Please reset your connection and try again."]);
 						
 					} else {
-						if (completion) completion(YES, nil);
+						if (completion) completion(status, errorMessage);
 					}
 				});
 			}];
