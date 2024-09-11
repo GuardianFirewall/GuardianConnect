@@ -534,10 +534,10 @@
 		}
 		
 		NETunnelProviderProtocol *protocol = [NETunnelProviderProtocol new];
-		protocol.serverAddress = self.mainCredential.hostname;
-		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
-		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
-		protocol.username = [self.mainCredential clientId];
+		protocol.serverAddress 				= self.mainCredential.hostname;
+		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
+		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
+		protocol.username 					= [self.mainCredential clientId];
 		
 		NEProxySettings *proxSettings = [self proxySettings];
 		if (proxSettings) {
