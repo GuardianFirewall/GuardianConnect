@@ -63,6 +63,7 @@ static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureE
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
+static NSString * const kGRDSmartRountingProxyEnabled					= @"kGRDSmartRountingProxyEnabled";
 static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";

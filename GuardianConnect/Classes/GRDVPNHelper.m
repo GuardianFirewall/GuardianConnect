@@ -119,19 +119,16 @@
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
 	
-#warning improve this overall and create constants to automatically grab the list of new hosts
-	/*
-	if ([defaults boolForKey:@"grd-smart-proxy-routing"] == YES) {
+	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
 		[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
 			}
-//			[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
 		}];
 		
 	} else {
 //		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
-	}*/
+	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
 		[self checkTimezoneChanged];
@@ -1107,6 +1104,7 @@
 }
 
 + (void)enableSmartProxyRouting {
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRountingProxyEnabled];
 	[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
 		if (error != nil) {
 			GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
@@ -1129,6 +1127,7 @@
 }
 
 + (void)disableSmartProxyRouting {
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRountingProxyEnabled];
 	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
 	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 	
