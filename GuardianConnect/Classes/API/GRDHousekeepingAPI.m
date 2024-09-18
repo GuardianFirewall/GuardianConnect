@@ -421,39 +421,6 @@
 	[task resume];
 }
 
-- (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/all-hostnames"];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:20];
-	[sessionConf setTimeoutIntervalForResource:20];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Request failed: %@", error);
-            if (completion) completion(nil, NO);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Internal server error");
-            if (completion) completion(nil, NO);
-            
-        } else if (statusCode == 200) {
-            NSArray *servers = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(servers, YES);
-            
-        } else {
-            GRDLog(@"Uncaught http response status: %ld", statusCode);
-            if (completion) completion(nil, NO);
-            return;
-        }
-    }];
-    [task resume];
-}
-
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
     NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/servers/all-server-regions"];
 	
