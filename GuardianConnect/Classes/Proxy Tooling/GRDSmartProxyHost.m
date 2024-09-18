@@ -22,34 +22,6 @@
 	return self;
 }
 
-+ (void)setupSmartProxyHosts:(void (^)(NSError * _Nullable))completion {
-	[GRDSmartProxyHost requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
-		if (error != nil) {
-			if (completion) completion(error);
-			
-		} else {
-			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
-			if (completion) completion(nil);
-		}
-	}];
-}
 
-+ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray<GRDSmartProxyHost *> * _Nullable, NSError * _Nullable))completion {
-	[[GRDHousekeepingAPI new] requestSmartProxyRoutingHostsWithCompletion:^(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error) {
-		if (error != nil) {
-			GRDErrorLogg(@"Failed to request smart proxy hosts: %@", error);
-			if (completion) completion(nil, error);
-			return;
-		}
-		
-		NSMutableArray <GRDSmartProxyHost *> *parsedHosts = [NSMutableArray new];
-		for (NSDictionary *rawHost in smartProxyHosts) {
-			GRDSmartProxyHost *parsedHost = [[GRDSmartProxyHost alloc] initFromDictionary:rawHost];
-			[parsedHosts addObject:parsedHost];
-		}
-		
-		if (completion) completion(parsedHosts, nil);
-	}];
-}
 
 @end

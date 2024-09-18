@@ -20,9 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initFromDictionary:(NSDictionary *)host;
 
-+ (void)setupSmartProxyHosts:(void (^)(NSError *_Nullable error))completion;
-+ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray <GRDSmartProxyHost*> * _Nullable hosts, NSError * _Nullable error))completion;
-
 @end
 
 NS_ASSUME_NONNULL_END
