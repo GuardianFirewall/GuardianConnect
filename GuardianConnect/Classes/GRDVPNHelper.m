@@ -120,13 +120,14 @@
 	}
 	
 	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
-		[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
-			if (error != nil) {
-				GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
-			}
-		}];
+		[GRDVPNHelper enableSmartProxyRouting];
 		
 	} else {
+#warning still incomplete
+		[GRDVPNHelper disableSmartProxyRouting];
+		
+		// check if we need to do anything here with regard to blocklists?
+		// Look at [[GRDTunnelManager sharedManager] updateTunnelSettings:NO];
 //		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
 	}
 	
@@ -282,7 +283,7 @@
 	}
 }
 
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion {
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion {
 	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:30 server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -850,7 +851,7 @@
 // This function should probably take a GRDCredential or a GRDSGWServer object 
 // instead of just a hostname so that I have enough details down the road
 // to store relevant metadata alongside the credential
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * errorMessage))completion {
+- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
 			NSInteger adjustedDays = [self _sgwCredentialValidFor];
@@ -914,7 +915,7 @@
 
 # pragma mark - Credential Validation Helper
 
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable errorMessage))completion {
+- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion {
 	GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
 	if (mainCreds == nil) {
 		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No main VPN credentials found"]);
@@ -1094,6 +1095,24 @@
 
 # pragma mark - Smart Routing Proxy
 
++ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray<GRDSmartProxyHost *> * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestSmartProxyRoutingHostsWithCompletion:^(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to request smart proxy hosts: %@", error);
+			if (completion) completion(nil, error);
+			return;
+		}
+		
+		NSMutableArray <GRDSmartProxyHost *> *parsedHosts = [NSMutableArray new];
+		for (NSDictionary *rawHost in smartProxyHosts) {
+			GRDSmartProxyHost *parsedHost = [[GRDSmartProxyHost alloc] initFromDictionary:rawHost];
+			[parsedHosts addObject:parsedHost];
+		}
+		
+		if (completion) completion(parsedHosts, nil);
+	}];
+}
+
 + (void)toggleSmartProxyRouting:(BOOL)enabled {
 	if (enabled == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
@@ -1105,23 +1124,21 @@
 
 + (void)enableSmartProxyRouting {
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRountingProxyEnabled];
-	[GRDSmartProxyHost setupSmartProxyHosts:^(NSError * _Nullable error) {
+	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
 		if (error != nil) {
-			GRDErrorLogg(@"Failed to setup smart proxy routing hosts: %@", [error localizedDescription]);
-		}
-		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
-		
-		if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
-			GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
-			[[GRDVPNHelper sharedInstance] disconnectVPNWithCompletion:^(NSError * _Nullable error) {
-				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-					[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
-						if (status != GRDVPNHelperSuccess) {
-							GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
-						}
-					}];
-				});
-			}];
+			GRDErrorLogg(@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]);
+			
+		} else {
+			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
+			[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
+			
+			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+				[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+					if (status != GRDVPNHelperSuccess) {
+						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+					}
+				}];
+			}
 		}
 	}];
 }
@@ -1132,15 +1149,10 @@
 	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 	
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
-		GRDLogg(@"Active or soon-to-be-active VPN connection detected. Re-establishing the VPN connection");
-		[[GRDVPNHelper sharedInstance] disconnectVPNWithCompletion:^(NSError * _Nullable error) {
-			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-				[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
-					if (status != GRDVPNHelperSuccess) {
-						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
-					}
-				}];
-			});
+		[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+			if (status != GRDVPNHelperSuccess) {
+				GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+			}
 		}];
 	}
 }

@@ -233,11 +233,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param server GRDSGWServer reference passing hostname, host display name as well as GRDRegion reference to be processed within the function
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion;
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return an error to display to the user and a status code, if the connection is successful, the error will be empty.
-- (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage))completion;
+- (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable error))completion;
 
 /// Used to disconnect from the current VPN node
 ///
@@ -267,7 +267,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param days NSInteger number of days these credentials will be valid for
 /// @param server GRDSGWServer containing the hostname to connect to ie: frankfurt-10.sgw.guardianapp.com
 /// @param completion block Completion block that will contain an NSDictionary of credentials upon success
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * _Nullable credentials, NSError * _Nullable errorMessage))completion;
+- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * _Nullable credentials, NSError * _Nullable error))completion;
 
 /// Verify that the current main VPN credentials are valid if applicable. 
 /// A valid Subscriber Credential is automatically obtained and provided to
@@ -275,7 +275,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// If the device is currently connected and the server indicates that
 /// the VPN credentials are no longer valid the device is automatically
 /// migrated to a new server within the same region
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable errorMessage))completion;
+- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion;
 
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
