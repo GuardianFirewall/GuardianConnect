@@ -1113,6 +1113,10 @@
 	}];
 }
 
++ (BOOL)smartProxyRoutingEnabled {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRountingProxyEnabled];
+}
+
 + (void)toggleSmartProxyRouting:(BOOL)enabled {
 	if (enabled == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];

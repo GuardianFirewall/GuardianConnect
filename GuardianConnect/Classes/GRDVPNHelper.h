@@ -294,12 +294,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// @param precision the preferred region precision
 - (void)setPreferredRegionPrecision:(NSString * _Nonnull)precision;
 
-//- (void)setHousekeepingAPIHostname:(NSString *)hostname;
-//
-//- (void)setConnectAPIHostname:(NSString *)hostname;
-//
-//- (void)setConnectPublishableKey:(NSString *)key;
-
 /// Convenience function to store trusted networks persistently and enabling the feature
 ///
 /// The array of trusted network SSIDs will be stored in NSUserDefaults and
@@ -319,12 +313,25 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 # pragma mark - Smart Routing Proxy
 
++ (BOOL)smartProxyRoutingEnabled;
+/// Convenience function to easily enable/disable the Smart Routing Proxy capability from a UISwitch or NSButton set to the checkbox style
+/// - Parameter enabled: a boolean value to indicate whether the feature should be enabled or disabled
 + (void)toggleSmartProxyRouting:(BOOL)enabled;
+
+/// Explicitly enables the smart proxy routing feature and sets the NEProxySettings class property correctly
 + (void)enableSmartProxyRouting;
+
+/// Explicitly disables the smart proxy routing feature and set the NEProxySettings class property to nil
 + (void)disableSmartProxyRouting;
 
+/// Correctly assmbles the current proxy settings into a NEProxySettings object. Does not store the return object anywhere persistently
 + (NEProxySettings *)proxySettings;
+
+/// Creates & returns the JS PAC string used by -proxySettings
 + (NSString *)proxyPACString;
+
+
+// Misc proxy stuff
 + (NSArray<GRDBlocklistGroup *> *)blocklistGroups;
 + (NSArray<GRDBlocklistItem *> *)enabledBlocklistItems;
 + (void)addBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem;
