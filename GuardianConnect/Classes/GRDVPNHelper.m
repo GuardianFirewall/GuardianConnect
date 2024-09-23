@@ -426,7 +426,6 @@
 	}];
 }
 
-
 - (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(NSString * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
 	NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
 	protocolConfig.serverAddress = server;
@@ -446,11 +445,7 @@
         protocolConfig.excludeLocalNetworks = YES;
     }
     
-	NEProxySettings *proxSettings = [self proxySettings];
-	if (proxSettings) {
-		protocolConfig.proxySettings = proxSettings;
-	}
-	
+	protocolConfig.proxySettings = [GRDVPNHelper proxySettings];
 	protocolConfig.useConfigurationAttributeInternalIPSubnet = NO;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
@@ -536,11 +531,7 @@
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [self.mainCredential clientId];
-		
-		NEProxySettings *proxSettings = [self proxySettings];
-		if (proxSettings) {
-			protocol.proxySettings = proxSettings;
-		}
+		protocol.proxySettings = [GRDVPNHelper proxySettings];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.killSwitchEnabled;
@@ -1134,7 +1125,6 @@
 			
 		} else {
 			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
-			[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 			
 			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 				[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
@@ -1150,7 +1140,6 @@
 + (void)disableSmartProxyRouting {
 	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRountingProxyEnabled];
 	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
-	[[GRDVPNHelper sharedInstance] setProxySettings:[GRDVPNHelper proxySettings]];
 	
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 		[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
@@ -1162,15 +1151,19 @@
 }
 
 + (NEProxySettings *)proxySettings {
-	NEProxySettings *proxSettings = [NEProxySettings new];
+	NEProxySettings *proxySettings = [NEProxySettings new];
 	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
-	if (blocklistJS != nil) { //only add these changes if the blocklist has any enabled items.
+	if (blocklistJS == nil) {
+		proxySettings.autoProxyConfigurationEnabled = NO;
+		proxySettings.proxyAutoConfigurationJavaScript = nil;
+		
+	} else {
 		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
-		proxSettings.autoProxyConfigurationEnabled = YES;
-		proxSettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		proxySettings.autoProxyConfigurationEnabled = YES;
+		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
 	}
 	
-	return proxSettings;
+	return proxySettings;
 }
 
 + (NSString *)proxyPACString {
@@ -1306,6 +1299,7 @@
 		GRDBlocklistGroup *blocklistGroup = [NSKeyedUnarchiver unarchiveObjectWithData:item];
 		[blocklistGroups addObject:blocklistGroup];
 	}
+	
 	return blocklistGroups;
 }
 

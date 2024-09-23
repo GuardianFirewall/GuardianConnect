@@ -80,11 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// to the VPN tunnel settings
 @property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
 
-/// The proxy settings that are going to applied to the VPN tunnel settings.
-/// These settings include the options to enable things such as the
-/// smart routing capabilites
-@property NEProxySettings * _Nullable proxySettings;
-
 /// Class internal main credential reference
 @property (nonatomic, strong) GRDCredential * _Nullable mainCredential;
 
