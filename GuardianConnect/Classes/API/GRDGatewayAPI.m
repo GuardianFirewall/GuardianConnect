@@ -224,10 +224,10 @@
     [task resume];
 }
 
-- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(BOOL, NSString * _Nullable))completion {
+- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(NSError * _Nullable))completion {
     if (clientId == nil || apiToken == nil || hostname == nil || subCred == nil) {
         GRDErrorLogg(@"nil value detected. Unable to send request to invalidate the device's credentials");
-        if (completion) completion(NO, @"nil value detected. Unable to send request to invalidate the device's credentials");
+        if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"VPN credential not invalidated. Credential specific value missing to complete the request"]);
         return;
     }
     
@@ -236,8 +236,8 @@
     NSError *jsonErr;
     NSData *requestBody = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: apiToken, kKeychainStr_SubscriberCredential: subCred} options:0 error:&jsonErr];
     if (jsonErr != nil) {
-        GRDErrorLogg(@"Failed to encode request JSON: %@", jsonErr);
-        if (completion) completion(NO, [NSString stringWithFormat:@"Failed to encode request JSON body: %@", jsonErr]);
+        GRDErrorLogg(@"Failed to encode request JSON: %@", [jsonErr localizedDescription]);
+        if (completion) completion(jsonErr);
         return;
     }
     
@@ -252,35 +252,20 @@
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-			GRDErrorLogg(@"Failed to send EAP credential invalidation request: %@", error);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to send EAP credential invalidation request: %@", [error localizedDescription]]);
+			GRDErrorLogg(@"Failed to send EAP credential invalidation request: %@", [error localizedDescription]);
+            if (completion) completion(error);
             return;
         }
         
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 200) {
-            if (completion) completion(YES, nil);
-            return;
-        
-        } else {
-            NSError *decodeError;
-            NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeError];
-            if (decodeError != nil) {
-                GRDErrorLogg(@"Failed to decode error JSON from VPN node: %@", decodeError);
-                if (completion) completion(NO, @"Failed to deocde error JSON from VPN node");
-                return;
-            }
-            
-            NSString *errorMessage = errorDict[@"error-message"];
-			if (errorMessage == nil) {
-				if (completion) completion(NO, @"Failed to invalidate the device's credentials. API response returned no error message");
-				return;
-			}
-			
-            GRDErrorLogg(@"Failed to invalidate device's credentials. Status code: %ld - error message: %@", statusCode, errorMessage);
-            if (completion) completion(NO, @"Failed to invalidate the device's credentials");
-            return;
-        }
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			GRDErrorLogg(@"Failed to invalidate device's credentials: %@", apiErr);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to invalidate VPN credentials: %@", apiErr]]);
+			return;
+		}
+		
+		if (completion) completion(nil);
     }];
     [task resume];
 }

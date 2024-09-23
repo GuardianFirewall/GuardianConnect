@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param hostname The hostname of the VPN node
 /// @param subCred The Subscriber Credential to authenticate the request and prevent connection spoofing
 /// @param completion The completion handler called once the task is completed
-- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(BOOL, NSString * _Nullable))completion;
+- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(NSError * _Nullable))completion;
 
 /// endpoint: /api/v1.1/device/<eap-username>/alerts
 /// @param completion De-Serialized JSON from the server containing an array with all alerts
