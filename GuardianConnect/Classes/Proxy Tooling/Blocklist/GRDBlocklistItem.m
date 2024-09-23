@@ -65,10 +65,10 @@
 }
 
 - (void)updateWithItem:(GRDBlocklistItem *)item {
-    self.label = item.label;
-    self.type = item.type;
-    self.value = item.value;
-    self.enabled = item.enabled;
+    self.label 			= item.label;
+    self.type 			= item.type;
+    self.value 			= item.value;
+    self.enabled 		= item.enabled;
 	self.smartProxyType = item.smartProxyType;
 }
 
