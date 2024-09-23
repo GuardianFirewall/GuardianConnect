@@ -183,10 +183,8 @@
 }
 
 - (void)addOrUpdateItem:(GRDBlocklistItem *)item {
-    GRDDebugLog(@"Item id: %@ items: %@", item, self.items);
     GRDBlocklistItem *foundItem = [[[self items] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", item.identifier]] lastObject];
     if (foundItem) {
-		GRDDebugLog(@"Found item to update %@", foundItem);
         [foundItem updateWithItem:item];
         [self saveChanges];
 		
@@ -217,6 +215,10 @@
         return true;
     }
     return false;
+}
+
+- (NSUInteger)enabledItemsCount {
+	return [[self enabledItems] count];
 }
 
 - (NSArray <GRDBlocklistItem *> *)enabledItems {

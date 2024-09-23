@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
 @property NSString *identifier;
 @property NSString *title;
 @property NSString *groupDescription;
-@property NSArray <GRDBlocklistItem *> * items;
+@property NSArray <GRDBlocklistItem *> *items;
 @property BOOL enabled;
 @property GRDBlocklistGroupType groupType;
 @property BOOL allEnabled; //may be an easier way to track prior states rather than disabling/enabling all
@@ -31,6 +31,9 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
 
 - (BOOL)anyDisabled;
 - (BOOL)anyEnabled; //for mixed state
+- (NSUInteger)enabledItemsCount;
+- (NSArray <GRDBlocklistItem *> *)enabledItems;
+- (NSArray <GRDBlocklistItem *> *)disabledItems;
 - (BOOL)isLeaf;
 - (void)addOrUpdateItem:(GRDBlocklistItem *)item;
 - (void)enableAll;
