@@ -121,14 +121,6 @@
 	
 	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
-		
-	} else {
-#warning still incomplete
-		[GRDVPNHelper disableSmartProxyRouting];
-		
-		// check if we need to do anything here with regard to blocklists?
-		// Look at [[GRDTunnelManager sharedManager] updateTunnelSettings:NO];
-//		[[GRDVPNHelper sharedInstance] setProxySettings:[GRDSettingsController proxySettings]];
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
@@ -202,23 +194,12 @@
             clientId = [creds clientId];
         }
         
-		[[GRDVPNHelper sharedInstance] getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable error) {
-			[[GRDGatewayAPI new] invalidateCredentialsForClientId:clientId apiToken:creds.apiAuthToken hostname:creds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL success, NSString * _Nullable errorMessage) {
-				if (success == NO) {
-					GRDErrorLogg(@"Failed to invalidate VPN credentials: %@", errorMessage);
-					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-						[[GRDGatewayAPI new] invalidateCredentialsForClientId:clientId apiToken:creds.apiAuthToken hostname:creds.hostname subscriberCredential:[GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential] completion:^(BOOL success, NSString * _Nullable errorMessage) {
-							if (success == NO) {
-								GRDErrorLogg(@"Failed to invalidate VPN credentials after waiting 1 second: %@", errorMessage);
-								
-							}
-						}];
-					});
-				}
-			}];
+		[creds revokeCredentialWithCompletion:^(NSError * _Nullable error) {
+			if (error != nil) {
+				GRDErrorLogg(@"Failed to invalidate main credential: %@", [error localizedDescription]);
+			}
 		}];
     }
-    
     
     [GRDKeychain removeGuardianKeychainItems];
     [GRDCredentialManager clearMainCredentials];
