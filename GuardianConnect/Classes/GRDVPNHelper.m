@@ -1150,17 +1150,17 @@
 	}
 }
 
-+ (NEProxySettings *)proxySettings {
++ (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server {
 	NEProxySettings *proxySettings = [NEProxySettings new];
 	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
-	if (blocklistJS == nil) {
-		proxySettings.autoProxyConfigurationEnabled = NO;
-		proxySettings.proxyAutoConfigurationJavaScript = nil;
-		
-	} else {
+	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
 		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
 		proxySettings.autoProxyConfigurationEnabled = YES;
 		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		
+	} else {
+		proxySettings.autoProxyConfigurationEnabled = NO;
+		proxySettings.proxyAutoConfigurationJavaScript = nil;
 	}
 	
 	return proxySettings;

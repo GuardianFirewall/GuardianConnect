@@ -320,7 +320,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (void)disableSmartProxyRouting;
 
 /// Correctly assmbles the current proxy settings into a NEProxySettings object. Does not store the return object anywhere persistently
-+ (NEProxySettings *)proxySettings;
++ (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server;
 
 /// Creates & returns the JS PAC string used by -proxySettings
 + (NSString *)proxyPACString;
