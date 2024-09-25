@@ -1275,7 +1275,13 @@
 	NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
 	NSMutableArray<GRDBlocklistGroup*> *blocklistGroups = [NSMutableArray array];
 	for (NSData *item in items) {
-		GRDBlocklistGroup *blocklistGroup = [NSKeyedUnarchiver unarchiveObjectWithData:item];
+		NSError *unarchiveErr;
+		GRDBlocklistGroup *blocklistGroup = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDBlocklistGroup class], [GRDBlocklistItem class], [NSString class], [NSArray class], [NSNumber class], nil] fromData:item error:&unarchiveErr];
+		if (unarchiveErr != nil) {
+			GRDErrorLogg(@"Failed to decode blocklist group object: %@", [unarchiveErr localizedDescription]);
+			continue;
+		}
+		
 		[blocklistGroups addObject:blocklistGroup];
 	}
 	
@@ -1291,7 +1297,12 @@
 		return;
 		
 	} else {
-		NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:group];
+		NSError *archiveErr;
+		NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:group requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group data: %@", [archiveErr localizedDescription]);
+			return;
+		}
 		[modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
 	}
 	[[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
@@ -1309,7 +1320,13 @@
 	if (!blocklistGroups.count) {
 		blocklistGroups = [NSMutableArray array];
 	}
-	[blocklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem] atIndex:0];
+	
+	NSError *archiveErr;
+	[blocklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem requiringSecureCoding:YES error:&archiveErr] atIndex:0];
+	if (archiveErr != nil) {
+		GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+		return;
+	}
 	[[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
 }
 
@@ -1323,7 +1340,12 @@
 
     } else {
         GRDBlocklistGroup *mergedGroup = [oldGroup updateIfNeeded:group];
-        NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:mergedGroup];
+		NSError *archiveErr;
+        NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:mergedGroup requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+			return;
+		}
         [modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
     }
     [[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
@@ -1334,7 +1356,12 @@
     NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
     NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
     if (blocklistGroups.count) {
-        NSData *itemData = [NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem];
+		NSError *archiveErr;
+        NSData *itemData = [NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+			return;
+		}
         [blocklistGroups removeObject:itemData];
         [[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
     }
