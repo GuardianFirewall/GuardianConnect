@@ -36,6 +36,10 @@
     return self;
 }
 
++ (BOOL)supportsSecureCoding {
+	return YES;
+}
+
 - (NSString *)title {
     return _label;
 }

@@ -24,7 +24,9 @@
 @implementation GRDBlocklistGroup
 
 + (NSString *)guardianName { return @"GUARDIAN"; }
+
 + (NSString *)customName { return @"CUSTOM"; }
+
 - (BOOL)isSpecialGroup {
     return ([self.title isEqualToString:[GRDBlocklistGroup guardianName]] || [self.title isEqualToString:[GRDBlocklistGroup customName]]);
 }
@@ -142,6 +144,10 @@
         self.enabled = [aDecoder decodeBoolForKey:@"enabled"];
     }
     return self;
+}
+
++ (BOOL)supportsSecureCoding {
+	return YES;
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {

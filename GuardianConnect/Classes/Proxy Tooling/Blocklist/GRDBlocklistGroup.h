@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, GRDBlocklistGroupType) {
     GRDBlocklistCustomGroupType
 };
 
-@interface GRDBlocklistGroup : NSObject
+@interface GRDBlocklistGroup : NSObject <NSCoding, NSSecureCoding>
 @property NSString *identifier;
 @property NSString *title;
 @property NSString *groupDescription;

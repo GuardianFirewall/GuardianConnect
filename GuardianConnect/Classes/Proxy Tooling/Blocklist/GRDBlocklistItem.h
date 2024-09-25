@@ -12,7 +12,7 @@
 @class GRDBlocklistGroup;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface GRDBlocklistItem : NSObject <NSCoding, NSCopying>
+@interface GRDBlocklistItem : NSObject <NSCoding, NSSecureCoding, NSCopying>
 
 @property (nonatomic, copy) 	NSString *identifier;
 @property (nonatomic, copy) 	NSString *label;
