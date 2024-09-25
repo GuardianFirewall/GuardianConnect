@@ -11,16 +11,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GRDSGWServer : NSObject
+@interface GRDSGWServer : NSObject <NSSecureCoding>
 
-@property NSString *hostname;
-@property NSString *displayName;
-@property BOOL 		offline;
-@property NSInteger	capacityScore;
-@property NSInteger serverFeatureEnvironment;
-@property BOOL		betaCapable;
-@property BOOL		smartRoutingEnabled;
-@property GRDRegion *region;
+@property NSString 		*hostname;
+@property NSString 		*displayName;
+@property BOOL 			offline;
+@property NSUInteger	capacityScore;
+@property NSUInteger 	serverFeatureEnvironment;
+@property BOOL			betaCapable;
+@property BOOL			smartProxyRoutingEnabled;
+@property GRDRegion 	*region;
 
 
 - (instancetype)initFromDictionary:(NSDictionary *)dict;
