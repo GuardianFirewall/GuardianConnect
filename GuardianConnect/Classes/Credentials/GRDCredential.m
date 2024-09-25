@@ -31,8 +31,9 @@
 			self.identifier = @"main";
 		}
 		self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
-		self.hostname 				= server.hostname;
 		self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
+		self.hostname 				= server.hostname;
+		self.server 		= server;
 		self.hostnameDisplayValue 	= server.displayName;
 		
 		self.region = server.region;
@@ -65,6 +66,7 @@
 		
 		[self _checkExpiration];
 	}
+	
 	return self;
 }
 
@@ -92,6 +94,7 @@
 		self.name 					= [aDecoder decodeObjectForKey:@"name"];
 		self.identifier 			= [aDecoder decodeObjectForKey:@"identifier"];
 		self.expirationDate 		= [aDecoder decodeObjectForKey:@"expirationDate"];
+		self.server					= [aDecoder decodeObjectForKey:@"sgwServer"];
 		self.hostname 				= [aDecoder decodeObjectForKey:@"hostname"];
 		self.hostnameDisplayValue 	= [aDecoder decodeObjectForKey:@"hostnameDisplayValue"];
 		self.region 				= [aDecoder decodeObjectForKey:@"region"];
@@ -119,6 +122,7 @@
 			self.passwordRef = [GRDKeychain getPasswordRefForAccount:self.identifier];
 		}
     }
+	
     return self;
 }
 
@@ -126,6 +130,7 @@
 	[aCoder encodeObject:self.name forKey:@"name"];
 	[aCoder encodeObject:self.identifier forKey:@"identifier"];
     [aCoder encodeObject:self.expirationDate forKey:@"expirationDate"];
+	[aCoder encodeObject:self.server forKey:@"sgwServer"];
 	[aCoder encodeObject:self.hostname forKey:@"hostname"];
 	[aCoder encodeObject:self.hostnameDisplayValue forKey:@"hostnameDisplayValue"];
 	[aCoder encodeObject:self.region forKey:@"region"];
@@ -204,22 +209,20 @@
     return (self.username.length > 0 && self.apiAuthToken.length > 0);
 }
 
-- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion {
+- (void)revokeCredentialWithCompletion:(void(^)(NSError * _Nullable error))completion {
     if (self.username.length > 0 && self.apiAuthToken.length > 0) {
-        [[GRDGatewayAPI new] invalidateEAPCredentials:self.username andAPIToken:self.apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
-            if (success) {
-                GRDDebugLog(@"Successfully revoked our credential!");
-				
-            } else {
-                GRDErrorLogg(@"Failed to revoke the credential with error: %@", errorMessage);
-            }
-			
-            if (completion)completion(success, errorMessage);
+		GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+		if (subCred == nil) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Credential not invalidated, no Subscriber Credential present"]);
+			return;
+		}
+		[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
+            if (completion)completion(error);
         }];
 		
     } else {
-        GRDWarningLogg(@"Cant revoke this credential, missing necessary data!");
-        if (completion)completion(false, @"Cant revoke this credential, missing necessary data!");
+        GRDWarningLogg(@"Missing data to revoke the VPN credential: %@", self);
+        if (completion)completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Cant revoke this credential, missing necessary data!"]);
     }
 }
 
