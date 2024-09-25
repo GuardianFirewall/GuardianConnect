@@ -343,6 +343,37 @@
 
 # pragma mark - Internal VPN Functions
 
++ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
+	// Create mutable array to throw on-demand rules into
+	NSMutableArray *onDemandRules = [NSMutableArray new];
+	
+	// Create rule to disconnect the VPN automatically if the device is
+	// connected to certain WiFi SSIDs.
+	if (trustedNetworks != nil) {
+		if ([trustedNetworks count] > 0) {
+			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
+			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
+			if (disconntTrustedNetworks == YES) {
+				disconnect.SSIDMatch = trustedNetworks;
+				[onDemandRules addObject:disconnect];
+			}
+		}
+	}
+	
+	// Create rule to connect to the VPN automatically if server reports that it is running OK
+	// This is done by using the probe URL. It is a GET request which has to return 200 OK as the
+	// HTTP response status code. No other indicator is considered and everything but 200 OK is
+	// an automatic failure preventing the device to get stuck in a loop trying to connect
+	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
+	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
+	if (probeURLEnabled == YES) {
+		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", hostname]];
+	}
+	
+	[onDemandRules addObject:vpnServerConnectRule];
+	return onDemandRules;
+}
+
 /// Starting the VPN connection via the builtin IKEv2 transport protocol
 - (void)_startIKEv2ConnectionWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	if (self.tunnelLocalizedDescription == nil || [self.tunnelLocalizedDescription isEqualToString:@""]) {
@@ -449,37 +480,6 @@
 	[[protocolConfig childSecurityAssociationParameters] setLifetimeMinutes:480]; // 8 hours
 	
 	return protocolConfig;
-}
-
-+ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
-	// Create mutable array to throw on-demand rules into
-	NSMutableArray *onDemandRules = [NSMutableArray new];
-	
-	// Create rule to disconnect the VPN automatically if the device is
-	// connected to certain WiFi SSIDs.
-	if (trustedNetworks != nil) {
-		if ([trustedNetworks count] > 0) {
-			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
-			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
-			if (disconntTrustedNetworks == YES) {
-				disconnect.SSIDMatch = trustedNetworks;
-				[onDemandRules addObject:disconnect];
-			}
-		}
-	}
-	
-	// Create rule to connect to the VPN automatically if server reports that it is running OK
-	// This is done by using the probe URL. It is a GET request which has to return 200 OK as the
-	// HTTP response status code. No other indicator is considered and everything but 200 OK is
-	// an automatic failure preventing the device to get stuck in a loop trying to connect
-	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
-	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
-	if (probeURLEnabled == YES) {
-		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", hostname]];
-	}
-	
-	[onDemandRules addObject:vpnServerConnectRule];
-	return onDemandRules;
 }
 
 /// Starting the VPN connection via the WireGuard transport protocol with the help
