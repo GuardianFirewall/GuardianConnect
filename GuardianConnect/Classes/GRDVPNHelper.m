@@ -389,11 +389,8 @@
 			return;
 			
 		} else {
-			NSString *vpnServer 				= self.mainCredential.hostname;
-			NSString *eapUsername 				= self.mainCredential.username;
-			NSData *eapPassword 				= self.mainCredential.passwordRef;
 			vpnManager.enabled 					= YES;
-			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
+			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForServer:self.mainCredential.server eapUsername:self.mainCredential.username eapPasswordRef:self.mainCredential.passwordRef withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
 			
 			NSString *finalLocalizedDescription = self.tunnelLocalizedDescription;
 			if (self.appendServerRegionToTunnelLocalizedDescription == YES) {
@@ -438,11 +435,11 @@
 	}];
 }
 
-- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(NSString * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
+- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(GRDSGWServer * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
 	NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
-	protocolConfig.serverAddress = server;
-	protocolConfig.serverCertificateCommonName = server;
-	protocolConfig.remoteIdentifier = server;
+	protocolConfig.serverAddress = server.hostname;
+	protocolConfig.serverCertificateCommonName = server.hostname;
+	protocolConfig.remoteIdentifier = server.hostname;
 	protocolConfig.enablePFS = YES;
 	protocolConfig.disableMOBIKE = NO;
 	protocolConfig.disconnectOnSleep = NO;
@@ -457,7 +454,8 @@
         protocolConfig.excludeLocalNetworks = YES;
     }
     
-	protocolConfig.proxySettings = [GRDVPNHelper proxySettings];
+	
+	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:server];
 	protocolConfig.useConfigurationAttributeInternalIPSubnet = NO;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
@@ -512,7 +510,7 @@
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [self.mainCredential clientId];
-		protocol.proxySettings = [GRDVPNHelper proxySettings];
+		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.killSwitchEnabled;
