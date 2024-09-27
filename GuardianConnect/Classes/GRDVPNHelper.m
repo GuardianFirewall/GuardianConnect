@@ -202,7 +202,6 @@
     }
     
     [GRDKeychain removeGuardianKeychainItems];
-    [GRDCredentialManager clearMainCredentials];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
     
 	[GRDVPNHelper sendServerUpdateNotifications];
