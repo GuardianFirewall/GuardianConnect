@@ -748,7 +748,7 @@
 	// check current Subscriber Credential if it exists
 	if (expired == YES || subCred == nil) {
 		// No subscriber credential yet or it is expired. We have to create a new one
-		GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
+		GRDWarningLogg(@"No subscriber credential present or it has passed the safe expiration point");
 		
 		//
 		// Prepare local variables to generate a new Subscriber Crednetial
@@ -815,11 +815,6 @@
 	}
 }
 
-//
-// Note from CJ 2024-04-20
-// This function should probably take a GRDCredential or a GRDSGWServer object 
-// instead of just a hostname so that I have enough details down the road
-// to store relevant metadata alongside the credential
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
@@ -876,6 +871,9 @@
 	//
 	// Note from CJ 2024-07-12
 	// Still not fixed, still working
+	//
+	// Note from CJ 2024-09-27
+	// Yup, still going strong
 	if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
 		eapCredentialsValidFor = 3;
 	}

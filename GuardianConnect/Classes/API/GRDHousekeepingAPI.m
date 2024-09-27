@@ -29,7 +29,7 @@
 		
 		self.connectPublishableKey = [GRDKeychain getPasswordStringForAccount:kGRDConnectPublishableKey];
 		
-		GRDDebugLog(@"housekeeping-api-hostname: %@; connect-api-hostname: %@; connect-publishable-key: %@", self.housekeepingHostname, self.connectAPIHostname, self.connectPublishableKey);
+		GRDDebugLog(@"housekeeping-api-hostname:%@; connect-api-hostname:%@; connect-publishable-key:%@", self.housekeepingHostname, self.connectAPIHostname, self.connectPublishableKey);
 	}
 	
 	return self;

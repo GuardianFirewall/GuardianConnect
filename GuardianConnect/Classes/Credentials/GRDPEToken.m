@@ -33,6 +33,7 @@
 	if (petString == nil || [petString isEqualToString:@""]) {
 		return nil;
 	}
+	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *connectAPIEnv = [defaults stringForKey:kGuardianPETConnectAPIEnv];
 	if (connectAPIEnv == nil || [connectAPIEnv isEqualToString:@""]) {
