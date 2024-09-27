@@ -251,14 +251,14 @@
 		[jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
 		
 	} else if (validationMethod == ValidationMethodPEToken) {
-		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+		GRDPEToken *petToken = [GRDPEToken currentPEToken];
 		if (petToken == nil) {
 			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device"]);
 			return;
 		}
 		
 		[jsonDict setObject:@"pe-token" forKey:@"validation-method"];
-		[jsonDict setObject:petToken forKey:@"pe-token"];
+		[jsonDict setObject:petToken.token forKey:@"pe-token"];
 		
 	} else if (validationMethod == ValidationMethodCustom) {
 		jsonDict = dict;
