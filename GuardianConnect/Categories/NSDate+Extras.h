@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDate *)dateBySubtractingHours:(NSInteger)dHours;
 - (NSDate *)dateByAddingDays:(NSInteger)days;
 - (NSUInteger)daysUntil;
-- (NSUInteger)daysUntilAgainstMidnight;
 @end
 
 NS_ASSUME_NONNULL_END

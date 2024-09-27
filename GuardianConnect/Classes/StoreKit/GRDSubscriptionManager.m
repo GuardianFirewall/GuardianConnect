@@ -8,7 +8,6 @@
 
 @import UserNotifications;
 #import <GuardianConnect/GuardianConnect.h>
-#import <GuardianConnect/NSObject+Dictionary.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 
 @interface GRDSubscriptionManager ()

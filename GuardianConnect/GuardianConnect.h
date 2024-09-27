@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <GuardianConnect/GRDLogger.h>
-#import <GuardianConnect/NSObject+Dictionary.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDRegion.h>
@@ -25,7 +24,6 @@
 #import <GuardianConnect/GRDTunnelManager.h>
 #import <GuardianConnect/NSDate+Extras.h>
 #import <GuardianConnect/NSPredicate+Additions.h>
-#import <GuardianConnect/NSString+Extras.h>
 #import <GuardianConnect/metamacros.h>
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/EXTKeyPathCoding.h>

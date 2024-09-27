@@ -7,7 +7,6 @@
 //
 
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-#import <GuardianConnect/NSObject+Dictionary.h>
 
 @implementation GRDHousekeepingAPI
 
