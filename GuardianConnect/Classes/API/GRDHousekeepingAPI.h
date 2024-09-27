@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
 
+#import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDAPIError.h>
-//#import <GuardianConnect/GRDVPNHelper.h>
 #import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
 
