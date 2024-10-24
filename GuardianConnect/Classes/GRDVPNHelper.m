@@ -8,9 +8,12 @@
 
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDBlocklistItem.h>
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GuardianConnect-Swift.h>
+#import <GuardianConnect/GRDBlocklistGroup.h>
+
 
 @import UserNotifications;
 
@@ -26,17 +29,12 @@
     dispatch_once(&onceToken, ^{
         shared = [[GRDVPNHelper alloc] init];
         shared.onDemand = YES;
-		shared.ikev2VPNManager = [NEVPNManager sharedManager];
-        [shared.ikev2VPNManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-            if (error) {
-                shared.vpnLoaded = NO;
-                shared.lastErrorMessage = error.localizedDescription;
-				
-            } else {
-                shared.vpnLoaded = YES;
+        [[NEVPNManager sharedManager] loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+            if (error != nil) {
+				GRDErrorLogg(@"Failed to load IKEv2 tunnel manager preferences: %@", [error localizedDescription]);
             }
         }];
-		shared->_featureEnvironment = ServerFeatureEnvironmentProduction;
+		shared->_serverFeatureEnvironment = ServerFeatureEnvironmentProduction;
         [shared refreshVariables];
         [shared setTunnelManager:[GRDTunnelManager sharedManager]];
     });
@@ -112,7 +110,60 @@
 			GRDWarningLog(@"Preferred region precision '%@' does not match any of the known constants!", self.regionPrecision);
 		}
 	}
+	
+	if ([defaults valueForKey:kGRDDisconnectOnTrustedNetworks] != nil) {
+		self.disconnectOnTrustedNetworks = [defaults boolForKey:kGRDDisconnectOnTrustedNetworks];
+	}
+	
+	if ([defaults valueForKey:kGRDTrustedNetworksArray] != nil) {
+		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
+	}
+	
+	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
+		[GRDVPNHelper enableSmartProxyRouting];
+	}
+	
+	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
+		[self checkTimezoneChanged];
+	}];
 }
+
+
+#pragma mark - Internal setters
+
+- (void)setConnectAPIHostname:(NSString *)connectAPIHostname {
+	_connectAPIHostname = connectAPIHostname;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	if (connectAPIHostname == nil) {
+		[defaults removeObjectForKey:kGRDConnectAPIHostname];
+		
+	} else {
+		[defaults setObject:connectAPIHostname forKey:kGRDConnectAPIHostname];
+	}
+}
+
+- (void)setConnectPublishableKey:(NSString *)connectPublishableKey {
+	_connectPublishableKey = connectPublishableKey;
+	
+	if (connectPublishableKey == nil) {
+		[GRDKeychain removeKeychainItemForAccount:kGRDConnectPublishableKey];
+		
+	} else {
+		[GRDKeychain storePassword:connectPublishableKey forAccount:kGRDConnectPublishableKey];
+	}
+}
+
+- (void)setServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment {
+	_serverFeatureEnvironment = featureEnvironment;
+	[[NSUserDefaults standardUserDefaults] setInteger:featureEnvironment forKey:kGRDServerFeatureEnvironment];
+}
+
+- (void)setPreferBetaCapableServers:(BOOL)preferBetaCapableServers {
+	_preferBetaCapableServers = preferBetaCapableServers;
+	[[NSUserDefaults standardUserDefaults] setBool:preferBetaCapableServers forKey:kGRDBetaCapablePreferred];
+}
+
 
 + (BOOL)activeConnectionPossible {
     GRDCredential *cred = [GRDCredentialManager mainCredentials];
@@ -143,39 +194,17 @@
             clientId = [creds clientId];
         }
         
-		[[GRDVPNHelper sharedInstance] getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error) {
-			[[GRDGatewayAPI new] invalidateCredentialsForClientId:clientId apiToken:creds.apiAuthToken hostname:creds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL success, NSString * _Nullable errorMessage) {
-				if (success == NO) {
-					GRDErrorLog(@"Failed to invalidate VPN credentials: %@", errorMessage);
-					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-						[[GRDGatewayAPI new] invalidateCredentialsForClientId:clientId apiToken:creds.apiAuthToken hostname:creds.hostname subscriberCredential:[GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential] completion:^(BOOL success, NSString * _Nullable errorMessage) {
-							if (success == NO) {
-								GRDErrorLog(@"Failed to invalidate VPN credentials after waiting 1 second: %@", errorMessage);
-								
-							}
-						}];
-					});
-				}
-			}];
+		[creds revokeCredentialWithCompletion:^(NSError * _Nullable error) {
+			if (error != nil) {
+				GRDErrorLogg(@"Failed to invalidate main credential: %@", [error localizedDescription]);
+			}
 		}];
     }
     
-    
     [GRDKeychain removeGuardianKeychainItems];
-    [GRDCredentialManager clearMainCredentials];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults removeObjectForKey:kGRDHostnameOverride];
-    [defaults removeObjectForKey:kGRDVPNHostLocation];
-    [defaults setBool:NO forKey:kAppNeedsSelfRepair];
     
-    // make sure Settings tab UI updates to not erroneously show name of cleared server
-    [[NSNotificationCenter defaultCenter] postNotificationName:kGRDServerUpdatedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kGRDLocationUpdatedNotification object:nil];
-}
-
-+ (void)saveAllInOneBoxHostname:(NSString *)host {
-	[[NSUserDefaults standardUserDefaults] setObject:host forKey:kGRDHostnameOverride];
+	[GRDVPNHelper sendServerUpdateNotifications];
 }
 
 + (void)sendServerUpdateNotifications {
@@ -184,38 +213,24 @@
 }
 
 
-# pragma mark - VPN Start Convenience Functions
+# pragma mark - VPN Convenience
 
-- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+- (void)configureFirstTimeUserPostCredential:(void(^__nullable)(void))mid completion:(void (^)(GRDVPNHelperStatusCode, NSError *))completion {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
-		if (!errorMessage) {
-			[self configureFirstTimeUserForHostname:server.hostname andHostLocation:server.displayName postCredential:mid completion:completion];
-			
-		} else {
+		if (errorMessage != nil) {
 			if (completion) {
-				completion(NO, [errorMessage localizedDescription]);
+				completion(GRDVPNHelperFail, errorMessage);
+				return;
 			}
-		}
-	}];
-}
-
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
-		if (!errorMessage) {
-			[self configureFirstTimeUserForTransportProtocol:protocol hostname:server.hostname andHostLocation:server.displayName postCredential:mid completion:completion];
 			
-		} else {
-			if (completion) {
-				completion(NO, [errorMessage localizedDescription]);
-			}
+			[self configureUserFirstTimeForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] server:server postCredential:mid completion:completion];
 		}
 	}];
 }
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(NSError * _Nullable))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:_preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(errorMessage);
@@ -229,203 +244,50 @@
 	}];
 }
 
-- (void)configureFirstTimeUserWithRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion {
-	GRDDebugLog(@"Configure with region: %@ location: %@", region.bestHost, region.bestHostLocation);
-	if (!region.bestHost && !region.bestHostLocation && region) {
-		[region findBestServerWithCompletion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-			if (success) {
-				[self selectRegion:region];
-				[self configureFirstTimeUserForHostname:server andHostLocation:serverLocation postCredential:nil completion:completion];
-				
-			} else {
-				if (completion) {
-					completion(NO, [NSString stringWithFormat:@"Failed to find a host for region: %@", region.displayName]);
-				}
-			}
-		}];
-		
-	} else {
-		[self selectRegion:region];
-		[self configureFirstTimeUserPostCredential:nil completion:completion];
-	}
-}
-
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(StandardBlock)completion {
-	GRDDebugLog(@"Configure with region: %@ location: %@", region.bestHost, region.bestHostLocation);
+- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
 	[self selectRegion:region];
-	if (!region.bestHost && !region.bestHostLocation && region) {
-		[region findBestServerWithServerFeatureEnvironment:self.featureEnvironment betaCapableServers:self.preferBetaCapableServers regionPrecision:self.regionPrecision completion:^(NSString * _Nonnull server, NSString * _Nonnull serverLocation, BOOL success) {
-			if (success) {
-				[self configureFirstTimeUserForTransportProtocol:protocol hostname:server andHostLocation:serverLocation postCredential:nil completion:completion];
-				
-			} else {
-				if (completion) {
-					completion(NO, [NSString stringWithFormat:@"Failed to find a host for region: %@", region.displayName]);
-				}
-			}
+	if (region != nil && region.isAutomatic == NO) {
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+			[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:nil completion:completion];
 		}];
 		
 	} else {
-		[self configureFirstTimeUserForTransportProtocol:protocol postCredential:nil completion:completion];
+		[self configureUserFirstTimeForTransportProtocol:protocol postCredentialCallback:nil completion:^(NSError * _Nullable error) {
+			GRDVPNHelperStatusCode status = GRDVPNHelperSuccess;
+			if (error != nil) {
+				status = GRDVPNHelperFail;
+			}
+			if (completion) completion(status, error);
+		}];
 	}
 }
 
-- (void)configureFirstTimeUserForHostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[GRDVPNHelper saveAllInOneBoxHostname:host];
-	[defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
-	
-	[self createStandaloneCredentialsForDays:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion {
+	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:30 server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
 		if (errorMessage != nil) {
-			GRDErrorLogg(@"%@", errorMessage);
-			if (completion) {
-				completion(NO, errorMessage);
-			}
-			
-		} else if (creds) {
-			if (mid) {
-				mid();
-			}
-			
-			NSMutableDictionary *fullCreds = [creds mutableCopy];
-			fullCreds[kGRDHostnameOverride] = host;
-			fullCreds[kGRDVPNHostLocation] = hostLocation;
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-			self.mainCredential = [[GRDCredential alloc] initWithFullDictionary:fullCreds validFor:adjustedDays isMain:YES];
-			[self.mainCredential saveToKeychain];
-			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
-			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
-			[self configureAndConnectVPNWithCompletion:^(NSString * _Nonnull message, GRDVPNHelperStatusCode status) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					if (status == GRDVPNHelperFail) {
-						if (message != nil) {
-							if (completion) {
-								completion(NO, message);
-							}
-							
-						} else {
-							if (completion) {
-								completion(NO, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again.");
-							}
-						}
-						
-					} else {
-						if (completion) {
-							completion(YES, nil);
-						}
-					}
-				});
-			}];
-			
-		} else { //no error, but creds are nil too!
-			if (completion) {
-				completion(NO, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again.");
-			}
-		}
-	}];
-}
-
-- (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol hostname:(NSString * _Nonnull)host andHostLocation:(NSString * _Nonnull)hostLocation postCredential:(void(^__nullable)(void))mid completion:(StandardBlock)completion {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[GRDVPNHelper saveAllInOneBoxHostname:host];
-	[defaults setObject:hostLocation forKey:kGRDVPNHostLocation];
-	
-	[self createStandaloneCredentialsForTransportProtocol:protocol days:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
-		if (errorMessage != nil) {
-			GRDErrorLogg(@"%@", errorMessage);
-			if (completion) {
-				completion(NO, errorMessage);
-			}
-			
-		} else if (creds) {
-			if (mid) {
-				mid();
-			}
-			
-			GRDSGWServer *server = [GRDSGWServer new];
-			[server setHostname:host];
-			[server setDisplayName:hostLocation];
-#warning is there a way to get a GRDRegion in here somehow?
-
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:creds server:server validFor:adjustedDays isMain:YES];
-			if (protocol == TransportIKEv2) {
-				[self.mainCredential saveToKeychain];
-			}
-			
-			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
-			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
-			[self configureAndConnectVPNWithCompletion:^(NSString * _Nonnull message, GRDVPNHelperStatusCode status) {
-				dispatch_async(dispatch_get_main_queue(), ^{
-					if (status == GRDVPNHelperFail) {
-						if (message != nil) {
-							if (completion) {
-								completion(NO, message);
-							}
-							
-						} else {
-							if (completion) {
-								completion(NO, @"Configuring VPN failed due to a unknown reason. Please reset your connection and try again.");
-							}
-						}
-						
-					} else {
-						if (completion) {
-							completion(YES, nil);
-						}
-					}
-				});
-			}];
-			
-		} else { //no error, but creds are nil too!
-			if (completion) {
-				completion(NO, @"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again.");
-			}
-		}
-	}];
-}
-
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void(^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable errorMessage))completion {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[GRDVPNHelper saveAllInOneBoxHostname:server.hostname];
-	[defaults setObject:server.displayName forKey:kGRDVPNHostLocation];
-	
-	[self createStandaloneCredentialsForTransportProtocol:protocol days:30 completion:^(NSDictionary * _Nonnull creds, NSString * _Nullable errorMessage) {
-		if (errorMessage != nil) {
-			GRDErrorLogg(@"%@", errorMessage);
-			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
+			if (completion) completion(GRDVPNHelperFail, errorMessage);
 			return;
 			
-		} else if (creds) {
+		} else if (credentials) {
 			if (mid) mid();
 			
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:creds server:server validFor:adjustedDays isMain:YES];
-			if (protocol == TransportIKEv2) {
-				[self.mainCredential saveToKeychain];
-			}
-			
+			NSInteger adjustedDays = [self _sgwCredentialValidFor];
+			self.mainCredential = [[GRDCredential alloc] initWithTransportProtocol:protocol fullDictionary:credentials server:server validFor:adjustedDays isMain:YES];
 			[GRDCredentialManager addOrUpdateCredential:self.mainCredential];
-			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kAppNeedsSelfRepair];
+			
 			[self configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
 				dispatch_async(dispatch_get_main_queue(), ^{
-					if (status == GRDVPNHelperFail) {
-						if (errorMessage != nil) {
-							if (completion) completion(status, errorMessage);
-							
-						} else {
-							if (completion) {
-								completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a unknown reason. Please reset your connection and try again."]);
-							}
-						}
+					if (errorMessage == nil && status != GRDVPNHelperSuccess) {
+						if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a unknown reason. Please reset your connection and try again."]);
 						
 					} else {
-						if (completion) completion(YES, nil);
+						if (completion) completion(status, errorMessage);
 					}
 				});
 			}];
 			
-		} else { //no error, but creds are nil too!
+		} else {
 			if (completion) {
 				completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Configuring VPN failed due to a credential creation issue. Please reset your connection and try again."]);
 			}
@@ -433,197 +295,33 @@
 	}];
 }
 
-- (void)configureAndConnectVPNWithCompletion:(void (^_Nullable)(NSString * _Nullable error, GRDVPNHelperStatusCode statusCode))completion {
-	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
-	
-	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
-		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
-		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:^(BOOL success, NSString *error) {
-			if (completion) {
-				if (success) {
-					completion(nil, GRDVPNHelperSuccess);
-					
-				} else {
-					completion(error, GRDVPNHelperFail);
-				}
-				
-			} else {
-				GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-			}
-			return;
-		}];
-		return;
-	}
-	
-	if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
-		GRDErrorLogg(@"Something went wrong! Bad server (%@). Migrating user...", vpnServer);
-		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:^(BOOL success, NSString *error) {
-			if (completion) {
-				if (success) {
-					completion(nil, GRDVPNHelperSuccess);
-					
-				} else {
-					completion(error, GRDVPNHelperFail);
-				}
-				
-			} else {
-				GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-			}
-			return;
-		}];
-		return;
-	}
-	
-	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(NSString * _Nullable errorMessage) {
-		if (errorMessage != nil) {
-			GRDErrorLogg(@"VPN server status check failed with error: %@", errorMessage);
-			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-				if (completion) {
-					if (success) {
-						completion(nil, GRDVPNHelperSuccess);
-						
-					} else {
-						completion(error, GRDVPNHelperFail);
-					}
-					
-				} else {
-					GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-				}
-				return;
-			}];
-			return;
-		}
-		
-		if ([self.mainCredential transportProtocol] == TransportIKEv2) {
-			NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
-			NSString *eapUsername   = [self.mainCredential username];
-			NSData *eapPassword     = [self.mainCredential passwordRef];
-			
-			if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
-				GRDDebugLog(@"EAP username: %@", eapUsername);
-				GRDDebugLog(@"EAP password: %@", eapPassword);
-				GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
-				GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
-				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-					if (completion) {
-						if (success) {
-							completion(nil, GRDVPNHelperSuccess);
-							
-						} else {
-							completion(error, GRDVPNHelperFail);
-						}
-						
-					} else {
-						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-					}
-					return;
-				}];
-				return;
-			}
-			
-			[self _oldStartIKEv2ConnectionWithCompletion:completion];
-			
-		} else {
-			if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
-				GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
-				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-					if (completion) {
-						if (success) {
-							completion(nil, GRDVPNHelperSuccess);
-							
-						} else {
-							completion(error, GRDVPNHelperFail);
-						}
-						
-					} else {
-						GRDErrorLogg(@"No COMPLETION BLOCK SET! Going to have a bad time");
-					}
-					return;
-				}];
-				return;
-			}
-			
-			[self _oldStartWireGuardConnectionWithCompletion:completion];
-		}
-		
-	}];
-}
-
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
-	__block NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
-	__block NSString *vpnServer 		= [[GRDCredentialManager mainCredentials] hostname];
+	__block GRDCredential *mainCredentials 	= [GRDCredentialManager mainCredentials];
+	__block NSString *vpnServer 			= [mainCredentials hostname];
 	
-	if ([defaults boolForKey:kAppNeedsSelfRepair] == YES) {
-		GRDWarningLogg(@"App marked as self repair is being required. Migrating user!");
-		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:^(BOOL success, NSString *error) {
-			if (completion) {
-				if (success) {
-					completion(GRDVPNHelperSuccess, nil);
-					
-				} else {
-					completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error]);
-				}
-			}
-			return;
-		}];
+	if (mainCredentials == nil) {
+		GRDErrorLogg(@"Main credentials missing, migrating user!");
+		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:completion];
 		return;
 	}
 	
 	if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
 		GRDErrorLogg(@"Something went wrong! Bad server (%@). Migrating user...", vpnServer);
-		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:^(BOOL success, NSString *error) {
-			if (completion) {
-				if (success) {
-					completion(GRDVPNHelperSuccess, nil);
-					
-				} else {
-					completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error]);
-				}
-			}
-			return;
-		}];
+		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:completion];
 		return;
 	}
 	
 	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(NSString * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			GRDErrorLogg(@"VPN server status check failed with error: %@", errorMessage);
-			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-				if (completion) {
-					if (success) {
-						completion(GRDVPNHelperSuccess, nil);
-						
-					} else {
-						completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error]);
-					}
-				}
-				return;
-			}];
+			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
 			return;
 		}
 		
 		if ([self.mainCredential transportProtocol] == TransportIKEv2) {
-			NSString *apiAuthToken  = [self.mainCredential apiAuthToken];
-			NSString *eapUsername   = [self.mainCredential username];
-			NSData *eapPassword     = [self.mainCredential passwordRef];
-			
-			if (eapUsername == nil || eapPassword == nil || apiAuthToken == nil) {
-				GRDDebugLog(@"EAP username: %@", eapUsername);
-				GRDDebugLog(@"EAP password: %@", eapPassword);
-				GRDDebugLog(@"EAP api auth token: %@", apiAuthToken);
+			if ([self.mainCredential username] == nil || [self.mainCredential passwordRef] == nil || [self.mainCredential apiAuthToken] == nil) {
 				GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
-				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-					if (completion) {
-						if (success) {
-							completion(GRDVPNHelperSuccess, nil);
-							
-						} else {
-							completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error]);
-						}
-					}
-					return;
-				}];
+				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
 				return;
 			}
 			
@@ -632,17 +330,7 @@
 		} else {
 			if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
 				GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
-				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:^(BOOL success, NSString *error) {
-					if (completion) {
-						if (success) {
-							completion(GRDVPNHelperSuccess, nil);
-							
-						} else {
-							completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error]);
-						}
-					}
-					return;
-				}];
+				[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
 				return;
 			}
 			
@@ -654,68 +342,35 @@
 
 # pragma mark - Internal VPN Functions
 
-/// Starting the VPN connection via the builtin IKEv2 transport protocol
-- (void)_oldStartIKEv2ConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
-	if (self.tunnelLocalizedDescription == nil || [self.tunnelLocalizedDescription isEqualToString:@""]) {
-		if (completion) completion(@"IKEv2 tunnel localized description missing. Please set a value for the tunnelLocalizedDescription property", GRDVPNHelperFail);
-		return;
++ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
+	// Create mutable array to throw on-demand rules into
+	NSMutableArray *onDemandRules = [NSMutableArray new];
+	
+	// Create rule to disconnect the VPN automatically if the device is
+	// connected to certain WiFi SSIDs.
+	if (trustedNetworks != nil) {
+		if ([trustedNetworks count] > 0) {
+			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
+			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
+			if (disconntTrustedNetworks == YES) {
+				disconnect.SSIDMatch = trustedNetworks;
+				[onDemandRules addObject:disconnect];
+			}
+		}
 	}
 	
-    NEVPNManager *vpnManager = [NEVPNManager sharedManager];
-    [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError) {
-        if (loadError) {
-            GRDErrorLogg(@"[IKEv2] Error loading NEVPNManager preferences: %@", loadError);
-            if (completion) completion(@"[IKEv2] Error loading VPN configuration. Please try again.", GRDVPNHelperFail);
-            return;
-			
-        } else {
-            NSString *vpnServer = self.mainCredential.hostname;
-            NSString *eapUsername = self.mainCredential.username;
-            NSData *eapPassword = self.mainCredential.passwordRef;
-            vpnManager.enabled = YES;
-            vpnManager.protocolConfiguration = [self _prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
-			
-			NSString *finalLocalizedDescription = self.tunnelLocalizedDescription;
-			if (self.appendServerRegionToTunnelLocalizedDescription == YES) {
-				finalLocalizedDescription = [NSString stringWithFormat:@"%@: %@", self.tunnelLocalizedDescription, self.mainCredential.hostnameDisplayValue];
-			}
-			vpnManager.localizedDescription = finalLocalizedDescription;
-            
-			if ([self onDemand]) {
-                vpnManager.onDemandEnabled = YES;
-                vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
-				
-            } else {
-                vpnManager.onDemandEnabled = NO;
-            }
-			
-            [vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-                if (saveErr) {
-                    GRDErrorLogg(@"Error saving configuration for firewall: %@", saveErr);
-                    if (completion) completion(@"Error saving the VPN configuration. Please try again.", GRDVPNHelperFail);
-                    return;
-					
-                } else {
-                    [vpnManager loadFromPreferencesWithCompletionHandler:^(NSError *loadError1) {
-						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-							[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-								NSError *vpnErr;
-								[[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
-								if (vpnErr != nil) {
-									GRDErrorLogg(@"Failed to start VPN: %@", vpnErr);
-									if (completion) completion(@"Error starting VPN tunnel. Please reset your connection.", GRDVPNHelperFail);
-									return;
-									
-								} else {
-									if (completion) completion(nil, GRDVPNHelperSuccess);
-								}
-							}];
-						});
-                    }];
-                }
-            }];
-        }
-    }];
+	// Create rule to connect to the VPN automatically if server reports that it is running OK
+	// This is done by using the probe URL. It is a GET request which has to return 200 OK as the
+	// HTTP response status code. No other indicator is considered and everything but 200 OK is
+	// an automatic failure preventing the device to get stuck in a loop trying to connect
+	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
+	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
+	if (probeURLEnabled == YES) {
+		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", hostname]];
+	}
+	
+	[onDemandRules addObject:vpnServerConnectRule];
+	return onDemandRules;
 }
 
 /// Starting the VPN connection via the builtin IKEv2 transport protocol
@@ -733,11 +388,8 @@
 			return;
 			
 		} else {
-			NSString *vpnServer 				= self.mainCredential.hostname;
-			NSString *eapUsername 				= self.mainCredential.username;
-			NSData *eapPassword 				= self.mainCredential.passwordRef;
 			vpnManager.enabled 					= YES;
-			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForServer:vpnServer eapUsername:eapUsername eapPasswordRef:eapPassword withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
+			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForServer:self.mainCredential.server eapUsername:self.mainCredential.username eapPasswordRef:self.mainCredential.passwordRef withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
 			
 			NSString *finalLocalizedDescription = self.tunnelLocalizedDescription;
 			if (self.appendServerRegionToTunnelLocalizedDescription == YES) {
@@ -747,7 +399,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -782,12 +434,11 @@
 	}];
 }
 
-
-- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(NSString * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
+- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(GRDSGWServer * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
 	NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
-	protocolConfig.serverAddress = server;
-	protocolConfig.serverCertificateCommonName = server;
-	protocolConfig.remoteIdentifier = server;
+	protocolConfig.serverAddress = server.hostname;
+	protocolConfig.serverCertificateCommonName = server.hostname;
+	protocolConfig.remoteIdentifier = server.hostname;
 	protocolConfig.enablePFS = YES;
 	protocolConfig.disableMOBIKE = NO;
 	protocolConfig.disconnectOnSleep = NO;
@@ -802,11 +453,8 @@
         protocolConfig.excludeLocalNetworks = YES;
     }
     
-	NEProxySettings *proxSettings = [self proxySettings];
-	if (proxSettings) {
-		protocolConfig.proxySettings = proxSettings;
-	}
 	
+	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:server];
 	protocolConfig.useConfigurationAttributeInternalIPSubnet = NO;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
@@ -829,156 +477,6 @@
 	[[protocolConfig childSecurityAssociationParameters] setLifetimeMinutes:480]; // 8 hours
 	
 	return protocolConfig;
-}
-
-- (NSString *)_currentDisplayHostname {
-	GRDRegion *selected = [self selectedRegion];
-	if (selected) {
-		return selected.displayName;
-		
-	} else {
-		return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDVPNHostLocation];
-	}
-}
-
-+ (NSArray *)_vpnOnDemandRulesWithProbeURL:(BOOL)probeURLEnabled {
-	// RULE: connect to VPN automatically if server reports that it is running OK
-	NEOnDemandRuleConnect *vpnServerConnectRule = [[NEOnDemandRuleConnect alloc] init];
-	vpnServerConnectRule.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeAny;
-	if (probeURLEnabled == YES) {
-		vpnServerConnectRule.probeURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/vpnsrv/api/server-status", [[NSUserDefaults standardUserDefaults] objectForKey:kGRDHostnameOverride]]];
-	}
-	
-	NSArray *onDemandArr = @[vpnServerConnectRule];
-	return onDemandArr;
-}
-
-/// Starting the VPN connection via the WireGuard transport protocol with the help
-/// of a NEPacketTunnelProvider instance
-- (void)_oldStartWireGuardConnectionWithCompletion:(void (^_Nullable)(NSString * _Nullable, GRDVPNHelperStatusCode))completion {
-	if (self.tunnelProviderBundleIdentifier == nil ||[self.tunnelProviderBundleIdentifier isEqualToString:@""]) {
-		GRDErrorLogg(@"No transport provider bundle identifier specified. Cannot start tunnel provider");
-		if (completion) completion(@"No transport provider bundle identifier specified. Cannot start tunnel provider", GRDVPNHelperFail);
-		return;
-	
-	} else if (self.grdTunnelProviderManagerLocalizedDescription == nil || [self.grdTunnelProviderManagerLocalizedDescription isEqualToString:@""]) {
-		if (completion) completion(@"No localized description set for the tunnel provider description. Please set a value for the  grdTunnelProviderManagerLocalizedDescription property", GRDVPNHelperFail);
-		return;
-		
-	} else if ([[GRDVPNHelper sharedInstance] appGroupIdentifier] == nil) {
-		if (completion) completion(@"No app group identifier set. Please set a value for the appGroupIdentifier property", GRDVPNHelperFail);
-		return;
-	}
-	
-	[[GRDTunnelManager sharedManager] ensureTunnelManagerWithCompletion:^(NETunnelProviderManager * _Nullable tunnelManager, NSString * _Nullable errorMessage) {
-		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:self.mainCredential dnsServers:self.preferredDNSServers];
-		OSStatus saveStatus = [GRDKeychain storePassword:wireGuardConfig forAccount:kKeychainStr_WireGuardConfig];
-		if (saveStatus != errSecSuccess) {
-			if (completion) completion(@"Failed to store WireGuard credentials in system keychain", GRDVPNHelperFail);
-			return;
-		}
-		
-		NETunnelProviderProtocol *protocol = [NETunnelProviderProtocol new];
-		protocol.serverAddress = self.mainCredential.hostname;
-		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
-		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
-		protocol.username = [self.mainCredential clientId];
-		
-		NEProxySettings *proxSettings = [self proxySettings];
-		if (proxSettings) {
-			protocol.proxySettings = proxSettings;
-		}
-        
-        if (@available(iOS 14.2, *)) {
-            protocol.includeAllNetworks = self.killSwitchEnabled;
-            protocol.excludeLocalNetworks = YES;
-        }
-        
-		tunnelManager.protocolConfiguration = protocol;
-		tunnelManager.enabled = YES;
-		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
-
-		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
-		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
-			finalDescription = [NSString stringWithFormat:@"%@: %@", self.grdTunnelProviderManagerLocalizedDescription, self.mainCredential.hostnameDisplayValue];
-		}
-		tunnelManager.localizedDescription = finalDescription;
-
-		[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-			if (error != nil) {
-				GRDErrorLogg(@"Failed to save packet tunnel provider manager: %@", error);
-				if (completion) completion([NSString stringWithFormat:@"[WireGuard] Failed to save tunnel provider. Please try again. Error: %@", error], GRDVPNHelperFail);
-				return;
-			}
-
-			[tunnelManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-				if (error != nil) {
-					GRDErrorLogg(@"Failed to load packet tunnel provider manager preferences that were just saved: %@", error);
-					if (completion) completion([NSString stringWithFormat:@"[WireGuard] Failed to save tunnel provider. Please try again. Error: %@", error], GRDVPNHelperFail);
-					return;
-				}
-
-				NETunnelProviderSession *session = (NETunnelProviderSession*)tunnelManager.connection;
-				
-#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-				if ([session respondsToSelector:@selector(sendProviderMessage:returnError:responseHandler:)]) {
-					NSError *jsonError = nil;
-					NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"wg-quick-config": wireGuardConfig} options:0 error:&jsonError];
-					if (jsonError != nil) {
-						if (completion) completion([NSString stringWithFormat:@"[WireGuard] Failed to JSON encode WireGuard config IPC message: %@", jsonError], GRDVPNHelperFail);
-						return;
-					}
-					
-					NSError *responseError = nil;
-					[session sendProviderMessage:data returnError:&responseError responseHandler:^(NSData * _Nullable responseData) {
-						if (responseError != nil) {
-							GRDErrorLogg(@"Failed to send WireGuard credentials via IPC message: %@", responseError);
-							if (completion) completion([NSString stringWithFormat:@"[WireGuard] Failed to send WireGuard credentials via IPC message: %@", responseError], GRDVPNHelperFail);
-							return;
-							
-						} else if (responseData != nil) {
-							NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-							GRDErrorLogg(@"Response from PTP even though it should be empty: %@", responseString);
-							if (completion) completion([NSString stringWithFormat:@"[WireGuard] Response from PTP even though it should be empty: %@", responseString], GRDVPNHelperFail);
-							return;
-							
-						} else {
-							NSString *activationAttemptId = [[NSUUID UUID] UUIDString];
-							GRDLogg(@"Trying to start packet tunnel provider with activation attempt uuid: %@", activationAttemptId);
-
-							NSError *startErr;
-							[session startTunnelWithOptions:@{@"activationAttemptId": activationAttemptId} andReturnError:&startErr];
-							if (startErr != nil) {
-								GRDErrorLogg(@"Failed to start VPN: %@", startErr);
-								if (completion) completion(@"[WireGuard] Failed to start tunnel provider. Please try again", GRDVPNHelperFail);
-								return;
-
-							} else {
-								if (completion) completion(nil, GRDVPNHelperSuccess);
-							}
-						}
-					}];
-				}
-				
-#elif TARGET_OS_IPHONE
-				NSString *activationAttemptId = [[NSUUID UUID] UUIDString];
-				GRDLogg(@"Trying to start packet tunnel provider with activation attempt uuid: %@", activationAttemptId);
-
-				NSError *startErr;
-				[session startTunnelWithOptions:@{@"activationAttemptId": activationAttemptId} andReturnError:&startErr];
-				if (startErr != nil) {
-					GRDErrorLogg(@"Failed to start VPN: %@", startErr);
-					if (completion) completion(@"[WireGuard] Failed to start tunnel provider. Please try again", GRDVPNHelperFail);
-					return;
-
-				} else {
-					if (completion) completion(nil, GRDVPNHelperSuccess);
-				}
-#endif
-			}];
-		}];
-	}];
 }
 
 /// Starting the VPN connection via the WireGuard transport protocol with the help
@@ -1007,15 +505,11 @@
 		}
 		
 		NETunnelProviderProtocol *protocol = [NETunnelProviderProtocol new];
-		protocol.serverAddress = self.mainCredential.hostname;
-		protocol.providerBundleIdentifier = self.tunnelProviderBundleIdentifier;
-		protocol.passwordReference = [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
-		protocol.username = [self.mainCredential clientId];
-		
-		NEProxySettings *proxSettings = [self proxySettings];
-		if (proxSettings) {
-			protocol.proxySettings = proxSettings;
-		}
+		protocol.serverAddress 				= self.mainCredential.hostname;
+		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
+		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
+		protocol.username 					= [self.mainCredential clientId];
+		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.killSwitchEnabled;
@@ -1025,7 +519,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesWithProbeURL:!self.killSwitchEnabled];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -1107,62 +601,6 @@
 			}];
 		}];
 	}];
-}
-
-- (void)disconnectVPN {
-	NEVPNManager *vpnManager = [NEVPNManager sharedManager];
-	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
-	
-	if (vpnManager.enabled == YES) {
-		GRDLogg(@"Disconnecting IKEv2 VPN");
-		// Note from CJ 2022-02-23:
-		// You may think that we do not want to disable the VPN profile
-		// but as it turns out we are triggering some other bananas bug with the
-		// WireGuard integration which means that if it's not set to enable == NO
-		// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
-		// will get stuck in a connection loop
-		[vpnManager setEnabled:NO];
-		[vpnManager setOnDemandEnabled:NO];
-		[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-			if (saveErr) {
-				GRDErrorLogg(@"Error saving update for firewall config: %@", saveErr);
-			}
-			
-			[[vpnManager connection] stopVPNTunnel];
-		}];
-	}
-	
-	if (tunnelManager.enabled == YES) {
-		GRDLogg(@"Disconnecting WireGuard VPN");
-		// Note from CJ 2022-02-22:
-		// This is a complete and utter hack that took
-		// me 9 hours to track and down and finess.
-		// The first one to touch this without explicit approval
-		// will die a painful death and yes this is a threat.
-		// If you break this I will come and murder you and your family
-		[tunnelManager setEnabled:NO];
-		[tunnelManager setOnDemandEnabled:NO];
-        
-#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-		[tunnelManager setOnDemandRules:@[]];
-		[tunnelManager setProtocolConfiguration:nil];
-		[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-			if (error != nil) {
-				GRDWarningLogg(@"Failed to delete prefs: %@", [error localizedDescription]);
-			}
-		}];
-        [(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-
-#else
-        [tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-            if (saveErr) {
-                GRDErrorLogg(@"Error saving update for firewall config: %@", saveErr);
-            }
-            
-            [(NETunnelProviderSession *)tunnelManager.connection stopVPNTunnel];
-        }];
-#endif
-	}
 }
 
 - (void)disconnectVPNWithCompletion:(void (^)(NSError * _Nullable))completion {
@@ -1250,14 +688,14 @@
 - (void)forceDisconnectVPNIfNecessary {
 	__block NEVPNStatus ikev2Status = [[[NEVPNManager sharedManager] connection] status];
 	if (ikev2Status == NEVPNStatusConnected || ikev2Status == NEVPNStatusConnecting) {
-		[self disconnectVPN];
+		[self disconnectVPNWithCompletion:nil];
 
 	} else if (ikev2Status == NEVPNStatusInvalid || ikev2Status == NEVPNStatusReasserting) {
 		// if its invalid we need to delay for a moment until our local instance is propagated with the proper connection info.
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 			ikev2Status = [[[NEVPNManager sharedManager] connection] status];
 			if (ikev2Status == NEVPNStatusConnected) {
-				[self disconnectVPN];
+				[self disconnectVPNWithCompletion:nil];
 			}
 		});
 	}
@@ -1265,14 +703,14 @@
 	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
 	__block NEVPNStatus wireguardStatus = [(NETunnelProviderSession *)tunnelManager.connection status];
 	if (wireguardStatus == NEVPNStatusConnected || wireguardStatus == NEVPNStatusConnecting) {
-		[self disconnectVPN];
+		[self disconnectVPNWithCompletion:nil];
 
 	} else if (wireguardStatus == NEVPNStatusInvalid || wireguardStatus == NEVPNStatusReasserting) {
 		// if its invalid we need to delay for a moment until our local instance is propagated with the proper connection info.
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 			wireguardStatus = [(NETunnelProviderSession *)tunnelManager.connection status];
 			if (wireguardStatus == NEVPNStatusConnected) {
-				[self disconnectVPN];
+				[self disconnectVPNWithCompletion:nil];
 			}
 		});
 	}
@@ -1284,17 +722,33 @@
 	sleep(1);
 }
 
+- (void)resetAllGuardianConnectValues {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:kGuardianRegionOverride];
+	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
+	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults removeObjectForKey:kGuardianTransportProtocol];
+	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
+	
+	[GRDKeychain removeAllKeychainItems];
+	[GRDKeychain removeSubscriberCredentialWithRetries:3];
+	[GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
+	[GRDKeychain removeKeychainItemForAccount:kGuardianCredentialsList];
+	[GRDKeychain removeKeychainItemForAccount:kGuardianConnectSubscriberSecret];
+}
+
 
 # pragma mark - Credential Creation Helper
 
-- (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable errorMessage))completion {
+- (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable errorMessage))completion {
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	BOOL expired = [subCred tokenExpired];
 	// check current Subscriber Credential if it exists
 	if (expired == YES || subCred == nil) {
 		// No subscriber credential yet or it is expired. We have to create a new one
-		GRDWarningLog(@"No subscriber credential present or it has passed the safe expiration point");
+		GRDWarningLogg(@"No subscriber credential present or it has passed the safe expiration point");
 		
 		//
 		// Prepare local variables to generate a new Subscriber Crednetial
@@ -1315,8 +769,8 @@
 			valmethod = ValidationMethodAppStoreReceipt;
 			
 			// Check to see if we have a PEToken
-			NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-			if (petToken.length > 0) {
+			GRDPEToken *pet = [GRDPEToken currentPEToken];
+			if (pet != nil) {
 				valmethod = ValidationMethodPEToken;
 				
 			} else if (self.customSubscriberCredentialAuthKeys != nil) {
@@ -1328,7 +782,7 @@
 			customKeys = self.customSubscriberCredentialAuthKeys;
 		}
 		
-		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod customKeys:customKeys completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage) {
+		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod customKeys:customKeys completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage) {
 			if (success == NO && errorMessage != nil) {
 				if (completion) {
 					completion(nil, errorMessage);
@@ -1340,7 +794,7 @@
 				OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
 				if (saveStatus != errSecSuccess) {
 					if (completion) {
-						completion(nil, @"Couldn't save subscriber credential in local keychain. Please try again.");
+						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Couldn't save subscriber credential in local keychain. Please try again."]);
 					}
 					return;
 				}
@@ -1361,49 +815,16 @@
 	}
 }
 
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {
-    [self createStandaloneCredentialsForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults]valueForKey:kGRDHostnameOverride] completion:completion];
-}
-
-- (void)createStandaloneCredentialsForDays:(NSInteger)validForDays hostname:(NSString *)hostname completion:(void (^)(NSDictionary * creds, NSString * errorMessage))completion {
-    [self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSString *error) {
-        if (subscriberCredential != nil) {
-            NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
-            //adjust the day count in case 30 is too many
-            [[GRDGatewayAPI new] registerAndCreateWithHostname:hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays completion:^(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage) {
-                if (success == NO && errorMessage != nil) {
-                    completion(nil, errorMessage);
-                    
-                } else {
-                    completion(credentials, nil);
-                }
-            }];
-            
-        } else {
-            completion(nil,error);
-        }
-    }];
-}
-
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol days:(NSInteger)validForDays completion:(void(^)(NSDictionary *creds, NSString *errorMessage))completion {
-	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:validForDays hostname:[[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride] completion:completion];
-}
-
-//
-// Note from CJ 2024-04-20
-// This function should probably take a GRDCredential or a GRDSGWServer object 
-// instead of just a hostname so that I have enough details down the road
-// to store relevant metadata alongside the credential
-- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days hostname:(NSString *)hostname completion:(void (^)(NSDictionary * credentials, NSString * errorMessage))completion {
-	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSString *error) {
+- (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
+	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
-			NSInteger adjustedDays = [GRDVPNHelper _subCredentialDays];
+			NSInteger adjustedDays = [self _sgwCredentialValidFor];
 			//adjust the day count in case 30 is too many
 
 			if (protocol == TransportIKEv2) {
-				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
+				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
 					if (success == NO && errorMessage != nil) {
-						completion(nil, errorMessage);
+						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
 
 					} else {
 						completion(credentialDetails, nil);
@@ -1414,9 +835,9 @@
 				GRDCurve25519 *keys = [[GRDCurve25519 alloc] init];
 				[keys generateKeyPair];
 				
-				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{@"public-key":keys.publicKey} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
+				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{@"public-key":keys.publicKey} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
 					if (success == NO && errorMessage != nil) {
-						if (completion) completion(nil, errorMessage);
+						if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
 						return;
 						
 					} else {
@@ -1430,22 +851,29 @@
 			}
 						
 		} else {
-			completion(nil, error);
+			if (completion) completion(nil, error);
 		}
 	}];
 }
 
-+ (NSInteger)_subCredentialDays {
+- (NSInteger)_sgwCredentialValidFor {
 	NSInteger eapCredentialsValidFor = 30;
-	GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:[GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential]];
+	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
 	if (!subCred) {
 		GRDWarningLogg(@"No Subscriber Credential present");
 	}
 	
 	// Note from CJ 2020-11-24
 	// This is incredibly primitive and will be improved soon
+	//
 	// Note from CJ 2021-11-01
 	// This was a lie
+	//
+	// Note from CJ 2024-07-12
+	// Still not fixed, still working
+	//
+	// Note from CJ 2024-09-27
+	// Yup, still going strong
 	if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
 		eapCredentialsValidFor = 3;
 	}
@@ -1454,58 +882,14 @@
 
 # pragma mark - Credential Validation Helper
 
-- (void)verifyMainEAPCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion {
-    GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
-    if (!mainCreds) {
-        if (completion) completion(NO, @"No main EAP Credentials found");
-		return;
-	}
-	
-	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error) {
-		if (error != nil) {
-			if (completion) completion(NO, error);
-			return;
-		}
-		
-		[[GRDGatewayAPI new] verifyEAPCredentialsUsername:mainCreds.username apiToken:mainCreds.apiAuthToken andSubscriberCredential:subscriberCredential.jwt forVPNNode:mainCreds.hostname completion:^(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid) {
-			if (success) {
-				if (subCredInvalid) { //if this is invalid, remove it regardless of anything else.
-					[GRDKeychain removeSubscriberCredentialWithRetries:3];
-				}
-				
-				if (stillValid == YES) {
-					if (completion) completion(YES, nil);
-					return;
-					
-				} else { //successful API return, EAP creds are currently invalid.
-					if ([self isConnected] == NO) {
-						[self forceDisconnectVPNIfNecessary];
-						//create a fresh set of credentials (new user) in our current region.
-						[self configureFirstTimeUserWithRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
-							if (completion) {
-								completion(success, errorMessage);
-							}
-						}];
-					}
-				}
-				
-			} else { //success is NO
-				if (completion) {
-					completion(NO, errorMessage);
-				}
-			}
-		}];
-	}];
-}
-
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSString * _Nullable errorMessage))completion {
+- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion {
 	GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
 	if (mainCreds == nil) {
-		if (completion) completion(NO, @"No VPN credentials found");
+		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No main VPN credentials found"]);
 		return;
 	}
 	
-	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSString * _Nullable error) {
+	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable error) {
 		if (error != nil) {
 			if (completion) completion(NO, error);
 			return;
@@ -1522,13 +906,15 @@
 					if ([self isConnected] == NO) {
 						[self forceDisconnectVPNIfNecessary];
 						//create a fresh set of credentials (new user) in our current region.
-						[self configureFirstTimeUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
-							if (completion) completion(success, errorMessage);
-							return;
+						GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+						[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+							[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server postCredential:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+								if (completion) completion(YES, errorMessage);
+							}];
 						}];
 					
 					} else {
-						if (completion) completion(NO, errorMessage);
+						if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
 						return;
 					}
 				}
@@ -1537,13 +923,19 @@
 				if ([self isConnected] == NO) {
 					[self forceDisconnectVPNIfNecessary];
 					//create a fresh set of credentials (new user) in our current region.
-					[self configureFirstTimeUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withRegion:self.selectedRegion completion:^(BOOL success, NSString * _Nullable errorMessage) {
-						if (completion) completion(success, errorMessage);
-						return;
+					GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+					[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+						[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server postCredential:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+							if (errorMessage != nil) {
+								if (completion) completion(NO, errorMessage);
+							}
+							
+							if (completion) completion(YES, nil);
+						}];
 					}];
 				
 				} else {
-					if (completion) completion(NO, errorMessage);
+					if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
 					return;
 				}
 			}
@@ -1553,31 +945,15 @@
 
 # pragma mark - Migration Helper
 
-- (void)migrateUserWithCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if (errorMessage != nil) {
-				if (completion) {
-					completion(NO, [errorMessage localizedDescription]);
-				}
-				
-			} else {
-				[self configureFirstTimeUserForHostname:server.hostname andHostLocation:server.displayName postCredential:nil completion:completion];
-			}
-		});
-	}];
-}
-
-- (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(BOOL success, NSString *error))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:_featureEnvironment betaCapableServers:_preferBetaCapableServers];
+- (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
-			if (completion) completion(NO, [errorMessage localizedDescription]);
+			if (completion) completion(GRDVPNHelperFail, errorMessage);
 			return;
 		}
 		
-		[self configureFirstTimeUserForTransportProtocol:protocol hostname:server.hostname andHostLocation:server.displayName postCredential:nil completion:completion];
+		[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:nil completion:completion];
 	}];
 }
 
@@ -1597,11 +973,6 @@
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
-		[defaults removeObjectForKey:kGRDHostnameOverride];
-		[defaults removeObjectForKey:kGRDVPNHostLocation];
-		[defaults setBool:NO forKey:kGuardianUseFauxTimeZone];
-		[defaults removeObjectForKey:kGuardianFauxTimeZone];
-		[defaults removeObjectForKey:kGuardianFauxTimeZonePretty];
 	}
 	
 	return nil;
@@ -1624,6 +995,21 @@
 	}
 }
 
+- (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
+		self.disconnectOnTrustedNetworks = NO;
+		self.trustedNetworks = nil;
+		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+	}
+	
+	self.disconnectOnTrustedNetworks = enabled;
+	self.trustedNetworks = trustedNetworks;
+	[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+}
+
 - (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:ServerFeatureEnvironmentProduction betaCapableServers:NO];
 	[serverManager allRegionsWithCompletion:^(NSArray<GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage) {
@@ -1631,19 +1017,355 @@
 	}];
 }
 
-- (void)clearLocalCache {
+- (void)checkTimezoneChanged {
+	// Don't bother doing anything if there is no callback handler set
+	if (self.timezoneChangedBlock == nil) return;
+	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	// Note from CJ 2021-10-28:
-	// Nodes should no longer be locally cached so this should be
-	// remove all together soon
-	[defaults removeObjectForKey:kKnownGuardianHosts];
-	[defaults removeObjectForKey:housekeepingTimezonesTimestamp];
-	[defaults removeObjectForKey:kKnownHousekeepingTimeZonesForRegions];
-	[defaults removeObjectForKey:kGuardianAllRegions];
-	[defaults removeObjectForKey:kGuardianAllRegionsTimeStamp];
-	[defaults removeObjectForKey:kGRDEAPSharedHostname];
+	if ([defaults valueForKey:kGRDLastKnownAutomaticRegion] == nil) {
+		GRDDebugLog(@"No previous known automatic region found.");
+		return;
+	}
+	
+	NSData *regionData = [defaults objectForKey:kGRDLastKnownAutomaticRegion];
+	NSError *decodeError;
+	GRDRegion * __block lastKnownAutomaticRegion = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:regionData error:&decodeError];
+	if (decodeError != nil) {
+		GRDErrorLogg(@"Failed to decode archived automatic GRDRegion out of NSUserDefaults: %@", [decodeError localizedDescription]);
+		return;
+	}
+	
+	if (lastKnownAutomaticRegion == nil || [lastKnownAutomaticRegion.timeZoneName isEqualToString:@""]) {
+		GRDDebugLog(@"No previous known automatic region found or time zone name key missing.");
+		return;
+	}
+	
+	NSTimeZone *local = [NSTimeZone localTimeZone];
+	if ([lastKnownAutomaticRegion.timeZoneName isEqualToString:[local name]] == NO) {
+		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		[serverManager selectAutomaticModeRegion:^(GRDRegion * _Nullable automaticRegion, NSError * _Nullable error) {
+			if (error != nil) {
+				GRDErrorLogg(@"Failed to match automatic mode to local time zone: %@", [error localizedDescription]);
+				return;
+			}
+			
+			if (self.timezoneChangedBlock) self.timezoneChangedBlock(YES, lastKnownAutomaticRegion, automaticRegion);
+		}];
+	}
+}
+
+- (void)clearLocalCache {
 	[GRDKeychain removeGuardianKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
+}
+
+
+# pragma mark - Smart Routing Proxy
+
++ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray<GRDSmartProxyHost *> * _Nullable, NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestSmartProxyRoutingHostsWithCompletion:^(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to request smart proxy hosts: %@", error);
+			if (completion) completion(nil, error);
+			return;
+		}
+		
+		NSMutableArray <GRDSmartProxyHost *> *parsedHosts = [NSMutableArray new];
+		for (NSDictionary *rawHost in smartProxyHosts) {
+			GRDSmartProxyHost *parsedHost = [[GRDSmartProxyHost alloc] initFromDictionary:rawHost];
+			[parsedHosts addObject:parsedHost];
+		}
+		
+		if (completion) completion(parsedHosts, nil);
+	}];
+}
+
++ (BOOL)smartProxyRoutingEnabled {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRountingProxyEnabled];
+}
+
++ (void)toggleSmartProxyRouting:(BOOL)enabled {
+	if (enabled == YES) {
+		[GRDVPNHelper enableSmartProxyRouting];
+		
+	} else {
+		[GRDVPNHelper disableSmartProxyRouting];
+	}
+}
+
++ (void)enableSmartProxyRouting {
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRountingProxyEnabled];
+	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]);
+			
+		} else {
+			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
+			
+			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+				[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+					if (status != GRDVPNHelperSuccess) {
+						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+					}
+				}];
+			}
+		}
+	}];
+}
+
++ (void)disableSmartProxyRouting {
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRountingProxyEnabled];
+	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
+	
+	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+		[[GRDVPNHelper sharedInstance] configureAndConnectVPNTunnelWithCompletion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
+			if (status != GRDVPNHelperSuccess) {
+				GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+			}
+		}];
+	}
+}
+
++ (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server {
+	NEProxySettings *proxySettings = [NEProxySettings new];
+	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
+	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
+		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
+		proxySettings.autoProxyConfigurationEnabled = YES;
+		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		
+	} else {
+		proxySettings.autoProxyConfigurationEnabled = NO;
+		proxySettings.proxyAutoConfigurationJavaScript = nil;
+	}
+	
+	return proxySettings;
+}
+
++ (NSString *)proxyPACString {
+	NSArray <GRDBlocklistItem *> *blocklist = [GRDVPNHelper enabledBlocklistItems];
+
+	// Start the if statement
+	NSMutableString *matchString = [[NSMutableString alloc] initWithString:@"if ("];
+	NSMutableString *proxyMatchString = [[NSMutableString alloc] initWithString:@"if ("];
+	NSString *badRouteProxy = @"\"PROXY 192.0.2.222:3421\"";
+	NSString *dcProxy = @"\"PROXY 10.183.10.11:3128; DIRECT\"";
+
+	NSMutableArray *smartProxyItems = [NSMutableArray new];
+	NSMutableArray *proxyItems = [NSMutableArray new];
+	for (GRDBlocklistItem *item in blocklist) {
+		if (item.smartProxyType == YES) {
+			[smartProxyItems addObject:item];
+
+		} else {
+			[proxyItems addObject:item];
+		}
+	}
+
+	NSArray *smm = [[GRDVPNHelper sharedInstance] smartProxyRoutingHosts];
+	for (GRDSmartProxyHost *smartProxyHost in smm) {
+		GRDBlocklistItem *conv = [GRDBlocklistItem new];
+		conv.value = smartProxyHost.host;
+		conv.type = GRDBlocklistTypeDNS;
+		conv.enabled = YES;
+		conv.smartProxyType = YES;
+		[smartProxyItems addObject:conv];
+	}
+
+	for (int idx = 0; idx < [proxyItems count]; idx++) {
+		NSString *formattedString = nil;
+		GRDBlocklistItem *item = proxyItems[idx];
+
+		if (item.type == GRDBlocklistTypeDNS) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == proxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, badRouteProxy];
+			}
+
+		} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == proxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@; ", item.value, badRouteProxy];
+			}
+
+		} else {
+			GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
+			continue;
+		}
+
+		[matchString appendString:formattedString];
+	}
+
+	for (int idx = 0; idx < [smartProxyItems count]; idx++) {
+		NSString *formattedString = nil;
+		GRDBlocklistItem *item = smartProxyItems[idx];
+		if (item.type == GRDBlocklistTypeDNS) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == smartProxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, dcProxy];
+			}
+
+		} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
+			// Keep addding || (logical OR) until we know we are the last item
+			formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
+
+			// Last item, wrap it up
+			if (idx  == smartProxyItems.count - 1) {
+				formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@;", item.value, dcProxy];
+			}
+
+		} else {
+			GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
+			continue;
+		}
+
+		[proxyMatchString appendString:formattedString];
+	}
+
+	NSString *pacString = @"function FindProxyForURL(url, host) { ";
+	if ([blocklist count] > 0 || [smartProxyItems count] > 0) {
+		if ([proxyItems count] > 0) { //only add these changes if the blocklist has any enabled items.
+			pacString = [pacString stringByAppendingString:matchString];
+		}
+
+		if ([smartProxyItems count] > 0) {
+			pacString = [pacString stringByAppendingString:proxyMatchString];
+		}
+
+		return [pacString stringByAppendingString:@"return \"DIRECT\";}"];
+	}
+
+	return nil;
+}
+
++ (NSArray<GRDBlocklistItem *> *)enabledBlocklistItems {
+	BOOL blocklistsEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:kGRDBlocklistsEnabled];
+	if (blocklistsEnabled == NO) {
+		return nil;
+	}
+	
+	__block NSMutableArray *enabledItems = [NSMutableArray new];
+	NSArray <GRDBlocklistGroup*> *enabledGroups = [[GRDVPNHelper blocklistGroups] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"allDisabled == false"]];
+	[enabledGroups enumerateObjectsUsingBlock:^(GRDBlocklistGroup * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		if ([obj allEnabled]) {
+			[enabledItems addObjectsFromArray:obj.items];
+			
+		} else { //check individually
+			NSArray *enabled = [[obj items] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"enabled == true"]];
+			[enabledItems addObjectsFromArray:enabled];
+		}
+	}];
+	
+	return enabledItems;
+}
+
++ (NSArray<GRDBlocklistGroup *> *)blocklistGroups {
+	NSArray<NSData *> *items = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+	NSMutableArray<GRDBlocklistGroup*> *blocklistGroups = [NSMutableArray array];
+	for (NSData *item in items) {
+		NSError *unarchiveErr;
+		GRDBlocklistGroup *blocklistGroup = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDBlocklistGroup class], [GRDBlocklistItem class], [NSString class], [NSArray class], [NSNumber class], nil] fromData:item error:&unarchiveErr];
+		if (unarchiveErr != nil) {
+			GRDErrorLogg(@"Failed to decode blocklist group object: %@", [unarchiveErr localizedDescription]);
+			continue;
+		}
+		
+		[blocklistGroups addObject:blocklistGroup];
+	}
+	
+	return blocklistGroups;
+}
+
++ (void)updateOrAddGroup:(GRDBlocklistGroup *)group {
+	NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
+	GRDBlocklistGroup *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+	NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
+	if (objectIndex == NSNotFound) {
+		[GRDVPNHelper addBlocklistGroup:group];
+		return;
+		
+	} else {
+		NSError *archiveErr;
+		NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:group requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group data: %@", [archiveErr localizedDescription]);
+			return;
+		}
+		[modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
+	}
+	[[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
+}
+
++ (GRDBlocklistGroup *)groupWithIdentifier:(NSString *)groupIdentifier {
+	NSArray <GRDBlocklistGroup*> *groups = [GRDVPNHelper blocklistGroups];
+	return [[groups filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"identifier == %@", groupIdentifier]] lastObject];
+}
+
++ (void)addBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem {
+	if (!blocklistGroupItem) { return; }
+	NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+	NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
+	if (!blocklistGroups.count) {
+		blocklistGroups = [NSMutableArray array];
+	}
+	
+	NSError *archiveErr;
+	[blocklistGroups insertObject:[NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem requiringSecureCoding:YES error:&archiveErr] atIndex:0];
+	if (archiveErr != nil) {
+		GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+		return;
+	}
+	[[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
+}
+
++ (void)mergeOrAddGroup:(GRDBlocklistGroup *)group {
+    NSMutableArray *modifiedArray = [[[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups] mutableCopy];
+    GRDBlocklistGroup *oldGroup = [GRDVPNHelper groupWithIdentifier:group.identifier];
+    NSInteger objectIndex = [[GRDVPNHelper blocklistGroups] indexOfObject:oldGroup];
+    if (objectIndex == NSNotFound) {
+        [GRDVPNHelper addBlocklistGroup:group];
+        return;
+
+    } else {
+        GRDBlocklistGroup *mergedGroup = [oldGroup updateIfNeeded:group];
+		NSError *archiveErr;
+        NSData *newGroup = [NSKeyedArchiver archivedDataWithRootObject:mergedGroup requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+			return;
+		}
+        [modifiedArray replaceObjectAtIndex:objectIndex withObject:newGroup];
+    }
+    [[NSUserDefaults standardUserDefaults] setValue:modifiedArray forKey:kGRDBlocklistGroups];
+}
+
++ (void)removeBlocklistGroup:(GRDBlocklistGroup *)blocklistGroupItem {
+    if (!blocklistGroupItem) { return; }
+    NSArray<NSData *> *storedItems = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDBlocklistGroups];
+    NSMutableArray<NSData *> *blocklistGroups = [NSMutableArray arrayWithArray:storedItems];
+    if (blocklistGroups.count) {
+		NSError *archiveErr;
+        NSData *itemData = [NSKeyedArchiver archivedDataWithRootObject:blocklistGroupItem requiringSecureCoding:YES error:&archiveErr];
+		if (archiveErr != nil) {
+			GRDErrorLogg(@"Failed to archive blocklist group: %@", [archiveErr localizedDescription]);
+			return;
+		}
+        [blocklistGroups removeObject:itemData];
+        [[NSUserDefaults standardUserDefaults] setValue:blocklistGroups forKey:kGRDBlocklistGroups];
+    }
+}
+
++ (void)clearBlocklistData {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kGRDBlocklistGroups];
 }
 
 @end

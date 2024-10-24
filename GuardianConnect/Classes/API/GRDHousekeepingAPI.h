@@ -8,19 +8,26 @@
 
 #import <Foundation/Foundation.h>
 #import <DeviceCheck/DeviceCheck.h>
+
+#import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDAPIError.h>
-#import <GuardianConnect/GRDVPNHelper.h>
+#import <GuardianConnect/GRDKeychain.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDHousekeepingAPI : NSObject
 
+@property (nonatomic, strong) NSString *housekeepingHostname;
+
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
 /// If no custom hostname is provided, the default public Connect API hostname is going to be used
-@property NSString *connectAPIHostname;
+@property (nonatomic, strong) NSString *connectAPIHostname;
+
+/// GuardianConnect app public key used to authenticate API requests
+@property (nonatomic, strong) NSString *_Nullable connectPublishableKey;
 
 /// ValidationMethod to use for the request to housekeeping
 /// Currently not used for anything since the validation method is passed to the method directly as a parameter
@@ -34,8 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Currently only used by Guardian for subscriptions & purchases conducted via the web
 @property NSString *peToken;
 
-/// GuardianConnect app public key used to authenticate API requests
-@property (nonatomic, strong) NSString *_Nullable publishableKey;
+/// Helper function to quickly determine the correct housekeeping API env the request should be send to
+/// @param apiEndpoint the Connect REST API endpoint that the request should be sent to
+- (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint;
 
 /// Helper function to quickly determine the correct Connect API env the request should be send to
 /// @param apiEndpoint the Connect REST API endpoint that the request should be sent to
@@ -60,30 +68,32 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param validationMethod set to determine how to authenticate with housekeeping
 /// @param dict NSDictionary only used when the 'validationMethod' is set to 'ValidationMethodCustom'
 /// @param completion completion block returning a signed JWT, indicating request success and a user actionable error message if the request failed
-- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion;
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage))completion;
 
 /// endpoint: /api/v1/servers/timezones-for-regions
 /// Used to obtain all known timezones
 /// @param completion completion block returning an array with all timezones, indicating request success, and the response status code
-- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, BOOL success, NSUInteger responseStatusCode))completion;
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray  * _Nullable timeZones, NSError * _Nullable error))completion;
 
-/// endpoint: /api/v1/servers/hostnames-for-region
+/// endpoint: /api/v1.3/servers/hostnames-for-region/
 /// @param region the selected region for which hostnames should be returned
 /// @param completion completion block returning an array of servers and indicating request success
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *servers, BOOL success))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestServersForRegion:regionPrecision:paidServers:featureEnvironment:betaCapableServers:completion instead");
-
 - (void)requestServersForRegion:(NSString * _Nonnull)region regionPrecision:(NSString * _Nonnull)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion;
-
-/// endpint: /api/v1/servers/all-hostnames
-/// @param completion completion block returning an array of all hostnames and indicating request success
-- (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable allServers, BOOL success))completion;
 
 /// endpoint: /api/v1/servers/all-server-regions
 /// Used to retrieve all available Server Regions from housekeeping to allow users to override the selected Server Region
 /// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestAllServerRegionsWithPrecision: instead");
 
+/// endpoint: /api/v1.3/servers/all-server-regions/:precision
+/// @param precision one of the region precision constants
+/// @param completion completion block containing an error or the array of all regions for the requested region-precision
 - (void)requestAllServerRegionsWithPrecision:(NSString * _Nonnull)precision completion:(void (^)(NSArray <NSDictionary *> * _Nullable items, NSError * _Nullable error))completion;
+
+
+/// endpoint: /api/v1/smart-proxy-routing/hosts
+/// @param completion completion block containing an error or the array of smart routing proxy hosts
+- (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error))completion;
 
 
 # pragma mark - Connect Subscriber

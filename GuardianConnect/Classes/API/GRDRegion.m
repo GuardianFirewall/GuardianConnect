@@ -42,7 +42,12 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO"];
+	NSUInteger citiesCount = 0;
+	if (self.cities != nil) {
+		citiesCount = [self.cities count];
+	}
+	
+	return [NSString stringWithFormat:@"continent: %@; country-ISO-code: %@; regionName: %@; displayName: %@; is-automatic: %@; latitude: %@; longitude: %@; cities-count: %ld; time-zone-name: %@", self.continent, self.countryISOCode, self.regionName, self.displayName, self.isAutomatic ? @"YES" : @"NO", self.latitude, self.longitude, citiesCount, self.timeZoneName];
 }
 
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
@@ -59,6 +64,7 @@
 		self.longitude			= [coder decodeObjectForKey:@"longitude"];
 		self.serverCount		= [coder decodeObjectForKey:@"server-count"];
 		self.cities				= [coder decodeObjectForKey:@"cities"];
+		self.timeZoneName		= [coder decodeObjectForKey:@"time-zone-name"];
 	}
 	
 	return self;
@@ -76,6 +82,7 @@
 	[coder encodeObject:self.longitude forKey:@"longitude"];
 	[coder encodeObject:self.serverCount forKey:@"server-count"];
 	[coder encodeObject:self.cities forKey:@"cities"];
+	[coder encodeObject:self.timeZoneName forKey:@"time-zone-name"];
 }
 
 + (BOOL)supportsSecureCoding {
@@ -91,46 +98,51 @@
 	return ([self.regionName isEqualToString:[object regionName]] && [self.displayName isEqualToString:[object displayName]]);
 }
 
-- (void)findBestServerWithCompletion:(void(^)(NSString *server, NSString *serverLocation, BOOL success))completion {
-    [[GRDServerManager new] findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-        if (!error) {
-            if (completion) {
-                self.bestHost = server.hostname;
-                self.bestHostLocation = server.displayName;
-                completion(server.hostname, server.displayName, true);
-            }
-            
-        } else {
-            if (completion) {
-                completion(nil, nil, false);
-            }
-        }
-    }];
-}
-
-- (void)findBestServerWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable regionPrecision:(NSString *)regionPrecision completion:(void (^)(NSString * _Nullable, NSString * _Nullable, BOOL))completion {
-	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:regionPrecision serverFeatureEnvironment:featureEnv betaCapableServers:betaCapable];
-	[serverManager findBestHostInRegion:self.regionName completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-		if (!error) {
-			if (completion) {
-				self.bestHost = server.hostname;
-				self.bestHostLocation = server.displayName;
-				completion(server.hostname, server.displayName, true);
-			}
-			
-		} else {
-			if (completion) {
-				completion(nil, nil, false);
-			}
-		}
-	}];
-}
-
 + (GRDRegion *)automaticRegion {
 	GRDRegion *reg = [[GRDRegion alloc] init];
 	[reg setDisplayName:NSLocalizedString(@"Automatic", nil)];
 	[reg setIsAutomatic:true];
 	return reg;
+}
+
++ (GRDRegion *)failSafeRegionForRegionPrecision:(NSString *)precision {
+	GRDRegion *region = [GRDRegion new];
+	
+	if ([precision isEqualToString:kGRDRegionPrecisionDefault]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"us-east"];
+		[region setDisplayName:@"USA (East)"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:36.51503161797652]];
+		[region setLongitude:[NSNumber numberWithDouble:-82.25735946455545]];
+		
+	} else if ([precision isEqualToString:kGRDRegionPrecisionCity] || [precision isEqualToString:kGRDRegionPrecisionCityByCountry]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"us-nyc"];
+		[region setDisplayName:@"New York City"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:40.714292433330336]];
+		[region setLongitude:[NSNumber numberWithDouble:-74.00615560237677]];
+		
+	} else if ([precision isEqualToString:kGRDRegionPrecisionCountry]) {
+		[region setContinent:@"North-America"];
+		[region setCountry:@"USA"];
+		[region setCountryISOCode:@"US"];
+		[region setRegionName:@"na-usa"];
+		[region setDisplayName:@"USA"];
+		[region setIsAutomatic:NO];
+		[region setRegionPrecision:precision];
+		[region setLatitude:[NSNumber numberWithDouble:39.338586642335414]];
+		[region setLongitude:[NSNumber numberWithDouble:-101.69432971778862]];
+	}
+	
+	return region;
 }
 
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray * _Nullable)regions {

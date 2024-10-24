@@ -42,7 +42,8 @@
     if (main) {
         return [main hostname];
     }
-    return [[NSUserDefaults standardUserDefaults] valueForKey:kGRDHostnameOverride];
+	
+	return nil;
 }
 
 - (BOOL)_canMakeApiRequests {
@@ -101,188 +102,6 @@
     
     [task resume];
 }
-
-
-# pragma mark - v1.2 APIs
-
-- (void)registerAndCreateWithSubscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-	[self registerAndCreateWithHostname:[self baseHostname] subscriberCredential:subscriberCredential validForDays:validFor completion:completion];
-}
-
-- (void)registerAndCreateWithHostname:(NSString *_Nonnull)hostname subscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.1/register-and-create", hostname]]];
-	[request setHTTPMethod:@"POST"];
-	
-	NSDictionary *jsonDict = @{@"subscriber-credential":subscriberCredential, @"valid-for":[NSNumber numberWithInteger:validFor]};
-	[request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-		if (error != nil) {
-			GRDLog(@"Couldn't connect to host: %@", [error localizedDescription]);
-			if (completion) completion(nil, NO, @"Error connecting to server");
-			return;
-		}
-		
-		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-		if (statusCode == 200) {
-			NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-			if (completion) completion(dictFromJSON, YES, nil);
-			return;
-			
-		} else {
-			// Note from CJ 2022-03-21:
-			// There are a few special status codes which are returned if the Subscriber Credential
-			// is not correct for the specific server environment or if it has expired.
-			// In those cases it is kicked out right away to prevent further problems
-			if (statusCode == 402 || statusCode == 406 || statusCode == 410) {
-				GRDErrorLogg(@"Invalid or incorrect Subscriber Credential present. Clearing it out");
-				[GRDKeychain removeSubscriberCredentialWithRetries:3];
-				if (completion) completion(nil, NO, @"Invalid Subscriber Credential. Please try again.");
-				return;
-			}
-			
-			NSError *jsonErr;
-			NSDictionary *errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
-			if (errorJSON != nil) {
-				GRDErrorLogg(@"Failed to decode JSON error messages: %@", [jsonErr localizedDescription]);
-				if (completion) completion(nil, NO, @"Failed to decode error response message");
-				return;
-			}
-			
-			NSString *errorMessage = errorJSON[@"error-message"];
-			if (errorMessage == nil) {
-				if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to register device. No error message returned for status code: %ld", statusCode]);
-				return;
-			}
-			
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to regiser device: %@", errorMessage]);
-			return;
-		}
-	}];
-	[task resume];
-}
-
-- (void)verifyEAPCredentialsUsername:(NSString *_Nonnull)eapUsername apiToken:(NSString *_Nonnull)apiToken andSubscriberCredential:(NSString *_Nonnull)subscriberCredential forVPNNode:(NSString *_Nonnull)vpnNode completion:(void (^)(BOOL, BOOL, NSString * _Nullable, BOOL))completion {
-    if (eapUsername == nil || apiToken == nil || subscriberCredential == nil || vpnNode == nil) {
-        if (completion) completion(NO, NO, @"nil variable detected. Aborting", NO);
-        return;
-    }
-    
-	NSError *encodingError;
-    NSData *jsonBody = [NSJSONSerialization dataWithJSONObject:@{@"subscriber-credential": subscriberCredential, @"api-auth-token": apiToken} options:0 error:&encodingError];
-    if (encodingError != nil) {
-        GRDLog(@"Failed to encode JSON body: %@", encodingError);
-        if (completion) completion(NO, NO, @"Failed to encode JSON body", NO);
-        return;
-    }
-    
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.2/device/%@/verify-credentials", vpnNode, eapUsername]]];
-    [request setHTTPBody:jsonBody];
-    [request setHTTPMethod:@"POST"];
-    [request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send request: %@", error);
-            if (completion) completion(NO, NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]], NO);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 200) {
-            if (completion) completion(YES, YES, nil, NO);
-            return;
-        
-        } else {
-            NSError *decodeError;
-            NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeError];
-            if (decodeError != nil) {
-                GRDLog(@"Failed to decode error JSON from VPN node: %@", decodeError);
-                if (completion) completion(YES, NO, @"Failed to deocde error JSON from VPN node", NO);
-                return;
-            }
-            
-            NSString *errorMessage = errorDict[@"error-message"];
-            GRDWarningLogg(@"Request failed. Client needs to migrate! Server status code: %ld - error message: %@", statusCode, errorMessage);
-            if ([errorMessage containsString:@"Subscriber Credential"]) {
-                GRDErrorLogg(@"Subscriber Credential invalid or expired. Obtain a new one");
-                if (completion) completion(YES, NO, @"Request failed. Client needs to migrate!", YES);
-                
-            } else {
-                if (completion) completion(YES, NO, @"Request failed. Client needs to migrate!", NO);
-            }
-            return;
-        }
-    }];
-    [task resume];
-}
-
-- (void)invalidateEAPCredentials:(GRDCredential *_Nonnull)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion {
-    [self invalidateEAPCredentials:credentials.username andAPIToken:credentials.apiAuthToken completion:completion];
-}
-
-- (void)invalidateEAPCredentials:(NSString *_Nonnull)eapUsername andAPIToken:(NSString *_Nonnull)apiToken completion:(void (^)(BOOL, NSString * _Nullable))completion {
-    if ([self _canMakeApiRequests] == NO) {
-        GRDLog(@"Cannot make API requests! Aborting");
-        if (completion) completion(NO, @"Cannot make API requests");
-        return;
-    }
-    
-    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken: apiToken};
-    
-    NSMutableURLRequest *request = [self _requestWithEndpoint:[NSString stringWithFormat:@"/api/v1.2/device/%@/invalidate-credentials", eapUsername] andPostRequestData:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send EAP credential invalidation request: %@", error);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to send EAP credential invalidation request: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 200) {
-			if (completion) completion(YES, nil);
-			return;
-
-        } else {
-			NSError *jsonErr;
-			NSDictionary *errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
-			if (jsonErr != nil) {
-				if (completion) completion(NO, [NSString stringWithFormat:@"Failed to decode error message: %@", [jsonErr localizedDescription]]);
-				return;
-			}
-			
-			NSString *errorMessage = errorJSON[@"error-message"];
-			if (errorMessage == nil) {
-				if (completion) completion(NO, @"Failed to invalidate EAP credentials - API returned no error message");
-				return;
-			}
-			
-			if (completion) completion(NO, [NSString stringWithFormat:@"Failed to invalidate EAP credentials: %@", errorMessage]);
-			return;
-        }
-    }];
-    [task resume];
-}
-
 
 # pragma mark - v1.3 APIs
 
@@ -405,10 +224,10 @@
     [task resume];
 }
 
-- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(BOOL, NSString * _Nullable))completion {
+- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(NSError * _Nullable))completion {
     if (clientId == nil || apiToken == nil || hostname == nil || subCred == nil) {
         GRDErrorLogg(@"nil value detected. Unable to send request to invalidate the device's credentials");
-        if (completion) completion(NO, @"nil value detected. Unable to send request to invalidate the device's credentials");
+        if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"VPN credential not invalidated. Credential specific value missing to complete the request"]);
         return;
     }
     
@@ -417,8 +236,8 @@
     NSError *jsonErr;
     NSData *requestBody = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: apiToken, kKeychainStr_SubscriberCredential: subCred} options:0 error:&jsonErr];
     if (jsonErr != nil) {
-        GRDErrorLogg(@"Failed to encode request JSON: %@", jsonErr);
-        if (completion) completion(NO, [NSString stringWithFormat:@"Failed to encode request JSON body: %@", jsonErr]);
+        GRDErrorLogg(@"Failed to encode request JSON: %@", [jsonErr localizedDescription]);
+        if (completion) completion(jsonErr);
         return;
     }
     
@@ -433,35 +252,20 @@
     NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-			GRDErrorLogg(@"Failed to send EAP credential invalidation request: %@", error);
-            if (completion) completion(NO, [NSString stringWithFormat:@"Failed to send EAP credential invalidation request: %@", [error localizedDescription]]);
+			GRDErrorLogg(@"Failed to send EAP credential invalidation request: %@", [error localizedDescription]);
+            if (completion) completion(error);
             return;
         }
         
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 200) {
-            if (completion) completion(YES, nil);
-            return;
-        
-        } else {
-            NSError *decodeError;
-            NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeError];
-            if (decodeError != nil) {
-                GRDErrorLogg(@"Failed to decode error JSON from VPN node: %@", decodeError);
-                if (completion) completion(NO, @"Failed to deocde error JSON from VPN node");
-                return;
-            }
-            
-            NSString *errorMessage = errorDict[@"error-message"];
-			if (errorMessage == nil) {
-				if (completion) completion(NO, @"Failed to invalidate the device's credentials. API response returned no error message");
-				return;
-			}
-			
-            GRDErrorLogg(@"Failed to invalidate device's credentials. Status code: %ld - error message: %@", statusCode, errorMessage);
-            if (completion) completion(NO, @"Failed to invalidate the device's credentials");
-            return;
-        }
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			GRDErrorLogg(@"Failed to invalidate device's credentials: %@", apiErr);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to invalidate VPN credentials: %@", apiErr]]);
+			return;
+		}
+		
+		if (completion) completion(nil);
     }];
     [task resume];
 }
@@ -488,16 +292,7 @@
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
         NSString *apiAuthToken = [self apiAuthToken];
         if (apiAuthToken == nil || [apiAuthToken isEqualToString:@""]) {
-            // Note from CJ 2021-01-19:
-            // I am not happy about this class doing all of this at all
-            // but it appears to not be doing crazy amounts of harm
-            // as of right now. This needs to be reworked though
-            GRDLogg(@"API Auth Token is null or not useable. Resetting keychain items");
-            GRDLog(@"API Atuh Token out of keychain: %@", apiAuthToken);
-            [GRDKeychain removeGuardianKeychainItems];
-            [GRDKeychain removeSubscriberCredentialWithRetries:3];
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kAppNeedsSelfRepair];
-            if (completion) completion(nil, NO, @"Corrupted keychain. Aborting");
+            if (completion) completion(nil, NO, @"API auth token missing!");
             return;
         }
         
@@ -883,12 +678,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -933,12 +723,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];			
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;

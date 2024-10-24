@@ -9,7 +9,6 @@
 #ifndef PrefixHeader_pch
 #define PrefixHeader_pch
 
-#import <GuardianConnect/NSPredicate+Additions.h>
 #import <GuardianConnect/Shared.h>
 #import <GuardianConnect/GRDLogger.h>
 #import <GuardianConnect/GRDErrorHelper.h>

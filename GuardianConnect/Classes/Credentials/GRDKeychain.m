@@ -15,30 +15,40 @@
 
 @implementation GRDKeychain
 
-+ (OSStatus)storePassword:(NSString *)passwordStr forAccount:(NSString *)accountKeyStr {
-    if (passwordStr == nil) {
-        return errSecParam; //technically it IS a parameter issue, so this makes sense.
++ (OSStatus)storePassword:(NSString *)password forAccount:(NSString *)accountKey {
+	return [GRDKeychain storePassword:password forAccount:accountKey andCount:0];
+}
+
++ (OSStatus)storePassword:(NSString *)password forAccount:(NSString *)accountKey andCount:(NSUInteger)count {
+    if (password == nil) {
+		GRDErrorLogg(@"No password string provided!");
+        return errSecParam;
     }
+	
+	if (count > 2) {
+		GRDErrorLogg(@"Tried and failed to store password string for account '%@' 3 times. Aborting!!", accountKey);
+	}
+	count++;
 	
     CFTypeRef result = NULL;
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
-    NSData *valueData = [passwordStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *valueData = [password dataUsingEncoding:NSUTF8StringEncoding];
 	
 	NSMutableDictionary *mSecItem = [NSMutableDictionary new];
 	[mSecItem setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
 	[mSecItem setObject:bundleId forKey:(__bridge id)kSecAttrService];
 	[mSecItem setObject:(__bridge id)kCFBooleanFalse forKey:(__bridge id)kSecAttrSynchronizable];
-	[mSecItem setObject:accountKeyStr forKey:(__bridge id)kSecAttrAccount];
+	[mSecItem setObject:accountKey forKey:(__bridge id)kSecAttrAccount];
 	[mSecItem setObject:valueData forKey:(__bridge id)kSecValueData];
 	
-	if ([accountKeyStr isEqualToString:kGuardianCredentialsList] == YES) {
+	if ([accountKey isEqualToString:kGuardianCredentialsList] == YES) {
 		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
 	
 	} else {
 		[mSecItem setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
 	}
 	
-	if ([accountKeyStr isEqualToString:kKeychainStr_WireGuardConfig]) {
+	if ([accountKey isEqualToString:kKeychainStr_WireGuardConfig]) {
 		NSString *appGroupId = [[GRDVPNHelper sharedInstance] appGroupIdentifier];
 		if (appGroupId == nil) {
 			appGroupId = @"";
@@ -51,10 +61,10 @@
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)secItem, &result);
     if (status != errSecSuccess) {
         if (status == errSecDuplicateItem) {
-            [self removeKeychainItemForAccount:accountKeyStr];
-            return [self storePassword:passwordStr forAccount:accountKeyStr];
+            [self removeKeychainItemForAccount:accountKey];
+            return [self storePassword:password forAccount:accountKey andCount:count];
         }
-        GRDErrorLogg(@"Error storing password item '%@' OSStatus error: %ld", accountKeyStr, (long)status);
+        GRDErrorLogg(@"Error storing password item '%@' OSStatus error: %ld", accountKey, (long)status);
     }
 	
     return status;
@@ -168,9 +178,9 @@
 + (void)removeGuardianKeychainItems {
     NSArray *guardianKeys = @[kKeychainStr_EapUsername,
                               kKeychainStr_EapPassword,
-                              kKeychainStr_AuthToken,
                               kKeychainStr_APIAuthToken,
-							  kKeychainStr_WireGuardConfig];
+							  kKeychainStr_WireGuardConfig,
+							  kGRDConnectPublishableKey];
     [guardianKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [self removeKeychainItemForAccount:obj];
     }];

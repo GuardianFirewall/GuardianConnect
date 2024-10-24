@@ -7,14 +7,6 @@
 //
 
 #import <GuardianConnect/GRDHousekeepingAPI.h>
-#import <GuardianConnect/NSObject+Dictionary.h>
-
-@interface GRDHousekeepingAPI()
-
-@property NSString *housekeepingHostname;
-
-@end
-
 
 @implementation GRDHousekeepingAPI
 
@@ -25,32 +17,25 @@
 		// Ensure that housekeeping API requests always have
 		// a valid hostname set to begin with
 		self.housekeepingHostname = kConnectAPIHostname;
+		
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		if ([defaults valueForKey:kGRDHousekeepingAPIHostname] != nil) {
+			self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
+		}
+		
+		if ([defaults valueForKey:kGRDConnectAPIHostname] != nil) {
+			self.connectAPIHostname = [defaults stringForKey:kGRDConnectAPIHostname];
+		}
+		
+		self.connectPublishableKey = [GRDKeychain getPasswordStringForAccount:kGRDConnectPublishableKey];
+		
+		GRDDebugLog(@"housekeeping-api-hostname:%@; connect-api-hostname:%@; connect-publishable-key:%@", self.housekeepingHostname, self.connectAPIHostname, self.connectPublishableKey);
 	}
 	
 	return self;
 }
 
-- (void)checkCustomValues {
-	self.connectAPIHostname = kConnectAPIHostname;
-	NSString *customConnectAPIHostname = [[GRDVPNHelper sharedInstance] connectAPIHostname];
-	if (customConnectAPIHostname != nil) {
-		self.connectAPIHostname = customConnectAPIHostname;
-	}
-	self.publishableKey = [[GRDVPNHelper sharedInstance] connectPublishableKey];
-	
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([defaults objectForKey:kGRDHousekeepingAPIHostname] != nil) {
-		self.housekeepingHostname = [defaults stringForKey:kGRDHousekeepingAPIHostname];
-	}
-	
-	GRDDebugLog(@"Connect API: %@", self.connectAPIHostname);
-	GRDDebugLog(@"Connect API publishable key: %@", self.publishableKey);
-	GRDDebugLog(@"Housekeeipng API hostname: %@", self.housekeepingHostname);
-}
-
 - (NSMutableURLRequest *)housekeepingAPIRequestFor:(NSString *)apiEndpoint {
-	[self checkCustomValues];
-	
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", self.housekeepingHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
@@ -60,18 +45,18 @@
 }
 
 - (NSMutableURLRequest *)connectAPIRequestFor:(NSString *)apiEndpoint {
-	[self checkCustomValues];
-	
 	NSString *baseHostname = kConnectAPIHostname;
-	if (self.connectAPIHostname != nil || [self.connectAPIHostname isEqualToString:@""] == NO) {
-		baseHostname = self.connectAPIHostname;
+	if (self.connectAPIHostname != nil) {
+		if ([self.connectAPIHostname isEqualToString:@""] == NO) {
+			baseHostname = self.connectAPIHostname;
+		}
 	}
 	
 	NSURL *requestURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@%@", baseHostname, apiEndpoint]];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
-	if ([self publishableKey] != nil) {
-		[request setValue:[self publishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
+	if ([self connectPublishableKey] != nil) {
+		[request setValue:[self connectPublishableKey] forHTTPHeaderField:@"GRD-Connect-Publishable-Key"];
 	}
 	
 	return request;
@@ -213,7 +198,7 @@
 				return;
 			}
 			
-			GRDAPIError *error = [[GRDAPIError alloc] initWithData:data];
+			GRDAPIError *error = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:error.message]);
 			return;
 		}
@@ -233,7 +218,7 @@
 
 # pragma mark - Subscriber Credentials
 
-- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSString * _Nullable errorMessage))completion {
+- (void)createSubscriberCredentialForBundleId:(NSString *)bundleId withValidationMethod:(GRDHousekeepingValidationMethod)validationMethod customKeys:(NSMutableDictionary * _Nullable)dict completion:(void (^)(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage))completion {
 	NSMutableURLRequest *request = [self connectAPIRequestFor:@"/api/v1.2/subscriber-credential/create"];
 	
 	NSMutableDictionary *jsonDict = [[NSMutableDictionary alloc] init];
@@ -249,10 +234,7 @@
 			// Apple in-app purchase receipts copied from the Guardian Firewall iOS app
 			NSString *userDefaultsEncodedIAPReceipt = [[NSUserDefaults standardUserDefaults] stringForKey:kGuardianEncodedAppStoreReceipt];
 			if (userDefaultsEncodedIAPReceipt == nil) {
-				GRDLog(@"ReceiptData is nil");
-				if (completion) {
-					completion(nil, NO, @"AppStore receipt missing");
-				}
+				if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"AppStore receipt missing"]);
 				return;
 			}
 			
@@ -269,29 +251,27 @@
 		[jsonDict setObject:appStoreReceipt forKey:@"app-receipt"];
 		
 	} else if (validationMethod == ValidationMethodPEToken) {
-		NSString *petToken = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
+		GRDPEToken *petToken = [GRDPEToken currentPEToken];
 		if (petToken == nil) {
-			GRDLog(@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
-			if (completion) completion(nil, NO, @"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device");
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to generate Subscriber Credential. Validation method PE-Token selected but a PE-Token is not available on device"]);
 			return;
 		}
 		
 		[jsonDict setObject:@"pe-token" forKey:@"validation-method"];
-		[jsonDict setObject:petToken forKey:@"pe-token"];
+		[jsonDict setObject:petToken.token forKey:@"pe-token"];
 		
 	} else if (validationMethod == ValidationMethodCustom) {
 		jsonDict = dict;
 		
 	} else {
-		if (completion) completion(nil, NO, @"validation method missing");
+		if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"validation method missing"]);
 		return;
 	}
 	
 	NSError *jsonErr;
 	NSData *requestData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&jsonErr];
 	if (jsonErr != nil) {
-		GRDErrorLog(@"Failed to encode JSON request body: %@", jsonErr);
-		if (completion) completion(nil, NO, @"Failed to encode JSON request body");
+		if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to encode JSON request body: %@", [jsonErr localizedDescription]]]);
 		return;
 	}
 	
@@ -306,43 +286,20 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
 		if (error != nil) {
-			GRDLog(@"Failed to create subscriber credential: %@", [error localizedDescription]);
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]);
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Couldn't create subscriber credential: %@", [error localizedDescription]]]);
 			return;
 		}
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-		if (statusCode == 500) {
-			GRDLog(@"Housekeeping failed to return subscriber credential");
-			if (completion) completion(nil, NO, @"Internal server error - couldn't create subscriber credential");
+		if (statusCode != 200) {
+			GRDAPIError *apiError = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to create Subscriber Credential: %@", apiError]]);
 			return;
-			
-		} else if (statusCode == 400) {
-			GRDLog(@"Failed to create subscriber credential. Faulty input values");
-			if (completion) completion(nil, NO, @"Failed to create subscriber credential. Faulty input values");
-			return;
-			
-		} else if (statusCode == 401) {
-			GRDLog(@"No subscription present");
-			if (completion) completion(nil, NO, @"No subscription present");
-			return;
-			
-		} else if (statusCode == 410) {
-			GRDLog(@"Subscription expired");
-			// Not sending an error message back so that we're not showing a useless error to the user
-			// The app should transition to free/unpaid if required
-			if (completion) completion(nil, NO, nil);
-			return;
-			
-		} else if (statusCode == 200) {
-			NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-			if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
-			return;
-			
-		} else {
-			GRDLog(@"Unknown server error");
-			if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error: %ld", statusCode]);
 		}
+
+		NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+		if (completion) completion([dictFromJSON objectForKey:@"subscriber-credential"], YES, nil);
+		return;
 	}];
 	[task resume];
 }
@@ -372,12 +329,7 @@
         
         NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to register new Connect subscriber. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -394,7 +346,7 @@
 
 #pragma mark - Time Zone & VPN Hostnames
 
-- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray *timezones, BOOL success, NSUInteger responseStatusCode))completion {
+- (void)requestTimeZonesForRegionsWithCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
     NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/timezones-for-regions"];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -404,63 +356,20 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            GRDLog(@"Failed to hit endpoint: %@", error);
-            if (completion) completion(nil, NO, 0);
+            GRDDebugLog(@"Failed to hit endpoint: %@", error);
+            if (completion) completion(nil, error);
             return;
         }
         
         NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
         if (statusCode != 200) {
-            if (completion) completion(nil, NO, statusCode);
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			GRDDebugLog(@"Failed to obtain list of known timezones. Error: %@", apiErr);
+            if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[apiErr description]]);
             
         } else {
             NSArray *timezones = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(timezones, YES, statusCode);
-        }
-    }];
-    [task resume];
-}
-
-- (void)requestServersForRegion:(NSString *)region paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, BOOL))completion {
-	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
-    NSData *requestJSON = [NSJSONSerialization dataWithJSONObject:@{@"region":region, @"paid":payingUserAsNumber, @"feature-environment": [NSNumber numberWithInt:(int)featureEnvironment], @"beta-capable": @(betaCapable)} options:0 error:nil];
-	
-	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.2/servers/hostnames-for-region"];
-	[request setHTTPMethod:@"POST"];
-	[request setHTTPBody:requestJSON];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:20];
-	[sessionConf setTimeoutIntervalForResource:20];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to hit endpoint: %@", error);
-            if (completion) completion(nil, NO);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 400) {
-            GRDLog(@"region key missing or mangled in JSON");
-            if (completion) completion(nil, NO);
-            return;
-            
-        } else if (statusCode == 500) {
-            GRDLog(@"Internal server error");
-            if (completion) completion(nil, NO);
-            return;
-            
-        } else if (statusCode == 200) {
-            NSArray *servers = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) {
-                completion(servers, YES);
-            }
-        } else {
-            GRDLog(@"Uncaught http response status: %ld", statusCode);
-            if (completion) completion(nil, NO);
-            return;
+            if (completion) completion(timezones, nil);
         }
     }];
     [task resume];
@@ -493,12 +402,7 @@
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -514,39 +418,6 @@
 		if (completion) completion(servers, nil);
 	}];
 	[task resume];
-}
-
-- (void)requestAllHostnamesWithCompletion:(void (^)(NSArray * _Nullable, BOOL))completion {
-    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.1/servers/all-hostnames"];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:20];
-	[sessionConf setTimeoutIntervalForResource:20];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Request failed: %@", error);
-            if (completion) completion(nil, NO);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Internal server error");
-            if (completion) completion(nil, NO);
-            
-        } else if (statusCode == 200) {
-            NSArray *servers = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(servers, YES);
-            
-        } else {
-            GRDLog(@"Uncaught http response status: %ld", statusCode);
-            if (completion) completion(nil, NO);
-            return;
-        }
-    }];
-    [task resume];
 }
 
 - (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
@@ -565,12 +436,7 @@
         
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -599,12 +465,7 @@
 		
 		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -613,6 +474,41 @@
 		NSArray *returnItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 		if (completion) completion(returnItems, nil);
 		return;
+	}];
+	[task resume];
+}
+
+- (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/smart-proxy-routing/hosts"];
+	[request setHTTPMethod:@"GET"];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, error);
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to fetch smart proxy hosts with HTTP response status code: %ld; error-title: %@; error-message: %@", statusCode, apiErr.title, apiErr.message]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSArray *hostsArray = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON decode response data: %@", jsonErr]]);
+			return;
+		}
+		
+		if (completion) completion(hostsArray, nil);
 	}];
 	[task resume];
 }
@@ -646,12 +542,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 201) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -696,12 +587,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -745,12 +631,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -795,12 +676,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -845,12 +721,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -888,12 +759,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			if ([apiErr.message containsString:@"not yet setup"]) {
 				if (completion) completion([GRDErrorHelper errorWithErrorCode:GRDErrGuardianAccountNotSetup andErrorMessage:@"Guardian account setup not yet completed"]);
 				return;
@@ -939,12 +805,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -989,12 +850,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1053,12 +909,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1119,12 +970,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;
@@ -1162,12 +1008,7 @@
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data];
-			if (apiErr.parseError != nil) {
-				if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to decode API response error message"]);
-				return;
-			}
-			
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
 			GRDErrorLogg(@"Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
 			return;

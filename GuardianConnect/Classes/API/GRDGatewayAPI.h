@@ -38,36 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// hits the endpoint for the current VPN host to check if a VPN connection can be established
 - (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable errorMessage))completion;
 
-/// endpoint: /api/v1.1/register-and-create
-/// @param subscriberCredential JWT token obtained from housekeeping
-/// @param validFor integer informing the API how long the EAP credentials should be valid for. A value of 30 indicated 30 days starting right now (eg. 30 days * 24 hours worth of service)
-/// @param completion completion block indicating success, returning EAP Credentials as well as an API auth token or returning an error message for user consumption
-- (void)registerAndCreateWithSubscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable credentials, BOOL success, NSString * _Nullable errorMessage))completion;
-
-/// endpoint: /api/v1.1/register-and-create
-/// @param hostname The host we are creating the credential for
-/// @param subscriberCredential JWT token obtained from housekeeping
-/// @param validFor integer informing the API how long the EAP credentials should be valid for. A value of 30 indicated 30 days starting right now (eg. 30 days * 24 hours worth of service)
-/// @param completion completion block indicating success, returning EAP Credentials as well as an API auth token or returning an error message for user consumption
-- (void)registerAndCreateWithHostname:(NSString *_Nonnull)hostname subscriberCredential:(NSString *_Nonnull)subscriberCredential validForDays:(NSInteger)validFor completion:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion;
-
-/// endpoint: /api/v1.2/device/<eap-username>/verify-credentials
-/// Validates the existence of the current actively used EAP credentials with the VPN server. If a VPN server has been reset or the EAP credentials have been invalided and/or deleted the app needs to migrate to a new host and obtain new EAP credentials
-/// A Subscriber Crednetial is required to prevent broad abuse of the endpoint, thought it is not required to provide the same Subscriber Credential which was initially used to generate the EAP credentials in the past. Any valid Subscriber Credential will be accepted
-- (void)verifyEAPCredentialsUsername:(NSString * _Nonnull)eapUsername apiToken:(NSString * _Nonnull)apiToken andSubscriberCredential:(NSString * _Nonnull)subscriberCredential forVPNNode:(NSString * _Nonnull)vpnNode completion:(void(^)(BOOL success, BOOL stillValid, NSString * _Nullable errorMessage, BOOL subCredInvalid))completion;
-
-/// endpoint: /api/v1.2/device/<eap-username>/invalidate-credentials
-/// @param eapUsername the EAP username to invalidate. Also used as the device ID
-/// @param apiToken the API token for the EAP username to invalidate
-/// @param completion completion block indicating a successfull API call or returning an error message
-- (void)invalidateEAPCredentials:(NSString *_Nonnull)eapUsername andAPIToken:(NSString *_Nonnull)apiToken completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion;
-
-/// endpoint: /api/v1.2/device/<eap-username>/invalidate-credentials
-/// @param credentials GRDCredentials to invalidate
-/// @param completion completion block indicating a successfull API call or returning an error message
-- (void)invalidateEAPCredentials:(GRDCredential *_Nonnull)credentials completion:(void (^)(BOOL, NSString * _Nullable))completion;
-
-
 /// Used to register a new device for a given transport protocol
 /// @param transportProtocol Specified what kind of VPN credentials will be returned
 /// @param hostname The hostname of the VPN node
@@ -91,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param hostname The hostname of the VPN node
 /// @param subCred The Subscriber Credential to authenticate the request and prevent connection spoofing
 /// @param completion The completion handler called once the task is completed
-- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(BOOL, NSString * _Nullable))completion;
+- (void)invalidateCredentialsForClientId:(NSString *)clientId apiToken:(NSString *)apiToken hostname:(NSString *)hostname subscriberCredential:(NSString *)subCred completion:(void (^)(NSError * _Nullable))completion;
 
 /// endpoint: /api/v1.1/device/<eap-username>/alerts
 /// @param completion De-Serialized JSON from the server containing an array with all alerts

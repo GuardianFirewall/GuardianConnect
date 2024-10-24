@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <GuardianConnect/GRDLogger.h>
-#import <GuardianConnect/NSObject+Dictionary.h>
 #import <GuardianConnect/GRDReceiptLineItem.h>
 #import <GuardianConnect/GRDIAPDiscountDetails.h>
 #import <GuardianConnect/GRDRegion.h>
@@ -25,7 +24,6 @@
 #import <GuardianConnect/GRDTunnelManager.h>
 #import <GuardianConnect/NSDate+Extras.h>
 #import <GuardianConnect/NSPredicate+Additions.h>
-#import <GuardianConnect/NSString+Extras.h>
 #import <GuardianConnect/metamacros.h>
 #import <GuardianConnect/EXTScope.h>
 #import <GuardianConnect/EXTKeyPathCoding.h>
@@ -43,6 +41,10 @@
 #import <GuardianConnect/GRDReceiptLineItemMetadata.h>
 #import <GuardianConnect/GRDIAPReceiptResponse.h>
 #import <GuardianConnect/GRDSGWServer.h>
+#import <GuardianConnect/GRDSmartProxyHost.h>
+#import <GuardianConnect/GRDBlocklistGroup.h>
+#import <GuardianConnect/GRDBlocklistItem.h>
+#import <GuardianConnect/GRDBlocklistType.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;

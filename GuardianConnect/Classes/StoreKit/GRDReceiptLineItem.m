@@ -7,7 +7,6 @@
 //
 
 #import <GuardianConnect/GRDReceiptLineItem.h>
-#import <GuardianConnect/NSString+Extras.h>
 
 @implementation GRDReceiptLineItem
 

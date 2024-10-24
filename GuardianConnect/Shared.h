@@ -6,11 +6,24 @@
 //  Copyright © 2020 Sudo Security Group Inc. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #ifndef Shared_h
 #define Shared_h
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
 typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
+
+
+typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
+	ServerFeatureEnvironmentProduction = 1,
+	ServerFeatureEnvironmentInternal,
+	ServerFeatureEnvironmentDevelopment,
+	ServerFeatureEnvironmentDualStack,
+	ServerFeatureEnvironmentUnstable
+};
 
 //
 // Note from CJ 2024-01-18:
@@ -26,35 +39,33 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
-// Define below to 0 to make guardian specific code inactive
-#define GUARDIAN_INTERNAL 1
-
-#pragma mark - Misc
-
-NS_ASSUME_NONNULL_BEGIN
-static NSString * const kAppNeedsSelfRepair                             = @"guardianNeedsSelfRepair";
-
-#pragma mark - Housekeeping / Region / Timezone
 
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
 
 static NSString * const kGRDHousekeepingAPIHostname						= @"kGRDHousekeepingAPIHostname";
+static NSString * const kGRDConnectAPIHostname							= @"kGRDConnectAPIHostname";
+static NSString * const kGRDConnectPublishableKey						= @"kGRDConnectPublishableKey";
 
-static NSString * const kGuardianNetworkHealthStatusNotification        = @"networkHealthStatusNotification";
+// The value below and the kGRDConnectAPIHostname may seem redundant
+// but duplicated values are retained in order to allow for the scenario
+// in which a certain Connect API env needs to be hit while no PET exists yet
+static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
+static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
+
 static NSString * const kGuardianSuccessfulSubscription                 = @"successfullySubscribedToGuardian";
 
-static NSString * const kGRDDefaultGatewayUUID                          = @"kGRDDefaultGatewayUUID";
+#pragma mark - SGW Features
+static NSString * const kGRDBetaCapablePreferred 						= @"kGRDBetaCapablePreferred";
+static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureEnvironment";
 
-static NSString * const kVPNHadNetworkHealthDisconnect                  = @"vpnHadNetworkHealthDisconnect";
-static NSString * const kGRDHostnameOverride                            = @"APIHostname-Override";
-static NSString * const kGRDEAPSharedHostname                           = @"SharedAPIHostname";
+
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
-static NSString * const kGRDExcludeLocalNetworks                        = @"kGRDExcludeLocalNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
-static NSString * const kGRDRefreshProxySettings                        = @"kGRDRefreshProxySettings";
-static NSString * const kGRDTunnelEnabled                               = @"kGRDTunnelEnabled";
+static NSString * const kGRDSmartRountingProxyEnabled					= @"kGRDSmartRountingProxyEnabled";
+static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
+static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
 
 static NSString * const kGRDWGDevicePublicKey                           = @"wg-device-public-key";
@@ -64,17 +75,13 @@ static NSString * const kGRDWGIPv4Address                               = @"mapp
 static NSString * const kGRDWGIPv6Address                               = @"mapped-ipv6-address";
 static NSString * const kGRDClientId                               		= @"client-id";
 
-
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
-static NSString * const kGuardianFauxTimeZone                           = @"faux-timezone";
-static NSString * const kGuardianFauxTimeZonePretty                     = @"faux-timezone-pretty";
-static NSString * const kGuardianUseFauxTimeZone                        = @"use-faux-timezone";
-static NSString * const kKnownHousekeepingTimeZonesForRegions           = @"kKnownHousekeepingTimeZonesForRegions";
-static NSString * const housekeepingTimezonesTimestamp                  = @"housekeepingTimezonesTimestamp";
-static NSString * const kGuardianAllRegions                             = @"kGRDAllRegions";
-static NSString * const kGuardianAllRegionsTimeStamp                    = @"kGRDAllRegionsTimeStamp";
-static NSString * const kKnownGuardianHosts                             = @"kKnownGuardianHosts";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
+
+/// Used to determine whether the device has changed regions in automatic
+/// routing mode and the user may want to reconsider reconnecting to a different
+/// server for a faster connection
+static NSString * const kGRDLastKnownAutomaticRegion	 				= @"kGRDLastKnownAutomaticRegion";
 
 
 #pragma mark - Subscription types + related
@@ -105,8 +112,6 @@ static NSString * const kGuardianSubscriptionTypeProfessionalBrave      = @"brav
 
 static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRDFreeTrialPETokenSet";
 static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
-static NSString * const kGuardianPETokenExpirationDate                  = @"kGuardianPETokenExpirationDate";
-static NSString * const kGuardianPETConnectAPIEnv                  		= @"kGuardianPETConnectAPIEnv";
 
 static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
@@ -137,20 +142,17 @@ static NSString * const kGRDRegionPrecisionCountry 			= @"country";
 static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 
 
+# pragma mark - Trusted Network constants
+static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
+static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
+
+
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
 
 
-#pragma mark - Device Filter Config
 
 static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
-
-// Note from CJ 2023-03-23
-// These are now deprecated, but we may want to use them in the future. They can be deleted at any time
-static NSString * const kGRDDeviceFilterConfigBlockNone 			= @"kGRDDeviceFilterConfigBlockNone";
-static NSString * const kGRDDeviceFilterConfigBlockAds 				= @"kGRDDeviceFilterConfigBlockAds";
-static NSString * const kGRDDeviceFilterConfigBlockPhishing 		= @"kGRDDeviceFilterConfigBlockPhishing";
-static NSString * const kGRDDeviceFilterConfigUsePredictiveBlocking = @"kGRDDeviceFilterConfigUsePredictiveBlocking";
 
 NS_ASSUME_NONNULL_END
 #endif /* Shared_h */

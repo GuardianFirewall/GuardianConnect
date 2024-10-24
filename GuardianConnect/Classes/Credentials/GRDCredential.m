@@ -21,54 +21,7 @@
 
 @implementation GRDCredential
 
-//i dont like this, but i need a unique id for the auth token as well and i dont want to create two completely unique ID's for this
-- (NSString *)authTokenIdentifier {
-    return [self.identifier stringByAppendingString:@"-authToken"];
-}
-
-//used for legacy EAP credentials, APIAuthToken will be empty because we were not saving those details when creating additional EAP's before.
-- (id)initWithDictionary:(NSDictionary *)credDict hostname:(NSString *)hostname expiration:(NSDate *)expirationDate {
-    self = [super init];
-    if (self) {
-		self.transportProtocol 	= TransportIKEv2;
-        self.identifier 		= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
-        self.username 			= credDict[kKeychainStr_EapUsername];
-        self.password 			= credDict[kKeychainStr_EapPassword];
-        self.apiAuthToken 		= credDict[kKeychainStr_APIAuthToken];
-        self.hostname 			= hostname;
-        self.expirationDate 	= expirationDate;
-        self.name 				= [self defaultFileName];
-        _checkedExpiration 		= false;
-        _expired 				= false;
-        [self _checkExpiration];
-    }
-    return self;
-}
-
-- (id)initWithFullDictionary:(NSDictionary *)credDict validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
-    self = [super init];
-    if (self) {
-		self.transportProtocol 		= TransportIKEv2;
-        self.identifier 			= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
-        self.username 				= credDict[kKeychainStr_EapUsername];
-        self.password 				= credDict[kKeychainStr_EapPassword];
-        self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
-        self.hostname 				= credDict[kGRDHostnameOverride];
-        self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
-        self.hostnameDisplayValue 	= credDict[kGRDVPNHostLocation];
-        self.name 					= [self defaultFileName];
-        _checkedExpiration 			= false;
-        _expired 					= false;
-        self.mainCredential = mainCreds;
-        if (mainCreds) {
-            self.identifier = @"main";
-        }
-        [self _checkExpiration];
-    }
-    return self;
-}
-
-- (id)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
+- (instancetype)initWithTransportProtocol:(TransportProtocol)protocol fullDictionary:(NSDictionary *)credDict server:(GRDSGWServer *)server validFor:(NSInteger)validForDays isMain:(BOOL)mainCreds {
 	self = [super init];
 	if (self) {
 		self.identifier 	= [NSUUID UUID].UUIDString; //used in export configs but also to retrieve passwords
@@ -78,8 +31,9 @@
 			self.identifier = @"main";
 		}
 		self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
-		self.hostname 				= server.hostname;
 		self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
+		self.hostname 				= server.hostname;
+		self.server 		= server;
 		self.hostnameDisplayValue 	= server.displayName;
 		
 		self.region = server.region;
@@ -112,6 +66,7 @@
 		
 		[self _checkExpiration];
 	}
+	
 	return self;
 }
 
@@ -126,13 +81,8 @@
     return [self.expirationDate daysUntil];
 }
 
-//for testing
-- (void)forceExpired {
-    _expired = true;
-}
-
 - (BOOL)expired {
-    if (!_checkedExpiration) { //shouldnt ever happen, but just in case.
+    if (!_checkedExpiration) {
         [self _checkExpiration];
     }
     return _expired;
@@ -144,6 +94,7 @@
 		self.name 					= [aDecoder decodeObjectForKey:@"name"];
 		self.identifier 			= [aDecoder decodeObjectForKey:@"identifier"];
 		self.expirationDate 		= [aDecoder decodeObjectForKey:@"expirationDate"];
+		self.server					= [aDecoder decodeObjectForKey:@"sgwServer"];
 		self.hostname 				= [aDecoder decodeObjectForKey:@"hostname"];
 		self.hostnameDisplayValue 	= [aDecoder decodeObjectForKey:@"hostnameDisplayValue"];
 		self.region 				= [aDecoder decodeObjectForKey:@"region"];
@@ -171,6 +122,7 @@
 			self.passwordRef = [GRDKeychain getPasswordRefForAccount:self.identifier];
 		}
     }
+	
     return self;
 }
 
@@ -178,6 +130,7 @@
 	[aCoder encodeObject:self.name forKey:@"name"];
 	[aCoder encodeObject:self.identifier forKey:@"identifier"];
     [aCoder encodeObject:self.expirationDate forKey:@"expirationDate"];
+	[aCoder encodeObject:self.server forKey:@"sgwServer"];
 	[aCoder encodeObject:self.hostname forKey:@"hostname"];
 	[aCoder encodeObject:self.hostnameDisplayValue forKey:@"hostnameDisplayValue"];
 	[aCoder encodeObject:self.region forKey:@"region"];
@@ -235,28 +188,6 @@
     return [NSString stringWithFormat:@"%@\ntransport-protocol: %@\nusername: %@\nhostname: %@\nexpirationDate: %@\nidentifier: %@", desc, [GRDTransportProtocol transportProtocolStringFor:self.transportProtocol], self.username, self.hostname, self.expirationDate, self.identifier];
 }
 
-//since a proper success status is 0, and all we really care about is whether or not it was successful, adding them both together should still == 0 upon success.
-
-- (OSStatus)removeFromKeychain {
-    OSStatus stat = [GRDKeychain removeKeychainItemForAccount:[self authTokenIdentifier]];
-    stat = stat + [GRDKeychain removeKeychainItemForAccount:self.identifier];
-    return stat;
-}
-
-- (OSStatus)saveToKeychain {
-    OSStatus stat = [GRDKeychain storePassword:self.password forAccount:self.identifier];
-    if (!self.passwordRef) {
-        self.passwordRef = [GRDKeychain getPasswordRefForAccount:self.identifier];
-    }
-    return stat;
-}
-
-- (BOOL)loadFromKeychain {
-    self.password 		= [GRDKeychain getPasswordStringForAccount:self.identifier];
-    self.passwordRef 	= [GRDKeychain getPasswordRefForAccount:self.identifier];
-    return (self.password && self.apiAuthToken);
-}
-
 - (NSString *)truncatedHost {
     return [[self.hostname stringByDeletingPathExtension] stringByDeletingPathExtension];
 }
@@ -278,22 +209,20 @@
     return (self.username.length > 0 && self.apiAuthToken.length > 0);
 }
 
-- (void)revokeCredentialWithCompletion:(void(^)(BOOL success, NSString *errorMessage))completion {
+- (void)revokeCredentialWithCompletion:(void(^)(NSError * _Nullable error))completion {
     if (self.username.length > 0 && self.apiAuthToken.length > 0) {
-        [[GRDGatewayAPI new] invalidateEAPCredentials:self.username andAPIToken:self.apiAuthToken completion:^(BOOL success, NSString * _Nullable errorMessage) {
-            if (success) {
-                GRDDebugLog(@"Successfully revoked our credential!");
-				
-            } else {
-                GRDErrorLogg(@"Failed to revoke the credential with error: %@", errorMessage);
-            }
-			
-            if (completion)completion(success, errorMessage);
+		GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+		if (subCred == nil) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Credential not invalidated, no Subscriber Credential present"]);
+			return;
+		}
+		[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
+            if (completion)completion(error);
         }];
 		
     } else {
-        GRDWarningLogg(@"Cant revoke this credential, missing necessary data!");
-        if (completion)completion(false, @"Cant revoke this credential, missing necessary data!");
+        GRDWarningLogg(@"Missing data to revoke the VPN credential: %@", self);
+        if (completion)completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Cant revoke this credential, missing necessary data!"]);
     }
 }
 
