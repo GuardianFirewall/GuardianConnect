@@ -77,7 +77,7 @@
         if ([availableServers count] < 2) {
             // take full list of servers returned by housekeeping and use them
             availableServers = servers;
-            GRDWarningLogg(@"Less than 2 low cap servers available. Using all servers");
+            GRDWarningLogg(@"Fewer than 2 low capacity servers available. Using all servers");
         }
         
         // Get a random index based on the length of availableServers
