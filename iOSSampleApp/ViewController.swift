@@ -207,7 +207,7 @@ class ViewController: UIViewController {
         // do they have VPN creds
         if GRDVPNHelper.activeConnectionPossible() {
             // just configure & connect, no need for 'first user' setup
-            GRDVPNHelper.sharedInstance().configureAndConnectVPN { (error, status) in
+            GRDVPNHelper.sharedInstance().configureAndConnectVPNTunnel { (status, error) in
                 print(error as Any)
                 print(status)
                 self.populateRegionDataIfNecessary()
@@ -227,7 +227,7 @@ class ViewController: UIViewController {
     
     /// populate region selection data
     func populateRegionDataIfNecessary () {
-		GRDServerManager().regions { regions, error in
+		GRDServerManager().allRegions { regions, error in
 			if error != nil {
 				print("Failed to fetch regions from the Connect API: \(error?.localizedDescription ?? "No error message provided")")
 				return
@@ -265,10 +265,10 @@ class ViewController: UIViewController {
 		GRDKeychain.removeGuardianKeychainItems()
 		
         // configure first time user based on a specified region.
-		GRDVPNHelper.sharedInstance().configureFirstTimeUser(for: GRDTransportProtocol.getUserPreferredTransportProtocol(), with: currentItem) { (success, error) in
-            print(success)
+		GRDVPNHelper.sharedInstance().configureFirstTimeUser(for: GRDTransportProtocol.getUserPreferredTransportProtocol(), with: currentItem) { (status, error) in
+            print(status)
             print(error as Any)
-            if (success) {
+			if (status == .success) {
                 print("connected successfully!")
             } else {
                 //handle error for first time config failure
