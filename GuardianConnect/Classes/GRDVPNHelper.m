@@ -124,7 +124,7 @@
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
-		[self checkTimezoneChanged];
+		[self checkTimeZoneChanged];
 	}];
 }
 
@@ -183,7 +183,7 @@
     }
 }
 
-+ (void)clearVpnConfiguration {
++ (void)clearVPNConfiguration {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     if (creds != nil) {
         NSString *clientId;
@@ -1017,7 +1017,7 @@
 	}];
 }
 
-- (void)checkTimezoneChanged {
+- (void)checkTimeZoneChanged {
 	// Don't bother doing anything if there is no callback handler set
 	if (self.timezoneChangedBlock == nil) return;
 	

@@ -199,7 +199,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (BOOL)activeConnectionPossible;
 
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
-+ (void)clearVpnConfiguration;
++ (void)clearVPNConfiguration;
 
 /// Send out two notifications to make any listener
 /// aware that the hostname and hostname location values
@@ -281,7 +281,8 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// know about it and take action on it to ensure that the user always uses the best
 /// server available to them.
 /// The app will be notified by implementing the propery @timezoneNotificationBlock
-- (void)checkTimezoneChanged;
+/// and the notification will only be posted once to the app
+- (void)checkTimeZoneChanged;
 
 /// Sets the preferred region precision persistently for the SDK to request VPN hostnames with
 ///
