@@ -223,9 +223,9 @@
 				completion(GRDVPNHelperFail, errorMessage);
 				return;
 			}
-			
-			[self configureUserFirstTimeForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] server:server postCredential:mid completion:completion];
 		}
+		
+		[self configureUserFirstTimeForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] server:server postCredential:mid completion:completion];
 	}];
 }
 
