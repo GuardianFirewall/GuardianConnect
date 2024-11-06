@@ -1049,6 +1049,13 @@
 				return;
 			}
 			
+			//
+			// Note from CJ 2024-11-05
+			// Upon notifying the app about the possible time zone change
+			// the last know automatic region data should be deleted so
+			// that we don't keep notifying the app about the same time zone change
+			[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
+			
 			if (self.timezoneChangedBlock) self.timezoneChangedBlock(YES, lastKnownAutomaticRegion, automaticRegion);
 		}];
 	}
