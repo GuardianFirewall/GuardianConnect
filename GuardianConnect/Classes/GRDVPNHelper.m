@@ -973,6 +973,15 @@
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
+		
+		//
+		// Note from CJ 2024-11-06
+		// Ensure that we remove the last known automatic routing mode
+		// region that we had recorded so that we do not post
+		// a time zone change notification to an integrating application
+		// whenever the user changes time zones but has since set the routing
+		// mode to a specific region
+		[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
 	}
 	
 	return nil;
