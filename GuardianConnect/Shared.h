@@ -140,6 +140,7 @@ static NSString * const kGRDRegionPrecisionDefault 			= @"default";
 static NSString * const kGRDRegionPrecisionCity 			= @"city";
 static NSString * const kGRDRegionPrecisionCountry 			= @"country";
 static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
+static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
 # pragma mark - Trusted Network constants
