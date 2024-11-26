@@ -147,6 +147,7 @@ static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegi
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 
+static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
 
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
