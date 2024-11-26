@@ -119,6 +119,10 @@
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
 	
+	if ([defaults valueForKey:kGRDKillSwitchEnabled] != nil) {
+		self.killSwitchEnabled = [defaults boolForKey:kGRDKillSwitchEnabled];
+	}
+	
 	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
 	}
@@ -1017,6 +1021,11 @@
 	self.trustedNetworks = trustedNetworks;
 	[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
 	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+}
+
+- (void)setVPNKillSwitchEnabled:(BOOL)enabled {
+	self.killSwitchEnabled = enabled;
+	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kGRDKillSwitchEnabled];
 }
 
 - (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
