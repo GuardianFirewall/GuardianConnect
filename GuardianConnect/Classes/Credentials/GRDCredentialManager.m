@@ -88,6 +88,7 @@
 	if (credential.mainCredential == YES) {
 		OSStatus status = [GRDKeychain storePassword:credential.password forAccount:credential.identifier];
 		if (status != errSecSuccess) {
+			GRDWarningLogg(@"Failed to store main credential IKEv2 password: '%ld'", (long)status);
 			[NSThread sleepForTimeInterval:2];
 			[GRDKeychain storePassword:credential.password forAccount:credential.identifier];
 		}
