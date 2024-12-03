@@ -26,7 +26,8 @@
     }
 	
 	if (count > 2) {
-		GRDErrorLogg(@"Tried and failed to store password string for account '%@' 3 times. Aborting!!", accountKey);
+		GRDErrorLogg(@"Tried and failed to store password string for account '%@' 3 times. Returning OSSStatus 'errSecBadReq' '-909'", accountKey);
+		return errSecBadReq;
 	}
 	count++;
 	

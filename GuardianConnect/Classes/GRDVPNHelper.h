@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// bool used to indicate whether the user wants the VPN to run in a super strict
 /// mode, ensuring no data leaks. Puts the device into an almost unusable state
-@property BOOL killSwitchEnabled;
+@property BOOL vpnKillSwitchEnabled;
 
 /// This string will be used as the localized description of the NEVPNManager
 /// configuration. The string will be visible in the network preferences on macOS
@@ -199,7 +199,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 + (BOOL)activeConnectionPossible;
 
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
-+ (void)clearVpnConfiguration;
++ (void)clearVPNConfiguration;
 
 /// Send out two notifications to make any listener
 /// aware that the hostname and hostname location values
@@ -281,7 +281,8 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// know about it and take action on it to ensure that the user always uses the best
 /// server available to them.
 /// The app will be notified by implementing the propery @timezoneNotificationBlock
-- (void)checkTimezoneChanged;
+/// and the notification will only be posted once to the app
+- (void)checkTimeZoneChanged;
 
 /// Sets the preferred region precision persistently for the SDK to request VPN hostnames with
 ///
@@ -297,6 +298,15 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// out of NSUserDefaults
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks;
 
+/// Convenience function to enable the VPN kill switch capability.
+/// The SDK will persistently store and restore the desired state between
+/// app launches
+/// Changing this property requires disconnecting and reconnecting
+/// existing VPN tunnel connections in order for the capability to be applied
+- (void)setVPNKillSwitchEnabled:(BOOL)enabled;
+
+/// Convenience function to retrieve all available regions with
+/// the default GRDServerManager settings
 - (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
 
 /// Migrate the user to a new server for the user preferred transport protocol. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
@@ -308,7 +318,12 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 # pragma mark - Smart Routing Proxy
 
+/// Boolean indicating whether the smart proxy routing capability
+/// is enabled. This property does not reflect settings applied to
+/// existing connections if changed post establishment of a
+/// VPN tunnel connection
 + (BOOL)smartProxyRoutingEnabled;
+
 /// Convenience function to easily enable/disable the Smart Routing Proxy capability from a UISwitch or NSButton set to the checkbox style
 /// - Parameter enabled: a boolean value to indicate whether the feature should be enabled or disabled
 + (void)toggleSmartProxyRouting:(BOOL)enabled;

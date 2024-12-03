@@ -74,14 +74,7 @@
 		
 		} else if (manager == nil) {
 			GRDWarningLogg(@"No tunnel provider manager installed. Creating and installing a new one");
-#if TARGET_OS_OSX
 			NETunnelProviderManager *tunnelManager = [NETunnelProviderManager new];
-
-#else
-			NETunnelProviderManager *tunnelManager = [NETunnelProviderManager new];
-#endif
-
-
 			GRDLogg(@"Successfully saved new tunnel provider manager");
 			self.tunnelProviderManager = tunnelManager;
 			if (completion) completion(tunnelManager, nil);

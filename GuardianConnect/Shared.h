@@ -140,12 +140,14 @@ static NSString * const kGRDRegionPrecisionDefault 			= @"default";
 static NSString * const kGRDRegionPrecisionCity 			= @"city";
 static NSString * const kGRDRegionPrecisionCountry 			= @"country";
 static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
+static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
 # pragma mark - Trusted Network constants
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 
+static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
 
 static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
 static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";

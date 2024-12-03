@@ -119,12 +119,16 @@
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
 	
+	if ([defaults valueForKey:kGRDKillSwitchEnabled] != nil) {
+		self.vpnKillSwitchEnabled = [defaults boolForKey:kGRDKillSwitchEnabled];
+	}
+	
 	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
-		[self checkTimezoneChanged];
+		[self checkTimeZoneChanged];
 	}];
 }
 
@@ -183,7 +187,7 @@
     }
 }
 
-+ (void)clearVpnConfiguration {
++ (void)clearVPNConfiguration {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     if (creds != nil) {
         NSString *clientId;
@@ -223,9 +227,9 @@
 				completion(GRDVPNHelperFail, errorMessage);
 				return;
 			}
-			
-			[self configureUserFirstTimeForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] server:server postCredential:mid completion:completion];
 		}
+		
+		[self configureUserFirstTimeForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] server:server postCredential:mid completion:completion];
 	}];
 }
 
@@ -399,7 +403,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -449,7 +453,7 @@
 	protocolConfig.passwordReference = passRef;
 	protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
     if (@available(iOS 14.2, *)) {
-        protocolConfig.includeAllNetworks = self.killSwitchEnabled;
+        protocolConfig.includeAllNetworks = self.vpnKillSwitchEnabled;
         protocolConfig.excludeLocalNetworks = YES;
     }
     
@@ -512,14 +516,14 @@
 		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
 		
 		if (@available(iOS 14.2, *)) {
-			protocol.includeAllNetworks = self.killSwitchEnabled;
+			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
 			protocol.excludeLocalNetworks = YES;
 		}
 		
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -973,6 +977,15 @@
 		GRDLogg(@"Automatic region selection selected. Resetting all faux values");
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
+		
+		//
+		// Note from CJ 2024-11-06
+		// Ensure that we remove the last known automatic routing mode
+		// region that we had recorded so that we do not post
+		// a time zone change notification to an integrating application
+		// whenever the user changes time zones but has since set the routing
+		// mode to a specific region
+		[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
 	}
 	
 	return nil;
@@ -1010,6 +1023,11 @@
 	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
 }
 
+- (void)setVPNKillSwitchEnabled:(BOOL)enabled {
+	self.vpnKillSwitchEnabled = enabled;
+	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kGRDKillSwitchEnabled];
+}
+
 - (void)allRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:ServerFeatureEnvironmentProduction betaCapableServers:NO];
 	[serverManager allRegionsWithCompletion:^(NSArray<GRDRegion *> * _Nullable regions, NSError * _Nullable errorMessage) {
@@ -1017,7 +1035,7 @@
 	}];
 }
 
-- (void)checkTimezoneChanged {
+- (void)checkTimeZoneChanged {
 	// Don't bother doing anything if there is no callback handler set
 	if (self.timezoneChangedBlock == nil) return;
 	
@@ -1048,6 +1066,13 @@
 				GRDErrorLogg(@"Failed to match automatic mode to local time zone: %@", [error localizedDescription]);
 				return;
 			}
+			
+			//
+			// Note from CJ 2024-11-05
+			// Upon notifying the app about the possible time zone change
+			// the last know automatic region data should be deleted so
+			// that we don't keep notifying the app about the same time zone change
+			[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
 			
 			if (self.timezoneChangedBlock) self.timezoneChangedBlock(YES, lastKnownAutomaticRegion, automaticRegion);
 		}];
