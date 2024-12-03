@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// bool used to indicate whether the user wants the VPN to run in a super strict
 /// mode, ensuring no data leaks. Puts the device into an almost unusable state
-@property BOOL killSwitchEnabled;
+@property BOOL vpnKillSwitchEnabled;
 
 /// This string will be used as the localized description of the NEVPNManager
 /// configuration. The string will be visible in the network preferences on macOS

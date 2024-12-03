@@ -120,7 +120,7 @@
 	}
 	
 	if ([defaults valueForKey:kGRDKillSwitchEnabled] != nil) {
-		self.killSwitchEnabled = [defaults boolForKey:kGRDKillSwitchEnabled];
+		self.vpnKillSwitchEnabled = [defaults boolForKey:kGRDKillSwitchEnabled];
 	}
 	
 	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
@@ -403,7 +403,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -453,7 +453,7 @@
 	protocolConfig.passwordReference = passRef;
 	protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
     if (@available(iOS 14.2, *)) {
-        protocolConfig.includeAllNetworks = self.killSwitchEnabled;
+        protocolConfig.includeAllNetworks = self.vpnKillSwitchEnabled;
         protocolConfig.excludeLocalNetworks = YES;
     }
     
@@ -516,14 +516,14 @@
 		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
 		
 		if (@available(iOS 14.2, *)) {
-			protocol.includeAllNetworks = self.killSwitchEnabled;
+			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
 			protocol.excludeLocalNetworks = YES;
 		}
 		
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.killSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -1024,7 +1024,7 @@
 }
 
 - (void)setVPNKillSwitchEnabled:(BOOL)enabled {
-	self.killSwitchEnabled = enabled;
+	self.vpnKillSwitchEnabled = enabled;
 	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:kGRDKillSwitchEnabled];
 }
 
