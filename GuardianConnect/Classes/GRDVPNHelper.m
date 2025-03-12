@@ -964,7 +964,7 @@
 }
 
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)selectedRegion {
-	_selectedRegion = selectedRegion;
+	self.selectedRegion = selectedRegion;
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if (selectedRegion != nil && selectedRegion.isAutomatic == NO) {
 		NSError *archiveErr;
