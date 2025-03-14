@@ -880,7 +880,11 @@
 	//
 	// Note from CJ 2024-09-27
 	// Yup, still going strong
-	if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
+	//
+	// Note from CJ 2025-03-13
+	// Tiny edit to remove things that
+	// do not need to be part of the SDK
+	if ([subCred.subscriptionType isEqualToString:@"grd_trial_3_days"]) {
 		eapCredentialsValidFor = 3;
 	}
 	return eapCredentialsValidFor;
