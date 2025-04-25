@@ -380,7 +380,7 @@
 	GRDWarningLogg(@"Region: %@", region);
 	GRDWarningLogg(@"Precision: %@", precision);
 	GRDWarningLogg(@"Paid servers: %@", paidServers ? @"YES" : @"NO");
-	GRDWarningLogg(@"Server envrionment: %@", featureEnvironment);
+	GRDWarningLogg(@"Server envrionment: %d", (int)featureEnvironment);
 	GRDWarningLogg(@"Beta capable: %@", betaCapable ? @"YES" : @"NO");
 	
 	if (region == nil) {
