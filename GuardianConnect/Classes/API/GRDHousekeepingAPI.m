@@ -376,6 +376,24 @@
 }
 
 - (void)requestServersForRegion:(NSString *)region regionPrecision:(NSString *)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray *, NSError *))completion {
+	GRDWarningLogg(@"Received values:");
+	GRDWarningLogg(@"Region: %@", region);
+	GRDWarningLogg(@"Precision: %@", precision);
+	GRDWarningLogg(@"Paid servers: %@", paidServers ? @"YES" : @"NO");
+	GRDWarningLogg(@"Server envrionment: %@", featureEnvironment);
+	GRDWarningLogg(@"Beta capable: %@", betaCapable ? @"YES" : @"NO");
+	
+	if (region == nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to proceed, null region provided!"]);
+		return;
+	}
+	
+	if (precision == nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to proceed, null precision provided!"]);
+		return;
+	}
+	
+	
 	NSNumber *payingUserAsNumber = [NSNumber numberWithBool:paidServers];
 	NSNumber *featureEnvAsInt = [NSNumber numberWithInt:(int)featureEnvironment];
 	NSError *jsonErr;
