@@ -112,6 +112,12 @@ static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
+#pragma mark - Smart Proxy Routing region states
+static NSString * const kGRDRegionSmartRoutingProxyNone = @"none";
+static NSString * const kGRDRegionSmartRoutingProxySome = @"some";
+static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
+
+
 # pragma mark - Trusted Network constants
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
