@@ -71,10 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion completion block indicating a successful API request or an error message with detailed information
 - (void)setAlertsDownloadTimestampWithCompletion:(void(^)(BOOL success, NSString * _Nullable errorMessage))completion;
 
-/// endpoint: /api/v1.2/device/<eap-username>/alert-totals
-/// @param completion completion block indicating a successful API request, if successful a dictionary with the alert totals per alert category or an error message
-- (void)getAlertTotals:(void (^)(NSDictionary * _Nullable alertTotals, BOOL success, NSString * _Nullable errorMessage))completion;
-
 
 /// endpoint: /api/v1.1/<device_token>/set-push-token
 /// @param pushToken APNS push token sent to VPN server

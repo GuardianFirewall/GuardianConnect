@@ -285,8 +285,8 @@
             if (completion) completion(nil, NO, @"An error occured!, Missing device id!");
             return;
         }
-        
-        NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alerts", [self deviceIdentifier]];
+
+        NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.2/device/%@/alerts", [self deviceIdentifier]];
         NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint];
         
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
@@ -451,63 +451,6 @@
         } else {
             GRDLog(@"Request failed with unknown status code: %ld", statusCode);
             if (completion) completion(NO, [NSString stringWithFormat:@"Request failed with unknown status code: %ld", statusCode]);
-        }
-    }];
-    [task resume];
-}
-
-- (void)getAlertTotals:(void (^)(NSDictionary * _Nullable, BOOL, NSString * _Nullable))completion {
-    if ([self _canMakeApiRequests] == NO) {
-        GRDLog(@"Cannot make API requests !!! won't continue");
-        if (completion) completion(nil, NO, @"cant make API requests");
-        return;
-    }
-    
-    if (![self deviceIdentifier]) {
-        if (completion) completion(nil, NO, @"An error occured!, Missing device id!");
-        return;
-    }
-    
-    NSString *apiEndpoint = [NSString stringWithFormat:@"/api/v1.1/device/%@/alert-totals", [self deviceIdentifier]];
-    NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", [self baseHostname], apiEndpoint];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
-    NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[self apiAuthToken]};
-    [request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil]];
-    [request setHTTPMethod:@"POST"];
-	[request setTimeoutInterval:30];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:30];
-	[sessionConf setTimeoutIntervalForResource:30];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            GRDLog(@"Failed to send request: %@", [error localizedDescription]);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Failed to send request: %@", [error localizedDescription]]);
-            return;
-        }
-        
-        NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-        if (statusCode == 500) {
-            GRDLog(@"Failed to get alert totals: Internal Server Error!");
-            if (completion) completion(nil, NO, @"Failed to get alert totals. Internal Server Error");
-            return;
-            
-        } else if (statusCode == 400) {
-            GRDLog(@"Failed to get alert totals: Bad request");
-            if (completion) completion(nil, NO, @"Failed to get alert totals: Malformed request!");
-            return;
-            
-        } else if (statusCode == 200) {
-            NSDictionary *alertTotals = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            if (completion) completion(alertTotals, YES, nil);
-            return;
-            
-        } else {
-            GRDLog(@"Unknown server error. Status code: %ld", statusCode);
-            if (completion) completion(nil, NO, [NSString stringWithFormat:@"Unknown server error. Status code: %ld", statusCode]);
         }
     }];
     [task resume];
