@@ -438,35 +438,6 @@
 	[task resume];
 }
 
-- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion {
-    NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/servers/all-server-regions"];
-	
-	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-	[sessionConf setWaitsForConnectivity:YES];
-	[sessionConf setTimeoutIntervalForRequest:15];
-	[sessionConf setTimeoutIntervalForResource:15];
-	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error != nil) {
-            if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to get retrieve all regions: %@", [error localizedDescription]]]);
-			return;
-        }
-        
-		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-		if (statusCode != 200) {
-			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
-			GRDErrorLogg(@"Failed to retrieve regions. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
-			if (completion) completion(nil, NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
-			return;
-		}
-		
-		NSArray *returnItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-		if (completion) completion(returnItems, YES, nil);
-		return;
-    }];
-    [task resume];
-}
-
 - (void)requestAllServerRegionsWithPrecision:(NSString * _Nonnull)precision completion:(void (^)(NSArray <NSDictionary *> * _Nullable items, NSError * _Nullable error))completion {
 	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:[NSString stringWithFormat:@"/api/v1.3/servers/all-server-regions/%@", precision]];
 	

@@ -80,11 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion completion block returning an array of servers and indicating request success
 - (void)requestServersForRegion:(NSString * _Nonnull)region regionPrecision:(NSString * _Nonnull)precision paidServers:(BOOL)paidServers featureEnvironment:(GRDServerFeatureEnvironment)featureEnvironment betaCapableServers:(BOOL)betaCapable completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion;
 
-/// endpoint: /api/v1/servers/all-server-regions
-/// Used to retrieve all available Server Regions from housekeeping to allow users to override the selected Server Region
-/// @param completion completion block returning an array contain a dictionary for each server region and a BOOL indicating a successful API call
-- (void)requestAllServerRegions:(void (^)(NSArray <NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage))completion DEPRECATED_MSG_ATTRIBUTE("Use -requestAllServerRegionsWithPrecision: instead");
-
 /// endpoint: /api/v1.3/servers/all-server-regions/:precision
 /// @param precision one of the region precision constants
 /// @param completion completion block containing an error or the array of all regions for the requested region-precision
