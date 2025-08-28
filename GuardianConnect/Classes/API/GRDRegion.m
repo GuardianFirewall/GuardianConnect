@@ -14,16 +14,18 @@
 - (instancetype)initWithDictionary:(NSDictionary *)regionDict {
     self = [super init];
     if (self) {
-        self.continent 			= regionDict[@"continent"];
-		self.country 			= regionDict[@"country"];
-		self.countryISOCode 	= regionDict[@"country-iso-code"];
-        self.regionName 		= regionDict[@"name"];
-        self.displayName 		= regionDict[@"name-pretty"];
-        self.isAutomatic 		= false;
-		self.regionPrecision 	= regionDict[@"region-precision"];
-		self.latitude			= regionDict[@"latitude"];
-		self.longitude			= regionDict[@"longitude"];
-		self.serverCount		= regionDict[@"server-count"];
+        self.continent 					= regionDict[@"continent"];
+		self.country 					= regionDict[@"country"];
+		self.countryISOCode 			= regionDict[@"country-iso-code"];
+        self.regionName 				= regionDict[@"name"];
+        self.displayName 				= regionDict[@"name-pretty"];
+        self.isAutomatic 				= false;
+		self.regionPrecision 			= regionDict[@"region-precision"];
+		self.latitude					= regionDict[@"latitude"];
+		self.longitude					= regionDict[@"longitude"];
+		self.serverCount				= regionDict[@"server-count"];
+		self.smartRoutingProxyServers 	= regionDict[@"smart-routing-proxy-servers"];
+		self.smartRoutingProxyState 	= regionDict[@"smart-routing-proxy-state"];
 		
 		NSArray *rawCities = regionDict[@"cities"];
 		NSMutableArray *cities = [NSMutableArray new];
@@ -53,18 +55,20 @@
 - (nullable instancetype)initWithCoder:(nonnull NSCoder *)coder {
 	self = [super init];
 	if (self) {
-		self.continent 			= [coder decodeObjectForKey:@"continent"];
-		self.country 			= [coder decodeObjectForKey:@"country"];
-		self.countryISOCode 	= [coder decodeObjectForKey:@"country-iso-code"];
-		self.regionName 		= [coder decodeObjectForKey:@"name"];
-		self.displayName 		= [coder decodeObjectForKey:@"name-pretty"];
-		self.isAutomatic 		= [[coder decodeObjectForKey:@"is-automatic"] boolValue];
-		self.regionPrecision 	= [coder decodeObjectForKey:@"region-precision"];
-		self.latitude 			= [coder decodeObjectForKey:@"latitude"];
-		self.longitude			= [coder decodeObjectForKey:@"longitude"];
-		self.serverCount		= [coder decodeObjectForKey:@"server-count"];
-		self.cities				= [coder decodeObjectForKey:@"cities"];
-		self.timeZoneName		= [coder decodeObjectForKey:@"time-zone-name"];
+		self.continent 					= [coder decodeObjectForKey:@"continent"];
+		self.country 					= [coder decodeObjectForKey:@"country"];
+		self.countryISOCode 			= [coder decodeObjectForKey:@"country-iso-code"];
+		self.regionName 				= [coder decodeObjectForKey:@"name"];
+		self.displayName 				= [coder decodeObjectForKey:@"name-pretty"];
+		self.isAutomatic 				= [[coder decodeObjectForKey:@"is-automatic"] boolValue];
+		self.regionPrecision 			= [coder decodeObjectForKey:@"region-precision"];
+		self.latitude 					= [coder decodeObjectForKey:@"latitude"];
+		self.longitude					= [coder decodeObjectForKey:@"longitude"];
+		self.serverCount				= [coder decodeObjectForKey:@"server-count"];
+		self.cities						= [coder decodeObjectForKey:@"cities"];
+		self.timeZoneName				= [coder decodeObjectForKey:@"time-zone-name"];
+		self.smartRoutingProxyServers 	= [coder decodeObjectForKey:@"smart-routing-proxy-servers"];
+		self.smartRoutingProxyState 	= [coder decodeObjectForKey:@"smart-routing-proxy-state"];
 	}
 	
 	return self;
@@ -83,13 +87,16 @@
 	[coder encodeObject:self.serverCount forKey:@"server-count"];
 	[coder encodeObject:self.cities forKey:@"cities"];
 	[coder encodeObject:self.timeZoneName forKey:@"time-zone-name"];
+	[coder encodeObject:self.smartRoutingProxyServers forKey:@"smart-routing-proxy-servers"];
+	[coder encodeObject:self.smartRoutingProxyState forKey:@"smart-routing-proxy-state"];
 }
 
 + (BOOL)supportsSecureCoding {
 	return YES;
 }
 
-//overriding equality check because we MIGHT be missint contitent if we are recreated by GRDVPNHelper during credential loading.
+// Overriding equality check because we might be missint contitent
+// if we are recreated by GRDVPNHelper during credential loading.
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:self.class]) {
         return false;
@@ -153,6 +160,7 @@
             [newRegions addObject:region];
         }
     }];
+	
     return [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
 }
 

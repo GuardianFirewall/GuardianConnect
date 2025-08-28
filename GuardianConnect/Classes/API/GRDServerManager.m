@@ -232,9 +232,9 @@
 }
 
 - (void)getRegionsWithCompletion:(void (^)(NSArray<GRDRegion *> * _Nullable regions))completion {
-	[[GRDHousekeepingAPI new] requestAllServerRegions:^(NSArray<NSDictionary *> * _Nullable items, BOOL success, NSError * _Nullable errorMessage) {
-		if (!success) {
-			GRDErrorLogg(@"Failed to fetch server regions from API. Error: %@", [errorMessage localizedDescription]);
+	[[GRDHousekeepingAPI new] requestAllServerRegionsWithPrecision:kGRDRegionPrecisionDefault completion:^(NSArray<NSDictionary *> * _Nullable items, NSError * _Nullable error) {
+		if (error != nil) {
+			GRDErrorLogg(@"Failed to fetch server regions from API. Error: %@", [error localizedDescription]);
 			if (completion) completion(nil);
 			return;
 		}

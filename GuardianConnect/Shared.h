@@ -85,35 +85,8 @@ static NSString * const kGRDLastKnownAutomaticRegion	 				= @"kGRDLastKnownAutom
 
 
 #pragma mark - Subscription types + related
-static NSString * const kGuardianSubscriptionTypeEssentials             = @"grd_type_essentials";
-static NSString * const kGuardianSubscriptionDayPass                    = @"grd_day_pass";
-static NSString * const kGuardianSubscriptionDayPassAlt                 = @"grd_day_pass_alt";
-static NSString * const kGuardianSubscriptionGiftedDayPass              = @"grd_gifted_day_pass";
-static NSString * const kGuardianSubscriptionCustomDayPass              = @"custom_day_pass";
-static NSString * const kGuardianSubscriptionMonthly                    = @"grd_monthly";
-static NSString * const kGuardianSubscriptionThreeMonths                = @"grd_three_months";
-static NSString * const kGuardianSubscriptionAnnual                     = @"grd_annual";
-static NSString * const kGuardianSubscriptionTypeProfessionalIAP        = @"grd_pro";
-static NSString * const kGuardianSubscriptionTypeCustomDayPass          = @"grd_custom_day_pass";
-static NSString * const kGuardianSubscriptionTypeIntroductory           = @"grd_day_pass_introductory";
-// "grd_teams" is an umbrealla description. Should never be used in production since it does not accurately describe the subscription length etc.
-static NSString * const kGuardianSubscriptionTypeTeams 					= @"grd_teams";
-static NSString * const kGuardianSubscriptionTypeTeamsAnnual			= @"grd_teams_annual";
 
-static NSString * const kGuardianFreeTrial3Days                         = @"grd_trial_3_days";
-static NSString * const kGuardianExtendedTrial30Days                    = @"grd_extended_trial_30_days";
-static NSString * const kGuardianTrialBalanceDayPasses                  = @"grd_trial_balance_day_passes";
-static NSString * const kGuardianSubscriptionFreeTrial                  = @"free_trial";
 
-static NSString * const kGuardianSubscriptionTypeVisionary              = @"grd_visionary";
-static NSString * const kGuardianSubscriptionTypeProfessionalMonthly    = @"grd_pro_monthly";
-static NSString * const kGuardianSubscriptionTypeProfessionalYearly     = @"grd_pro_yearly";
-static NSString * const kGuardianSubscriptionTypeProfessionalBrave      = @"bravevpn.yearly-pro";
-
-static NSString * const kGuardianFreeTrialPeTokenSet                    = @"kGRDFreeTrialPETokenSet";
-static NSString * const kGuardianDayPassExpirationDate                  = @"GuardianDayPassExpirationDate";
-
-static NSString * const kGuardianSubscriptionProductIds                 = @"kGuardianSubscriptionProductIds";
 
 // Used to hard to code IAP receipts and create Subscriber Credentials
 static NSString * const kGuardianEncodedAppStoreReceipt 						= @"kGuardianEncodedAppStoreReceipt";
@@ -121,20 +94,16 @@ static NSString * const kGuardianPreferredSubscriberCredentialValidationMethod 	
 
 //moved to make framework friendly
 static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
-static NSString * const kSubscriptionPlanTypeStr                        = @"subscriptionPlanType";
 
-typedef NS_ENUM(NSInteger, GRDPlanDetailType) {
-    GRDPlanDetailTypeFree = 0,
-    GRDPlanDetailTypeEssentials,
-    GRDPlanDetailTypeProfessional
-};
 
-#define kGRDServerUpdatedNotification @"GRDServerUpdatedNotification"
-#define kGRDLocationUpdatedNotification @"GRDLocationUpdatedNotification"
+
+
+#define kGRDServerUpdatedNotification 		@"GRDServerUpdatedNotification"
+#define kGRDLocationUpdatedNotification 	@"GRDLocationUpdatedNotification"
 #define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
 
 
-#pragma mark - Region precision constant
+#pragma mark - Region precision constants
 static NSString * const kGRDPreferredRegionPrecision 		= @"kGRDPreferredRegionPrecision";
 static NSString * const kGRDRegionPrecisionDefault 			= @"default";
 static NSString * const kGRDRegionPrecisionCity 			= @"city";
@@ -143,16 +112,17 @@ static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
+#pragma mark - Smart Proxy Routing region states
+static NSString * const kGRDRegionSmartRoutingProxyNone = @"none";
+static NSString * const kGRDRegionSmartRoutingProxySome = @"some";
+static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
+
+
 # pragma mark - Trusted Network constants
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 
 static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
-
-static NSString * const kGRDTrialExpirationInterval =          @"kGRDTrialExpirationInterval";
-static NSString * const kGRDFreeTrialExpired =                 @"kGRDFreeTrialExpired";
-
-
 
 static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
 

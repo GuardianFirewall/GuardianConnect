@@ -51,6 +51,22 @@ NS_ASSUME_NONNULL_BEGIN
 /// user in any given region
 @property NSNumber *serverCount;
 
+/// The amount of secure gateway servers tied to the region
+/// which support the smart routing proxy capability
+@property NSNumber *smartRoutingProxyServers;
+
+/// A constant indicator representing the state of the smart
+/// routing proxy capability support for the region
+/// 
+/// Eg. if GRDRegion.serverCount == GRDRegion.smartRoutingProxyServers
+/// this string will be set to kGRDRegionSmartRoutingProxyAll
+///
+/// Will be one of
+/// - kGRDRegionSmartRoutingProxyNone
+/// - kGRDRegionSmartRoutingProxySome
+/// - kGRDRegionSmartRoutingProxyAll
+@property NSString *smartRoutingProxyState;
+
 /// If the region precision kGRDRegionPrecisionCityByCountry is
 /// selected this property will contain an array of regions pointing
 /// to cities that are mapped to the country

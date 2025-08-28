@@ -78,24 +78,23 @@ class ViewController: UIViewController {
     func startRefreshTimer() {
         self.stopRefreshTimer() //this only stops the timer if applicable
         timer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true, block: { (timer) in
-            GRDGatewayAPI().getAlertTotals { (results, success, errorMessage) in
-                if (success) {
-                    let resp: Dictionary = results! as! Dictionary<String, AnyObject>
-                    //print(resp)
-                    //["page-hijacker-total": 0, "data-tracker-total": 0, "location-tracker-total": 0, "mail-tracker-total": 0]
-                    let pht = "Page Hijackers: \(resp["page-hijacker-total"] ?? "0" as AnyObject)"
-                    let dtt = "Data Trackers: \(resp["data-tracker-total"] ?? "0" as AnyObject)"
-                    let ltt = "Location Trackers: \(resp["location-tracker-total"] ?? "0" as AnyObject)"
-                    let mtt = "Mail Trackers: \(resp["mail-tracker-total"] ?? "0" as AnyObject)"
-                    DispatchQueue.main.async {
-                        self.dataTrackerLabel.text = dtt
-                        self.pageHijackerLabel.text = pht
-                        self.locationTrackerLabel.text = ltt
-                        self.mailTrackerLabel.text = mtt
-                    }
-                }
-                
-            }
+//            GRDGatewayAPI().getAlertTotals { (results, success, errorMessage) in
+//                if (success) {
+//                    let resp: Dictionary = results! as! Dictionary<String, AnyObject>
+//                    //print(resp)
+//                    //["page-hijacker-total": 0, "data-tracker-total": 0, "location-tracker-total": 0, "mail-tracker-total": 0]
+//                    let pht = "Page Hijackers: \(resp["page-hijacker-total"] ?? "0" as AnyObject)"
+//                    let dtt = "Data Trackers: \(resp["data-tracker-total"] ?? "0" as AnyObject)"
+//                    let ltt = "Location Trackers: \(resp["location-tracker-total"] ?? "0" as AnyObject)"
+//                    let mtt = "Mail Trackers: \(resp["mail-tracker-total"] ?? "0" as AnyObject)"
+//                    DispatchQueue.main.async {
+//                        self.dataTrackerLabel.text = dtt
+//                        self.pageHijackerLabel.text = pht
+//                        self.locationTrackerLabel.text = ltt
+//                        self.mailTrackerLabel.text = mtt
+//                    }
+//                }
+//            }
         })
     }
     

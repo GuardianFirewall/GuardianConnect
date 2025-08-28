@@ -420,6 +420,7 @@
 						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 							[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 								NSError *vpnErr;
+								self.currentTunnelManager = vpnManager;
 								[[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
 								if (vpnErr != nil) {
 									GRDErrorLogg(@"[IKEv2] Failed to start VPN: %@", vpnErr);
@@ -513,7 +514,7 @@
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [self.mainCredential clientId];
-		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
+		protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:self.mainCredential.server];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
@@ -546,6 +547,7 @@
 				}
 				
 				NETunnelProviderSession *session = (NETunnelProviderSession*)tunnelManager.connection;
+				self.currentTunnelManager = tunnelManager;
 				
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
 				if ([session respondsToSelector:@selector(sendProviderMessage:returnError:responseHandler:)]) {
@@ -878,7 +880,11 @@
 	//
 	// Note from CJ 2024-09-27
 	// Yup, still going strong
-	if ([subCred.subscriptionType isEqualToString:kGuardianFreeTrial3Days]) {
+	//
+	// Note from CJ 2025-03-13
+	// Tiny edit to remove things that
+	// do not need to be part of the SDK
+	if ([subCred.subscriptionType isEqualToString:@"grd_trial_3_days"]) {
 		eapCredentialsValidFor = 3;
 	}
 	return eapCredentialsValidFor;
@@ -962,7 +968,7 @@
 }
 
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)selectedRegion {
-	_selectedRegion = selectedRegion;
+	self.selectedRegion = selectedRegion;
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if (selectedRegion != nil && selectedRegion.isAutomatic == NO) {
 		NSError *archiveErr;

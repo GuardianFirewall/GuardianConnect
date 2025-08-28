@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
+@property NEVPNManager *currentTunnelManager;
+
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
