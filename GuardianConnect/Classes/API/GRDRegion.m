@@ -164,4 +164,26 @@
     return [newRegions sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"displayName" ascending:true]]];
 }
 
++ (GRDRegion *)findRegionWithDisplayName:(NSString *)displayName inArray:(NSArray<GRDRegion *> *)regions {
+	GRDRegion *desiredRegion = nil;
+	for (GRDRegion *country in regions) {
+		// found the region by matching a nested city display name
+		if (desiredRegion != nil) break;
+		
+		if ([[country displayName] isEqualToString:displayName]) {
+			desiredRegion = country;
+			break;
+		}
+		
+		for (GRDRegion *city in country.cities) {
+			if ([city.displayName isEqualToString:displayName] == YES) {
+				desiredRegion = city;
+				break;
+			}
+		}
+	}
+	
+	return desiredRegion;
+}
+
 @end
