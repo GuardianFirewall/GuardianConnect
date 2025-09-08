@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// endpoint: /api/v1.1/device/<eap-username>/alerts
 /// @param completion De-Serialized JSON from the server containing an array with all alerts
-- (void)getEvents:(void (^)(NSDictionary *response, BOOL success, NSString *_Nullable error))completion;
+- (void)getEvents:(void (^)(NSArray *alerts, BOOL success, NSString *_Nullable error))completion;
 
 /// endpoint: /api/v1.2/device/<eap-username>/set-alerts-download-timestamp
 /// @param completion completion block indicating a successful API request or an error message with detailed information
