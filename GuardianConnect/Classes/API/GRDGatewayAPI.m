@@ -273,7 +273,7 @@
 
 # pragma mark - Alerts
 
-- (void)getEvents:(void(^)(NSDictionary *response, BOOL success, NSString *_Nullable error))completion {
+- (void)getEvents:(void(^)(NSArray *alerts, BOOL success, NSString *_Nullable error))completion {
     if ([GRDVPNHelper sharedInstance].dummyDataForDebugging == NO) {
         if ([self _canMakeApiRequests] == NO) {
 			GRDLog(@"Cannot make API requests !!! won't continue");
@@ -331,7 +331,7 @@
                 
             } else if (statusCode == 200) {
                 NSError *jsonError = nil;
-                NSDictionary *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+				NSArray *dictFromJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
                 if (jsonError) {
                     GRDLog(@"Failed to decode JSON with alerts: %@", jsonError);
                     if (completion) completion(nil, NO, @"Failed to decode JSON");
@@ -350,7 +350,7 @@
         
     } else {
         // Returning dummy data so that we can debug easily in the simulator
-        completion([NSDictionary dictionaryWithObject:[self _fakeAlertsArray] forKey:@"alerts"], YES, nil);
+        completion([self _fakeAlertsArray], YES, nil);
     }
 }
 

@@ -262,8 +262,8 @@
 #pragma mark - Misc Helpers
 
 + (BOOL)isPayingUser {
-	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-	return ([ud boolForKey:kGuardianSuccessfulSubscription] && [ud boolForKey:kIsPremiumUser]);
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	return ([defaults boolForKey:kGuardianSuccessfulSubscription] && [defaults boolForKey:kIsPremiumUser]);
 }
 
 + (void)setIsPayingUser:(BOOL)isPaying {

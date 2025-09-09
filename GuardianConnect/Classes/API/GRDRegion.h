@@ -94,6 +94,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Convenience method to convert timezones from the server into more useful GRDRegion instances, handy for region picker views
 + (NSArray <GRDRegion*> *)regionsFromTimezones:(NSArray *_Nullable)timezones;
 
+/// Match GRDRegion object with full metadata for a given GRDRegion display name
+/// by searching through a given array of regions incl. the nested cities array.
+/// Going to return nil if a GRDRegion could not be matched for the provided
+/// display name string
++ (GRDRegion *)findRegionWithDisplayName:(NSString *_Nonnull)displayName inArray:(NSArray <GRDRegion*>*_Nonnull)regions;
+
 @end
 
 NS_ASSUME_NONNULL_END
