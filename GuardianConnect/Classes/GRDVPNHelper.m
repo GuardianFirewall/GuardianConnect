@@ -352,12 +352,12 @@
 	
 	// Create rule to disconnect the VPN automatically if the device is
 	// connected to certain WiFi SSIDs.
-	if (trustedNetworks != nil) {
-		if ([trustedNetworks count] > 0) {
-			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
-			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
-			if (disconntTrustedNetworks == YES) {
-				disconnect.SSIDMatch = trustedNetworks;
+	if (disconntTrustedNetworks == YES) {
+		if (trustedNetworks != nil) {
+			if ([trustedNetworks count] > 0) {
+				NEOnDemandRuleDisconnect *disconnect 	= [NEOnDemandRuleDisconnect new];
+				disconnect.interfaceTypeMatch 			= NEOnDemandRuleInterfaceTypeWiFi;
+				disconnect.SSIDMatch 					= trustedNetworks;
 				[onDemandRules addObject:disconnect];
 			}
 		}
@@ -1015,18 +1015,23 @@
 }
 
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
-		self.disconnectOnTrustedNetworks = NO;
-		self.trustedNetworks = nil;
+	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
+	self.disconnectOnTrustedNetworks 	= enabled;
+	self.trustedNetworks 				= trustedNetworks;
+	
+	if (enabled == NO) {
 		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
-		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+		
+	} else {
+		[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
 	}
 	
-	self.disconnectOnTrustedNetworks = enabled;
-	self.trustedNetworks = trustedNetworks;
-	[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
-	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
+		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+		
+	} else {
+		[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+	}
 }
 
 - (void)setVPNKillSwitchEnabled:(BOOL)enabled {
