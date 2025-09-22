@@ -295,9 +295,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Convenience function to store trusted networks persistently and enabling the feature
 ///
 /// The array of trusted network SSIDs will be stored in NSUserDefaults and
-/// the trustedNetworks property will be populated to read it back.
+/// the trustedNetworks class property will be populated to read it back.
 /// Providing nil will disable the feature and remove the array of trusted networks
-/// out of NSUserDefaults
+/// out of NSUserDefaults. Prior to storing the array of trusted networks they will
+/// de-duplicated so it is recommended to refresh the list of trusted networks that
+/// the user is presented
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks;
 
 /// Convenience function to enable the VPN kill switch capability.

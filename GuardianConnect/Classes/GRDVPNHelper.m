@@ -1015,6 +1015,14 @@
 }
 
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks {
+	NSMutableArray <NSString *> *deduplicated = [NSMutableArray new];
+	for (NSString *ssid in trustedNetworks) {
+		if ([deduplicated containsObject:ssid] == NO) {
+			[deduplicated addObject:ssid];
+		}
+	}
+	
+	
 	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
 	self.disconnectOnTrustedNetworks 	= enabled;
 	self.trustedNetworks 				= trustedNetworks;
@@ -1026,11 +1034,13 @@
 		[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
 	}
 	
-	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
+	if ([deduplicated count] < 1 || trustedNetworks == nil) {
 		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
 		
 	} else {
-		[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+		self.trustedNetworks = [NSArray arrayWithArray:deduplicated];
+		[defaults setObject:deduplicated forKey:kGRDTrustedNetworksArray];
 	}
 }
 
