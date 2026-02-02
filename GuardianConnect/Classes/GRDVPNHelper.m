@@ -189,15 +189,7 @@
 
 + (void)clearVPNConfiguration {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
-    if (creds != nil) {
-        NSString *clientId;
-        if (creds.transportProtocol == TransportIKEv2) {
-            clientId = [creds username];
-        
-        } else if (creds.transportProtocol == TransportWireGuard) {
-            clientId = [creds clientId];
-        }
-        
+    if (creds != nil) {        
 		[creds revokeCredentialWithCompletion:^(NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"Failed to invalidate main credential: %@", [error localizedDescription]);
