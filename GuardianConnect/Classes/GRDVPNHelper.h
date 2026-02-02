@@ -203,11 +203,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
 + (void)clearVPNConfiguration;
 
-/// Send out two notifications to make any listener
-/// aware that the hostname and hostname location values
-/// should be updated in the interface
-+ (void)sendServerUpdateNotifications;
-
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.

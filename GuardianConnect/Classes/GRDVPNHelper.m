@@ -189,7 +189,7 @@
 
 + (void)clearVPNConfiguration {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
-    if (creds != nil) {        
+    if (creds != nil) {
 		[creds revokeCredentialWithCompletion:^(NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"Failed to invalidate main credential: %@", [error localizedDescription]);
@@ -199,13 +199,6 @@
     
     [GRDKeychain removeGuardianKeychainItems];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
-    
-	[GRDVPNHelper sendServerUpdateNotifications];
-}
-
-+ (void)sendServerUpdateNotifications {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kGRDServerUpdatedNotification object:nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kGRDLocationUpdatedNotification object:nil];
 }
 
 
