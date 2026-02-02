@@ -1086,6 +1086,7 @@
 }
 
 - (void)clearLocalCache {
+	[GRDLogger deleteAllLogs];
 	[GRDKeychain removeGuardianKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
