@@ -29,16 +29,21 @@ NS_ASSUME_NONNULL_BEGIN
 /// The JWT expiration date of the parsed Subscriber Credential
 @property (nonatomic) NSInteger 		tokenExpirationDate;
 
-/// Convenience property to quickly check whether or not the JWT has expired
-@property (nonatomic) BOOL 				tokenExpired;
 
-
+/// Parses and processes a Subscriber Credential (JWT) string into
+/// a valid Subscriber Credential object
+///
+/// There is potential for failure during parsing and processing in which
+/// case an empty GRDConnectSubscriber object is returned
+/// - Parameter subscriberCredential: a valid jwt to process
 - (instancetype)initWithSubscriberCredential:(NSString *)subscriberCredential;
 
 /// Returns the Subscriber Credentials currently stored in the local keychain
 + (GRDSubscriberCredential * _Nullable)currentSubscriberCredential;
 
-- (void)processSubscriberCredentialInformation;
+/// Checks the JWT's token as well as the subscription expiration date
+/// to ensure that token is still valid for server side interactions
+- (BOOL)isExpired;
 
 /// Persistently store the preferred Subscriber Credential generation validation method
 ///

@@ -15,8 +15,40 @@
     if (!self) {
         self = [super init];
     }
+	
     self.jwt = subscriberCredential;
-    [self processSubscriberCredentialInformation];
+	
+	NSArray *jwtComp = [self.jwt componentsSeparatedByString:@"."];
+	if ([jwtComp count] < 1) {
+		GRDErrorLogg(@"Trying to process invalid Subscriber Credential (JWT): %@", self.jwt);
+		return nil;
+	}
+	NSString *payloadString = [jwtComp objectAtIndex:1];
+	
+	payloadString = [payloadString stringByReplacingOccurrencesOfString:@"-" withString:@"+"];
+	payloadString = [payloadString stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+	
+	// Figuring out how many buffer characters we're missing
+	int size = [payloadString length] % 4;
+	
+	// Creating a mutable string from the payloadString
+	NSMutableString *base64String = [[NSMutableString alloc] initWithString:payloadString];
+	
+	// Adding as many buffer '=' (equal sign) characters as is required to
+	// make the payloadString divisble by 4 to make it base64 spec
+	// compliant so that NSData will accept it and decode it
+	// without silently failing
+	for (int i = 0; i < size; i++) {
+		[base64String appendString:@"="];
+	}
+	
+	NSData *payload = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
+	NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:payload options:0 error:nil];
+	self.subscriptionType = [dict objectForKey:@"subscription-type"];
+	self.subscriptionTypePretty = [dict objectForKey:@"subscription-type-pretty"];
+	self.subscriptionExpirationDate = [(NSNumber*)[dict objectForKey:@"subscription-expiration-date"] integerValue];
+	self.tokenExpirationDate = [(NSNumber*)[dict objectForKey:@"exp"] integerValue];
+	
     return self;
 }
 
@@ -24,57 +56,29 @@
 	NSString *desc = [super description];
 	
 	NSString *expiredString = @"YES";
-	if (self.tokenExpired == NO) {
+	if ([self isExpired] == NO) {
 		expiredString = @"NO";
 	}
 	
-	return [NSString stringWithFormat:@"%@ \nSubscription Type: %@ \nSubscription Expiration Date: %@ \nExpired: %@", desc, self.subscriptionType, [NSDate dateWithTimeIntervalSince1970:self.subscriptionExpirationDate], expiredString];
-}
-
-- (void)processSubscriberCredentialInformation {
-    if (self.jwt == nil) {
-        return;
-    }
-    
-    NSArray *jwtComp = [self.jwt componentsSeparatedByString:@"."];
-    NSString *payloadString = [jwtComp objectAtIndex:1];
-    
-    // Note from CJ:
-    // This is Base64 magic that I only partly understand because I am not entirely familiar with
-    // the Base64 spec.
-    // This just makes sure that the string can be read by removing invalid characters
-    payloadString = [[payloadString stringByReplacingOccurrencesOfString:@"-" withString:@"+"] stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
-    
-    // Figuring out how many buffer characters we're missing
-    int size = [payloadString length] % 4;
-    
-    // Creating a mutable string from the payloadString
-    NSMutableString *base64String = [[NSMutableString alloc] initWithString:payloadString];
-    
-    // Adding as many buffer = as required to make the payloadString divisble by 4 to make
-    // it Base64 spec compliant so that NSData will accept it and decode it
-    for (int i = 0; i < size; i++) {
-        [base64String appendString:@"="];
-    }
-    
-    NSData *payload = [[NSData alloc] initWithBase64EncodedString:base64String options:0];
-    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:payload options:0 error:nil];
-    self.subscriptionType = [dict objectForKey:@"subscription-type"];
-    self.subscriptionTypePretty = [dict objectForKey:@"subscription-type-pretty"];
-    self.subscriptionExpirationDate = [(NSNumber*)[dict objectForKey:@"subscription-expiration-date"] integerValue];
-    self.tokenExpirationDate = [(NSNumber*)[dict objectForKey:@"exp"] integerValue];
-    self.tokenExpired = [self isExpired];
-}
-
-- (BOOL)isExpired {
-	NSTimeInterval safeExpirationDate = self.tokenExpirationDate - 172800;
-	BOOL expired = (safeExpirationDate < [[NSDate date] timeIntervalSince1970]);
-	return expired;
+	return [NSString stringWithFormat:@"%@ \nSubscription Type: %@ \nSubscription Expiration Date: %@; \nToken Expiration Date: %@; \nExpired: %@", desc, self.subscriptionType, [NSDate dateWithTimeIntervalSince1970:self.subscriptionExpirationDate], [NSDate dateWithTimeIntervalSince1970:self.tokenExpirationDate], expiredString];
 }
 
 + (GRDSubscriberCredential * _Nullable )currentSubscriberCredential {
 	NSString *subCredString = [GRDKeychain getPasswordStringForAccount:kKeychainStr_SubscriberCredential];
 	return [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subCredString];
+}
+
+- (BOOL)isExpired {
+	static NSUInteger 	twoDays 						= 172800;
+	NSTimeInterval 		safeSubscriptionExpirationDate 	= self.subscriptionExpirationDate - twoDays;
+	NSTimeInterval 		safeTokenExpirationDate 		= self.tokenExpirationDate - twoDays;
+	NSTimeInterval 		nowUnixTimestamp				= [[NSDate date] timeIntervalSince1970];
+	
+	if (safeSubscriptionExpirationDate < nowUnixTimestamp || safeTokenExpirationDate < nowUnixTimestamp) {
+		return YES;
+	}
+	
+	return NO;
 }
 
 + (void)setPreferredValidationMethod:(GRDHousekeepingValidationMethod)validationMethod {

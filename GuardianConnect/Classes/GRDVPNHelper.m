@@ -735,7 +735,7 @@
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable errorMessage))completion {
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-	BOOL expired = [subCred tokenExpired];
+	BOOL expired = [subCred isExpired];
 	// check current Subscriber Credential if it exists
 	if (expired == YES || subCred == nil) {
 		// No subscriber credential yet or it is expired. We have to create a new one
@@ -775,34 +775,26 @@
 		
 		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod customKeys:customKeys completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage) {
 			if (success == NO && errorMessage != nil) {
-				if (completion) {
-					completion(nil, errorMessage);
-				}
+				if (completion) completion(nil, errorMessage);
 				return;
 				
 			} else if (success == YES) {
 				[GRDKeychain removeSubscriberCredentialWithRetries:3];
 				OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
 				if (saveStatus != errSecSuccess) {
-					if (completion) {
-						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Couldn't save subscriber credential in local keychain. Please try again."]);
-					}
+					if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Couldn't save subscriber credential in local keychain. Please try again."]);
 					return;
 				}
 				
 				GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
 				GRDDebugLog(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
-				if (completion) {
-					completion(subCred, nil);
-				}
+				if (completion) completion(subCred, nil);
 			}
 		}];
 		
 	} else {
 		GRDDebugLog(@"Valid Subscriber Credential found: %@", subCred.jwt);
-		if (completion) {
-			completion(subCred, nil);
-		}
+		if (completion) completion(subCred, nil);
 	}
 }
 
@@ -869,6 +861,9 @@
 	// Note from CJ 2025-03-13
 	// Tiny edit to remove things that
 	// do not need to be part of the SDK
+	//
+	// Note from CJ 2026-02-03
+	// Still going strong with this
 	if ([subCred.subscriptionType isEqualToString:@"grd_trial_3_days"]) {
 		eapCredentialsValidFor = 3;
 	}
