@@ -251,7 +251,42 @@
 			return;
 		}
 		
-		if (completion) completion([GRDRegion regionsFromTimezones:items], nil);
+		NSArray *regions = [GRDRegion regionsFromTimezones:items];
+		if (self.returnAutomaticForRegionPrecisionCountry == YES && [[[GRDVPNHelper sharedInstance] regionPrecision] isEqualToString:kGRDRegionPrecisionCityByCountry] == YES) {
+			NSMutableArray *tmpRegions = [NSMutableArray new];
+			
+			for (GRDRegion *region in regions) {
+				if ([region.cities count] > 1) {
+					NSMutableArray *citiesCopy = [region.cities mutableCopy];
+					GRDRegion *optimal = [GRDRegion new];
+					[optimal setContinent:region.continent];
+					[optimal setCountry:region.country];
+					[optimal setCountryISOCode:region.countryISOCode];
+					[optimal setRegionName:region.regionName];
+					[optimal setIsAutomatic:NO];
+					[optimal setDisplayName:[region.displayName stringByAppendingString:NSLocalizedString(@" - Automatic", nil)]];
+					//
+					// Note from CJ 2026-02-05
+					// Lock the region precision to 'country' here in order to
+					// ensure that we always select from all servers from
+					// any given region with more than one city
+					[optimal setRegionPrecision:kGRDRegionPrecisionCountry];
+					[optimal setLatitude:region.latitude];
+					[optimal setLongitude:region.longitude];
+					[optimal setServerCount:region.serverCount];
+					[optimal setSmartRoutingProxyState:region.smartRoutingProxyState];
+					[optimal setSmartRoutingProxyServers:region.smartRoutingProxyServers];
+					[optimal setTimeZoneName:region.timeZoneName];
+					[citiesCopy insertObject:optimal atIndex:0];
+					[region setCities:citiesCopy];
+				}
+				[tmpRegions addObject:region];
+			}
+			
+			regions = [NSArray arrayWithArray:tmpRegions];
+		}
+		
+		if (completion) completion(regions, nil);
 		return;
 	}];
 }
