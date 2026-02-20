@@ -179,12 +179,12 @@
 		return YES;
 		
 	} else if (cred.transportProtocol == TransportWireGuard) {
-		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return  NO;
+		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return NO;
 		return YES;
 	
-    } else {
-        return NO;
     }
+	
+	return NO;
 }
 
 + (void)clearVPNConfiguration {
