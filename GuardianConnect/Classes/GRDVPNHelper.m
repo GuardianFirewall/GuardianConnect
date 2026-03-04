@@ -1159,7 +1159,7 @@
 	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
 		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
 		proxySettings.autoProxyConfigurationEnabled = YES;
-		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		proxySettings.proxyAutoConfigurationURL = [NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/smart-proxy-routing/static-pac"];
 		
 	} else {
 		proxySettings.autoProxyConfigurationEnabled = NO;
