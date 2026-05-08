@@ -111,6 +111,7 @@ static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
 
 
 # pragma mark - Trusted Network constants
+static NSString * const kGRDDisconnectOnEthernet		= @"kGRDDisconnectOnEthernet";
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 

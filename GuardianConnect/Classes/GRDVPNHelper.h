@@ -141,6 +141,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// provided to this feature
 @property BOOL disconnectOnTrustedNetworks;
 
+/// Enables or disables the device automatically disconnecting the
+/// VPN tunnel if the device is connected to a wired ethernet connection.
+/// Works with IKEv2 & WireGuard
+///
+/// Leverages similar functionality as the trusted networks capability
+/// though as there are no SSID or other references to leverage as there
+/// are with a WiFi connection, so enabling this feature brings more
+/// implicit security risks
+@property BOOL disconnectOnEthernet;
+
 /// Array of the names of trusted networks on which the VPN
 /// will automatically disconnect with the help of the
 /// NetworkExtension.framework on-demand rules capabiltity

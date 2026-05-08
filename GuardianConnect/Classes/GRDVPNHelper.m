@@ -115,6 +115,10 @@
 		self.disconnectOnTrustedNetworks = [defaults boolForKey:kGRDDisconnectOnTrustedNetworks];
 	}
 	
+	if ([defaults valueForKey:kGRDDisconnectOnEthernet] != nil) {
+		self.disconnectOnEthernet = [defaults boolForKey:kGRDDisconnectOnEthernet];
+	}
+	
 	if ([defaults valueForKey:kGRDTrustedNetworksArray] != nil) {
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
@@ -331,7 +335,7 @@
 
 # pragma mark - Internal VPN Functions
 
-+ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
++ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectOnEthernet:(BOOL)disconnectOnEthernet disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
 	// Create mutable array to throw on-demand rules into
 	NSMutableArray *onDemandRules = [NSMutableArray new];
 	
@@ -341,11 +345,19 @@
 		if (trustedNetworks != nil) {
 			if ([trustedNetworks count] > 0) {
 				NEOnDemandRuleDisconnect *disconnect 	= [NEOnDemandRuleDisconnect new];
-				disconnect.interfaceTypeMatch 			= NEOnDemandRuleInterfaceTypeWiFi;
-				disconnect.SSIDMatch 					= trustedNetworks;
+				[disconnect setInterfaceTypeMatch:NEOnDemandRuleInterfaceTypeWiFi];
+				[disconnect setSSIDMatch:trustedNetworks];
 				[onDemandRules addObject:disconnect];
 			}
 		}
+	}
+	
+	// Create rule to disconnect the VPN tunnel automatically if the device
+	// is connected to an ethernet connection
+	if (disconnectOnEthernet == YES) {
+		NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
+		[disconnect setInterfaceTypeMatch:NEOnDemandRuleInterfaceTypeEthernet];
+		[onDemandRules addObject:disconnect];
 	}
 	
 	// Create rule to connect to the VPN automatically if server reports that it is running OK
@@ -388,7 +400,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -509,7 +521,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -719,6 +731,7 @@
 	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
 	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
 	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults removeObjectForKey:kGRDDisconnectOnEthernet];
 	[defaults removeObjectForKey:kGuardianTransportProtocol];
 	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
 	
@@ -1001,7 +1014,6 @@
 			[deduplicated addObject:ssid];
 		}
 	}
-	
 	
 	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
 	self.disconnectOnTrustedNetworks 	= enabled;
