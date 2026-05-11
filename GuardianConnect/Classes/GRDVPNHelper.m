@@ -352,6 +352,7 @@
 		}
 	}
 	
+#if TARGET_OS_MAC && !TARGET_OS_IPHONE || TARGET_OS_TV && !TARGET_OS_IPHONE
 	// Create rule to disconnect the VPN tunnel automatically if the device
 	// is connected to an ethernet connection
 	if (disconnectOnEthernet == YES) {
@@ -359,6 +360,7 @@
 		[disconnect setInterfaceTypeMatch:NEOnDemandRuleInterfaceTypeEthernet];
 		[onDemandRules addObject:disconnect];
 	}
+#endif
 	
 	// Create rule to connect to the VPN automatically if server reports that it is running OK
 	// This is done by using the probe URL. It is a GET request which has to return 200 OK as the

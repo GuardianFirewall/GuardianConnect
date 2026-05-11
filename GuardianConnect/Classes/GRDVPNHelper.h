@@ -143,13 +143,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Enables or disables the device automatically disconnecting the
 /// VPN tunnel if the device is connected to a wired ethernet connection.
-/// Works with IKEv2 & WireGuard
+/// Works with IKEv2 & WireGuard, only avilable on macOS & tvOS
 ///
 /// Leverages similar functionality as the trusted networks capability
 /// though as there are no SSID or other references to leverage as there
 /// are with a WiFi connection, so enabling this feature brings more
 /// implicit security risks
-@property BOOL disconnectOnEthernet;
+@property BOOL disconnectOnEthernet API_AVAILABLE(macos(10.11), tvos(17.0));
 
 /// Array of the names of trusted networks on which the VPN
 /// will automatically disconnect with the help of the
