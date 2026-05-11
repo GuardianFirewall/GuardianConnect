@@ -9,7 +9,6 @@
 #import <DeviceCheck/DeviceCheck.h>
 
 #import <GuardianConnect/GRDKeychain.h>
-#import <GuardianConnect/GRDGatewayAPIResponse.h>
 #import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDAPIError.h>
 

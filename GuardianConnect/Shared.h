@@ -86,21 +86,13 @@ static NSString * const kGRDLastKnownAutomaticRegion	 				= @"kGRDLastKnownAutom
 
 #pragma mark - Subscription types + related
 
-
-
 // Used to hard to code IAP receipts and create Subscriber Credentials
 static NSString * const kGuardianEncodedAppStoreReceipt 						= @"kGuardianEncodedAppStoreReceipt";
 static NSString * const kGuardianPreferredSubscriberCredentialValidationMethod 	= @"kGuardianPreferredSubscriberCredentialValidationMethod";
 
 //moved to make framework friendly
 static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
-
-
-
-
-#define kGRDServerUpdatedNotification 		@"GRDServerUpdatedNotification"
-#define kGRDLocationUpdatedNotification 	@"GRDLocationUpdatedNotification"
-#define kGRDSubscriptionUpdatedNotification @"GRDSubscriptionUpdatedNotification"
+static NSString * const kGRDSubscriptionUpdatedNotification				= @"GRDSubscriptionUpdatedNotification";
 
 
 #pragma mark - Region precision constants
@@ -119,6 +111,7 @@ static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
 
 
 # pragma mark - Trusted Network constants
+static NSString * const kGRDDisconnectOnEthernet		= @"kGRDDisconnectOnEthernet";
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 

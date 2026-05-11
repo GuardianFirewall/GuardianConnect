@@ -17,6 +17,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDServerManager : NSObject
 
+/// Defaults to NO. Only affects GRDRegion objects returned by allRegionsWithCompletion: with more than one city in the cities array
+///
+/// If enabled and with the region precision being set to
+/// kGRDRegionPrecisionCityByCountry a GRDRegion object
+/// will be inserted at index 0 of the root GRDRegion object's
+/// cities array which is a copy of the root GRDRegion object
+/// with the only two changes being ' - Automatic' being appended
+/// to the GRDRegion's displayName as well as the region precision
+/// set to kGRDRegionPrecisionCountry
+@property BOOL returnAutomaticForRegionPrecisionCountry;
+
 - (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;
 
 - (instancetype)initWithRegionPrecision:(NSString *)precision serverFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;

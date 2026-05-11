@@ -115,6 +115,10 @@
 		self.disconnectOnTrustedNetworks = [defaults boolForKey:kGRDDisconnectOnTrustedNetworks];
 	}
 	
+	if ([defaults valueForKey:kGRDDisconnectOnEthernet] != nil) {
+		self.disconnectOnEthernet = [defaults boolForKey:kGRDDisconnectOnEthernet];
+	}
+	
 	if ([defaults valueForKey:kGRDTrustedNetworksArray] != nil) {
 		self.trustedNetworks = [defaults arrayForKey:kGRDTrustedNetworksArray];
 	}
@@ -179,25 +183,17 @@
 		return YES;
 		
 	} else if (cred.transportProtocol == TransportWireGuard) {
-		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return  NO;
+		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return NO;
 		return YES;
 	
-    } else {
-        return NO;
     }
+	
+	return NO;
 }
 
 + (void)clearVPNConfiguration {
     GRDCredential *creds = [GRDCredentialManager mainCredentials];
     if (creds != nil) {
-        NSString *clientId;
-        if (creds.transportProtocol == TransportIKEv2) {
-            clientId = [creds username];
-        
-        } else if (creds.transportProtocol == TransportWireGuard) {
-            clientId = [creds clientId];
-        }
-        
 		[creds revokeCredentialWithCompletion:^(NSError * _Nullable error) {
 			if (error != nil) {
 				GRDErrorLogg(@"Failed to invalidate main credential: %@", [error localizedDescription]);
@@ -207,13 +203,6 @@
     
     [GRDKeychain removeGuardianKeychainItems];
     [[GRDVPNHelper sharedInstance] setMainCredential:nil];
-    
-	[GRDVPNHelper sendServerUpdateNotifications];
-}
-
-+ (void)sendServerUpdateNotifications {
-	[[NSNotificationCenter defaultCenter] postNotificationName:kGRDServerUpdatedNotification object:nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:kGRDLocationUpdatedNotification object:nil];
 }
 
 
@@ -346,21 +335,29 @@
 
 # pragma mark - Internal VPN Functions
 
-+ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
++ (NSArray *)_vpnOnDemandRulesForHostname:(NSString *)hostname withProbeURL:(BOOL)probeURLEnabled disconnectOnEthernet:(BOOL)disconnectOnEthernet disconnectTrustedNetworks:(BOOL)disconntTrustedNetworks trustedNetworks:(NSArray<NSString *>  * _Nullable)trustedNetworks {
 	// Create mutable array to throw on-demand rules into
 	NSMutableArray *onDemandRules = [NSMutableArray new];
 	
 	// Create rule to disconnect the VPN automatically if the device is
 	// connected to certain WiFi SSIDs.
-	if (trustedNetworks != nil) {
-		if ([trustedNetworks count] > 0) {
-			NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
-			disconnect.interfaceTypeMatch = NEOnDemandRuleInterfaceTypeWiFi;
-			if (disconntTrustedNetworks == YES) {
-				disconnect.SSIDMatch = trustedNetworks;
+	if (disconntTrustedNetworks == YES) {
+		if (trustedNetworks != nil) {
+			if ([trustedNetworks count] > 0) {
+				NEOnDemandRuleDisconnect *disconnect 	= [NEOnDemandRuleDisconnect new];
+				[disconnect setInterfaceTypeMatch:NEOnDemandRuleInterfaceTypeWiFi];
+				[disconnect setSSIDMatch:trustedNetworks];
 				[onDemandRules addObject:disconnect];
 			}
 		}
+	}
+	
+	// Create rule to disconnect the VPN tunnel automatically if the device
+	// is connected to an ethernet connection
+	if (disconnectOnEthernet == YES) {
+		NEOnDemandRuleDisconnect *disconnect = [NEOnDemandRuleDisconnect new];
+		[disconnect setInterfaceTypeMatch:NEOnDemandRuleInterfaceTypeEthernet];
+		[onDemandRules addObject:disconnect];
 	}
 	
 	// Create rule to connect to the VPN automatically if server reports that it is running OK
@@ -403,7 +400,7 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -524,7 +521,7 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
@@ -734,6 +731,7 @@
 	[defaults removeObjectForKey:kGRDPreferredRegionPrecision];
 	[defaults removeObjectForKey:kGRDTrustedNetworksArray];
 	[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+	[defaults removeObjectForKey:kGRDDisconnectOnEthernet];
 	[defaults removeObjectForKey:kGuardianTransportProtocol];
 	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
 	
@@ -750,7 +748,7 @@
 - (void)getValidSubscriberCredentialWithCompletion:(void (^)(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable errorMessage))completion {
 	// Use convenience method to get access to our current subscriber cred (if it exists)
 	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-	BOOL expired = [subCred tokenExpired];
+	BOOL expired = [subCred isExpired];
 	// check current Subscriber Credential if it exists
 	if (expired == YES || subCred == nil) {
 		// No subscriber credential yet or it is expired. We have to create a new one
@@ -790,34 +788,26 @@
 		
 		[[GRDHousekeepingAPI new] createSubscriberCredentialForBundleId:[[NSBundle mainBundle] bundleIdentifier] withValidationMethod:valmethod customKeys:customKeys completion:^(NSString * _Nullable subscriberCredential, BOOL success, NSError * _Nullable errorMessage) {
 			if (success == NO && errorMessage != nil) {
-				if (completion) {
-					completion(nil, errorMessage);
-				}
+				if (completion) completion(nil, errorMessage);
 				return;
 				
 			} else if (success == YES) {
 				[GRDKeychain removeSubscriberCredentialWithRetries:3];
 				OSStatus saveStatus = [GRDKeychain storePassword:subscriberCredential forAccount:kKeychainStr_SubscriberCredential];
 				if (saveStatus != errSecSuccess) {
-					if (completion) {
-						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Couldn't save subscriber credential in local keychain. Please try again."]);
-					}
+					if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Couldn't save subscriber credential in local keychain. Please try again."]);
 					return;
 				}
 				
 				GRDSubscriberCredential *subCred = [[GRDSubscriberCredential alloc] initWithSubscriberCredential:subscriberCredential];
 				GRDDebugLog(@"Successfully stored new Subscriber Credential: %@", subscriberCredential);
-				if (completion) {
-					completion(subCred, nil);
-				}
+				if (completion) completion(subCred, nil);
 			}
 		}];
 		
 	} else {
 		GRDDebugLog(@"Valid Subscriber Credential found: %@", subCred.jwt);
-		if (completion) {
-			completion(subCred, nil);
-		}
+		if (completion) completion(subCred, nil);
 	}
 }
 
@@ -884,6 +874,9 @@
 	// Note from CJ 2025-03-13
 	// Tiny edit to remove things that
 	// do not need to be part of the SDK
+	//
+	// Note from CJ 2026-02-03
+	// Still going strong with this
 	if ([subCred.subscriptionType isEqualToString:@"grd_trial_3_days"]) {
 		eapCredentialsValidFor = 3;
 	}
@@ -1015,18 +1008,32 @@
 }
 
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([trustedNetworks count] < 1 || trustedNetworks == nil) {
-		self.disconnectOnTrustedNetworks = NO;
-		self.trustedNetworks = nil;
-		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
-		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+	NSMutableArray <NSString *> *deduplicated = [NSMutableArray new];
+	for (NSString *ssid in trustedNetworks) {
+		if ([deduplicated containsObject:ssid] == NO) {
+			[deduplicated addObject:ssid];
+		}
 	}
 	
-	self.disconnectOnTrustedNetworks = enabled;
-	self.trustedNetworks = trustedNetworks;
-	[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
-	[defaults setObject:trustedNetworks forKey:kGRDTrustedNetworksArray];
+	NSUserDefaults *defaults 			= [NSUserDefaults standardUserDefaults];
+	self.disconnectOnTrustedNetworks 	= enabled;
+	self.trustedNetworks 				= trustedNetworks;
+	
+	if (enabled == NO) {
+		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+		
+	} else {
+		[defaults setBool:enabled forKey:kGRDDisconnectOnTrustedNetworks];
+	}
+	
+	if ([deduplicated count] < 1 || trustedNetworks == nil) {
+		[defaults removeObjectForKey:kGRDTrustedNetworksArray];
+		[defaults removeObjectForKey:kGRDDisconnectOnTrustedNetworks];
+		
+	} else {
+		self.trustedNetworks = [NSArray arrayWithArray:deduplicated];
+		[defaults setObject:deduplicated forKey:kGRDTrustedNetworksArray];
+	}
 }
 
 - (void)setVPNKillSwitchEnabled:(BOOL)enabled {
@@ -1086,6 +1093,7 @@
 }
 
 - (void)clearLocalCache {
+	[GRDLogger deleteAllLogs];
 	[GRDKeychain removeGuardianKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
@@ -1163,7 +1171,7 @@
 	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
 		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
 		proxySettings.autoProxyConfigurationEnabled = YES;
-		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		proxySettings.proxyAutoConfigurationURL = [NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/smart-proxy-routing/static-pac"];
 		
 	} else {
 		proxySettings.autoProxyConfigurationEnabled = NO;

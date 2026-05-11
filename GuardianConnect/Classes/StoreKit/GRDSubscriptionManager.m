@@ -216,7 +216,7 @@
 			//everything else has been done by now, additional check to see if subscriber credential has expired.
 			GRDSubscriberCredential *cred = [GRDSubscriberCredential currentSubscriberCredential];
 			if (cred) {
-				if ([cred tokenExpired]) {
+				if ([cred isExpired]) {
 					[GRDKeychain removeSubscriberCredentialWithRetries:3];
 				}
 			}

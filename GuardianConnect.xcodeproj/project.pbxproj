@@ -126,7 +126,6 @@
 		32939A7326167D0E007A4DFA /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A6B26167D0E007A4DFA /* EXTKeyPathCoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A8526167D20007A4DFA /* GRDHousekeepingAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */; };
 		32939A8626167D20007A4DFA /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7526167D1F007A4DFA /* GRDKeychain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */; };
 		32939A8826167D20007A4DFA /* GRDServerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7726167D1F007A4DFA /* GRDServerManager.m */; };
 		32939A8926167D20007A4DFA /* GRDSubscriberCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */; };
 		32939A8A26167D20007A4DFA /* GRDSubscriberCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -137,7 +136,6 @@
 		32939A9026167D20007A4DFA /* GRDVPNHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A9226167D20007A4DFA /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8126167D1F007A4DFA /* GRDServerManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32939A9326167D20007A4DFA /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32939A9526167D20007A4DFA /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32A664B326531C34008277E0 /* GuardianConnect.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 321BA143261404A100E876CB /* GuardianConnect.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		32A664BC26532583008277E0 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A664BB26532583008277E0 /* NetworkExtension.framework */; };
 		32D80A44265B195200F5C33B /* GRDReceiptLineItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D80A42265B195200F5C33B /* GRDReceiptLineItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -151,7 +149,6 @@
 		32E92C0E262A1B6100A3202C /* GRDCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9EF2628F252007D4E7E /* GRDCredential.m */; };
 		32E92C0F262A1B6100A3202C /* GRDCredentialManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247E9ED2628F252007D4E7E /* GRDCredentialManager.m */; };
 		32E92C11262A1B6100A3202C /* GRDGatewayAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */; };
-		32E92C12262A1B6100A3202C /* GRDGatewayAPIResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */; };
 		32E92C13262A1B6100A3202C /* GRDHousekeepingAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */; };
 		32E92C14262A1B6100A3202C /* GRDKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7B26167D1F007A4DFA /* GRDKeychain.m */; };
 		32E92C15262A1B6100A3202C /* GRDServerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32939A7726167D1F007A4DFA /* GRDServerManager.m */; };
@@ -161,7 +158,6 @@
 		32E92C19262A1BA700A3202C /* GRDCredential.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EE2628F252007D4E7E /* GRDCredential.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1A262A1BA700A3202C /* GRDCredentialManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3247E9EC2628F252007D4E7E /* GRDCredentialManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1C262A1BA700A3202C /* GRDGatewayAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32E92C1D262A1BA700A3202C /* GRDGatewayAPIResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1E262A1BA700A3202C /* GRDHousekeepingAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C1F262A1BA700A3202C /* GRDKeychain.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A7526167D1F007A4DFA /* GRDKeychain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32E92C21262A1BA700A3202C /* GRDServerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32939A8126167D1F007A4DFA /* GRDServerManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -300,7 +296,6 @@
 		32939A6B26167D0E007A4DFA /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
 		32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDHousekeepingAPI.m; sourceTree = "<group>"; };
 		32939A7526167D1F007A4DFA /* GRDKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDKeychain.h; sourceTree = "<group>"; };
-		32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDGatewayAPIResponse.m; sourceTree = "<group>"; };
 		32939A7726167D1F007A4DFA /* GRDServerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDServerManager.m; sourceTree = "<group>"; };
 		32939A7826167D1F007A4DFA /* GRDSubscriberCredential.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRDSubscriberCredential.m; sourceTree = "<group>"; };
 		32939A7926167D1F007A4DFA /* GRDSubscriberCredential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDSubscriberCredential.h; sourceTree = "<group>"; };
@@ -311,7 +306,6 @@
 		32939A7F26167D1F007A4DFA /* GRDVPNHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDVPNHelper.h; sourceTree = "<group>"; };
 		32939A8126167D1F007A4DFA /* GRDServerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDServerManager.h; sourceTree = "<group>"; };
 		32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDHousekeepingAPI.h; sourceTree = "<group>"; };
-		32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRDGatewayAPIResponse.h; sourceTree = "<group>"; };
 		329C527A26315721003B78D8 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/NetworkExtension.framework; sourceTree = DEVELOPER_DIR; };
 		32A49C3D263900E100D15910 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		32A49C48263944C700D15910 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -561,8 +555,6 @@
 			children = (
 				32939A7E26167D1F007A4DFA /* GRDGatewayAPI.h */,
 				32939A7C26167D1F007A4DFA /* GRDGatewayAPI.m */,
-				32939A8426167D20007A4DFA /* GRDGatewayAPIResponse.h */,
-				32939A7626167D1F007A4DFA /* GRDGatewayAPIResponse.m */,
 				32939A8226167D1F007A4DFA /* GRDHousekeepingAPI.h */,
 				32939A7426167D1E007A4DFA /* GRDHousekeepingAPI.m */,
 				235E3E602993EF3D008E915B /* GRDAPIError.h */,
@@ -601,7 +593,6 @@
 				32939A6E26167D0E007A4DFA /* EXTRuntimeExtensions.h in Headers */,
 				32939A6F26167D0E007A4DFA /* metamacros.h in Headers */,
 				32939A9226167D20007A4DFA /* GRDServerManager.h in Headers */,
-				32939A9526167D20007A4DFA /* GRDGatewayAPIResponse.h in Headers */,
 				23FCE59029E6F39F00E735E9 /* GRDReceiptLineItemMetadata.h in Headers */,
 				23DCA2B327E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				236251F0299CE48C00C11DDC /* GRDDNSHelper.h in Headers */,
@@ -652,7 +643,6 @@
 				23DCA2B427E37AE000130BE4 /* GRDWireGuardConfiguration.h in Headers */,
 				236251F1299CE48C00C11DDC /* GRDDNSHelper.h in Headers */,
 				32E92C1C262A1BA700A3202C /* GRDGatewayAPI.h in Headers */,
-				32E92C1D262A1BA700A3202C /* GRDGatewayAPIResponse.h in Headers */,
 				2362523B29A7CE7000C11DDC /* GRDErrorHelper.h in Headers */,
 				32E92C19262A1BA700A3202C /* GRDCredential.h in Headers */,
 				3252D6522693924F00FE7402 /* GRDIAPDiscountDetails.h in Headers */,
@@ -782,8 +772,9 @@
 		321BA13A261404A100E876CB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1410;
+				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = "Sudo Security Group Inc";
 				TargetAttributes = {
 					23BBBC572923E70D00BAEC41 = {
@@ -909,7 +900,6 @@
 				2362524529C2273600C11DDC /* GRDPEToken.m in Sources */,
 				3247E9F62628F2A7007D4E7E /* NSDate+Extras.m in Sources */,
 				32939A8C26167D20007A4DFA /* GRDKeychain.m in Sources */,
-				32939A8726167D20007A4DFA /* GRDGatewayAPIResponse.m in Sources */,
 				23B53A2C2C5CF2F000B56594 /* GRDBlocklistGroup.m in Sources */,
 				2365E6142C4EAF1500FFE0CD /* GRDSmartProxyHost.m in Sources */,
 			);
@@ -939,7 +929,6 @@
 				32E92C0B262A1B4C00A3202C /* NSPredicate+Additions.m in Sources */,
 				23FCE59329E6F39F00E735E9 /* GRDReceiptLineItemMetadata.m in Sources */,
 				235E3E712993F8B6008E915B /* GRDConnectDevice.m in Sources */,
-				32E92C12262A1B6100A3202C /* GRDGatewayAPIResponse.m in Sources */,
 				32E92C13262A1B6100A3202C /* GRDHousekeepingAPI.m in Sources */,
 				32E92C0F262A1B6100A3202C /* GRDCredentialManager.m in Sources */,
 				32E92C16262A1B6100A3202C /* GRDSubscriberCredential.m in Sources */,
@@ -1202,7 +1191,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1217,7 +1206,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1237,7 +1226,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1252,7 +1241,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnect;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1268,7 +1257,6 @@
 		3224BC2126531A5F00E5B4AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1287,7 +1275,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.iOSSampleApp2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRIP_SWIFT_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
@@ -1300,7 +1287,6 @@
 		3224BC2226531A5F00E5B4AD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = iOSSampleApp/iOSSampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1380,7 +1366,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1396,7 +1382,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;
@@ -1414,7 +1400,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = FL2NUL637S;
@@ -1430,7 +1416,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sudosecuritygroup.GuardianConnectMac;
 				PRODUCT_NAME = GuardianConnect;
 				SDKROOT = macosx;

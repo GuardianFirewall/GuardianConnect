@@ -141,6 +141,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// provided to this feature
 @property BOOL disconnectOnTrustedNetworks;
 
+/// Enables or disables the device automatically disconnecting the
+/// VPN tunnel if the device is connected to a wired ethernet connection.
+/// Works with IKEv2 & WireGuard
+///
+/// Leverages similar functionality as the trusted networks capability
+/// though as there are no SSID or other references to leverage as there
+/// are with a WiFi connection, so enabling this feature brings more
+/// implicit security risks
+@property BOOL disconnectOnEthernet;
+
 /// Array of the names of trusted networks on which the VPN
 /// will automatically disconnect with the help of the
 /// NetworkExtension.framework on-demand rules capabiltity
@@ -202,11 +212,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
 + (void)clearVPNConfiguration;
-
-/// Send out two notifications to make any listener
-/// aware that the hostname and hostname location values
-/// should be updated in the interface
-+ (void)sendServerUpdateNotifications;
 
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
 /// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
@@ -295,9 +300,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Convenience function to store trusted networks persistently and enabling the feature
 ///
 /// The array of trusted network SSIDs will be stored in NSUserDefaults and
-/// the trustedNetworks property will be populated to read it back.
+/// the trustedNetworks class property will be populated to read it back.
 /// Providing nil will disable the feature and remove the array of trusted networks
-/// out of NSUserDefaults
+/// out of NSUserDefaults. Prior to storing the array of trusted networks they will
+/// de-duplicated so it is recommended to refresh the list of trusted networks that
+/// the user is presented
 - (void)defineTrustedNetworksEnabled:(BOOL)enabled onTrustedNetworks:(NSArray<NSString *> *)trustedNetworks;
 
 /// Convenience function to enable the VPN kill switch capability.
