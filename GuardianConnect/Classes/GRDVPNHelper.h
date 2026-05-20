@@ -82,9 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// to the VPN tunnel settings
 @property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
 
-/// Class internal main credential reference
-@property (nonatomic, strong) GRDCredential * _Nullable mainCredential;
-
 /// Provides the ability to disable the NetworkExtension's on-demand
 /// features.
 /// Defaults to YES/true
