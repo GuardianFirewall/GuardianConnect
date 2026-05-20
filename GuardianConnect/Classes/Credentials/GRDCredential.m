@@ -235,4 +235,16 @@
 	return server;
 }
 
+- (BOOL)canSendSGWAPIRequests {
+	if (self.hostname == nil) {
+		return false;
+	}
+	
+	if ([self.hostname isEqualToString:@""]) {
+		return false;
+	}
+	
+	return true;
+}
+
 @end

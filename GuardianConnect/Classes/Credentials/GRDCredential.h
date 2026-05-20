@@ -61,6 +61,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Helper function to quickly convert a GRDCredential into a GRDSGWServer representation
 - (GRDSGWServer *)sgwServerFormat;
 
+/// Convenience helper in order to quickly determine whether the SGW credentials contains a hostname
+- (BOOL)canSendSGWAPIRequests;
+
 @end
 
 NS_ASSUME_NONNULL_END
