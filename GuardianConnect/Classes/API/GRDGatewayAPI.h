@@ -6,34 +6,16 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <DeviceCheck/DeviceCheck.h>
 
-#import <GuardianConnect/GRDKeychain.h>
-#import <GuardianConnect/GRDCredential.h>
 #import <GuardianConnect/GRDAPIError.h>
+#import <GuardianConnect/GRDCredential.h>
+#import <GuardianConnect/GRDCredentialManager.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDGatewayAPI : NSObject
 
-/// can be set to true to make - (void)getEvents return dummy alerts for debgging purposes
-@property BOOL dummyDataForDebugging; //obsolete, moved to GRDVPNHelper
-
-/// apiAuthToken is used as a second factor of authentication by the zoe-agent API. zoe-agent expects this value to be sent in the JSON encoded body of the HTTP request for the value 'api-auth-token'
-@property (strong, nonatomic, readonly) NSString *apiAuthToken;
-
-/// deviceIdentifier and eapUsername are the same values. eapUsername is stored in the keychain for the value 'eap-username'
-@property (strong, nonatomic, readonly) NSString *deviceIdentifier;
-
-/// apiHostname holds the value of the zoe-agent instance the app is currently connected to in memory. A persistent copy of it is stored in NSUserDefaults
-@property (strong, nonatomic, readonly) NSString *apiHostname;
-
-/// Load the current VPN node hostname out of NSUserDefaults
-- (NSString *)baseHostname;
-
-
-/// endpoint: /vpnsrv/api/server-status
 /// hits the endpoint for the current VPN host to check if a VPN connection can be established
 - (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable errorMessage))completion;
 
@@ -65,10 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// endpoint: /api/v1.1/device/<eap-username>/alerts
 /// @param completion De-Serialized JSON from the server containing an array with all alerts
 - (void)getEvents:(void (^)(NSArray *alerts, BOOL success, NSString *_Nullable error))completion;
-
-/// endpoint: /api/v1.2/device/<eap-username>/set-alerts-download-timestamp
-/// @param completion completion block indicating a successful API request or an error message with detailed information
-- (void)setAlertsDownloadTimestampWithCompletion:(void(^)(BOOL success, NSString * _Nullable errorMessage))completion;
 
 
 /// endpoint: /api/v1.1/<device_token>/set-push-token
