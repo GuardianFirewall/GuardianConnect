@@ -237,14 +237,14 @@
 
 - (BOOL)canSendSGWAPIRequests {
 	if (self.hostname == nil) {
-		return false;
+		return NO;
 	}
 	
 	if ([self.hostname isEqualToString:@""]) {
-		return false;
+		return NO;
 	}
 	
-	return true;
+	return YES;
 }
 
 @end

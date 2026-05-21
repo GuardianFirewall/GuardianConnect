@@ -287,7 +287,6 @@
 
 - (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	__block GRDCredential *mainCredentials 	= [GRDCredentialManager mainCredentials];
-	__block NSString *vpnServer 			= [mainCredentials hostname];
 	
 	if (mainCredentials == nil) {
 		GRDErrorLogg(@"Main credentials missing, migrating user!");
@@ -295,8 +294,8 @@
 		return;
 	}
 	
-	if ([vpnServer hasSuffix:@".guardianapp.com"] == NO && [vpnServer hasSuffix:@".sudosecuritygroup.com"] == NO && [vpnServer hasSuffix:@".ikev2.network"] == NO) {
-		GRDErrorLogg(@"Something went wrong! Bad server (%@). Migrating user...", vpnServer);
+	if ([[mainCredentials hostname] hasSuffix:@".guardianapp.com"] == NO && [[mainCredentials hostname] hasSuffix:@".sudosecuritygroup.com"] == NO && [[mainCredentials hostname] hasSuffix:@".ikev2.network"] == NO) {
+		GRDErrorLogg(@"Something went wrong! Bad server (%@). Migrating user...", [mainCredentials hostname]);
 		[self migrateUserForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] withCompletion:completion];
 		return;
 	}
