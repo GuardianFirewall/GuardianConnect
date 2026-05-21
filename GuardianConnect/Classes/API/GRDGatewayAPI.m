@@ -14,7 +14,7 @@
 
 - (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable))completion {
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion(@"SGW credential is missing a hostname, cannot send API requests!");
 		return;
 	}
@@ -150,7 +150,7 @@
     }
 	
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"SGW credential is missing a hostname, cannot send API requests!"]]);
 		return;
 	}
@@ -204,7 +204,7 @@
 	}
 	
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion(nil, NO, @"SGW credential is missing a hostname, cannot send API requests!");
 		return;
 	}
@@ -297,7 +297,7 @@
 
 - (void)setPushToken:(NSString *_Nonnull)pushToken andDataTrackersEnabled:(BOOL)dataTrackers locationTrackersEnabled:(BOOL)locationTrackers pageHijackersEnabled:(BOOL)pageHijackers mailTrackersEnabled:(BOOL)mailTrackers completion:(void (^)(BOOL success, NSString * _Nullable errorMessage))completion {
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion(NO, @"SGW credential is missing a hostname, cannot send API requests!");
 		return;
 	}
@@ -343,7 +343,7 @@
 
 - (void)removePushTokenWithCompletion:(void (^)(BOOL, NSString * _Nullable))completion {
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion(NO, @"SGW credential is missing a hostname, cannot send API requests!");
 		return;
 	}
@@ -382,7 +382,7 @@
 
 - (void)getDeviceFitlerConfigsForDeviceId:(NSString *)deviceId apiToken:(NSString *)apiToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"SGW credential is missing a hostname, cannot send API requests!"]);
 		return;
 	}
@@ -421,7 +421,7 @@
 
 - (void)setDeviceFilterConfigsForDeviceId:(NSString *)deviceId apiToken:(NSString *)apiToken deviceConfigFilters:(NSDictionary *)configFilters completion:(void (^)(NSError * _Nullable))completion {
 	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if ([mainCredentials canSendSGWAPIRequests]) {
+	if (![mainCredentials canSendSGWAPIRequests]) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"SGW credential is missing a hostname, cannot send API requests!"]);
 		return;
 	}
