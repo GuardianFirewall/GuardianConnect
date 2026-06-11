@@ -44,6 +44,7 @@
 #import <GuardianConnect/GRDBlocklistGroup.h>
 #import <GuardianConnect/GRDBlocklistItem.h>
 #import <GuardianConnect/GRDBlocklistType.h>
+#import <GuardianConnect/GRDClientRule.h>
 
 //! Project version number for GuardianConnect.
 FOUNDATION_EXPORT double GuardianConnectVersionNumber;
