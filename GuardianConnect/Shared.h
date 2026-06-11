@@ -37,6 +37,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
+static NSString * const kGRDAPIAuthTokenHTTPHeader 						= @"grd-api-auth-token";
 
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
@@ -57,7 +58,6 @@ static NSString * const kGuardianSuccessfulSubscription                 = @"succ
 static NSString * const kGRDBetaCapablePreferred 						= @"kGRDBetaCapablePreferred";
 static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureEnvironment";
 
-
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
@@ -65,6 +65,7 @@ static NSString * const kGRDSmartRountingProxyEnabled					= @"kGRDSmartRountingP
 static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
+static NSString * const kGRDClientRulesList								= @"kGRDClientRulesList";
 
 static NSString * const kGRDWGDevicePublicKey                           = @"wg-device-public-key";
 static NSString * const kGRDWGDevicePrivateKey							= @"wg-device-private-key";
