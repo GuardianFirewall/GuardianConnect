@@ -55,14 +55,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)defaultFileName;
 - (BOOL)expired;
 - (NSInteger)daysLeft; //days until it does expire
-- (BOOL)canRevoke; //legacy credentials are missing the API auth token so they cant be revoked.
-- (void)revokeCredentialWithCompletion:(void(^)(NSError * _Nullable error))completion;
+
 
 /// Helper function to quickly convert a GRDCredential into a GRDSGWServer representation
 - (GRDSGWServer *)sgwServerFormat;
 
-/// Convenience helper in order to quickly determine whether the SGW credentials contains a hostname
+/// Convenience helper in order to quickly determine whether the SGW credentials contains
+/// the required information in order to send API requests
 - (BOOL)canSendSGWAPIRequests;
+
+- (void)verifyWithCompletion:(void(^)(BOOL credentialValid, NSError * _Nullable error))completion;
+
+- (void)revokeCredentialWithCompletion:(void(^)(NSError * _Nullable error))completion;
 
 @end
 

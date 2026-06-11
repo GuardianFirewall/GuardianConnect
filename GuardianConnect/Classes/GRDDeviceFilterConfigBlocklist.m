@@ -41,7 +41,7 @@
 	NSMutableDictionary *apiDict = [NSMutableDictionary new];
 	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistDisableFirewall]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistDisableFirewall]];
 	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockAds]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockAds]];
-	 [apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockPhishing]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockPhishing]];
+	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockPhishing]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockPhishing]];
 	return [NSDictionary dictionaryWithDictionary:apiDict];
 }
 
