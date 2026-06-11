@@ -13,9 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
-typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
-
+# pragma mark - API Features
 
 typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 	ServerFeatureEnvironmentProduction = 1,
@@ -95,7 +93,7 @@ static NSString * const kIsPremiumUser                                  = @"user
 static NSString * const kGRDSubscriptionUpdatedNotification				= @"GRDSubscriptionUpdatedNotification";
 
 
-#pragma mark - Region precision constants
+#pragma mark - Region Precision
 static NSString * const kGRDPreferredRegionPrecision 		= @"kGRDPreferredRegionPrecision";
 static NSString * const kGRDRegionPrecisionDefault 			= @"default";
 static NSString * const kGRDRegionPrecisionCity 			= @"city";
@@ -104,13 +102,13 @@ static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
-#pragma mark - Smart Proxy Routing region states
+#pragma mark - SRP Region States
 static NSString * const kGRDRegionSmartRoutingProxyNone = @"none";
 static NSString * const kGRDRegionSmartRoutingProxySome = @"some";
 static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
 
 
-# pragma mark - Trusted Network constants
+# pragma mark - Trusted Networks
 static NSString * const kGRDDisconnectOnEthernet		= @"kGRDDisconnectOnEthernet";
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
