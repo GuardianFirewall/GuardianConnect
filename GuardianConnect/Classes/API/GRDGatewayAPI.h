@@ -16,8 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDGatewayAPI : NSObject
 
-/// hits the endpoint for the current VPN host to check if a VPN connection can be established
-- (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable errorMessage))completion;
+
+- (void)getServerStatusForHostname:(NSString *)hostname completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 /// Used to register a new device for a given transport protocol
 /// @param transportProtocol Specified what kind of VPN credentials will be returned

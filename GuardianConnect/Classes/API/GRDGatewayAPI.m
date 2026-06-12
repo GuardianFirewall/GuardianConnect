@@ -12,14 +12,8 @@
 
 #pragma mark - Convenience helpers
 
-- (void)getServerStatusWithCompletion:(void (^ _Nullable)(NSString * _Nullable))completion {
-	GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
-	if (![mainCredentials canSendSGWAPIRequests]) {
-		if (completion) completion(@"SGW credential is missing a hostname, cannot send API requests!");
-		return;
-	}
-    
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.3/server-status", [mainCredentials hostname]]];
+- (void)getServerStatusForHostname:(NSString *)hostname completion:(void (^ _Nullable)(NSError * _Nullable))completion {
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.3/server-status", hostname]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setTimeoutInterval:10];
     [request setHTTPMethod:@"GET"];
@@ -31,14 +25,14 @@
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 		if (error != nil) {
-			if (completion) completion([NSString stringWithFormat:@"Failed to check VPN server status: %@", [error localizedDescription]]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", error]]);
 			return;
 		}
 		
 		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
 		if (statusCode != 200) {
 			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
-			if (completion) completion([NSString stringWithFormat:@"SGW server status response not 200 Ok: %@", apiErr]);
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"SGW server status response not 200 Ok: %@", apiErr]]);
 			return;
 		}
 		
