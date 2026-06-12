@@ -409,4 +409,162 @@
 	[task resume];
 }
 
+# pragma mark - Client Rules
+
+- (void)getClientRulesForHostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.4/device/%@/config/rules", hostname, deviceId]]];
+	[request setValue:apiAuthToken forHTTPHeaderField:kGRDAPIAuthTokenHTTPHeader];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", error]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to fetch client rules: %@", apiErr]]);
+			return;
+		}
+		
+		NSError *jsonError;
+		NSArray *clientRulesRaw = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+		if (jsonError != nil) {
+			if (completion) completion(nil, jsonError);
+			return;
+		}
+		if (completion) completion(clientRulesRaw, nil);
+	}];
+	[task resume];
+}
+
+- (void)setClientRules:(NSArray *)rulesRaw hostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
+	NSError *jsonErr;
+	NSData *requestBody = [NSJSONSerialization dataWithJSONObject:@{@"client-rules": rulesRaw, kKeychainStr_APIAuthToken: apiAuthToken} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON encode request data: %@", jsonErr]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.4/device/%@/config/rules", hostname, deviceId]]];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestBody];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", error]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to set client rules: %@", apiErr]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSArray *clientRulesRaw = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON decode response data: %@", jsonErr]]);
+			return;
+		}
+		
+		if (completion) completion(clientRulesRaw, nil);
+	}];
+	[task resume];
+}
+
+# pragma mark - Mutlihop
+
+- (void)getMultihopRegionConfigsForHostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.4/device/%@/config/multihop", hostname, deviceId]]];
+	[request setValue:apiAuthToken forHTTPHeaderField:kGRDAPIAuthTokenHTTPHeader];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", error]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to fetch multihop region config: %@", apiErr]]);
+			return;
+		}
+		
+		NSError *jsonError;
+		NSDictionary *multihopRegionConfigRaw = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+		if (jsonError != nil) {
+			if (completion) completion(nil, jsonError);
+			return;
+		}
+		if (completion) completion(multihopRegionConfigRaw, nil);
+	}];
+	[task resume];
+}
+
+- (void)setMultihopExitRegion:(NSString *)exitRegion hostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+	NSError *jsonErr;
+	NSData *requestBody = [NSJSONSerialization dataWithJSONObject:@{@"multihop-exit-region": exitRegion, kKeychainStr_APIAuthToken: apiAuthToken} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON encode request data: %@", jsonErr]]);
+		return;
+	}
+	
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/v1.4/device/%@/config/multihop", hostname, deviceId]]];
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:requestBody];
+	[request setTimeoutInterval:30];
+	
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:30];
+	[sessionConf setTimeoutIntervalForResource:30];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to send request: %@", error]]);
+			return;
+		}
+		
+		NSUInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to set multihop exit region: %@", apiErr]]);
+			return;
+		}
+		
+		NSError *jsonErr;
+		NSDictionary *multihopExitRegionsRaw = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+		if (jsonErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON decode response data: %@", jsonErr]]);
+			return;
+		}
+		
+		if (completion) completion(multihopExitRegionsRaw, nil);
+	}];
+	[task resume];
+}
+
 @end

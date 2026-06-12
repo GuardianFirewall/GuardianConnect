@@ -69,8 +69,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getClientRulesForHostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void(^)(NSArray * _Nullable rulesRaw, NSError * _Nullable error))completion;
 
+- (void)setClientRules:(NSArray *)rulesRaw hostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void(^)(NSArray * _Nullable rulesRaw, NSError * _Nullable error))completion;
 
+- (void)getMultihopRegionConfigsForHostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void(^)(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error))completion;
 
+- (void)setMultihopExitRegion:(NSString *)exitRegion hostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void(^)(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error))completion;
 
 @end
 
