@@ -111,7 +111,7 @@
 		return;
 	}
 	
-	[[GRDGatewayAPI new] setDeviceFilterConfigsForDeviceId:[mainCreds clientId] apiToken:[mainCreds apiAuthToken] deviceConfigFilters:[self apiPortableBlocklist] completion:^(NSError * _Nullable errorMessage) {
+	[[GRDGatewayAPI new] setDeviceFilterConfigs:[self apiPortableBlocklist] hostname:[mainCreds hostname] deviceId:[mainCreds clientId] apiToken:[mainCreds apiAuthToken] completion:^(NSError * _Nullable errorMessage) {
 		if (completion) completion(errorMessage);
 	}];
 }
