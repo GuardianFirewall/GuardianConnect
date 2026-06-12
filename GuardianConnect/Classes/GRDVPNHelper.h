@@ -13,10 +13,11 @@
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDClientRule.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
-#import <GuardianConnect/GRDSmartProxyHost.h>
 #import <GuardianConnect/GRDBlocklistItem.h>
+#import <GuardianConnect/GRDSmartProxyHost.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
@@ -316,6 +317,27 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 /// Clear all on device cache related to cached Guardian hosts & keychain items including the Subscriber Credential
 - (void)clearLocalCache;
+
+
+# pragma mark - Multihop
+
+- (NSString *)preferredMultihopExitRegion;
+
+- (NSError *)setPreferredMultihopExitRegion:(NSString *)exitRegion;
+
+
+#pragma mark - Client Rules
+- (void)clientRulesWithCompletion:(void(^)(NSArray <GRDClientRule *> * _Nullable clientRules, NSError * _Nullable error))completion;
+
+- (NSInteger)indexOfClientRule:(GRDClientRule *)clientRule inAllRules:(NSArray <GRDClientRule *> *)allClientRules;
+
+- (NSError *)addClientRule:(GRDClientRule *)newClientRule;
+
+- (NSError *)removeClientRule:(GRDClientRule *)clientRule;
+
+- (NSError *)storeClientRules:(NSArray <GRDClientRule *> *)clientRules;
+
+- (NSArray *)apiPortableClientRules;
 
 
 # pragma mark - Smart Routing Proxy

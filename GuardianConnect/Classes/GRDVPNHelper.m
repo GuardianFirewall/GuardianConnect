@@ -796,25 +796,24 @@
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
 			NSInteger adjustedDays = [self _sgwCredentialValidFor];
-			//adjust the day count in case 30 is too many
+			
+			NSArray *clientRules = [self apiPortableClientRules];
+#warning fix this
+			NSDictionary *deviceFilterConfigs = @{@"block-phishing": @(NO), @"block-ads": @(NO), @"block-none": @(NO)};
+			NSString *exitRegion = [self preferredMultihopExitRegion];
 
 			if (protocol == TransportIKEv2) {
-				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
-					if (success == NO && errorMessage != nil) {
-						completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
-
-					} else {
-						completion(credentialDetails, nil);
-					}
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+					if (completion) completion(credentialDetails, nil);
 				}];
 				
 			} else {
 				GRDCurve25519 *keys = [[GRDCurve25519 alloc] init];
 				[keys generateKeyPair];
 				
-				[[GRDGatewayAPI new] registerDeviceForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{@"public-key":keys.publicKey} completion:^(NSDictionary * _Nullable credentialDetails, BOOL success, NSString * _Nullable errorMessage) {
-					if (success == NO && errorMessage != nil) {
-						if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:errorMessage]);
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+					if (error != nil) {
+						if (completion) completion(nil, error);
 						return;
 						
 					} else {
@@ -1065,6 +1064,167 @@
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
 
+# pragma mark - Multihop
+
+- (NSString *)preferredMultihopExitRegion {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *preferredExitRegion = [defaults stringForKey:@"kGRDMultihopExitRegion"];
+	
+	return preferredExitRegion;
+}
+
+- (NSError *)setPreferredMultihopExitRegion:(NSString *)exitRegion {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setObject:exitRegion forKey:@"kGRDMultihopExitRegion"];
+	
+	__block NSError *multihopError;
+	GRDCredential *mainCredential = [GRDCredentialManager mainCredentials];
+	if ([mainCredential canSendSGWAPIRequests]) {
+		[[GRDGatewayAPI new] setMultihopExitRegion:exitRegion hostname:[mainCredential hostname] deviceId:[mainCredential clientId] apiAuthToken:[mainCredential apiAuthToken] completion:^(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error) {
+			if (error != nil) {
+				multihopError = error;
+			}
+		}];
+	}
+	
+	return multihopError;
+}
+
+
+#pragma mark - Client Rules
+
+- (void)clientRulesWithCompletion:(void (^)(NSArray<GRDClientRule *> * _Nullable, NSError * _Nullable))completion {
+	NSData *encodedClientRules = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDClientRulesList];
+	if (encodedClientRules == nil) {
+		if (completion) completion(nil, nil);
+		return;
+	}
+	
+	NSError *unarchiveErr;
+	NSArray <GRDClientRule *> *clientRules = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[NSArray class], [NSString class], [GRDClientRule class], nil] fromData:encodedClientRules error:&unarchiveErr];
+	if (unarchiveErr != nil) {
+		if (completion) completion(nil, unarchiveErr);
+		return;
+	}
+	
+	if (completion) completion(clientRules, nil);
+}
+
+- (NSInteger)indexOfClientRule:(GRDClientRule *)clientRule inAllRules:(NSArray <GRDClientRule *> *)allClientRules {
+	NSInteger index = 0;
+	for (GRDClientRule *rule in allClientRules) {
+		if ([rule isEqual:clientRule]) {
+			return index;
+		}
+		index++;
+	}
+	
+	return -1;
+}
+
+- (NSError *)addClientRule:(GRDClientRule *)newClientRule {
+	__block NSError *storeError = nil;
+	[self clientRulesWithCompletion:^(NSArray<GRDClientRule *> * _Nullable clientRules, NSError * _Nullable error) {
+		if (error != nil) {
+			storeError = error;
+			return;
+		}
+		
+		NSMutableArray *mutableRules = [clientRules mutableCopy];
+		if (mutableRules == nil) {
+			mutableRules = [NSMutableArray new];
+		}
+		
+		NSInteger index = [self indexOfClientRule:newClientRule inAllRules:mutableRules];
+		if (index != -1) {
+			[mutableRules replaceObjectAtIndex:index withObject:newClientRule];
+			
+		} else {
+			[mutableRules addObject:newClientRule];
+		}
+		
+		NSError *storeErr = [self storeClientRules:mutableRules];
+		if (storeErr != nil) {
+			storeError = storeErr;
+			return;
+		}
+	}];
+	
+	return storeError;
+}
+
+- (NSError *)removeClientRule:(GRDClientRule *)clientRule {
+	__block NSError *removeErr = nil;
+	[self clientRulesWithCompletion:^(NSArray<GRDClientRule *> * _Nullable clientRules, NSError * _Nullable error) {
+		if (error != nil) {
+			removeErr = error;
+			return;
+		}
+		
+		if ([clientRules count] < 1) {
+			return;
+		}
+		
+		NSMutableArray *mutableClientRules = [clientRules mutableCopy];
+		NSInteger index = [self indexOfClientRule:clientRule inAllRules:clientRules];
+		if (index != -1) {
+			removeErr = [GRDErrorHelper errorWithErrorCode:GRDErrGenericErrorCode andErrorMessage:@"The provided client rule does not exist"];
+			return;
+		}
+		
+		[mutableClientRules removeObjectAtIndex:index];
+		NSError *storeErr = [self storeClientRules:mutableClientRules];
+		if (storeErr != nil) {
+			removeErr = storeErr;
+			return;
+		}
+	}];
+	
+	return removeErr;
+}
+
+- (NSError *)storeClientRules:(NSArray <GRDClientRule *> *)clientRules {
+	__block NSError *storeError;
+	NSError *encodeErr;
+	NSData *encodedClientRules = [NSKeyedArchiver archivedDataWithRootObject:clientRules requiringSecureCoding:YES error:&encodeErr];
+	if (encodeErr != nil) {
+		return encodeErr;
+	}
+	[[NSUserDefaults standardUserDefaults] setObject:encodedClientRules forKey:kGRDClientRulesList];
+	
+	GRDCredential *mainCredential = [GRDCredentialManager mainCredentials];
+	if ([mainCredential canSendSGWAPIRequests]) {
+		[[GRDGatewayAPI new] setClientRules:[self apiPortableClientRules] hostname:[mainCredential hostname] deviceId:[mainCredential clientId] apiAuthToken:[mainCredential apiAuthToken] completion:^(NSArray * _Nullable rulesRaw, NSError * _Nullable error) {
+			if (error != nil) {
+				storeError = error;
+				return;
+			}
+		}];
+	}
+	
+	return storeError;
+}
+
+- (NSArray *)apiPortableClientRules {
+	__block NSMutableArray *requestData = [NSMutableArray new];
+	[self clientRulesWithCompletion:^(NSArray<GRDClientRule *> * _Nullable clientRules, NSError * _Nullable error) {
+		for (GRDClientRule *rule in clientRules) {
+			if (rule.enabled == NO) continue;
+			
+			NSMutableDictionary *encodedRule = [NSMutableDictionary new];
+			[encodedRule setObject:[GRDClientRule keyForMatchType:rule.matchType] forKey:@"match-type"];
+//			[encodedRule setObject:[rule matchPort] forKey:@"match-port"];
+			[encodedRule setObject:[rule matchValue] forKey:@"match-value"];
+			//		[encodedRule setObject:[rule ruleId] forKey:@"rule-id"];
+			[encodedRule setObject:[GRDClientRule keyForVerdict:rule.verdict] forKey:@"verdict"];
+			//		[encodedRule setObject:[rule multihopExitRegion] forKey:@"multihop-exit-region"];
+			
+			[requestData addObject:encodedRule];
+		}
+	}];
+	
+	return requestData;
+}
 
 # pragma mark - Smart Routing Proxy
 
