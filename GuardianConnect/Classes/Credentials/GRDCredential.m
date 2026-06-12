@@ -205,32 +205,47 @@
 	return ([[(GRDCredential *)object identifier] isEqualToString:self.identifier]);
 }
 
-- (BOOL)canRevoke {
-    return (self.username.length > 0 && self.apiAuthToken.length > 0);
+- (void)verifyWithCompletion:(void (^)(BOOL, NSError * _Nullable))completion {
+	if (![self canSendSGWAPIRequests]) {
+		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Main credential can't send SGW API requests"]);
+		return;
+	}
+	
+	[[GRDVPNHelper sharedInstance] getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(NO, error);
+			return;
+		}
+		
+		[[GRDGatewayAPI new] verifyCredentialsForClientId:self.username withAPIToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL credentialsValid, NSError * _Nullable error) {
+			if (completion) completion(credentialsValid, error);
+		}];
+	}];
 }
 
 - (void)revokeCredentialWithCompletion:(void(^)(NSError * _Nullable error))completion {
-    if (self.username.length > 0 && self.apiAuthToken.length > 0) {
-		GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
-		if (subCred == nil) {
-			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Credential not invalidated, no Subscriber Credential present"]);
-			return;
-		}
-		[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
-            if (completion)completion(error);
-        }];
-		
-    } else {
-        GRDWarningLogg(@"Missing data to revoke the VPN credential: %@", self);
-        if (completion)completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Cant revoke this credential, missing necessary data!"]);
-    }
+	if (![self canSendSGWAPIRequests]) {
+		GRDWarningLogg(@"Main credential can't send SGW API requests: %@", self);
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Main credential can't send SGW API requests"]);
+		return;
+	}
+    
+	GRDSubscriberCredential *subCred = [GRDSubscriberCredential currentSubscriberCredential];
+	if (subCred == nil) {
+		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Credential not invalidated, Subscriber Credential not avilable"]);
+		return;
+	}
+	
+	[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
+		if (completion) completion(error);
+	}];
 }
 
 - (GRDSGWServer *)sgwServerFormat {
-	GRDSGWServer *server = [GRDSGWServer new];
-	server.hostname = self.hostname;
-	server.displayName = self.hostnameDisplayValue;
-	server.region = self.region;
+	GRDSGWServer *server 	= [GRDSGWServer new];
+	server.hostname 		= self.hostname;
+	server.displayName 		= self.hostnameDisplayValue;
+	server.region 			= self.region;
 	
 	return server;
 }
@@ -241,6 +256,22 @@
 	}
 	
 	if ([self.hostname isEqualToString:@""]) {
+		return NO;
+	}
+	
+	if (self.clientId == nil) {
+		return NO;
+	}
+	
+	if ([self.clientId length] < 1) {
+		return NO;
+	}
+	
+	if (self.apiAuthToken == nil) {
+		return NO;
+	}
+	
+	if ([self.apiAuthToken length] < 1) {
 		return NO;
 	}
 	
