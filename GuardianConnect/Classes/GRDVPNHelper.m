@@ -172,18 +172,20 @@
 
 
 + (BOOL)activeConnectionPossible {
-    GRDCredential *cred = [GRDCredentialManager mainCredentials];
-	if (cred.transportProtocol == TransportIKEv2) {
-		NSString *apiHostname = cred.hostname;
-		NSString *authToken = cred.apiAuthToken;
-		NSString *eapUsername = cred.username;
-		if (apiHostname == nil || authToken == nil || eapUsername == nil) return NO;
+    GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
+	if (mainCredentials.transportProtocol == TransportIKEv2) {
+		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil) {
+			return NO;
+		}
+		
 		return YES;
 		
-	} else if (cred.transportProtocol == TransportWireGuard) {
-		if (cred.hostname == nil || cred.apiAuthToken == nil || cred.devicePrivateKey == nil || cred.serverPublicKey == nil) return NO;
+	} else if (mainCredentials.transportProtocol == TransportWireGuard) {
+		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil || mainCredentials.devicePrivateKey == nil || mainCredentials.serverPublicKey == nil) {
+			return NO;
+		}
+		
 		return YES;
-	
     }
 	
 	return NO;
@@ -866,8 +868,8 @@
 
 - (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion {
 	GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
-	if (mainCreds == nil) {
-		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"No main VPN credentials found"]);
+	if (![mainCreds canSendSGWAPIRequests]) {
+		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Main credential can't send SGW API requests"]);
 		return;
 	}
 	
@@ -877,9 +879,8 @@
 			return;
 		}
 		
-		GRDGatewayAPI *gatewayAPI = [GRDGatewayAPI new];
-		[gatewayAPI verifyCredentialsForClientId:mainCreds.clientId withAPIToken:mainCreds.apiAuthToken hostname:mainCreds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL success, BOOL credentialsValid, NSString * _Nullable errorMessage) {
-			if (success == YES) {
+		[[GRDGatewayAPI new] verifyCredentialsForClientId:mainCreds.clientId withAPIToken:mainCreds.apiAuthToken hostname:mainCreds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL credentialsValid, NSError * _Nullable error) {
+			if (error == nil) {
 				if (credentialsValid == YES) {
 					if (completion) completion(YES, nil);
 					return;
@@ -1110,7 +1111,7 @@
 			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 				[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
 					if (status != GRDVPNHelperSuccess) {
-						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", [errorMessage localizedDescription]);
+						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", error);
 					}
 				}];
 			}
