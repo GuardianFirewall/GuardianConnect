@@ -33,7 +33,7 @@
 		self.apiAuthToken 			= credDict[kKeychainStr_APIAuthToken];
 		self.expirationDate 		= [[NSDate date] dateByAddingDays:validForDays];
 		self.hostname 				= server.hostname;
-		self.server 		= server;
+		self.server 				= server;
 		self.hostnameDisplayValue 	= server.displayName;
 		
 		self.region = server.region;
@@ -239,15 +239,6 @@
 	[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
 		if (completion) completion(error);
 	}];
-}
-
-- (GRDSGWServer *)sgwServerFormat {
-	GRDSGWServer *server 	= [GRDSGWServer new];
-	server.hostname 		= self.hostname;
-	server.displayName 		= self.hostnameDisplayValue;
-	server.region 			= self.region;
-	
-	return server;
 }
 
 - (BOOL)canSendSGWAPIRequests {

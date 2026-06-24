@@ -31,7 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString 	        *hostname;
 @property NSString 	        *hostnameDisplayValue;
 @property GRDRegion 		* _Nullable region;
-
 @property NSString          *clientId;
 @property NSString          *apiAuthToken;
 
@@ -55,10 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)defaultFileName;
 - (BOOL)expired;
 - (NSInteger)daysLeft; //days until it does expire
-
-
-/// Helper function to quickly convert a GRDCredential into a GRDSGWServer representation
-- (GRDSGWServer *)sgwServerFormat;
 
 /// Convenience helper in order to quickly determine whether the SGW credentials contains
 /// the required information in order to send API requests
