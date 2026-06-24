@@ -181,9 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 	GRDVPNHelperUnknown = 0,
     GRDVPNHelperSuccess,
-    GRDVPNHelperFail,
-    GRDVPNHelperDoesNeedMigration,
-    GRDVPNHelperCoudNotReachAPIError
+    GRDVPNHelperFail
 };
 
 typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
