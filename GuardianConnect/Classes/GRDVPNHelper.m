@@ -1298,9 +1298,8 @@
 
 + (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server {
 	NEProxySettings *proxySettings = [NEProxySettings new];
-	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
-	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
-		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
+#if TARGET_OS_MAC && !TARGET_OS_IPHONE
+	if (server.smartProxyRoutingEnabled == YES) {
 		proxySettings.autoProxyConfigurationEnabled = YES;
 		proxySettings.proxyAutoConfigurationURL = [NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/smart-proxy-routing/static-pac"];
 		
@@ -1309,6 +1308,19 @@
 		proxySettings.proxyAutoConfigurationJavaScript = nil;
 	}
 	
+#elif TARGET_OS_IPHONE
+	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
+	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
+		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
+		proxySettings.autoProxyConfigurationEnabled = YES;
+		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
+		
+	} else {
+		proxySettings.autoProxyConfigurationEnabled = NO;
+		proxySettings.proxyAutoConfigurationJavaScript = nil;
+	}
+#endif
+		
 	return proxySettings;
 }
 
