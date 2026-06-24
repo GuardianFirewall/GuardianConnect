@@ -23,13 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param transportProtocol Specified what kind of VPN credentials will be returned
 /// @param hostname The hostname of the VPN node
 /// @param subscriberCredential The Subscriber Credential which should be used to authenticate
-/// @param validFor The amount of days the VPN credentials should be valid for
 /// @param options Optional non-standard values which should be passed to the VPN node via the JSON body of the request
 /// @param deviceFilterConfigs Dictionary containing various options to enable settings in the firewall for this credential
 /// @param clientRules Customer defined traffic rules to be enforced on the firewall
 /// @param multihopExitRegion Name of the region where traffic should egress after a hop from the ingress SGW server the device is connected to
 /// @param completion The completion handler called once the task is compeleted
-- (void)registerDeviceCredentialForTransportProtocol:(NSString *)transportProtocol hostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor transportOptions:(NSDictionary *)options deviceFilterConfigs:(NSDictionary *)deviceFilterConfigs clientRules:(NSArray *)clientRules multihopExitRegion:(NSString *)multihopExitRegion completion:(void (^)(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error))completion;
+- (void)registerDeviceCredentialForTransportProtocol:(NSString *)transportProtocol hostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential transportOptions:(NSDictionary *)options deviceFilterConfigs:(NSDictionary *)deviceFilterConfigs clientRules:(NSArray *)clientRules multihopExitRegion:(NSString *)multihopExitRegion completion:(void (^)(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error))completion;
 
 /// Used to verify that the local credentials are still valid and can be used to establish the VPN connection again
 /// @param clientId The client id assosicated with the VPN credentials

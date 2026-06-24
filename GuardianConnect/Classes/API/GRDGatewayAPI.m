@@ -44,7 +44,7 @@
 
 # pragma mark - Device Management
 
-- (void)registerDeviceCredentialForTransportProtocol:(NSString *)transportProtocol hostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential validForDays:(NSInteger)validFor transportOptions:(NSDictionary *)options deviceFilterConfigs:(NSDictionary *)deviceFilterConfigs clientRules:(NSArray *)clientRules multihopExitRegion:(NSString *)multihopExitRegion completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
+- (void)registerDeviceCredentialForTransportProtocol:(NSString *)transportProtocol hostname:(NSString *)hostname subscriberCredential:(NSString *)subscriberCredential transportOptions:(NSDictionary *)options deviceFilterConfigs:(NSDictionary *)deviceFilterConfigs clientRules:(NSArray *)clientRules multihopExitRegion:(NSString *)multihopExitRegion completion:(void (^)(NSDictionary * _Nullable, NSError * _Nullable))completion {
 	NSString *url = [NSString stringWithFormat:@"https://%@/api/v1.4/device-credentials", hostname];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
 	[request setHTTPMethod:@"POST"];

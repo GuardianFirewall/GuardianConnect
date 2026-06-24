@@ -800,7 +800,6 @@
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
 		if (subscriberCredential != nil) {
-			NSInteger adjustedDays = [self _sgwCredentialValidFor];
 			
 			NSArray *clientRules = [self apiPortableClientRules];
 #warning fix this
@@ -808,7 +807,7 @@
 			NSString *exitRegion = [self preferredMultihopExitRegion];
 
 			if (protocol == TransportIKEv2) {
-				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
 					if (completion) completion(credentialDetails, nil);
 				}];
 				
@@ -816,7 +815,7 @@
 				GRDCurve25519 *keys = [[GRDCurve25519 alloc] init];
 				[keys generateKeyPair];
 				
-				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt validForDays:adjustedDays transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
 					if (error != nil) {
 						if (completion) completion(nil, error);
 						return;
