@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Retrieve a formatted, wg-quick(8) compatible string for a given GRDCredential
 /// Will return nil if the transportProtocol property is not TransportWireGuard
 /// @param credential the given credential out which the formatted wg-quick compatible should be generated
-+ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsServers:(NSString *_Nullable)dnsServers;
++ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential smartProxyRoutingEnabled:(BOOL)smartProxyRoutingEnabled dnsServers:(NSString *_Nullable)dnsServers;
 
 
 @end
