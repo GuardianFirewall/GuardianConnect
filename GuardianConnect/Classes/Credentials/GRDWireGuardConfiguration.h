@@ -19,6 +19,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param credential the given credential out which the formatted wg-quick compatible should be generated
 + (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsServers:(NSString *_Nullable)dnsServers;
 
+/// Same as above, but allows overriding the host portion of the Peer Endpoint.
+/// Stealth Mode (GRD-1391): pass a direct IP as endpointHostOverride so the WireGuard tunnel dials
+/// the server without WireGuardKit performing a DNS lookup of the FQDN (which fails on hostile
+/// networks). Pass nil to use credential.hostname exactly as before.
++ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsServers:(NSString *_Nullable)dnsServers endpointHostOverride:(NSString *_Nullable)endpointHostOverride;
+
 
 @end
 
