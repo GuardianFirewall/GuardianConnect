@@ -20,7 +20,8 @@ typedef NS_ENUM(NSInteger, GRDClientRuleVerdict) {
 	GRDClientRuleVerdictUnknown = 0,
 	GRDClientRuleVerdictAllow,
 	GRDClientRuleVerdictBlock,
-	GRDClientRuleVerdictDefault
+	GRDClientRuleVerdictDefault,
+	GRDClientRuleVerdictAlert
 };
 
 @interface GRDClientRule : NSObject <NSSecureCoding>
