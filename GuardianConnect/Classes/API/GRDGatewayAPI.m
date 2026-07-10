@@ -267,7 +267,6 @@
 - (void)setPushNotificationServiceTokenWithData:(NSDictionary *)tokenData hostname:(NSString *)hostname deviceId:(NSString *)deviceId apiAuthToken:(NSString *)apiAuthToken completion:(void (^)(NSError * _Nullable))completion {
 	NSMutableDictionary *requestData = [NSMutableDictionary dictionaryWithDictionary:tokenData];
 	[requestData setValue:apiAuthToken forKey:kKeychainStr_APIAuthToken];
-//	NSDictionary *jsonDict = @{kKeychainStr_APIAuthToken:[mainCredentials apiAuthToken], @"push-token": pushToken, @"push-data-tracker": [NSNumber numberWithBool:dataTrackers], @"push-location-tracker": [NSNumber numberWithBool:locationTrackers], @"push-page-hijacker": [NSNumber numberWithBool:pageHijackers], @"push-mail-tracker": [NSNumber numberWithBool:mailTrackers]};
 	
 	NSError *jsonErr;
 	NSData *requestBody = [NSJSONSerialization dataWithJSONObject:requestData options:0 error:&jsonErr];
