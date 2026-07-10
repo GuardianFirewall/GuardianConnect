@@ -23,6 +23,7 @@
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
+#import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>

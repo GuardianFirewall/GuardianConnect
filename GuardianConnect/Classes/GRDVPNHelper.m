@@ -802,8 +802,7 @@
 		if (subscriberCredential != nil) {
 			
 			NSArray *clientRules = [self apiPortableClientRules];
-#warning fix this
-			NSDictionary *deviceFilterConfigs = @{@"block-phishing": @(NO), @"block-ads": @(NO), @"block-none": @(NO)};
+			NSDictionary *deviceFilterConfigs = [[GRDDeviceFilterConfigBlocklist currentBlocklistConfig] apiPortableBlocklist];
 			NSString *exitRegion = [self preferredMultihopExitRegion];
 
 			if (protocol == TransportIKEv2) {
@@ -1072,9 +1071,11 @@
 
 - (NSString *)preferredMultihopExitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *preferredExitRegion = [defaults stringForKey:@"kGRDMultihopExitRegion"];
+	if ([defaults valueForKey:@"kGRDMultihopExitRegion"] == nil) {
+		return [defaults stringForKey:@"kGRDMultihopExitRegion"];
+	}
 	
-	return preferredExitRegion;
+	return @"disabled";
 }
 
 - (NSError *)setPreferredMultihopExitRegion:(NSString *)exitRegion {
@@ -1171,7 +1172,7 @@
 		
 		NSMutableArray *mutableClientRules = [clientRules mutableCopy];
 		NSInteger index = [self indexOfClientRule:clientRule inAllRules:clientRules];
-		if (index != -1) {
+		if (index == -1) {
 			removeErr = [GRDErrorHelper errorWithErrorCode:GRDErrGenericErrorCode andErrorMessage:@"The provided client rule does not exist"];
 			return;
 		}
