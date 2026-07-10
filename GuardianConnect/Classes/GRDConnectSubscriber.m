@@ -135,16 +135,11 @@
 		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete Connect subscriber secret"];
 	}
 	
-	OSStatus deletePET = [GRDKeychain removeKeychainItemForAccount:kKeychainStr_PEToken];
-	if (deletePET != errSecSuccess && deletePET != errSecItemNotFound) {
-		return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to delete PET"];
-	}
-	
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[defaults removeObjectForKey:kGuardianPETokenExpirationDate];
 	[defaults removeObjectForKey:kGuardianConnectSubscriber];
 	
-	return nil;
+	NSError *petDestoryError = [[GRDPEToken currentPEToken] destroy];
+	return petDestoryError;
 }
 
 - (void)allDevicesWithCompletion:(void (^)(NSArray<GRDConnectDevice *> * _Nullable, NSError * _Nullable))completion {
@@ -199,42 +194,41 @@
 # pragma mark - API Wrappers
 
 - (void)registerNewConnectSubscriber:(BOOL)acceptedTOS deviceNickname:(NSString *)deviceNickname withCompletion:(void (^)(GRDConnectSubscriber * _Nullable newSubscriber, NSError * _Nullable errorMessage))completion {
-	if (self.identifier == NULL || self.secret == NULL) {
+	if (self.identifier == nil || self.secret == nil) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Unable to register new Connect subscriber. Either the Connect identifier or secret is missing"]);
 		return;
 	}
 	
-	if (self.email == NULL) {
+	if (self.email == nil) {
 		self.email = @"";
 	}
 	
-	[[GRDHousekeepingAPI new] newConnectSubscriberWith:self.identifier secret:self.secret deviceNickname:deviceNickname acceptedTOS:acceptedTOS email:self.email andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
+	GRDHousekeepingAPI *housekeepingAPI = [GRDHousekeepingAPI new];
+	[housekeepingAPI newConnectSubscriberWith:self.identifier secret:self.secret deviceNickname:deviceNickname acceptedTOS:acceptedTOS email:self.email andCompletion:^(NSDictionary * _Nullable subscriberDetails, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
 		}
 		
 		GRDConnectSubscriber *newSubscriber = [[GRDConnectSubscriber alloc] initFromDictionary:subscriberDetails];
-		
-		NSString *pet = [subscriberDetails objectForKey:@"pe-token"];
-		if (pet == nil || [pet isEqualToString:@""]) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to register new Connect Subscriber. No PE-Token was returned"]]);
-			return;
-		}
-		
-		NSNumber *petExpires = [subscriberDetails objectForKey:@"pet-expires"];
-		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
-		
-		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
-		if (storeStatus != errSecSuccess) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store new PE-Token for Connect subscriber. Keychain status: %d", storeStatus]]);
-			return;
-		}
-		
 		newSubscriber.secret = self.secret;
-		NSError *storeErr = [newSubscriber store];
-		if (storeErr != nil) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store persistent local data of new Connect Subscriber: %@", [storeErr localizedDescription]]]);
+		GRDPEToken *peToken = [[GRDPEToken alloc] initFromDictionary:subscriberDetails];
+		[peToken setConnectAPIEnv:[housekeepingAPI connectAPIHostname]];
+		
+		if ([peToken token] == nil || [[peToken token] isEqualToString:@""]) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to register new Connect Subscriber. No PE-Token was returned by the API"]]);
+			return;
+		}
+		
+		NSError *petStoreErr = [peToken store];
+		if (petStoreErr != nil) {
+			if (completion) completion(nil, petStoreErr);
+			return;
+		}
+				
+		NSError *subscriberStoreErr = [newSubscriber store];
+		if (subscriberStoreErr != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store persistent local data of new Connect Subscriber: %@", [subscriberStoreErr localizedDescription]]]);
 			return;
 		}
 		
@@ -256,7 +250,7 @@
 }
 
 - (void)updateConnectSubscriberWithEmailAddress:(NSString * _Nonnull)email andCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
-	if (email == NULL || [email isEqualToString:@""] == YES) {
+	if (email == nil || [email isEqualToString:@""] == YES) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"New E-Mail is either nil or an empty string. Neither are valid"]);
 		return;
 	}
@@ -281,13 +275,14 @@
 
 - (void)validateConnectSubscriberWithCompletion:(void (^)(GRDConnectSubscriber * _Nullable, NSError * _Nullable))completion {
 	// Grab current PET from the keychain so that it can be invalidated and swapped against a new one
-	NSString *oldPET = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-	if (oldPET == NULL || [oldPET isEqualToString:@""] == YES) {
+	GRDPEToken *oldPEToken = [GRDPEToken currentPEToken];
+	if ([oldPEToken token] == nil || [[oldPEToken token] isEqualToString:@""] == YES) {
 		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to validate Connect subscriber. No PE-Token present on device"]);
 		return;
 	}
 	
-	[[GRDHousekeepingAPI new] validateConnectSubscriberWith:self.identifier secret:self.secret pet:oldPET andCompletion:^(NSDictionary * _Nullable details, NSError * _Nullable errorMessage) {
+	GRDHousekeepingAPI *housekeepingAPI = [GRDHousekeepingAPI new];
+	[housekeepingAPI validateConnectSubscriberWith:self.identifier secret:self.secret pet:[oldPEToken token] andCompletion:^(NSDictionary * _Nullable details, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(nil, errorMessage);
 			return;
@@ -300,17 +295,17 @@
 		NSNumber *subscriptionExpirationDateUnix = [details objectForKey:kGuardianConnectSubscriberSubscriptionExpirationDateKey];
 		newSubscriber.subscriptionExpirationDate = [NSDate dateWithTimeIntervalSince1970:[subscriptionExpirationDateUnix integerValue]];
 		
-		NSString *pet = [details objectForKey:@"pe-token"];
-		if (pet == nil || [pet isEqualToString:@""]) {
+		GRDPEToken *peToken = [[GRDPEToken alloc] initFromDictionary:details];
+		[peToken setConnectAPIEnv:[housekeepingAPI connectAPIHostname]];
+		
+		if ([peToken token] == nil || [[peToken token] isEqualToString:@""]) {
 			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate Connect Subscriber. No new PE-Token was returned"]]);
 			return;
 		}
-		NSNumber *petExpires = [details objectForKey:@"pet-expires"];
-		[[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:[petExpires integerValue]] forKey:kGuardianPETokenExpirationDate];
 		
-		OSStatus storeStatus = [GRDKeychain storePassword:pet forAccount:kKeychainStr_PEToken];
-		if (storeStatus != errSecSuccess) {
-			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store new PE-Token for Connect subscriber. Keychain status: %d", storeStatus]]);
+		NSError *petStoreError = [peToken store];
+		if (petStoreError != nil) {
+			if (completion) completion(nil, petStoreError);
 			return;
 		}
 		
@@ -327,13 +322,13 @@
 
 - (void)logoutConnectSubscriberWithCompletion:(void (^)(NSError * _Nullable))completion {
 	// Grab current PET from the keychain so that it can be invalidated and swapped against a new one
-	NSString *pet = [GRDKeychain getPasswordStringForAccount:kKeychainStr_PEToken];
-	if (pet == NULL || [pet isEqualToString:@""] == YES) {
+	GRDPEToken *peToken = [GRDPEToken currentPEToken];
+	if ([peToken token] == nil || [[peToken token] isEqualToString:@""] == YES) {
 		if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Failed to validate Connect subscriber. No PE-Token present on device"]);
 		return;
 	}
 	
-	[[GRDHousekeepingAPI new] logoutConnectSubscriberWithPEToken:pet andCompletion:^(NSError * _Nullable error) {
+	[[GRDHousekeepingAPI new] logoutConnectSubscriberWithPEToken:[peToken token] andCompletion:^(NSError * _Nullable error) {
 		if (completion) completion(error);
 		return;
 	}];
