@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString 	*host;
 @property (nullable, nonatomic) NSString 	*identifier;
 @property (nullable, nonatomic) NSString 	*message;
-@property (nullable, nonatomic) NSUInteger 	timestamp;
+@property (nonatomic) 			NSUInteger 	timestamp;
 @property (nullable, nonatomic) NSDate 		*blockDate;
 @property (nullable, nonatomic) NSString 	*title;
 
