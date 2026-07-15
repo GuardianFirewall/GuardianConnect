@@ -77,4 +77,33 @@
 	[coder encodeObject:self.region forKey:@"region"];
 }
 
+- (NSString *)addressForStealthModeEnabled:(BOOL)stealthModeEnabled {
+	NSString *hostname = self.hostname;
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	// MITIGATION (GRD-1391): with Stealth Mode OFF we MUST return the FQDN unchanged so behaviour is
+	// byte-for-byte identical to before this feature existed. Only override the dial target when the
+	// user has explicitly opted in.
+	if (stealthModeEnabled == NO) {
+		return hostname;
+	}
+	
+	if (hostname == nil || hostname.length == 0) {
+		return hostname;
+	}
+	
+	NSDictionary<NSString *, NSString *> *ipMap = [defaults dictionaryForKey:kGRDStealthSGWIPCache];
+	NSString *cachedIP = ipMap[hostname];
+	
+	// MITIGATION (GRD-1391): on a cache miss fall back to the FQDN rather than failing the connection.
+	// Worst case the user is no worse off than with Stealth Mode disabled.
+	if ([cachedIP isKindOfClass:[NSString class]] == NO || cachedIP.length == 0) {
+		GRDWarningLogg(@"[Stealth] No cached IP for hostname '%@'; falling back to FQDN dial target", hostname);
+		return hostname;
+	}
+	
+	GRDDebugLog(@"[Stealth] Dialling '%@' by direct IP '%@'", hostname, cachedIP);
+	return cachedIP;
+}
+
 @end

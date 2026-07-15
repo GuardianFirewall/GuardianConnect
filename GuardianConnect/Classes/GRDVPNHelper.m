@@ -288,6 +288,20 @@
 		}];
 	}
 	
+	if (status) status(GRDVPNHelperConnectionEstablishingVPNTunnel);
+	
+	// MITIGATION (GRD-1391): the pre-flight server-status probe below hits
+	// https://<hostname>/vpnsrv/api/server-status, which requires a DNS lookup of the SGW hostname
+	// and, on failure, kicks off a full credential migration (which itself needs API/DNS access).
+	// On a hostile network that strands the user before the tunnel is ever attempted. In Stealth
+	// Mode we skip the probe and proceed straight to building the direct-IP connection; the
+	// on-demand connect rule plus the IKE/WireGuard handshake themselves validate reachability.
+	if ([self stealthModeEnabled] == YES) {
+		GRDWarningLogg(@"[Stealth-Mode] Skipping pre-flight server-status probe; proceeding with direct-IP connection");
+		[self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:YES statusCallback:status completion:completion];
+		return;
+	}
+
 	[[GRDGatewayAPI new] getServerStatusForHostname:[mainCredentials hostname] completion:^(NSError * _Nullable error) {
 		if (error != nil) {
 			[GRDCredentialManager clearMainCredentials];
@@ -295,19 +309,56 @@
 			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate server health of host '%@': %@", [mainCredentials hostname], error]]);
 			return;
 		}
-		if (status) status(GRDVPNHelperConnectionEstablishingVPNTunnel);
+
+		[self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:NO statusCallback:status completion:completion];
+	}];
+}
+
+/// Validates the protocol-specific credential fields and starts the appropriate transport.
+/// Extracted from configureAndConnectVPNTunnelWithCompletion: (GRD-1391) so the exact same logic
+/// can run either after the pre-flight server-status probe (normal mode) or directly (Stealth Mode).
+- (void)_proceedWithGRDCredential:(GRDCredential *)credential stealthModeEnabled:(BOOL)stealthModeEnabled statusCallback:(void (^)(GRDVPNHelperConnectionStatus connectionStatus))status completion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+	TransportProtocol transport = [credential transportProtocol];
+	if (transport == TransportIKEv2) {
+		[self _startIKEv2ConnectionForMainCredentials:credential stealthModeEnabled:stealthModeEnabled withCompletion:completion];
 		
-		TransportProtocol transport = [mainCredentials transportProtocol];
-		if (transport == TransportIKEv2) {
-			[self _startIKEv2ConnectionForMainCredentials:mainCredentials withCompletion:completion];
-			
-		} else if (transport == TransportWireGuard) {
-			[self _startWireGuardConnectionForMainCredentials:mainCredentials withCompletion:completion];
-			
-		} else {
-			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to start VPN tunnel for unknown transport protocol: %@", [GRDTransportProtocol transportProtocolStringFor:transport]]]);
+	} else if (transport == TransportWireGuard) {
+		[self _startWireGuardConnectionForMainCredentials:credential stealthModeEnabled:stealthModeEnabled withCompletion:completion];
+		
+	} else {
+		if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to start VPN tunnel for unknown transport protocol: %@", [GRDTransportProtocol transportProtocolStringFor:transport]]]);
+	}
+}
+
+
+# pragma mark - Stealth Mode (GRD-1391)
+
+- (BOOL)stealthModeEnabled {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDStealthModeEnabled];
+}
+
+- (void)setStealthModeEnabled:(BOOL)stealthModeEnabled {
+	[[NSUserDefaults standardUserDefaults] setBool:stealthModeEnabled forKey:kGRDStealthModeEnabled];
+}
+
+- (void)refreshStealthIPCacheWithCompletion:(void (^_Nullable)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestAllServerIPsWithCompletion:^(NSDictionary<NSString *, NSString *> * _Nullable ipMap, NSError * _Nullable error) {
+		// MITIGATION (GRD-1391): never clobber a good cache on a failed/empty refresh. A user who
+		// flips Stealth Mode on to rescue a stuck connection is, by definition, likely already on a
+		// hostile network where this request fails. Retaining the last-known-good map is what makes
+		// "enable Stealth Mode while already on a bad network" work. Only a confirmed non-empty
+		// success overwrites the cache + timestamp below.
+		if (error != nil || ipMap.count == 0) {
+			GRDWarningLogg(@"[Stealth-Mode] IP cache refresh failed or returned empty; retaining existing cache. Error: %@", error);
+			if (completion) completion(error);
 			return;
 		}
+
+		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+		[defaults setObject:ipMap forKey:kGRDStealthSGWIPCache];
+		[defaults setObject:[NSDate date] forKey:kGRDStealthSGWIPCacheDate];
+		GRDDebugLog(@"[Stealth-Mode] Refreshed SGW IP cache with %lu entries", (unsigned long)ipMap.count);
+		if (completion) completion(nil);
 	}];
 }
 
@@ -356,7 +407,7 @@
 }
 
 /// Starting the VPN connection via the builtin IKEv2 transport protocol
-- (void)_startIKEv2ConnectionForMainCredentials:(GRDCredential *)mainCredentials withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+- (void)_startIKEv2ConnectionForMainCredentials:(GRDCredential *)mainCredentials stealthModeEnabled:(BOOL)stealthModeEnabled withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	if (self.tunnelLocalizedDescription == nil || [self.tunnelLocalizedDescription isEqualToString:@""]) {
 		if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"IKEv2 tunnel localized description missing. Please set a value for the tunnelLocalizedDescription property"]);
 		return;
@@ -371,7 +422,7 @@
 			
 		} else {
 			vpnManager.enabled 					= YES;
-			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForServer:mainCredentials.server eapUsername:mainCredentials.username eapPasswordRef:mainCredentials.passwordRef withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
+			vpnManager.protocolConfiguration 	= [self _prepareIKEv2ParametersForCredential:mainCredentials stealthModeEnabled:stealthModeEnabled withCertificateType:NEVPNIKEv2CertificateTypeECDSA256];
 			
 			NSString *finalLocalizedDescription = self.tunnelLocalizedDescription;
 			if (self.appendServerRegionToTunnelLocalizedDescription == YES) {
@@ -381,7 +432,12 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
-				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+				// MITIGATION (GRD-1391): the on-demand probe URL is https://<hostname>/vpnsrv/api/server-status,
+				// which requires a DNS lookup of the hostname; on a hostile network it never returns 200 so the
+				// VPN would never auto-connect. In Stealth Mode we drop the probe URL (the always-connect rule
+				// remains), so on-demand connects without any DNS dependency. Probe behaviour is unchanged when
+				// Stealth Mode is off.
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
 				vpnManager.onDemandEnabled = NO;
@@ -417,19 +473,24 @@
 	}];
 }
 
-- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(GRDSGWServer * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
+- (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForCredential:(GRDCredential*)credential stealthModeEnabled:(BOOL)stealthModeEnabled withCertificateType:(NEVPNIKEv2CertificateType)certType {
 	NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
-	protocolConfig.serverAddress = server.hostname;
-	protocolConfig.serverCertificateCommonName = server.hostname;
-	protocolConfig.remoteIdentifier = server.hostname;
+	// Feature/MITIGATION (GRD-1391): in Stealth Mode dial the server by direct IP to avoid a DNS
+	// lookup of the hostname on hostile networks. serverCertificateCommonName and remoteIdentifier
+	// MUST remain the FQDN — the gateway presents a certificate for the FQDN and asserts the FQDN as
+	// its IKE identity, so only the transport dial target moves; identity validation is unchanged.
+	// With Stealth Mode off, dialableServerAddressForCredential: returns server.hostname unchanged.
+	protocolConfig.serverAddress = [credential.server addressForStealthModeEnabled:stealthModeEnabled];
+	protocolConfig.serverCertificateCommonName = credential.server.hostname;
+	protocolConfig.remoteIdentifier = credential.server.hostname;
 	protocolConfig.enablePFS = YES;
 	protocolConfig.disableMOBIKE = NO;
 	protocolConfig.disconnectOnSleep = NO;
 	protocolConfig.authenticationMethod = NEVPNIKEAuthenticationMethodCertificate; // to validate the server-side cert issued by LetsEncrypt
 	protocolConfig.certificateType = certType;
 	protocolConfig.useExtendedAuthentication = YES;
-	protocolConfig.username = user;
-	protocolConfig.passwordReference = passRef;
+	protocolConfig.username = credential.username;
+	protocolConfig.passwordReference = credential.passwordRef;
 	protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
     if (@available(iOS 14.2, *)) {
         protocolConfig.includeAllNetworks = self.vpnKillSwitchEnabled;
@@ -437,7 +498,7 @@
     }
     
 	
-	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:server];
+	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:credential.server];
 	protocolConfig.useConfigurationAttributeInternalIPSubnet = NO;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
@@ -464,7 +525,7 @@
 
 /// Starting the VPN connection via the WireGuard transport protocol with the help
 /// of a NEPacketTunnelProvider instance
-- (void)_startWireGuardConnectionForMainCredentials:(GRDCredential *)mainCredentials withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+- (void)_startWireGuardConnectionForMainCredentials:(GRDCredential *)mainCredentials stealthModeEnabled:(BOOL)stealthModeEnabled withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	if (self.tunnelProviderBundleIdentifier == nil ||[self.tunnelProviderBundleIdentifier isEqualToString:@""]) {
 		GRDErrorLogg(@"[GRDTunnel] No transport provider bundle identifier specified. Cannot start tunnel provider");
 		if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"[GRDTunnel] No transport provider bundle identifier specified. Cannot start tunnel provider"]);
@@ -480,7 +541,11 @@
 	}
 	
 	[[GRDTunnelManager sharedManager] ensureTunnelManagerWithCompletion:^(NETunnelProviderManager * _Nullable tunnelManager, NSString * _Nullable errorMessage) {
-		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:mainCredentials smartProxyRoutingEnabled:[GRDVPNHelper smartProxyRoutingEnabled] dnsServers:self.preferredDNSServers];
+		// Stealth Mode (GRD-1391): resolve the dial target once (direct IP when Stealth Mode is on and
+		// a cached IP exists, otherwise the FQDN) and reuse it for both the wg Endpoint and the
+		// protocol's serverAddress so they stay consistent and no DNS lookup of the hostname is needed.
+		NSString *wgDialAddress = [mainCredentials.server addressForStealthModeEnabled:stealthModeEnabled];
+		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:mainCredentials smartProxyRoutingEnabled:[GRDVPNHelper smartProxyRoutingEnabled] dnsServers:self.preferredDNSServers sgwServerAddressOverride:wgDialAddress];
 		OSStatus saveStatus = [GRDKeychain storePassword:wireGuardConfig forAccount:kKeychainStr_WireGuardConfig];
 		if (saveStatus != errSecSuccess) {
 			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"[GRDTunnel] Failed to store WireGuard credentials in system keychain"]);
@@ -488,7 +553,7 @@
 		}
 		
 		NETunnelProviderProtocol *protocol = [NETunnelProviderProtocol new];
-		protocol.serverAddress 				= mainCredentials.hostname;
+		protocol.serverAddress 				= wgDialAddress; // GRD-1391: matches the wg Endpoint dial target (direct IP in Stealth Mode, else FQDN)
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [mainCredentials clientId];
@@ -497,6 +562,7 @@
 		// Note from CJ 2026-06-24
 		// Disabling proxy settings for WireGuard connections here
 		// to allow for testing of SRPv2 with WireGuard
+#warning TODO: implement three way option SRP as defined by Will
 //		protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server];
 		
 		if (@available(iOS 14.2, *)) {
@@ -507,7 +573,10 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
-		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		// MITIGATION (GRD-1391): same as the IKEv2 path — drop the DNS-dependent probe URL in Stealth
+		// Mode so on-demand can auto-connect on hostile networks. The always-connect rule remains.
+//		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
 		if (self.appendServerRegionToGRDTunnelProviderManagerLocalizedDescription == YES) {
