@@ -13,15 +13,17 @@
 #import <GuardianConnect/GRDRegion.h>
 #import <GuardianConnect/GRDPEToken.h>
 #import <GuardianConnect/GRDKeychain.h>
+#import <GuardianConnect/GRDClientRule.h>
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
-#import <GuardianConnect/GRDSmartProxyHost.h>
 #import <GuardianConnect/GRDBlocklistItem.h>
+#import <GuardianConnect/GRDSmartProxyHost.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
+#import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
 
 #if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
@@ -82,9 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// to the VPN tunnel settings
 @property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
 
-/// Class internal main credential reference
-@property (nonatomic, strong) GRDCredential * _Nullable mainCredential;
-
 /// Provides the ability to disable the NetworkExtension's on-demand
 /// features.
 /// Defaults to YES/true
@@ -143,13 +142,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Enables or disables the device automatically disconnecting the
 /// VPN tunnel if the device is connected to a wired ethernet connection.
-/// Works with IKEv2 & WireGuard
+/// Works with IKEv2 & WireGuard, only avilable on macOS & tvOS
 ///
 /// Leverages similar functionality as the trusted networks capability
 /// though as there are no SSID or other references to leverage as there
 /// are with a WiFi connection, so enabling this feature brings more
 /// implicit security risks
-@property BOOL disconnectOnEthernet;
+@property BOOL disconnectOnEthernet API_AVAILABLE(macos(10.11), tvos(17.0));
 
 /// Array of the names of trusted networks on which the VPN
 /// will automatically disconnect with the help of the
@@ -213,16 +212,18 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
+	GRDVPNHelperUnknown = 0,
     GRDVPNHelperSuccess,
-    GRDVPNHelperFail,
-    GRDVPNHelperDoesNeedMigration,
-    GRDVPNHelperMigrating,
-    GRDVPNHelperNetworkConnectionError, // add other network errors
-    GRDVPNHelperCoudNotReachAPIError,
-    GRDVPNHelperApp_VpnPrefsLoadError,
-    GRDVPNHelperApp_VpnPrefsSaveError,
-    GRDVPNHelperAPI_AuthenticationError,
-    GRDVPNHelperAPI_ProvisioningError
+    GRDVPNHelperFail
+};
+
+typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
+	GRDVPNHelperConnectionUnknown = 0,
+	GRDVPNHelperConnectionCredentialFound,
+	GRDVPNHelperConnectionObtainingNewCredential,
+	GRDVPNHelperConnectionSelectedSGWServer,
+	GRDVPNhelperConnectionObtainedNewCredential,
+	GRDVPNHelperConnectionEstablishingVPNTunnel
 };
 
 /// Always use the sharedInstance of this class, call it as early as possible in your application lifecycle to initialize the VPN preferences and load the credentials and VPN node connection information from the keychain.
@@ -245,16 +246,11 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to clear all of our current VPN configuration details from user defaults and the keychain
 + (void)clearVPNConfiguration;
 
-/// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no EAP credentials or subscriber credentials exist yet and you want to establish a new connection on a server that is chosen automatically for you.
-/// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
-/// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureFirstTimeUserPostCredential:(void(^ _Nullable)(void))mid completion:(void (^ _Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion;
-
 /// Used to create a new VPN connection if an active subscription exists. This is the main function to call when no VPN credentials or a Subscriber Credential exist yet and a new connection should be established to a server chosen automatically.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
 /// @param postCredentialCallback This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
 /// @param completion This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^ _Nullable)(void))postCredentialCallback completion:(void (^ _Nullable)(NSError * _Nullable error))completion;
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^ _Nullable)(void))postCredentialCallback completion:(void (^ _Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable error))completion;
 
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a host, a host location, a postCredential block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
@@ -265,13 +261,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// Used to create a new VPN connection if an active subscription exists. This method will allow you to specify a transport protocol, host, a host location, a postCredential callback block and a completion block.
 /// @param protocol The desired transport protocol to use to establish the connection. IKEv2 (builtin) as well as WireGuard via a PacketTunnelProvider are supported
 /// @param server GRDSGWServer reference passing hostname, host display name as well as GRDRegion reference to be processed within the function
-/// @param mid block This is a block you can assign for when this process has approached a mid point (a server is selected, subscriber & eap credentials are generated). optional.
+/// @param status block Provides updates about steps in the process from obtaining new VPN credentials to establishing the VPN tunnel. Useful to update the UI
 /// @param completion block This is a block that will return upon completion of the process, if success is TRUE and errorMessage is nil then we will be successfully connected to a VPN node.
-- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server postCredential:(void(^__nullable)(void))mid completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion;
+- (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer * _Nonnull)server connectionStatus:(void(^_Nullable)(GRDVPNHelperConnectionStatus connectionStatus))status completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError *_Nullable error))completion;
 
 /// Used subsequently after the first time connection has been successfully made to re-connect to the current host VPN node with mainCredentials
 /// @param completion block This completion block will return an error to display to the user and a status code, if the connection is successful, the error will be empty.
-- (void)configureAndConnectVPNTunnelWithCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable error))completion;
+- (void)connectVPNTunnelWithConnectionStatus:(void(^_Nullable)(GRDVPNHelperConnectionStatus connectionStatus))status completion:(void (^_Nullable)(GRDVPNHelperStatusCode status, NSError * _Nullable error))completion;
 
 /// Used to disconnect from the current VPN node
 ///
@@ -280,10 +276,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 ///
 /// This function might be hazardous to your health
 /// - Parameter completion: completion block potentially containing an error message. This completion block may be called multiple times and could potentially include an error every time
-- (void)disconnectVPNWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
+- (void)disconnectVPNTunnelWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
 
 /// Safely disconnect from the current VPN node if applicable. This is best to call upon doing disconnections upon app launches. For instance, if a subscription expiration has been detected on launch, disconnect the active VPN connection. This will make certain not to disconnect the VPN if a valid state isnt detected.
-- (void)forceDisconnectVPNIfNecessary;
+- (void)forceDisconnectVPNTunnel;
 
 /// This is a convenience function to reset the state of the SDK back
 /// as though the device had never connected to a VPN before.
@@ -350,11 +346,29 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperStatusCode) {
 /// the default GRDServerManager settings
 - (void)allRegionsWithCompletion:(void (^)(NSArray <GRDRegion *> * _Nullable regions, NSError * _Nullable error))completion;
 
-/// Migrate the user to a new server for the user preferred transport protocol. A new server will be selected, new credentials will be generated and finally the VPN tunnel will be established with the new credentials on the new server.
-- (void)migrateUserForTransportProtocol:(TransportProtocol)protocol withCompletion:(void (^_Nullable)(GRDVPNHelperStatusCode statusCode, NSError * _Nullable error))completion;
-
 /// Clear all on device cache related to cached Guardian hosts & keychain items including the Subscriber Credential
 - (void)clearLocalCache;
+
+
+# pragma mark - Multihop
+
+- (NSString *)preferredMultihopExitRegion;
+
+- (NSError *)setPreferredMultihopExitRegion:(NSString *)exitRegion;
+
+
+#pragma mark - Client Rules
+- (void)clientRulesWithCompletion:(void(^)(NSArray <GRDClientRule *> * _Nullable clientRules, NSError * _Nullable error))completion;
+
+- (NSInteger)indexOfClientRule:(GRDClientRule *)clientRule inAllRules:(NSArray <GRDClientRule *> *)allClientRules;
+
+- (NSError *)addClientRule:(GRDClientRule *)newClientRule;
+
+- (NSError *)removeClientRule:(GRDClientRule *)clientRule;
+
+- (NSError *)storeClientRules:(NSArray <GRDClientRule *> *)clientRules;
+
+- (NSArray *)apiPortableClientRules;
 
 
 # pragma mark - Smart Routing Proxy

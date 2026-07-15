@@ -54,9 +54,6 @@ class ViewController: UIViewController {
                 self.createVPNButton.isEnabled = true
                 self.apiKeyTextField.placeholder = GRDKeychain.getPasswordString(forAccount: kKeychainStr_PEToken)
                 GRDSubscriptionManager.setIsPayingUser(true)
-				if self.vpnStatus() == .connected  || self.tunnelVPNStatus() == .connected {
-                    self.startRefreshTimer()
-                }
             }
         }
         
@@ -72,37 +69,6 @@ class ViewController: UIViewController {
 		
 		// populate the region selection data
 		self.populateRegionDataIfNecessary()
-    }
-    
-    /// Refresh timer that tracks event counts, its ideal to listen for push notifications for real time updates, but this will do in a pinch if that isnt possible.
-    func startRefreshTimer() {
-        self.stopRefreshTimer() //this only stops the timer if applicable
-        timer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true, block: { (timer) in
-//            GRDGatewayAPI().getAlertTotals { (results, success, errorMessage) in
-//                if (success) {
-//                    let resp: Dictionary = results! as! Dictionary<String, AnyObject>
-//                    //print(resp)
-//                    //["page-hijacker-total": 0, "data-tracker-total": 0, "location-tracker-total": 0, "mail-tracker-total": 0]
-//                    let pht = "Page Hijackers: \(resp["page-hijacker-total"] ?? "0" as AnyObject)"
-//                    let dtt = "Data Trackers: \(resp["data-tracker-total"] ?? "0" as AnyObject)"
-//                    let ltt = "Location Trackers: \(resp["location-tracker-total"] ?? "0" as AnyObject)"
-//                    let mtt = "Mail Trackers: \(resp["mail-tracker-total"] ?? "0" as AnyObject)"
-//                    DispatchQueue.main.async {
-//                        self.dataTrackerLabel.text = dtt
-//                        self.pageHijackerLabel.text = pht
-//                        self.locationTrackerLabel.text = ltt
-//                        self.mailTrackerLabel.text = mtt
-//                    }
-//                }
-//            }
-        })
-    }
-    
-    func stopRefreshTimer() {
-        if (timer != nil) {
-            timer.invalidate()
-            timer = nil
-        }
     }
     
     func isDemoAPIKeyPresent() -> Bool {
@@ -144,7 +110,7 @@ class ViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        vpnConfigChanged() //janky stopgap to keep track for now.
+        vpnConfigChanged()
 		
 		self.preferredTransportProtocolButton.setTitle(GRDTransportProtocol.prettyTransportProtocolString(for: GRDTransportProtocol.getUserPreferredTransportProtocol()), for: .normal)
     }
@@ -160,7 +126,6 @@ class ViewController: UIViewController {
 				self.createVPNButton.setTitle("Disconnect VPN", for: .normal)
 				self.hostnameLabel.text = creds.hostname
 				self.statusLabel.text = "Connected"
-				self.startRefreshTimer()
 				
 			} else if vpnStatus == .connecting || tunnelStatus == .connecting {
 				self.hostnameLabel.text = creds.hostname
@@ -171,7 +136,6 @@ class ViewController: UIViewController {
 				self.statusLabel.text = "Disconnecting..."
 				
 			} else if vpnStatus == .disconnected || tunnelStatus == .disconnected {
-				self.stopRefreshTimer()
 				self.hostnameLabel.text = creds.hostname
 				self.createVPNButton.setTitle("Connect VPN", for: .normal)
 				self.statusLabel.text = "Disconnected"
@@ -181,7 +145,6 @@ class ViewController: UIViewController {
 				self.statusLabel.text = "Disconnected"
 			}
         }
-        
     }
     
     func observeVPNConnection() {
@@ -195,7 +158,7 @@ class ViewController: UIViewController {
 		let vpnStatus = vpnStatus()
 		let tunnelStatus = tunnelVPNStatus()
 		if (vpnStatus == .connected || tunnelStatus == .connected) {
-            GRDVPNHelper.sharedInstance().disconnectVPN()
+            GRDVPNHelper.sharedInstance().disconnectVPNTunnel()
             DispatchQueue.main.async {
                 self.createVPNButton.isEnabled = true
                 self.createVPNButton.setTitle("Connect VPN", for: .normal)
@@ -203,25 +166,13 @@ class ViewController: UIViewController {
             return
         }
         
-        // do they have VPN creds
-        if GRDVPNHelper.activeConnectionPossible() {
-            // just configure & connect, no need for 'first user' setup
-            GRDVPNHelper.sharedInstance().configureAndConnectVPNTunnel { (status, error) in
-                print(error as Any)
-                print(status)
-                self.populateRegionDataIfNecessary()
-            }
-            
-        } else { //they do not have credentials yet.
-            // first time user, OR recently cleared VPN creds			
-            GRDVPNHelper.sharedInstance().configureFirstTimeUserPostCredential {
-                // post credential block is optional and can be used as a midway point to update the UI if necessary
-                print("midway point, we have credentials!")
-                
-            } completion: { (success, error) in
-				print("Completed connection operation with status:\(String(describing: error))")
-            }
-        }
+		GRDVPNHelper.sharedInstance().connectVPNTunnel(connectionStatus: { (status) in
+			print("Received connection status: \(status)")
+		}, completion: { (status, error) in
+			print(error as Any)
+			print(status)
+			self.populateRegionDataIfNecessary()
+		})
     }
     
     /// populate region selection data
@@ -257,7 +208,7 @@ class ViewController: UIViewController {
         
 		// Force all connections to be terminated first to prevent
 		// two tunnels to become active in a multi protocol setup
-		GRDVPNHelper.sharedInstance().forceDisconnectVPNIfNecessary()
+		GRDVPNHelper.sharedInstance().forceDisconnectVPNTunnel()
 		
 		// Throw out the old credentials and everything else related
 		// to the old connection - if one had existed previously

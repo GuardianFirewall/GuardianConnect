@@ -13,9 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^StandardBlock)(BOOL success, NSString * _Nullable errorMessage);
-typedef void (^ResponseBlock)(NSDictionary * _Nullable response, NSString * _Nullable errorMessage, BOOL success);
-
+# pragma mark - API Features
 
 typedef NS_ENUM(NSInteger, GRDServerFeatureEnvironment) {
 	ServerFeatureEnvironmentProduction = 1,
@@ -39,6 +37,7 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
+static NSString * const kGRDAPIAuthTokenHTTPHeader 						= @"grd-api-auth-token";
 
 /// Public production Connect API environment
 static NSString * const kConnectAPIHostname 							= @"connect-api.guardianapp.com";
@@ -59,7 +58,6 @@ static NSString * const kGuardianSuccessfulSubscription                 = @"succ
 static NSString * const kGRDBetaCapablePreferred 						= @"kGRDBetaCapablePreferred";
 static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureEnvironment";
 
-
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
@@ -67,6 +65,7 @@ static NSString * const kGRDSmartRountingProxyEnabled					= @"kGRDSmartRountingP
 static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";
+static NSString * const kGRDClientRulesList								= @"kGRDClientRulesList";
 
 static NSString * const kGRDWGDevicePublicKey                           = @"wg-device-public-key";
 static NSString * const kGRDWGDevicePrivateKey							= @"wg-device-private-key";
@@ -95,7 +94,7 @@ static NSString * const kIsPremiumUser                                  = @"user
 static NSString * const kGRDSubscriptionUpdatedNotification				= @"GRDSubscriptionUpdatedNotification";
 
 
-#pragma mark - Region precision constants
+#pragma mark - Region Precision
 static NSString * const kGRDPreferredRegionPrecision 		= @"kGRDPreferredRegionPrecision";
 static NSString * const kGRDRegionPrecisionDefault 			= @"default";
 static NSString * const kGRDRegionPrecisionCity 			= @"city";
@@ -104,13 +103,13 @@ static NSString * const kGRDRegionPrecisionCityByCountry	= @"city-by-country";
 static NSString * const kGRDPreferredRegionPrecisionCustom	= @"kGRDPreferredRegionPrecisionCustom";
 
 
-#pragma mark - Smart Proxy Routing region states
+#pragma mark - SRP Region States
 static NSString * const kGRDRegionSmartRoutingProxyNone = @"none";
 static NSString * const kGRDRegionSmartRoutingProxySome = @"some";
 static NSString * const kGRDRegionSmartRoutingProxyAll 	= @"all";
 
 
-# pragma mark - Trusted Network constants
+# pragma mark - Trusted Networks
 static NSString * const kGRDDisconnectOnEthernet		= @"kGRDDisconnectOnEthernet";
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";

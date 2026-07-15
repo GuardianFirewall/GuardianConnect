@@ -175,7 +175,7 @@
         GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
         if (mainCredentials != nil) {
             if (completion) {
-				GRDSGWServer *server = [mainCredentials sgwServerFormat];
+				GRDSGWServer *server = [mainCredentials server];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completion(server, nil);
                 });

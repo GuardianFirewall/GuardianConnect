@@ -19,8 +19,8 @@
 	if (self) {
 		self.statusCode = statusCode;
 		if (jsonData == nil) {
-			self.title 		= @"Failed to parse error";
-			self.message 	= @"Failed to parse the API error message returned by the server";
+			self.title 		= @"Error parse error";
+			self.message 	= @"API error response did not contain an error title or message";
 			
 		} else {
 			NSError *jsonErr;

@@ -41,7 +41,7 @@
 	NSMutableDictionary *apiDict = [NSMutableDictionary new];
 	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistDisableFirewall]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistDisableFirewall]];
 	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockAds]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockAds]];
-	 [apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockPhishing]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockPhishing]];
+	[apiDict setObject:@([self hasConfig:DeviceFilterConfigBlocklistBlockPhishing]) forKey:[self apiKeyForDeviceFilterConfigBlocklist:DeviceFilterConfigBlocklistBlockPhishing]];
 	return [NSDictionary dictionaryWithDictionary:apiDict];
 }
 
@@ -111,7 +111,7 @@
 		return;
 	}
 	
-	[[GRDGatewayAPI new] setDeviceFilterConfigsForDeviceId:[mainCreds clientId] apiToken:[mainCreds apiAuthToken] deviceConfigFilters:[self apiPortableBlocklist] completion:^(NSError * _Nullable errorMessage) {
+	[[GRDGatewayAPI new] setDeviceFilterConfigs:[self apiPortableBlocklist] hostname:[mainCreds hostname] deviceId:[mainCreds clientId] apiToken:[mainCreds apiAuthToken] completion:^(NSError * _Nullable errorMessage) {
 		if (completion) completion(errorMessage);
 	}];
 }
