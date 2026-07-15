@@ -174,14 +174,14 @@
 + (BOOL)activeConnectionPossible {
     GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
 	if (mainCredentials.transportProtocol == TransportIKEv2) {
-		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil) {
+		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil || mainCredentials.IPv4Address == nil) {
 			return NO;
 		}
 		
 		return YES;
 		
 	} else if (mainCredentials.transportProtocol == TransportWireGuard) {
-		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil || mainCredentials.devicePrivateKey == nil || mainCredentials.serverPublicKey == nil) {
+		if (mainCredentials.hostname == nil || mainCredentials.apiAuthToken == nil || mainCredentials.clientId == nil || mainCredentials.devicePrivateKey == nil || mainCredentials.serverPublicKey == nil || mainCredentials.IPv4Address == nil) {
 			return NO;
 		}
 		
