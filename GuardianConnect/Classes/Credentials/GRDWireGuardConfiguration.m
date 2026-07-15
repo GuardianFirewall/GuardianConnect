@@ -12,6 +12,11 @@
 
 @implementation GRDWireGuardConfiguration
 
++ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsServers:(NSString *_Nullable)dnsServers {
+	return [self wireguardQuickConfigForCredential:credential dnsServers:dnsServers endpointHostOverride:nil];
+}
+
++ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsServers:(NSString *_Nullable)dnsServers endpointHostOverride:(NSString *_Nullable)endpointHostOverride {
 + (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential smartProxyRoutingEnabled:(BOOL)smartProxyRoutingEnabled dnsServers:(NSString *_Nullable)dnsServers {
 	if ([credential transportProtocol] != TransportWireGuard) {
 		GRDErrorLogg(@"Main credential is not a WireGuard credential.");
@@ -42,7 +47,11 @@
 	config = [config stringByAppendingString:@"[Peer]\n"];
 	config = [config stringByAppendingString:[NSString stringWithFormat:@"PublicKey = %@\n", [credential serverPublicKey]]];
 	config = [config stringByAppendingString:[NSString stringWithFormat:@"AllowedIPs = 0.0.0.0/0, ::/0\n"]];
-	config = [config stringByAppendingString:[NSString stringWithFormat:@"Endpoint = %@:51821", [credential hostname]]];
+	// Stealth Mode (GRD-1391): use the caller-supplied endpoint host (a direct IP) when provided so
+	// WireGuardKit does not resolve the FQDN via DNS; otherwise fall back to the credential hostname
+	// exactly as before. The wg Endpoint accepts a literal IP or a hostname.
+	NSString *endpointHost = (endpointHostOverride != nil && endpointHostOverride.length > 0) ? endpointHostOverride : [credential hostname];
+	config = [config stringByAppendingString:[NSString stringWithFormat:@"Endpoint = %@:51821", endpointHost]];
 	config = [config stringByAppendingString:@"\n"];
 	
 	GRDDebugLog(@"Formatted WireGuard config: \n%@", config);

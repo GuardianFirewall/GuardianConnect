@@ -175,6 +175,38 @@ NS_ASSUME_NONNULL_BEGIN
 /// payment validation mechanisms already known to the Connect API
 @property NSMutableDictionary *customSubscriberCredentialAuthKeys;
 
+
+#pragma mark - Stealth Mode (GRD-1391)
+
+/// When YES, the VPN is dialled by direct server IP (sourced from the cached sgw-ips map)
+/// instead of the SGW FQDN, so a connection can be established on hostile networks where
+/// DNS for the hostname is poisoned. OFF by default. Backed by the shared app-group
+/// defaults so the value is consistent between the app and its network extensions.
+/// Toggling this does NOT itself reconnect; callers should reconnect to apply.
+@property (nonatomic) BOOL stealthModeEnabled;
+
+/// NSUserDefaults instance scoped to `appGroupIdentifier` (falls back to standardUserDefaults
+/// if no app group identifier has been set). Used to persist the Stealth Mode toggle and the
+/// cached hostname -> IPv4 map so they are shared with the WireGuard packet tunnel extension.
+@property (nonatomic, readonly) NSUserDefaults *sharedAppGroupDefaults;
+
+/// Refreshes the locally cached secure-gateway hostname -> IPv4 map from the Connect API.
+/// This should be called on a regular cadence on clean networks REGARDLESS of whether Stealth
+/// Mode is currently enabled, so the map is already warm if the user enables Stealth Mode while
+/// already on a hostile network.
+/// MITIGATION (GRD-1391): on ANY failure (network error, non-200, empty/malformed response) the
+/// previously cached map and its timestamp are left untouched — a failed refresh never destroys
+/// last-known-good IPs. Only a confirmed non-empty success overwrites the cache.
+- (void)refreshStealthIPCacheWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
+
+/// Returns the address that should be used as the VPN dial target (IKEv2 serverAddress /
+/// WireGuard Endpoint host) for the given credential.
+/// Returns the cached direct IP only when Stealth Mode is enabled AND a cached IP exists for the
+/// credential's hostname; otherwise returns credential.hostname unchanged.
+/// MITIGATION (GRD-1391): the FQDN fallback guarantees that with Stealth Mode off, or on a cache
+/// miss, the dial target is byte-for-byte what it was before this feature existed.
+- (NSString *)dialableServerAddressForCredential:(GRDCredential *)credential;
+
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;
 #endif

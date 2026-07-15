@@ -14,6 +14,11 @@
 	self = [super init];
 	if (self) {
 		self.hostname = dict[@"hostname"];
+		// Stealth Mode (GRD-1391): forward-compatible parse of a direct server IP if the
+		// backend ever includes it inline in the server list. In v1 this is normally nil
+		// because IPs are sourced from the separately-cached sgw-ips map; nil is fine and
+		// callers fall back to `hostname`.
+		self.serverIPv4 = dict[@"ipv4"];
 		self.displayName = dict[@"display-name"];
 		NSNumber *offlineNum = dict[@"offline"];
 		self.offline = [offlineNum boolValue];
@@ -50,6 +55,7 @@
 	self = [super init];
 	if (self) {
 		self.hostname 					= [coder decodeObjectForKey:@"hostname"];
+		self.serverIPv4 				= [coder decodeObjectForKey:@"serverIPv4"]; // GRD-1391
 		self.displayName 				= [coder decodeObjectForKey:@"displayName"];
 		self.offline 					= [coder decodeBoolForKey:@"offline"];
 		self.capacityScore 				= [coder decodeIntegerForKey:@"capacityScore"];
@@ -66,6 +72,7 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder {
 	[coder encodeObject:self.hostname forKey:@"hostname"];
+	[coder encodeObject:self.serverIPv4 forKey:@"serverIPv4"]; // GRD-1391
 	[coder encodeObject:self.displayName forKey:@"displayName"];
 	[coder encodeBool:self.offline forKey:@"offline"];
 	[coder encodeInteger:self.capacityScore forKey:@"capacityScore"];

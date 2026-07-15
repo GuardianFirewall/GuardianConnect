@@ -466,6 +466,59 @@
 	[task resume];
 }
 
+- (void)requestAllServerIPsWithCompletion:(void (^)(NSDictionary<NSString *, NSString *> * _Nullable, NSError * _Nullable))completion {
+	// Stealth Mode (GRD-1391): reuse the existing public infrastructure endpoint that already
+	// exposes servers.ipv4. Routed via housekeepingAPIRequestFor: so it targets the same host
+	// (connect-api.guardianapp.com by default) and honours any env override, exactly like the
+	// other /servers endpoints.
+	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1.3/infrastructure/sgw-ips/all"];
+
+	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	[sessionConf setWaitsForConnectivity:YES];
+	[sessionConf setTimeoutIntervalForRequest:15];
+	[sessionConf setTimeoutIntervalForResource:15];
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConf];
+	NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to retrieve secure gateway IPs: %@", [error localizedDescription]]]);
+			return;
+		}
+
+		NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+		if (statusCode != 200) {
+			GRDAPIError *apiErr = [[GRDAPIError alloc] initWithData:data andStatusCode:statusCode];
+			GRDErrorLogg(@"Failed to retrieve secure gateway IPs. Error title: %@ message: %@ status code: %ld", apiErr.title, apiErr.message, statusCode);
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Unknown error: %@ - Status code: %ld", apiErr.message, statusCode]]);
+			return;
+		}
+
+		NSArray *serverItems = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+		if ([serverItems isKindOfClass:[NSArray class]] == NO) {
+			if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Malformed secure gateway IP response"]);
+			return;
+		}
+
+		// Fold [{hostname, ipv4, ...}] into a hostname -> ipv4 map. IPv4-only by design
+		// (GRD-1391 future work: IPv6). Skip entries missing a usable v4 address so the
+		// lookup simply misses and the caller falls back to the FQDN.
+		NSMutableDictionary<NSString *, NSString *> *ipMap = [NSMutableDictionary new];
+		for (NSDictionary *item in serverItems) {
+			if ([item isKindOfClass:[NSDictionary class]] == NO) continue;
+			NSString *hostname = item[@"hostname"];
+			NSString *ipv4 = item[@"ipv4"];
+			if ([hostname isKindOfClass:[NSString class]] == NO || hostname.length == 0) continue;
+			if ([ipv4 isKindOfClass:[NSString class]] == NO || ipv4.length == 0) continue;
+			if ([ipv4 isEqualToString:@"0.0.0.0"]) continue;
+			if ([[ipv4 componentsSeparatedByString:@"."] count] != 4) continue; // crude IPv4 sanity check
+			ipMap[hostname] = ipv4;
+		}
+
+		if (completion) completion(ipMap, nil);
+		return;
+	}];
+	[task resume];
+}
+
 - (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable, NSError * _Nullable))completion {
 	NSMutableURLRequest *request = [self housekeepingAPIRequestFor:@"/api/v1/smart-proxy-routing/hosts"];
 	[request setHTTPMethod:@"GET"];

@@ -288,6 +288,37 @@
 		}];
 	}
 	
+	// MITIGATION (GRD-1391): the pre-flight server-status probe below hits
+	// https://<hostname>/vpnsrv/api/server-status, which requires a DNS lookup of the SGW hostname
+	// and, on failure, kicks off a full credential migration (which itself needs API/DNS access).
+	// On a hostile network that strands the user before the tunnel is ever attempted. In Stealth
+	// Mode we skip the probe and proceed straight to building the direct-IP connection; the
+	// on-demand connect rule plus the IKE/WireGuard handshake themselves validate reachability.
+	if ([self stealthModeEnabled] == YES) {
+		GRDWarningLogg(@"[Stealth] Skipping pre-flight server-status probe; proceeding with direct-IP connection");
+		[self _proceedWithConfiguredConnection:completion];
+		return;
+	}
+
+	[[GRDGatewayAPI new] getServerStatusWithCompletion:^(NSString * _Nullable errorMessage) {
+		if (errorMessage != nil) {
+			GRDErrorLogg(@"VPN server status check failed with error: %@", errorMessage);
+			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
+			return;
+		}
+
+		[self _proceedWithConfiguredConnection:completion];
+	}];
+}
+
+/// Validates the protocol-specific credential fields and starts the appropriate transport.
+/// Extracted from configureAndConnectVPNTunnelWithCompletion: (GRD-1391) so the exact same logic
+/// can run either after the pre-flight server-status probe (normal mode) or directly (Stealth Mode).
+- (void)_proceedWithConfiguredConnection:(void (^_Nullable)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+	if ([self.mainCredential transportProtocol] == TransportIKEv2) {
+		if ([self.mainCredential username] == nil || [self.mainCredential passwordRef] == nil || [self.mainCredential apiAuthToken] == nil) {
+			GRDErrorLogg(@"[IKEv2] Missing one or more required credentials, migrating!");
+			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
 	[[GRDGatewayAPI new] getServerStatusForHostname:[mainCredentials hostname] completion:^(NSError * _Nullable error) {
 		if (error != nil) {
 			[GRDCredentialManager clearMainCredentials];
@@ -308,7 +339,92 @@
 			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to start VPN tunnel for unknown transport protocol: %@", [GRDTransportProtocol transportProtocolStringFor:transport]]]);
 			return;
 		}
+
+		[self _startIKEv2ConnectionWithCompletion:completion];
+
+	} else {
+		if ([self.mainCredential serverPublicKey] == nil || [self.mainCredential IPv4Address] == nil || [self.mainCredential clientId] == nil || [self.mainCredential apiAuthToken] == nil) {
+			GRDErrorLogg(@"[WireGuard] Missing required credentials or server connection details. Migrating!");
+			[self migrateUserForTransportProtocol:[self.mainCredential transportProtocol] withCompletion:completion];
+			return;
+		}
+
+		[self _startWireGuardConnectionWithCompletion:completion];
+	}
+}
+
+
+# pragma mark - Stealth Mode (GRD-1391)
+
+- (NSUserDefaults *)sharedAppGroupDefaults {
+	if (self.appGroupIdentifier != nil && [self.appGroupIdentifier isEqualToString:@""] == NO) {
+		NSUserDefaults *groupDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.appGroupIdentifier];
+		if (groupDefaults != nil) {
+			return groupDefaults;
+		}
+	}
+
+	// Fallback so Stealth Mode still functions in contexts without an app group configured
+	// (unit tests / sample app). The IKEv2 path runs entirely in the main app process and so
+	// never depends on the shared suite; WireGuard relies on the app group being set, which is
+	// already enforced in _startWireGuardConnectionWithCompletion:.
+	return [NSUserDefaults standardUserDefaults];
+}
+
+- (BOOL)stealthModeEnabled {
+	return [[self sharedAppGroupDefaults] boolForKey:kGRDStealthModeEnabled];
+}
+
+- (void)setStealthModeEnabled:(BOOL)stealthModeEnabled {
+	[[self sharedAppGroupDefaults] setBool:stealthModeEnabled forKey:kGRDStealthModeEnabled];
+}
+
+- (void)refreshStealthIPCacheWithCompletion:(void (^_Nullable)(NSError * _Nullable))completion {
+	[[GRDHousekeepingAPI new] requestAllServerIPsWithCompletion:^(NSDictionary<NSString *, NSString *> * _Nullable ipMap, NSError * _Nullable error) {
+		// MITIGATION (GRD-1391): never clobber a good cache on a failed/empty refresh. A user who
+		// flips Stealth Mode on to rescue a stuck connection is, by definition, likely already on a
+		// hostile network where this request fails. Retaining the last-known-good map is what makes
+		// "enable Stealth Mode while already on a bad network" work. Only a confirmed non-empty
+		// success overwrites the cache + timestamp below.
+		if (error != nil || ipMap.count == 0) {
+			GRDWarningLogg(@"[Stealth] IP cache refresh failed or returned empty; retaining existing cache. Error: %@", error);
+			if (completion) completion(error);
+			return;
+		}
+
+		NSUserDefaults *defaults = [self sharedAppGroupDefaults];
+		[defaults setObject:ipMap forKey:kGRDStealthSGWIPCache];
+		[defaults setObject:[NSDate date] forKey:kGRDStealthSGWIPCacheDate];
+		GRDDebugLog(@"[Stealth] Refreshed SGW IP cache with %lu entries", (unsigned long)ipMap.count);
+		if (completion) completion(nil);
 	}];
+}
+
+- (NSString *)dialableServerAddressForCredential:(GRDCredential *)credential {
+	NSString *hostname = credential.hostname;
+
+	// MITIGATION (GRD-1391): with Stealth Mode OFF we MUST return the FQDN unchanged so behaviour is
+	// byte-for-byte identical to before this feature existed. Only override the dial target when the
+	// user has explicitly opted in.
+	if ([self stealthModeEnabled] == NO) {
+		return hostname;
+	}
+	if (hostname == nil || hostname.length == 0) {
+		return hostname;
+	}
+
+	NSDictionary<NSString *, NSString *> *ipMap = [[self sharedAppGroupDefaults] dictionaryForKey:kGRDStealthSGWIPCache];
+	NSString *cachedIP = ipMap[hostname];
+
+	// MITIGATION (GRD-1391): on a cache miss fall back to the FQDN rather than failing the connection.
+	// Worst case the user is no worse off than with Stealth Mode disabled.
+	if ([cachedIP isKindOfClass:[NSString class]] == NO || cachedIP.length == 0) {
+		GRDWarningLogg(@"[Stealth] No cached IP for hostname '%@'; falling back to FQDN dial target", hostname);
+		return hostname;
+	}
+
+	GRDDebugLog(@"[Stealth] Dialling '%@' by direct IP '%@'", hostname, cachedIP);
+	return cachedIP;
 }
 
 
@@ -381,6 +497,12 @@
 			
 			if ([self onDemand]) {
 				vpnManager.onDemandEnabled = YES;
+				// MITIGATION (GRD-1391): the on-demand probe URL is https://<hostname>/vpnsrv/api/server-status,
+				// which requires a DNS lookup of the hostname; on a hostile network it never returns 200 so the
+				// VPN would never auto-connect. In Stealth Mode we drop the probe URL (the always-connect rule
+				// remains), so on-demand connects without any DNS dependency. Probe behaviour is unchanged when
+				// Stealth Mode is off.
+				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				vpnManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 				
 			} else {
@@ -419,7 +541,12 @@
 
 - (NEVPNProtocolIKEv2 *)_prepareIKEv2ParametersForServer:(GRDSGWServer * _Nonnull)server eapUsername:(NSString * _Nonnull)user eapPasswordRef:(NSData * _Nonnull)passRef withCertificateType:(NEVPNIKEv2CertificateType)certType {
 	NEVPNProtocolIKEv2 *protocolConfig = [[NEVPNProtocolIKEv2 alloc] init];
-	protocolConfig.serverAddress = server.hostname;
+	// Feature/MITIGATION (GRD-1391): in Stealth Mode dial the server by direct IP to avoid a DNS
+	// lookup of the hostname on hostile networks. serverCertificateCommonName and remoteIdentifier
+	// MUST remain the FQDN — the gateway presents a certificate for the FQDN and asserts the FQDN as
+	// its IKE identity, so only the transport dial target moves; identity validation is unchanged.
+	// With Stealth Mode off, dialableServerAddressForCredential: returns server.hostname unchanged.
+	protocolConfig.serverAddress = [self dialableServerAddressForCredential:self.mainCredential];
 	protocolConfig.serverCertificateCommonName = server.hostname;
 	protocolConfig.remoteIdentifier = server.hostname;
 	protocolConfig.enablePFS = YES;
@@ -480,6 +607,11 @@
 	}
 	
 	[[GRDTunnelManager sharedManager] ensureTunnelManagerWithCompletion:^(NETunnelProviderManager * _Nullable tunnelManager, NSString * _Nullable errorMessage) {
+		// Stealth Mode (GRD-1391): resolve the dial target once (direct IP when Stealth Mode is on and
+		// a cached IP exists, otherwise the FQDN) and reuse it for both the wg Endpoint and the
+		// protocol's serverAddress so they stay consistent and no DNS lookup of the hostname is needed.
+		NSString *wgDialAddress = [self dialableServerAddressForCredential:self.mainCredential];
+		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:self.mainCredential dnsServers:self.preferredDNSServers endpointHostOverride:wgDialAddress];
 		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:mainCredentials smartProxyRoutingEnabled:[GRDVPNHelper smartProxyRoutingEnabled] dnsServers:self.preferredDNSServers];
 		OSStatus saveStatus = [GRDKeychain storePassword:wireGuardConfig forAccount:kKeychainStr_WireGuardConfig];
 		if (saveStatus != errSecSuccess) {
@@ -488,7 +620,7 @@
 		}
 		
 		NETunnelProviderProtocol *protocol = [NETunnelProviderProtocol new];
-		protocol.serverAddress 				= mainCredentials.hostname;
+		protocol.serverAddress 				= wgDialAddress; // GRD-1391: matches the wg Endpoint dial target (direct IP in Stealth Mode, else FQDN)
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [mainCredentials clientId];
@@ -507,6 +639,9 @@
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
 		tunnelManager.onDemandEnabled = YES;
+		// MITIGATION (GRD-1391): same as the IKEv2 path — drop the DNS-dependent probe URL in Stealth
+		// Mode so on-demand can auto-connect on hostile networks. The always-connect rule remains.
+		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:!self.vpnKillSwitchEnabled disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
