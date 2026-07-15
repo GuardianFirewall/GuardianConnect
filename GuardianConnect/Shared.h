@@ -118,18 +118,5 @@ static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
 
 static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
 
-
-#pragma mark - Stealth Mode (GRD-1391)
-// Stealth Mode connects the VPN by direct IP instead of FQDN so the connection can
-// be established on hostile networks where DNS for the SGW hostname is poisoned
-// (e.g. resolves to 0.0.0.0). It is OFF by default; when off, all connect-path logic
-// behaves exactly as before. The FQDN (credential.hostname) is never overwritten;
-// only the dial target is substituted, and only when a cached IP is available.
-// NOTE (GRD-1391 future work): the IP cache is IPv4-only. IPv6 / dual-stack is not
-// yet supported; v6-only or v4-less nodes fall back to connecting by FQDN.
-static NSString * const kGRDStealthModeEnabled			= @"kGRDStealthModeEnabled";
-static NSString * const kGRDStealthSGWIPCache			= @"kGRDStealthSGWIPCache";		// NSDictionary<hostname (NSString), ipv4 (NSString)>
-static NSString * const kGRDStealthSGWIPCacheDate		= @"kGRDStealthSGWIPCacheDate";	// NSDate of last successful refresh
-
 NS_ASSUME_NONNULL_END
 #endif /* Shared_h */

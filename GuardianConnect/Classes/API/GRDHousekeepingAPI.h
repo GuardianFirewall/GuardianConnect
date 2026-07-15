@@ -90,14 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completion completion block containing an error or the array of smart routing proxy hosts
 - (void)requestSmartProxyRoutingHostsWithCompletion:(void (^)(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error))completion;
 
-/// endpoint: /api/v1.3/infrastructure/sgw-ips/all
-/// Stealth Mode (GRD-1391): fetches the full secure-gateway hostname -> IPv4 map so the
-/// client can dial servers by IP on hostile networks where DNS is poisoned. The map is
-/// cached by GRDVPNHelper; this method only performs the network fetch and transforms the
-/// backend's array response into a dictionary keyed by hostname.
-/// @param completion completion block returning a dictionary of hostname -> IPv4 string, or an error
-- (void)requestAllServerIPsWithCompletion:(void (^)(NSDictionary<NSString *, NSString *> * _Nullable ipMap, NSError * _Nullable error))completion;
-
 
 # pragma mark - Connect Subscriber
 
