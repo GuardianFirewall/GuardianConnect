@@ -28,7 +28,7 @@
 		dnsServers = @"1.1.1.1, 1.0.0.1";
 	}
 	
-	if ([credential.server smartProxyRoutingEnabled] && dnsSRPEnabled) {
+	if ([credential.server smartRoutingProxyEnabled] && dnsSRPEnabled) {
 		dnsServers = @"10.183.10.11";
 		if ([[credential.server.region countryISOCode] isEqualToString:@"UK"]) {
 			dnsServers = @"10.183.10.12";

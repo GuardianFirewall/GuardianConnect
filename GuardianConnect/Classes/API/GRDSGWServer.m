@@ -28,7 +28,7 @@
 		self.betaCapable = [betaCapableNum boolValue];
 		
 		NSNumber *smartRoutingEnabledNum = dict[@"smart-routing-enabled"];
-		self.smartProxyRoutingEnabled = [smartRoutingEnabledNum boolValue];
+		self.smartRoutingProxyEnabled = [smartRoutingEnabledNum boolValue];
 		
 		self.ipv4Address = dict[@"ipv4-address"];
 		self.ipv6Address = dict[@"ipv6-address"];
@@ -39,7 +39,7 @@
 }
 
 - (NSString *)description {
-	return [NSString stringWithFormat:@"hostname: %@; display-name: %@; offline: %@; smart-routing-enabled: %@; region-name: %@, region-pretty: %@, region-country: %@", self.hostname, self.displayName, self.offline ? @"YES" : @"NO", self.smartProxyRoutingEnabled ? @"YES" : @"NO", self.region.regionName, self.region.displayName, self.region.country];
+	return [NSString stringWithFormat:@"hostname: %@; display-name: %@; offline: %@; smart-routing-enabled: %@; region-name: %@, region-pretty: %@, region-country: %@", self.hostname, self.displayName, self.offline ? @"YES" : @"NO", self.smartRoutingProxyEnabled ? @"YES" : @"NO", self.region.regionName, self.region.displayName, self.region.country];
 }
 
 + (BOOL)supportsSecureCoding {
@@ -55,7 +55,7 @@
 		self.capacityScore 				= [coder decodeIntegerForKey:@"capacityScore"];
 		self.serverFeatureEnvironment 	= [coder decodeIntegerForKey:@"serverFeatureEnvironment"];
 		self.betaCapable 				= [coder decodeBoolForKey:@"betaCapable"];
-		self.smartProxyRoutingEnabled 	= [coder decodeBoolForKey:@"smartProxyRoutingEnabled"];
+		self.smartRoutingProxyEnabled 	= [coder decodeBoolForKey:@"smartProxyRoutingEnabled"];
 		self.ipv4Address				= [coder decodeObjectForKey:@"ipv4Address"];
 		self.ipv6Address				= [coder decodeObjectForKey:@"ipv6Address"];
 		self.region 					= [coder decodeObjectForKey:@"region"];
@@ -71,7 +71,7 @@
 	[coder encodeInteger:self.capacityScore forKey:@"capacityScore"];
 	[coder encodeInteger:self.serverFeatureEnvironment forKey:@"serverFeatureEnvironment"];
 	[coder encodeBool:self.betaCapable forKey:@"betaCapable"];
-	[coder encodeBool:self.smartProxyRoutingEnabled forKey:@"smartProxyRoutingEnabled"];
+	[coder encodeBool:self.smartRoutingProxyEnabled forKey:@"smartProxyRoutingEnabled"];
 	[coder encodeObject:self.ipv4Address forKey:@"ipv4Address"];
 	[coder encodeObject:self.ipv6Address forKey:@"ipv6Address"];
 	[coder encodeObject:self.region forKey:@"region"];
