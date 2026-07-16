@@ -1,5 +1,5 @@
 //
-//  GRDSmartProxyHost.h
+//  GRDSmartRoutingProxyHost.h
 //  GuardianCore
 //
 //  Created by Constantin Jacob on 01.09.23.
@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GRDSmartProxyHost : NSObject
+@interface GRDSmartRoutingProxyHost : NSObject
 
 @property (nonatomic, strong) NSString *host;
 @property (nonatomic, strong) NSNumber *region;

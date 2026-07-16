@@ -1302,7 +1302,7 @@
 
 # pragma mark - Smart Routing Proxy
 
-+ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray<GRDSmartProxyHost *> * _Nullable, NSError * _Nullable))completion {
++ (void)requestAllSmartProxyHostsWithCompletion:(void (^)(NSArray<GRDSmartRoutingProxyHost *> * _Nullable, NSError * _Nullable))completion {
 	[[GRDHousekeepingAPI new] requestSmartProxyRoutingHostsWithCompletion:^(NSArray * _Nullable smartProxyHosts, NSError * _Nullable error) {
 		if (error != nil) {
 			GRDErrorLogg(@"Failed to request smart proxy hosts: %@", error);
@@ -1310,9 +1310,9 @@
 			return;
 		}
 		
-		NSMutableArray <GRDSmartProxyHost *> *parsedHosts = [NSMutableArray new];
+		NSMutableArray <GRDSmartRoutingProxyHost *> *parsedHosts = [NSMutableArray new];
 		for (NSDictionary *rawHost in smartProxyHosts) {
-			GRDSmartProxyHost *parsedHost = [[GRDSmartProxyHost alloc] initFromDictionary:rawHost];
+			GRDSmartRoutingProxyHost *parsedHost = [[GRDSmartRoutingProxyHost alloc] initFromDictionary:rawHost];
 			[parsedHosts addObject:parsedHost];
 		}
 		
@@ -1320,7 +1320,7 @@
 	}];
 }
 
-+ (BOOL)smartProxyRoutingEnabled {
++ (BOOL)smartRoutingProxyEnabled {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRountingProxyEnabled];
 }
 
@@ -1335,12 +1335,12 @@
 
 + (void)enableSmartProxyRouting {
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRountingProxyEnabled];
-	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
+	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartRoutingProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
 		if (error != nil) {
 			GRDErrorLogg(@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]);
 			
 		} else {
-			[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:hosts];
+			[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:hosts];
 			
 			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 				[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
@@ -1355,7 +1355,7 @@
 
 + (void)disableSmartProxyRouting {
 	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRountingProxyEnabled];
-	[[GRDVPNHelper sharedInstance] setSmartProxyRoutingHosts:nil];
+	[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:nil];
 	
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 		[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
@@ -1414,8 +1414,8 @@
 		}
 	}
 
-	NSArray *smm = [[GRDVPNHelper sharedInstance] smartProxyRoutingHosts];
-	for (GRDSmartProxyHost *smartProxyHost in smm) {
+	NSArray *smm = [[GRDVPNHelper sharedInstance] smartRoutingProxyHosts];
+	for (GRDSmartRoutingProxyHost *smartProxyHost in smm) {
 		GRDBlocklistItem *conv = [GRDBlocklistItem new];
 		conv.value = smartProxyHost.host;
 		conv.type = GRDBlocklistTypeDNS;

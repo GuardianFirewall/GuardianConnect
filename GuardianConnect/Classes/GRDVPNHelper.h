@@ -17,11 +17,11 @@
 #import <GuardianConnect/GRDGatewayAPI.h>
 #import <GuardianConnect/GRDTunnelManager.h>
 #import <GuardianConnect/GRDBlocklistItem.h>
-#import <GuardianConnect/GRDSmartProxyHost.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
 #import <GuardianConnect/GRDTransportProtocol.h>
 #import <GuardianConnect/GRDSubscriptionManager.h>
 #import <GuardianConnect/GRDSubscriberCredential.h>
+#import <GuardianConnect/GRDSmartRoutingProxyHost.h>
 #import <GuardianConnect/GRDWireGuardConfiguration.h>
 #import <GuardianConnect/GRDDeviceFilterConfigBlocklist.h>
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// The list of smart routing proxy hosts that are going to be applied
 /// to the VPN tunnel settings
-@property NSArray <GRDSmartProxyHost *> * _Nullable smartProxyRoutingHosts;
+@property NSArray <GRDSmartRoutingProxyHost *> * _Nullable smartRoutingProxyHosts;
 
 /// Provides the ability to disable the NetworkExtension's on-demand
 /// features.
@@ -365,7 +365,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 /// is enabled. This property does not reflect settings applied to
 /// existing connections if changed post establishment of a
 /// VPN tunnel connection
-+ (BOOL)smartProxyRoutingEnabled;
++ (BOOL)smartRoutingProxyEnabled;
 
 /// Convenience function to easily enable/disable the Smart Routing Proxy capability from a UISwitch or NSButton set to the checkbox style
 /// - Parameter enabled: a boolean value to indicate whether the feature should be enabled or disabled
@@ -376,6 +376,22 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 /// Explicitly disables the smart proxy routing feature and set the NEProxySettings class property to nil
 + (void)disableSmartProxyRouting;
+
+/// Returns the smart routing proxy mode set by the user.
+///
+/// If the user has not selected a specific mode
+/// - GRDSRPModeUnknown will be returned if the feature is disabled
+/// - GRDSRPModePAC will be returned if the feature is enabled
++ (GRDSRPMode)smartRoutingProxyMode;
+
+/// Returns a formatted string of the given smart routing proxy mode
+/// which can be shown to a user in the UI
++ (NSString *)titleforSmartRoutingProxyMode:(GRDSRPMode)mode;
+
+/// Set the preferred smart proxy routing mode
+///
+/// SRPModeDNS is currently only available for WireGuard connections
++ (void)setSmartRoutingProxyMode:(GRDSRPMode)mode;
 
 /// Correctly assmbles the current proxy settings into a NEProxySettings object. Does not store the return object anywhere persistently
 + (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server;
