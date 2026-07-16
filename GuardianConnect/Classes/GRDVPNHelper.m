@@ -642,12 +642,12 @@
 				
 #elif TARGET_OS_IPHONE
 				NSString *activationAttemptId = [[NSUUID UUID] UUIDString];
-				GRDWarningLogg(@"[GRDTunnel] Trying to start packet tunnel provider with activation attempt uuid: %@", activationAttemptId);
+				GRDWarningLogg(@"Trying to start packet tunnel provider with activation attempt uuid: %@", activationAttemptId);
 				
 				NSError *startErr;
 				[session startTunnelWithOptions:@{@"activationAttemptId": activationAttemptId} andReturnError:&startErr];
 				if (startErr != nil) {
-					GRDErrorLogg(@"[GRDTunnel] Failed to start VPN: %@", startErr);
+					GRDErrorLogg(@"Failed to start VPN: %@", startErr);
 					if (completion) completion(GRDVPNHelperFail, startErr);
 					return;
 					
