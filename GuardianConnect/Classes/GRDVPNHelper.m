@@ -300,7 +300,6 @@
 
 	[[GRDGatewayAPI new] getServerStatusForHostname:[mainCredentials hostname] completion:^(NSError * _Nullable error) {
 		if (error != nil) {
-			[GRDCredentialManager clearMainCredentials];
 			GRDErrorLogg(@"VPN server status check failed with error: %@", error);
 			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate server health of host '%@': %@", [mainCredentials hostname], error]]);
 			return;
@@ -568,7 +567,6 @@
 		tunnelManager.onDemandEnabled = YES;
 		// MITIGATION (GRD-1391): same as the IKEv2 path — drop the DNS-dependent probe URL in Stealth
 		// Mode so on-demand can auto-connect on hostile networks. The always-connect rule remains.
-//		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForHostname:self.mainCredential.hostname withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		tunnelManager.onDemandRules = [GRDVPNHelper _vpnOnDemandRulesForMainCredentials:mainCredentials withProbeURL:(!self.vpnKillSwitchEnabled && [self stealthModeEnabled] == NO) disconnectOnEthernet:self.disconnectOnEthernet disconnectTrustedNetworks:self.disconnectOnTrustedNetworks trustedNetworks:self.trustedNetworks];
 		
 		NSString *finalDescription = self.grdTunnelProviderManagerLocalizedDescription;
