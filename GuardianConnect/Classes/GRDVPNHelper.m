@@ -216,10 +216,6 @@
 		}
 		
 		[self configureUserFirstTimeForTransportProtocol:protocol server:server connectionStatus:nil completion:completion];
-//		[self configureUserFirstTimeForTransportProtocol:protocol server:server postCredential:postCredentialCallback completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable errorMessage) {
-//			if (completion) completion(errorMessage);
-//			return;
-//		}];
 	}];
 }
 
