@@ -492,16 +492,19 @@
         protocolConfig.excludeLocalNetworks = YES;
     }
     
-	
-	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:credential.server];
+	//
+	// Note from CJ 2026-07-16
+	// The proxy settings need to not be gated behind an if statement checking if the smart proxy routing
+	// settings are enabled or what mode it's set to as the blocklist capability is tied to these proxy
+	// settings too!
+	BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
+	protocolConfig.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:credential.server srpPACEnabled:srpPACEnabled];
+
 	protocolConfig.useConfigurationAttributeInternalIPSubnet = NO;
 #if !TARGET_OS_OSX
 #if !TARGET_IPHONE_SIMULATOR
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	
-	if (@available(iOS 13.0, *)) {
-		protocolConfig.enableFallback = [defaults boolForKey:kGRDWifiAssistEnableFallback];
-	}
+	protocolConfig.enableFallback = [defaults boolForKey:kGRDWifiAssistEnableFallback];
 #endif
 #endif
 	
@@ -553,9 +556,14 @@
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [mainCredentials clientId];
-		if ([GRDVPNHelper smartRoutingProxyMode] == SRPModePAC) {
-			protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server];
-		}
+		
+		//
+		// Note from CJ 2026-07-16
+		// The proxy settings need to not be gated behind an if statement checking if the smart proxy routing
+		// settings are enabled or what mode it's set to as the blocklist capability is tied to these proxy
+		// settings too!
+		BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
+		protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server srpPACEnabled:srpPACEnabled];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
@@ -1387,10 +1395,10 @@
 	[[NSUserDefaults standardUserDefaults] setInteger:mode forKey:kGRDSmartRoutingProxyMode];
 }
 
-+ (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server {
++ (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server srpPACEnabled:(BOOL)srpPACEnabled {
 	NEProxySettings *proxySettings = [NEProxySettings new];
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
-	if (server.smartProxyRoutingEnabled == YES) {
+	if (server.smartRoutingProxyEnabled == YES) {
 		proxySettings.autoProxyConfigurationEnabled = YES;
 		proxySettings.proxyAutoConfigurationURL = [NSURL URLWithString:@"https://connect-api.guardianapp.com/api/v1/smart-proxy-routing/static-pac"];
 		
@@ -1400,8 +1408,8 @@
 	}
 	
 #elif TARGET_OS_IPHONE
-	NSString *blocklistJS = [GRDVPNHelper proxyPACString];
-	if (blocklistJS != nil && server.smartProxyRoutingEnabled == YES) {
+	NSString *blocklistJS = [GRDVPNHelper proxyPACStringForSRPPACEnabled:(srpPACEnabled && server.smartRoutingProxyEnabled == YES)];
+	if (blocklistJS != nil) {
 		GRDDebugLog(@"Applied PAC: %@", blocklistJS);
 		proxySettings.autoProxyConfigurationEnabled = YES;
 		proxySettings.proxyAutoConfigurationJavaScript = blocklistJS;
@@ -1415,34 +1423,28 @@
 	return proxySettings;
 }
 
-+ (NSString *)proxyPACString {
-	NSArray <GRDBlocklistItem *> *blocklist = [GRDVPNHelper enabledBlocklistItems];
-
++ (NSString *)proxyPACStringForSRPPACEnabled:(BOOL)srpPACEnabled {
 	// Start the if statement
 	NSMutableString *matchString = [[NSMutableString alloc] initWithString:@"if ("];
 	NSMutableString *proxyMatchString = [[NSMutableString alloc] initWithString:@"if ("];
 	NSString *badRouteProxy = @"\"PROXY 192.0.2.222:3421\"";
 	NSString *dcProxy = @"\"PROXY 10.183.10.11:3128; DIRECT\"";
-
+	
 	NSMutableArray *smartProxyItems = [NSMutableArray new];
 	NSMutableArray *proxyItems = [NSMutableArray new];
+	NSArray <GRDBlocklistItem *> *blocklist = [GRDVPNHelper enabledBlocklistItems];
 	for (GRDBlocklistItem *item in blocklist) {
 		if (item.smartProxyType == YES) {
 			[smartProxyItems addObject:item];
+			//
+			// Note from CJ 2026-07-16
+			// If local debug modes have SRP hostnames set in the blocklist list
+			// this is required in order for them to be properly added to the JS PAC string
+			srpPACEnabled = YES;
 
 		} else {
 			[proxyItems addObject:item];
 		}
-	}
-
-	NSArray *smm = [[GRDVPNHelper sharedInstance] smartRoutingProxyHosts];
-	for (GRDSmartRoutingProxyHost *smartProxyHost in smm) {
-		GRDBlocklistItem *conv = [GRDBlocklistItem new];
-		conv.value = smartProxyHost.host;
-		conv.type = GRDBlocklistTypeDNS;
-		conv.enabled = YES;
-		conv.smartProxyType = YES;
-		[smartProxyItems addObject:conv];
 	}
 
 	for (int idx = 0; idx < [proxyItems count]; idx++) {
@@ -1474,34 +1476,46 @@
 
 		[matchString appendString:formattedString];
 	}
-
-	for (int idx = 0; idx < [smartProxyItems count]; idx++) {
-		NSString *formattedString = nil;
-		GRDBlocklistItem *item = smartProxyItems[idx];
-		if (item.type == GRDBlocklistTypeDNS) {
-			// Keep addding || (logical OR) until we know we are the last item
-			formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
-
-			// Last item, wrap it up
-			if (idx  == smartProxyItems.count - 1) {
-				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, dcProxy];
-			}
-
-		} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
-			// Keep addding || (logical OR) until we know we are the last item
-			formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
-
-			// Last item, wrap it up
-			if (idx  == smartProxyItems.count - 1) {
-				formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@;", item.value, dcProxy];
-			}
-
-		} else {
-			GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
-			continue;
+	
+	if (srpPACEnabled) {
+		NSArray *smm = [[GRDVPNHelper sharedInstance] smartRoutingProxyHosts];
+		for (GRDSmartRoutingProxyHost *smartProxyHost in smm) {
+			GRDBlocklistItem *conv = [GRDBlocklistItem new];
+			conv.value = smartProxyHost.host;
+			conv.type = GRDBlocklistTypeDNS;
+			conv.enabled = YES;
+			conv.smartProxyType = YES;
+			[smartProxyItems addObject:conv];
 		}
-
-		[proxyMatchString appendString:formattedString];
+		
+		for (int idx = 0; idx < [smartProxyItems count]; idx++) {
+			NSString *formattedString = nil;
+			GRDBlocklistItem *item = smartProxyItems[idx];
+			if (item.type == GRDBlocklistTypeDNS) {
+				// Keep addding || (logical OR) until we know we are the last item
+				formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\") || ", item.value];
+				
+				// Last item, wrap it up
+				if (idx  == smartProxyItems.count - 1) {
+					formattedString = [NSString stringWithFormat:@"dnsDomainIs(host, \"%@\")) return %@; ", item.value, dcProxy];
+				}
+				
+			} else if (item.type == GRDBlocklistTypeIPv4 || item.type == GRDBlocklistTypeIPv6) {
+				// Keep addding || (logical OR) until we know we are the last item
+				formattedString = [NSString stringWithFormat:@"(host == \"%@\") || ", item.value];
+				
+				// Last item, wrap it up
+				if (idx  == smartProxyItems.count - 1) {
+					formattedString = [NSString stringWithFormat:@"(host == \"%@\")) return %@;", item.value, dcProxy];
+				}
+				
+			} else {
+				GRDErrorLogg(@"Unknown blocklist item type: %d", GRDBlocklistTypeFromInteger(item.type));
+				continue;
+			}
+			
+			[proxyMatchString appendString:formattedString];
+		}
 	}
 
 	NSString *pacString = @"function FindProxyForURL(url, host) { ";
