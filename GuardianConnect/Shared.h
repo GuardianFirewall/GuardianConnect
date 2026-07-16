@@ -37,6 +37,12 @@ typedef NS_ENUM(NSInteger, GRDHousekeepingValidationMethod) {
 	ValidationMethodCustom
 };
 
+typedef NS_ENUM(NSInteger, GRDSRPMode) {
+	SRPModeUnknown = -1,
+	SRPModePAC,
+	SRPModeDNS
+};
+
 static NSString * const kGRDAPIAuthTokenHTTPHeader 						= @"grd-api-auth-token";
 
 /// Public production Connect API environment
@@ -62,6 +68,7 @@ static NSString * const kGRDVPNHostLocation                             = @"kGRD
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";
 static NSString * const kGRDWifiAssistEnableFallback                    = @"kGRDWifiAssistEnableFallback";
 static NSString * const kGRDSmartRountingProxyEnabled					= @"kGRDSmartRountingProxyEnabled";
+static NSString * const kGRDSmartRoutingProxyMode						= @"kGRDSmartRoutingProxyMode";
 static NSString * const kGRDBlocklistsEnabled 							= @"kGRDBlocklistsEnabled";
 static NSString * const kGRDBlocklistGroups							 	= @"kGRDBlocklistGroups";
 static NSString * const kGuardianTransportProtocol						= @"kGuardianTransportProtocol";

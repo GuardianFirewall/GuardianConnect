@@ -13,7 +13,7 @@
 @implementation GRDWireGuardConfiguration
 
 
-+ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential smartProxyRoutingEnabled:(BOOL)smartProxyRoutingEnabled dnsServers:(NSString *_Nullable)dnsServers sgwServerAddressOverride:(NSString *_Nullable)addressOverride {
++ (NSString *)wireguardQuickConfigForCredential:(GRDCredential *)credential dnsSRPEnabled:(BOOL)dnsSRPEnabled dnsServers:(NSString *_Nullable)dnsServers sgwServerAddressOverride:(NSString *_Nullable)addressOverride {
 	if ([credential transportProtocol] != TransportWireGuard) {
 		GRDErrorLogg(@"Main credential is not a WireGuard credential.");
 		return nil;
@@ -28,7 +28,7 @@
 		dnsServers = @"1.1.1.1, 1.0.0.1";
 	}
 	
-	if ([credential.server smartProxyRoutingEnabled] && smartProxyRoutingEnabled) {
+	if ([credential.server smartProxyRoutingEnabled] && dnsSRPEnabled) {
 		dnsServers = @"10.183.10.11";
 		if ([[credential.server.region countryISOCode] isEqualToString:@"UK"]) {
 			dnsServers = @"10.183.10.12";

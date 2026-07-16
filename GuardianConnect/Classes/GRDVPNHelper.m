@@ -545,7 +545,8 @@
 		// a cached IP exists, otherwise the FQDN) and reuse it for both the wg Endpoint and the
 		// protocol's serverAddress so they stay consistent and no DNS lookup of the hostname is needed.
 		NSString *wgDialAddress = [mainCredentials.server addressForStealthModeEnabled:stealthModeEnabled];
-		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:mainCredentials smartProxyRoutingEnabled:[GRDVPNHelper smartProxyRoutingEnabled] dnsServers:self.preferredDNSServers sgwServerAddressOverride:wgDialAddress];
+		BOOL dnsSRPEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModeDNS);
+		NSString *wireGuardConfig = [GRDWireGuardConfiguration wireguardQuickConfigForCredential:mainCredentials dnsSRPEnabled:dnsSRPEnabled dnsServers:self.preferredDNSServers sgwServerAddressOverride:wgDialAddress];
 		OSStatus saveStatus = [GRDKeychain storePassword:wireGuardConfig forAccount:kKeychainStr_WireGuardConfig];
 		if (saveStatus != errSecSuccess) {
 			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"[GRDTunnel] Failed to store WireGuard credentials in system keychain"]);
@@ -557,13 +558,9 @@
 		protocol.providerBundleIdentifier 	= self.tunnelProviderBundleIdentifier;
 		protocol.passwordReference 			= [GRDKeychain getPasswordRefForAccount:kKeychainStr_WireGuardConfig];
 		protocol.username 					= [mainCredentials clientId];
-		
-		//
-		// Note from CJ 2026-06-24
-		// Disabling proxy settings for WireGuard connections here
-		// to allow for testing of SRPv2 with WireGuard
-#warning TODO: implement three way option SRP as defined by Will
-//		protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server];
+		if ([GRDVPNHelper smartRoutingProxyMode] == SRPModePAC) {
+			protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server];
+		}
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
@@ -1364,6 +1361,36 @@
 			}
 		}];
 	}
+}
+
++ (GRDSRPMode)smartRoutingProxyMode {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if ([defaults valueForKey:kGRDSmartRoutingProxyMode] != nil) {
+		GRDSRPMode mode = (GRDSRPMode)[defaults integerForKey:kGRDSmartRoutingProxyMode];
+		return mode;
+	}
+	
+	BOOL srpEnabled = [GRDVPNHelper smartRoutingProxyEnabled];
+	if (srpEnabled) {
+		return SRPModePAC;
+	}
+		
+	return SRPModeUnknown;
+}
+
++ (NSString *)titleforSmartRoutingProxyMode:(GRDSRPMode)mode {
+	if (mode == SRPModePAC) {
+		return NSLocalizedString(@"PAC", nil);
+		
+	} else if (mode == SRPModeDNS) {
+		return NSLocalizedString(@"DNS", nil);
+	}
+	
+	return NSLocalizedString(@"Unknown", nil);
+}
+
++ (void)setSmartRoutingProxyMode:(GRDSRPMode)mode {
+	[[NSUserDefaults standardUserDefaults] setInteger:mode forKey:kGRDSmartRoutingProxyMode];
 }
 
 + (NEProxySettings *)proxySettingsForSGWServer:(GRDSGWServer *)server {
