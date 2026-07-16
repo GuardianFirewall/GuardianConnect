@@ -258,55 +258,65 @@
 - (void)connectVPNTunnelWithConnectionStatus:(void (^)(GRDVPNHelperConnectionStatus connectionStatus))status completion:(void (^)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
 	__block GRDCredential *mainCredentials 	= [GRDCredentialManager mainCredentials];
 	
-	if (![GRDVPNHelper activeConnectionPossible]) {
-		if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
-		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-		[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
-			if (errorMessage != nil) {
-				if (completion) completion(GRDVPNHelperFail, errorMessage);
-				return;
-			}
-			if (status) status(GRDVPNHelperConnectionSelectedSGWServer);
-			
-			TransportProtocol preferredProtocol = [GRDTransportProtocol getUserPreferredTransportProtocol];
-			[self createStandaloneCredentialsForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] validForDays:30 server:server completion:^(NSDictionary * _Nullable credentials, NSError * _Nullable error) {
-				if (error != nil) {
-					if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to register new device credential with host: '%@': %@", [server hostname], error]]);
+	dispatch_group_t group = dispatch_group_create();
+	dispatch_group_enter(group);
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+		if (![GRDVPNHelper activeConnectionPossible]) {
+			if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
+			GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+			[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
+				if (errorMessage != nil) {
+					if (completion) completion(GRDVPNHelperFail, errorMessage);
 					return;
 				}
+				if (status) status(GRDVPNHelperConnectionSelectedSGWServer);
 				
-				NSInteger adjustedDays = [self _sgwCredentialValidFor];
-				GRDCredential *newMainCredentials = [[GRDCredential alloc] initWithTransportProtocol:preferredProtocol fullDictionary:credentials server:server validFor:adjustedDays isMain:YES];
-				[GRDCredentialManager addOrUpdateCredential:newMainCredentials];
-				mainCredentials = newMainCredentials;
-				if (status) status(GRDVPNhelperConnectionObtainedNewCredential);
+				TransportProtocol preferredProtocol = [GRDTransportProtocol getUserPreferredTransportProtocol];
+				[self createStandaloneCredentialsForTransportProtocol:[GRDTransportProtocol getUserPreferredTransportProtocol] validForDays:30 server:server completion:^(NSDictionary * _Nullable credentials, NSError * _Nullable error) {
+					if (error != nil) {
+						if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to register new device credential with host: '%@': %@", [server hostname], error]]);
+						return;
+					}
+					
+					NSInteger adjustedDays = [self _sgwCredentialValidFor];
+					GRDCredential *newMainCredentials = [[GRDCredential alloc] initWithTransportProtocol:preferredProtocol fullDictionary:credentials server:server validFor:adjustedDays isMain:YES];
+					[GRDCredentialManager addOrUpdateCredential:newMainCredentials];
+					mainCredentials = newMainCredentials;
+					if (status) status(GRDVPNhelperConnectionObtainedNewCredential);
+					dispatch_group_leave(group);
+				}];
 			}];
-		}];
-	}
-	
-	if (status) status(GRDVPNHelperConnectionEstablishingVPNTunnel);
-	
-	// MITIGATION (GRD-1391): the pre-flight server-status probe below hits
-	// https://<hostname>/vpnsrv/api/server-status, which requires a DNS lookup of the SGW hostname
-	// and, on failure, kicks off a full credential migration (which itself needs API/DNS access).
-	// On a hostile network that strands the user before the tunnel is ever attempted. In Stealth
-	// Mode we skip the probe and proceed straight to building the direct-IP connection; the
-	// on-demand connect rule plus the IKE/WireGuard handshake themselves validate reachability.
-	if ([self stealthModeEnabled] == YES) {
-		GRDWarningLogg(@"[Stealth-Mode] Skipping pre-flight server-status probe; proceeding with direct-IP connection");
-		[self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:YES statusCallback:status completion:completion];
-		return;
-	}
-
-	[[GRDGatewayAPI new] getServerStatusForHostname:[mainCredentials hostname] completion:^(NSError * _Nullable error) {
-		if (error != nil) {
-			GRDErrorLogg(@"VPN server status check failed with error: %@", error);
-			if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate server health of host '%@': %@", [mainCredentials hostname], error]]);
-			return;
+			
+		} else {
+			dispatch_group_leave(group);
 		}
-
-		[self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:NO statusCallback:status completion:completion];
-	}];
+	});
+	
+   dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+	   if (status) status(GRDVPNHelperConnectionEstablishingVPNTunnel);
+	   
+	   // MITIGATION (GRD-1391): the pre-flight server-status probe below hits
+	   // https://<hostname>/vpnsrv/api/server-status, which requires a DNS lookup of the SGW hostname
+	   // and, on failure, kicks off a full credential migration (which itself needs API/DNS access).
+	   // On a hostile network that strands the user before the tunnel is ever attempted. In Stealth
+	   // Mode we skip the probe and proceed straight to building the direct-IP connection; the
+	   // on-demand connect rule plus the IKE/WireGuard handshake themselves validate reachability.
+	   if ([self stealthModeEnabled] == YES) {
+		   GRDWarningLogg(@"[Stealth-Mode] Skipping pre-flight server-status probe; proceeding with direct-IP connection");
+		   [self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:YES statusCallback:status completion:completion];
+		   return;
+	   }
+	   
+	   [[GRDGatewayAPI new] getServerStatusForHostname:[mainCredentials hostname] completion:^(NSError * _Nullable error) {
+		   if (error != nil) {
+			   GRDErrorLogg(@"VPN server status check failed with error: %@", error);
+			   if (completion) completion(GRDVPNHelperFail, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to validate server health of host '%@': %@", [mainCredentials hostname], error]]);
+			   return;
+		   }
+		   
+		   [self _proceedWithGRDCredential:mainCredentials stealthModeEnabled:NO statusCallback:status completion:completion];
+	   }];
+   });
 }
 
 /// Validates the protocol-specific credential fields and starts the appropriate transport.
