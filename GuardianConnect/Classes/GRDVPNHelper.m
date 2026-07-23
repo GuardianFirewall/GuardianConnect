@@ -1149,7 +1149,7 @@
 
 - (NSString *)preferredMultihopExitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if ([defaults valueForKey:@"kGRDMultihopExitRegion"] == nil) {
+	if ([defaults valueForKey:@"kGRDMultihopExitRegion"] != nil) {
 		return [defaults stringForKey:@"kGRDMultihopExitRegion"];
 	}
 	
