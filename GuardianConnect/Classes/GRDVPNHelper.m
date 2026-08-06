@@ -884,29 +884,33 @@
 			
 			NSArray *clientRules = [self apiPortableClientRules];
 			NSDictionary *deviceFilterConfigs = [[GRDDeviceFilterConfigBlocklist currentBlocklistConfig] apiPortableBlocklist];
-			NSString *exitRegion = [self preferredMultihopExitRegion];
+			GRDRegion *exitRegion = [self preferredMultihopExitRegion];
 
 			if (protocol == TransportIKEv2) {
-				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
-					if (completion) completion(credentialDetails, nil);
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:[exitRegion multihopExitRegionName] completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+					if (error != nil) {
+						if (completion) completion(nil, error);
+						return;
+					}
+					
+					if (completion) completion(credentialDetails, error);
 				}];
 				
 			} else {
 				GRDCurve25519 *keys = [[GRDCurve25519 alloc] init];
 				[keys generateKeyPair];
 				
-				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:exitRegion completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:[exitRegion multihopExitRegionName] completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
 					if (error != nil) {
 						if (completion) completion(nil, error);
 						return;
-						
-					} else {
-						NSMutableDictionary *newDict = [credentialDetails mutableCopy];
-						[newDict setObject:keys.privateKey forKey:kGRDWGDevicePrivateKey];
-						[newDict setObject:keys.publicKey forKey:kGRDWGDevicePublicKey];
-						
-						if (completion) completion(newDict, nil);
 					}
+					
+					NSMutableDictionary *newDict = [credentialDetails mutableCopy];
+					[newDict setObject:keys.privateKey forKey:kGRDWGDevicePrivateKey];
+					[newDict setObject:keys.publicKey forKey:kGRDWGDevicePublicKey];
+					
+					if (completion) completion(newDict, nil);
 				}];
 			}
 						
