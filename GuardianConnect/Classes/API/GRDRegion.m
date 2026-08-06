@@ -26,7 +26,7 @@
 		self.serverCount				= regionDict[@"server-count"];
 		self.smartRoutingProxyServers 	= regionDict[@"smart-routing-proxy-servers"];
 		self.smartRoutingProxyState 	= regionDict[@"smart-routing-proxy-state"];
-		self.multihopExitRegionNames	= regionDict[@"multihop-exit-names"];
+		self.multihopExitNames			= regionDict[@"multihop-exit-names"];
 		
 		NSArray *rawCities = regionDict[@"cities"];
 		NSMutableArray *cities = [NSMutableArray new];
@@ -71,7 +71,7 @@
 		self.timeZoneName				= [coder decodeObjectForKey:@"time-zone-name"];
 		self.smartRoutingProxyServers 	= [coder decodeObjectForKey:@"smart-routing-proxy-servers"];
 		self.smartRoutingProxyState 	= [coder decodeObjectForKey:@"smart-routing-proxy-state"];
-		self.multihopExitRegionNames	= [coder decodeObjectForKey:@"multihop-exit-region-names"];
+		self.multihopExitNames			= [coder decodeObjectForKey:@"multihop-exit-region-names"];
 	}
 	
 	return self;
@@ -92,7 +92,7 @@
 	[coder encodeObject:self.timeZoneName forKey:@"time-zone-name"];
 	[coder encodeObject:self.smartRoutingProxyServers forKey:@"smart-routing-proxy-servers"];
 	[coder encodeObject:self.smartRoutingProxyState forKey:@"smart-routing-proxy-state"];
-	[coder encodeObject:self.multihopExitRegionNames forKey:@"multihop-exit-region-names"];
+	[coder encodeObject:self.multihopExitNames forKey:@"multihop-exit-region-names"];
 }
 
 + (BOOL)supportsSecureCoding {
@@ -188,6 +188,15 @@
 	}
 	
 	return desiredRegion;
+}
+
+- (NSString *)multihopExitRegionName {
+	if ([self.multihopExitNames count] < 1) {
+		return nil;
+	}
+	
+#warning this is probably way too naïve still and needs to be reviewed again
+	return self.multihopExitNames[0];
 }
 
 - (NSString *)emojiFlag {

@@ -78,12 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// was populated with the automatic routing mode, otherwise empty string or nil
 @property NSString *timeZoneName;
 
-/// The region's multihop exit name
+/// The region's multihop exit name(s)
 ///
 /// This key returned by the APIs is almost always going to
 /// refer to a city and is the key required for the API calls
 /// to instruct the SGW node where to send traffic to
-@property NSArray <NSString *> *multihopExitRegionNames;
+@property NSArray <NSString *> *multihopExitNames;
 
 
 /// Convenience method to parse an API response to a GRDRegion object
@@ -106,6 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// Going to return nil if a GRDRegion could not be matched for the provided
 /// display name string
 + (GRDRegion *)findRegionWithDisplayName:(NSString *_Nonnull)displayName inArray:(NSArray <GRDRegion*>*_Nonnull)regions;
+
+- (NSString *)multihopExitRegionName;
 
 - (NSString *)emojiFlag;
 
