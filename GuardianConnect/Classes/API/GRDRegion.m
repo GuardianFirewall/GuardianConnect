@@ -186,4 +186,24 @@
 	return desiredRegion;
 }
 
+- (NSString *)emojiFlag {
+	// https://stackoverflow.com/a/34995291
+	if ([self.countryISOCode length] == 2) {
+		int base = 127462 - 65;
+		wchar_t bytes[2] = {
+			base + [self.countryISOCode characterAtIndex:0],
+			base + [self.countryISOCode characterAtIndex:1]
+		};
+		NSString *flag = [[NSString alloc] initWithBytes:bytes length:self.countryISOCode.length *sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+		return flag;
+	}
+	
+	//
+	// Note from CJ 2026-07-27
+	// Ensure that we always have a neutral failsafe flag
+	// in case parsing above fails for whatever reason...
+	return @"🏳️";
+}
+
 @end
+

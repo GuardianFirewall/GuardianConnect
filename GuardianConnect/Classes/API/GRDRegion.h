@@ -100,6 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// display name string
 + (GRDRegion *)findRegionWithDisplayName:(NSString *_Nonnull)displayName inArray:(NSArray <GRDRegion*>*_Nonnull)regions;
 
+- (NSString *)emojiFlag;
+
 @end
 
 NS_ASSUME_NONNULL_END
