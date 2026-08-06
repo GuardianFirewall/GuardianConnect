@@ -78,6 +78,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// was populated with the automatic routing mode, otherwise empty string or nil
 @property NSString *timeZoneName;
 
+/// The region's multihop exit name
+///
+/// This key returned by the APIs is almost always going to
+/// refer to a city and is the key required for the API calls
+/// to instruct the SGW node where to send traffic to
+@property NSArray <NSString *> *multihopExitRegionNames;
+
 
 /// Convenience method to parse an API response to a GRDRegion object
 /// - Parameter regionDict: the dictionary with Guardian Connect API compatible key/value pairs

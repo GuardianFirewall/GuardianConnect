@@ -26,6 +26,7 @@
 		self.serverCount				= regionDict[@"server-count"];
 		self.smartRoutingProxyServers 	= regionDict[@"smart-routing-proxy-servers"];
 		self.smartRoutingProxyState 	= regionDict[@"smart-routing-proxy-state"];
+		self.multihopExitRegionNames	= regionDict[@"multihop-exit-names"];
 		
 		NSArray *rawCities = regionDict[@"cities"];
 		NSMutableArray *cities = [NSMutableArray new];
@@ -40,6 +41,7 @@
 			}
 		}
     }
+	
     return self;
 }
 
@@ -69,6 +71,7 @@
 		self.timeZoneName				= [coder decodeObjectForKey:@"time-zone-name"];
 		self.smartRoutingProxyServers 	= [coder decodeObjectForKey:@"smart-routing-proxy-servers"];
 		self.smartRoutingProxyState 	= [coder decodeObjectForKey:@"smart-routing-proxy-state"];
+		self.multihopExitRegionNames	= [coder decodeObjectForKey:@"multihop-exit-region-names"];
 	}
 	
 	return self;
@@ -89,13 +92,14 @@
 	[coder encodeObject:self.timeZoneName forKey:@"time-zone-name"];
 	[coder encodeObject:self.smartRoutingProxyServers forKey:@"smart-routing-proxy-servers"];
 	[coder encodeObject:self.smartRoutingProxyState forKey:@"smart-routing-proxy-state"];
+	[coder encodeObject:self.multihopExitRegionNames forKey:@"multihop-exit-region-names"];
 }
 
 + (BOOL)supportsSecureCoding {
 	return YES;
 }
 
-// Overriding equality check because we might be missint contitent
+// Overriding equality check because we might be missing the contitent
 // if we are recreated by GRDVPNHelper during credential loading.
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:self.class]) {
