@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// set to kGRDRegionPrecisionCountry
 @property BOOL returnAutomaticForRegionPrecisionCountry;
 
+@property BOOL multihopRegionSet;
+
 - (instancetype)initWithServerFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;
 
 - (instancetype)initWithRegionPrecision:(NSString *)precision serverFeatureEnvironment:(GRDServerFeatureEnvironment)featureEnv betaCapableServers:(BOOL)betaCapable;

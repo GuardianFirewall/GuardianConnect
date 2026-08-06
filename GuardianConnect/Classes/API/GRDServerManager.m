@@ -71,15 +71,30 @@
         // capcaity score != connected clients. It's a calculated value based on information from each VPN node
         // this predicate will filter out anything above 1 as its capacity score
         NSArray *availableServers = [servers filteredArrayUsingPredicate:[NSPredicate capacityPredicate]];
+		
+		if (!self.multihopRegionSet) {
+			// if at least 2 low capacity servers are not available, just use full list instead
+			// helps mitigate edge case: single server returned, but it is down yet not reported as such by Housekeeping
+			if ([availableServers count] < 2) {
+				// take full list of servers returned by housekeeping and use them
+				availableServers = servers;
+				GRDWarningLogg(@"Fewer than 2 low capacity servers available. Using all servers");
+			}
+			
+		} else {
+			NSMutableArray *multihopServers = [NSMutableArray new];
+			for (NSDictionary *serverDict in availableServers) {
+				GRDSGWServer *server = [[GRDSGWServer alloc] initFromDictionary:serverDict];
+				if (server.multihopEntryEnabled) {
+					[multihopServers addObject:serverDict];
+				}
+			}
+			if ([multihopServers count] > 0) {
+				availableServers = multihopServers;
+			}
+		}
         
-        // if at least 2 low capacity servers are not available, just use full list instead
-        // helps mitigate edge case: single server returned, but it is down yet not reported as such by Housekeeping
-        if ([availableServers count] < 2) {
-            // take full list of servers returned by housekeeping and use them
-            availableServers = servers;
-            GRDWarningLogg(@"Fewer than 2 low capacity servers available. Using all servers");
-        }
-        
+		
         // Get a random index based on the length of availableServers
         // Then use that random index to select a hostname and return it to the caller
         NSUInteger randomIndex = arc4random_uniform((unsigned int)[availableServers count]);
