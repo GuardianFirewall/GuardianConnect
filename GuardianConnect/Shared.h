@@ -82,6 +82,7 @@ static NSString * const kGRDWGIPv6Address                               = @"mapp
 static NSString * const kGRDClientId                               		= @"client-id";
 
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
+static NSString * const kGRDPreferredMultihopExitRegion					= @"kGRDPreferredMultihopExitRegion";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 
 /// Used to determine whether the device has changed regions in automatic
