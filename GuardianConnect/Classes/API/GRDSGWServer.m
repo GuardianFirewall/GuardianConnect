@@ -30,6 +30,9 @@
 		NSNumber *smartRoutingEnabledNum = dict[@"smart-routing-enabled"];
 		self.smartRoutingProxyEnabled = [smartRoutingEnabledNum boolValue];
 		
+		NSNumber *multihopEntryEnabled = dict[@"multihop-entry-enabled"];
+		self.multihopEntryEnabled = [multihopEntryEnabled boolValue];
+		
 		self.ipv4Address = dict[@"ipv4-address"];
 		self.ipv6Address = dict[@"ipv6-address"];
 		self.region = [[GRDRegion alloc] initWithDictionary:dict[@"region"]];

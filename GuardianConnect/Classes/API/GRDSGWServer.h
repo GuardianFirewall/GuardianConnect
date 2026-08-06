@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSUInteger 	serverFeatureEnvironment;
 @property BOOL			betaCapable;
 @property BOOL			smartRoutingProxyEnabled;
+@property BOOL 			multihopEntryEnabled;
 @property NSString		*ipv4Address;
 @property NSString		*ipv6Address;
 @property GRDRegion 	*region;
