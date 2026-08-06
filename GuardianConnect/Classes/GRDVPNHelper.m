@@ -209,6 +209,7 @@
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(GRDVPNHelperStatusCode status, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:_preferBetaCapableServers];
+	[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -223,6 +224,7 @@
 	[self selectRegion:region];
 	if (region != nil && region.isAutomatic == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+		[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
 		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server connectionStatus:nil completion:completion];
 		}];
@@ -264,6 +266,7 @@
 		if (![GRDVPNHelper activeConnectionPossible]) {
 			if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
 			GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
+			[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
 			[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 				if (errorMessage != nil) {
 					if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -573,7 +576,7 @@
 		// settings are enabled or what mode it's set to as the blocklist capability is tied to these proxy
 		// settings too!
 		BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
-		protocol.proxySettings 				= [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server srpPACEnabled:srpPACEnabled];
+		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server srpPACEnabled:srpPACEnabled];
 		
 		if (@available(iOS 14.2, *)) {
 			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
