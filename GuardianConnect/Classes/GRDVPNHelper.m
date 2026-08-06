@@ -1164,7 +1164,6 @@
 
 - (NSError *)setPreferredMultihopExitRegion:(GRDRegion *)exitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *multihopRegionKey;
 	if (exitRegion != nil) {
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:exitRegion requiringSecureCoding:YES error:&archiveErr];
@@ -1172,18 +1171,15 @@
 			return archiveErr;
 		}
 		[defaults setObject:regionData forKey:kGRDPreferredMultihopExitRegion];
-#warning this is probably not right yet!
-		multihopRegionKey = exitRegion.multihopExitRegionNames[0];
 		
 	} else {
 		[defaults removeObjectForKey:kGRDPreferredMultihopExitRegion];
-		multihopRegionKey = @"disabled";
 	}
 	
 	__block NSError *multihopError;
 	GRDCredential *mainCredential = [GRDCredentialManager mainCredentials];
 	if ([mainCredential canSendSGWAPIRequests]) {
-		[[GRDGatewayAPI new] setMultihopExitRegion:multihopRegionKey hostname:[mainCredential hostname] deviceId:[mainCredential clientId] apiAuthToken:[mainCredential apiAuthToken] completion:^(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error) {
+		[[GRDGatewayAPI new] setMultihopExitRegion:[exitRegion multihopExitRegionName] hostname:[mainCredential hostname] deviceId:[mainCredential clientId] apiAuthToken:[mainCredential apiAuthToken] completion:^(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error) {
 			if (error != nil) {
 				multihopError = error;
 			}
