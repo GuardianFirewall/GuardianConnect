@@ -125,7 +125,16 @@
 		self.vpnKillSwitchEnabled = [defaults boolForKey:kGRDKillSwitchEnabled];
 	}
 	
-	if ([defaults boolForKey:kGRDSmartRountingProxyEnabled] == YES) {
+	if ([defaults valueForKey:@"kGRDSmartRountingProxyEnabled"]) {
+		//
+		// Note from CJ 2026-09-03
+		// Temp compatibilty layer to fix a typo in the constant because
+		// I am useless and apparently can't spell "routing" nor can I
+		// check for typo...
+		[defaults setBool:[defaults boolForKey:@"kGRDSmartRountingProxyEnabled"] forKey:kGRDSmartRoutingProxyEnabled];
+	}
+	
+	if ([defaults boolForKey:kGRDSmartRoutingProxyEnabled] == YES) {
 		[GRDVPNHelper enableSmartProxyRouting];
 	}
 	
@@ -1350,7 +1359,7 @@
 }
 
 + (BOOL)smartRoutingProxyEnabled {
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRountingProxyEnabled];
+	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRoutingProxyEnabled];
 }
 
 + (void)toggleSmartProxyRouting:(BOOL)enabled {
@@ -1363,7 +1372,7 @@
 }
 
 + (void)enableSmartProxyRouting {
-	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRountingProxyEnabled];
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRoutingProxyEnabled];
 	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartRoutingProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
 		if (error != nil) {
 			GRDErrorLogg(@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]);
@@ -1383,7 +1392,7 @@
 }
 
 + (void)disableSmartProxyRouting {
-	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRountingProxyEnabled];
+	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRoutingProxyEnabled];
 	[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:nil];
 	
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
