@@ -267,7 +267,7 @@
 		}
 		
 		NSArray *regions = [GRDRegion regionsFromTimezones:items];
-		if (self.returnAutomaticForRegionPrecisionCountry == YES && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCityByCountry] == YES) {
+		if (self.returnOptimalForRegionPrecisionCountry == YES && [self.regionPrecision isEqualToString:kGRDRegionPrecisionCityByCountry] == YES) {
 			NSMutableArray *tmpRegions = [NSMutableArray new];
 			
 			for (GRDRegion *region in regions) {
@@ -279,7 +279,7 @@
 					[countryAutomatic setCountryISOCode:region.countryISOCode];
 					[countryAutomatic setRegionName:region.regionName];
 					[countryAutomatic setIsAutomatic:NO];
-					[countryAutomatic setDisplayName:[region.displayName stringByAppendingString:NSLocalizedString(@" - Automatic", nil)]];
+					[countryAutomatic setDisplayName:[region.displayName stringByAppendingString:NSLocalizedString(@" - Optimal", nil)]];
 					//
 					// Note from CJ 2026-02-05
 					// Lock the region precision to 'country' here in order to

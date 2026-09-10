@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// kGRDRegionPrecisionCityByCountry a GRDRegion object
 /// will be inserted at index 0 of the root GRDRegion object's
 /// cities array which is a copy of the root GRDRegion object
-/// with the only two changes being ' - Automatic' being appended
+/// with the only two changes being ' - Optimal' being appended
 /// to the GRDRegion's displayName as well as the region precision
 /// set to kGRDRegionPrecisionCountry
-@property BOOL returnAutomaticForRegionPrecisionCountry;
+@property BOOL returnOptimalForRegionPrecisionCountry;
 
 @property BOOL multihopRegionSet;
 
