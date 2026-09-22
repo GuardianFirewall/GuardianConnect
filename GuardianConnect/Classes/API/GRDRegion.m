@@ -192,7 +192,7 @@
 
 - (NSString *)multihopExitRegionName {
 	if ([self.multihopExitNames count] < 1) {
-		return nil;
+		return kGRDMultihopDisabled;
 	}
 	
 #warning this is probably way too naïve still and needs to be reviewed again

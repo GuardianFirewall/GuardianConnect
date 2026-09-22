@@ -84,6 +84,7 @@ static NSString * const kGRDClientId                               		= @"client-
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
 static NSString * const kGRDPreferredMultihopExitRegion					= @"kGRDPreferredMultihopExitRegion";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
+static NSString * const kGRDMultihopDisabled							= @"disabled";
 
 /// Used to determine whether the device has changed regions in automatic
 /// routing mode and the user may want to reconsider reconnecting to a different
