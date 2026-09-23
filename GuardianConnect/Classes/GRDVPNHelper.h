@@ -361,7 +361,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 # pragma mark - Smart Routing Proxy
 
-/// Boolean indicating whether the smart proxy routing capability
+/// Boolean indicating whether the smart routing proxy capability
 /// is enabled. This property does not reflect settings applied to
 /// existing connections if changed post establishment of a
 /// VPN tunnel connection
@@ -371,10 +371,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 /// - Parameter enabled: a boolean value to indicate whether the feature should be enabled or disabled
 + (void)toggleSmartProxyRouting:(BOOL)enabled;
 
-/// Explicitly enables the smart proxy routing feature and sets the NEProxySettings class property correctly
+/// Explicitly enables the smart routing proxy feature and sets the NEProxySettings class property correctly
 + (void)enableSmartProxyRouting;
 
-/// Explicitly disables the smart proxy routing feature and set the NEProxySettings class property to nil
+/// Explicitly disables the smart routing proxy feature and set the NEProxySettings class property to nil
 + (void)disableSmartProxyRouting;
 
 /// Returns the smart routing proxy mode set by the user.
@@ -388,7 +388,7 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 /// which can be shown to a user in the UI
 + (NSString *)titleforSmartRoutingProxyMode:(GRDSRPMode)mode;
 
-/// Set the preferred smart proxy routing mode
+/// Set the preferred smart routing roxy mode
 ///
 /// SRPModeDNS is currently only available for WireGuard connections
 + (void)setSmartRoutingProxyMode:(GRDSRPMode)mode;

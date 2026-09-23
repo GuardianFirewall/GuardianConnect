@@ -516,7 +516,7 @@
     
 	//
 	// Note from CJ 2026-07-16
-	// The proxy settings need to not be gated behind an if statement checking if the smart proxy routing
+	// The proxy settings need to not be gated behind an if statement checking if the smart routing proxy
 	// settings are enabled or what mode it's set to as the blocklist capability is tied to these proxy
 	// settings too!
 	BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
@@ -581,7 +581,7 @@
 		
 		//
 		// Note from CJ 2026-07-16
-		// The proxy settings need to not be gated behind an if statement checking if the smart proxy routing
+		// The proxy settings need to not be gated behind an if statement checking if the smart routing proxy
 		// settings are enabled or what mode it's set to as the blocklist capability is tied to these proxy
 		// settings too!
 		BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
@@ -1385,7 +1385,7 @@
 			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 				[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
 					if (status != GRDVPNHelperSuccess) {
-						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Proxy Routing:", error);
+						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Routing Proxy:", error);
 					}
 				}];
 			}
@@ -1400,7 +1400,7 @@
 	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 		[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
 			if (status != GRDVPNHelperSuccess) {
-				GRDErrorLogg(@"Failed to re-establish VPN connection after disabling Smart Proxy Routing:", error);
+				GRDErrorLogg(@"Failed to re-establish VPN connection after disabling Smart Routing Proxy:", error);
 			}
 		}];
 	}
