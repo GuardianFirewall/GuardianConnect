@@ -185,8 +185,15 @@
 	NSString *finalHost = [NSString stringWithFormat:@"https://%@%@", hostname, apiEndpoint];
 	
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:finalHost]];
-	[request setValue:apiAuthToken forHTTPHeaderField:kGRDAPIAuthTokenHTTPHeader];
+	[request setHTTPMethod:@"POST"];
 	[request setTimeoutInterval:45];
+	[request setValue:apiAuthToken forHTTPHeaderField:kGRDAPIAuthTokenHTTPHeader];
+	NSError *jsonErr;
+	NSData *requestBody = [NSJSONSerialization dataWithJSONObject:@{kKeychainStr_APIAuthToken: apiAuthToken} options:0 error:&jsonErr];
+	if (jsonErr != nil) {
+		if (completion) completion(nil, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to JSON encode request data: %@", [jsonErr localizedDescription]]]);
+	}
+	[request setHTTPBody:requestBody];
 	
 	NSURLSessionConfiguration *sessionConf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	[sessionConf setWaitsForConnectivity:YES];
