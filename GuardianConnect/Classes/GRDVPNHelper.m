@@ -726,32 +726,38 @@
 			[tunnelManager setEnabled:NO];
 			[tunnelManager setOnDemandEnabled:NO];
 			
-#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-			[tunnelManager setOnDemandRules:@[]];
-			[tunnelManager setProtocolConfiguration:nil];
-			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-				if (error != nil) {
-					tunnelError = error;
-				}
-				dispatch_group_leave(group);
-			}];
+//
+// Note from CJ 2026-09-29
+// This has been commented out for the time being as I think
+// that I have figured out the race condition here but I want
+// to leave this mess in the sources for the time being in
+// case I have to return to it
+//#if TARGET_OS_MAC && !TARGET_OS_IPHONE
+//			[tunnelManager setOnDemandRules:@[]];
+//			[tunnelManager setProtocolConfiguration:nil];
+//			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+//				if (error != nil) {
+//					tunnelError = error;
+//				}
+//				dispatch_group_leave(group);
+//			}];
 			// Note from CJ 2023-02-20
 			// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
 			// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
 			// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
 			// This might seem very dangerous but should remain as is for now
-			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+//			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
 			
-#else
+//#else
 			[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
 				if (saveErr != nil) {
 					GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
 					tunnelError = saveErr;
 				}
-				[(NETunnelProviderSession *)tunnelManager.connection stopVPNTunnel];
+				[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
 				dispatch_group_leave(group);
 			}];
-#endif
+//#endif
 			
 		} else {
 			dispatch_group_leave(group);
