@@ -135,7 +135,7 @@
 	}
 	
 	if ([defaults boolForKey:kGRDSmartRoutingProxyEnabled] == YES) {
-		[GRDVPNHelper enableSmartProxyRouting];
+		[GRDVPNHelper enableSmartProxyRoutingWithCompletion:nil];
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
@@ -1370,46 +1370,57 @@
 	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRoutingProxyEnabled];
 }
 
-+ (void)toggleSmartProxyRouting:(BOOL)enabled {
++ (void)toggleSmartProxyRouting:(BOOL)enabled withCompletion:(void (^)(NSError *_Nullable error))completion {
 	if (enabled == YES) {
-		[GRDVPNHelper enableSmartProxyRouting];
-		
-	} else {
-		[GRDVPNHelper disableSmartProxyRouting];
-	}
-}
-
-+ (void)enableSmartProxyRouting {
-	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRoutingProxyEnabled];
-	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartRoutingProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
-		if (error != nil) {
-			GRDErrorLogg(@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]);
-			
-		} else {
-			[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:hosts];
+		[GRDVPNHelper enableSmartProxyRoutingWithCompletion:^(NSError * _Nullable error) {
+			if (error) {
+				if (completion) completion(error);
+				return;
+			}
 			
 			if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 				[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
 					if (status != GRDVPNHelperSuccess) {
-						GRDErrorLogg(@"Failed to re-establish VPN connection after enabling Smart Routing Proxy:", error);
+						if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to re-establish VPN connection after enabling Smart Routing Proxy: %@", [error localizedDescription]]]);
+						return;
 					}
+					
+					if (completion) completion(nil);
 				}];
 			}
+		}];
+		
+	} else {
+		[GRDVPNHelper disableSmartProxyRouting];
+		if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
+			[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
+				if (status != GRDVPNHelperSuccess) {
+					if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to re-establish VPN connection after disabling Smart Routing Proxy: %@", [error localizedDescription]]]);
+					return;
+				}
+				
+				if (completion) completion(nil);
+			}];
 		}
+	}
+}
+
++ (void)enableSmartProxyRoutingWithCompletion:(void (^)(NSError * _Nullable))completion {
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRoutingProxyEnabled];
+	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartRoutingProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
+		if (error != nil) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to request smart routing proxy hosts: %@", [error localizedDescription]]]);
+			return;
+		}
+		
+		[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:hosts];
+		if (completion) completion(nil);
 	}];
 }
 
 + (void)disableSmartProxyRouting {
 	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRoutingProxyEnabled];
 	[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:nil];
-	
-	if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
-		[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
-			if (status != GRDVPNHelperSuccess) {
-				GRDErrorLogg(@"Failed to re-establish VPN connection after disabling Smart Routing Proxy:", error);
-			}
-		}];
-	}
 }
 
 + (GRDSRPMode)smartRoutingProxyMode {

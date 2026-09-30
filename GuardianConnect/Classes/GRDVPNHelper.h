@@ -369,10 +369,10 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 /// Convenience function to easily enable/disable the Smart Routing Proxy capability from a UISwitch or NSButton set to the checkbox style
 /// - Parameter enabled: a boolean value to indicate whether the feature should be enabled or disabled
-+ (void)toggleSmartProxyRouting:(BOOL)enabled;
++ (void)toggleSmartProxyRouting:(BOOL)enabled withCompletion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 /// Explicitly enables the smart routing proxy feature and sets the NEProxySettings class property correctly
-+ (void)enableSmartProxyRouting;
++ (void)enableSmartProxyRoutingWithCompletion:(void (^ _Nullable)(NSError * _Nullable error))completion;
 
 /// Explicitly disables the smart routing proxy feature and set the NEProxySettings class property to nil
 + (void)disableSmartProxyRouting;
