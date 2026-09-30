@@ -135,7 +135,7 @@
 	}
 	
 	if ([defaults boolForKey:kGRDSmartRoutingProxyEnabled] == YES) {
-		[GRDVPNHelper enableSmartProxyRoutingWithCompletion:nil];
+		[GRDVPNHelper enableSmartRoutingProxyWithCompletion:nil];
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserverForName:NSSystemTimeZoneDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
@@ -1370,9 +1370,9 @@
 	return [[NSUserDefaults standardUserDefaults] boolForKey:kGRDSmartRoutingProxyEnabled];
 }
 
-+ (void)toggleSmartProxyRouting:(BOOL)enabled withCompletion:(void (^)(NSError *_Nullable error))completion {
++ (void)toggleSmartRoutingProxy:(BOOL)enabled withCompletion:(void (^)(NSError *_Nullable error))completion {
 	if (enabled == YES) {
-		[GRDVPNHelper enableSmartProxyRoutingWithCompletion:^(NSError * _Nullable error) {
+		[GRDVPNHelper enableSmartRoutingProxyWithCompletion:^(NSError * _Nullable error) {
 			if (error) {
 				if (completion) completion(error);
 				return;
@@ -1391,7 +1391,7 @@
 		}];
 		
 	} else {
-		[GRDVPNHelper disableSmartProxyRouting];
+		[GRDVPNHelper disableSmartRoutingProxy];
 		if ([[GRDVPNHelper sharedInstance] isConnected] == YES || [[GRDVPNHelper sharedInstance] isConnecting] == YES) {
 			[[GRDVPNHelper sharedInstance] connectVPNTunnelWithConnectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
 				if (status != GRDVPNHelperSuccess) {
@@ -1405,7 +1405,7 @@
 	}
 }
 
-+ (void)enableSmartProxyRoutingWithCompletion:(void (^)(NSError * _Nullable))completion {
++ (void)enableSmartRoutingProxyWithCompletion:(void (^)(NSError * _Nullable))completion {
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:kGRDSmartRoutingProxyEnabled];
 	[GRDVPNHelper requestAllSmartProxyHostsWithCompletion:^(NSArray<GRDSmartRoutingProxyHost *> * _Nullable hosts, NSError * _Nullable error) {
 		if (error != nil) {
@@ -1418,7 +1418,7 @@
 	}];
 }
 
-+ (void)disableSmartProxyRouting {
++ (void)disableSmartRoutingProxy {
 	[[NSUserDefaults standardUserDefaults] setBool:NO forKey:kGRDSmartRoutingProxyEnabled];
 	[[GRDVPNHelper sharedInstance] setSmartRoutingProxyHosts:nil];
 }
