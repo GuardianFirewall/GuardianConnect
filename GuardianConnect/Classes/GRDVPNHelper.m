@@ -234,7 +234,7 @@
 	if (region != nil && region.isAutomatic == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
-		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+		[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server connectionStatus:nil completion:completion];
 		}];
 		
