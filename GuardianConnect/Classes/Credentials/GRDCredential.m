@@ -185,7 +185,7 @@
 
 - (NSString *)description {
     NSString *desc = [super description];
-    return [NSString stringWithFormat:@"%@\ntransport-protocol: %@\nusername: %@\nhostname: %@\nexpirationDate: %@\nidentifier: %@", desc, [GRDTransportProtocol transportProtocolStringFor:self.transportProtocol], self.username, self.hostname, self.expirationDate, self.identifier];
+    return [NSString stringWithFormat:@"%@\ntransport-protocol: %@\nclient-id: %@\nhostname: %@\nexpirationDate: %@\nidentifier: %@", desc, [GRDTransportProtocol transportProtocolStringFor:self.transportProtocol], self.clientId, self.hostname, self.expirationDate, self.identifier];
 }
 
 - (NSString *)truncatedHost {
@@ -267,7 +267,7 @@
 			return;
 		}
 		
-		[[GRDGatewayAPI new] verifyCredentialsForClientId:self.username withAPIToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL credentialsValid, NSError * _Nullable error) {
+		[[GRDGatewayAPI new] verifyCredentialsForClientId:self.clientId withAPIToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL credentialsValid, NSError * _Nullable error) {
 			if (completion) completion(credentialsValid, error);
 		}];
 	}];
@@ -286,7 +286,7 @@
 		return;
 	}
 	
-	[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.username apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
+	[[GRDGatewayAPI new] invalidateCredentialsForClientId:self.clientId apiToken:self.apiAuthToken hostname:self.hostname subscriberCredential:subCred.jwt completion:^(NSError *error) {
 		if (completion) completion(error);
 	}];
 }
