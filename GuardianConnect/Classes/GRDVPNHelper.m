@@ -1131,7 +1131,6 @@
 		[defaults setObject:regionData forKey:kGRDPreferredMultihopExitRegion];
 		
 	} else {
-		[defaults removeObjectForKey:kGRDPreferredMultihopExitRegion];
 		exitName = kGRDMultihopDisabled;
 	}
 	
