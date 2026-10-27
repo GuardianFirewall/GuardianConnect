@@ -218,7 +218,7 @@
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(GRDVPNHelperStatusCode status, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
+	[serverManager setMultihopRegionSet:[self multihopEnabled]];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -238,7 +238,7 @@
 	
 	if (region != nil && region.isAutomatic == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-		[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
+		[serverManager setMultihopRegionSet:[self multihopEnabled]];
 		[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server connectionStatus:nil completion:completion];
 		}];
@@ -280,7 +280,7 @@
 		if (![GRDVPNHelper activeConnectionPossible]) {
 			if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
 			GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-			[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
+			[serverManager setMultihopRegionSet:[self multihopEnabled]];
 			[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 				if (errorMessage != nil) {
 					if (completion) completion(GRDVPNHelperFail, errorMessage);
