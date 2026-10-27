@@ -895,8 +895,7 @@
 
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
-		if (subscriberCredential != nil) {
-			
+		if (subscriberCredential != nil) {	
 			NSArray *clientRules = [self apiPortableClientRules];
 			NSDictionary *deviceFilterConfigs = [[GRDDeviceFilterConfigBlocklist currentBlocklistConfig] apiPortableBlocklist];
 			GRDRegion *exitRegion = [self preferredMultihopExitRegion];
@@ -967,19 +966,30 @@
 }
 
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)selectedRegion {
-	self.selectedRegion = selectedRegion;
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	GRDRegion *oldSelectedRegion 	= self.selectedRegion;
+	self.selectedRegion 			= selectedRegion;
+	NSUserDefaults *defaults 		= [NSUserDefaults standardUserDefaults];
+	
 	if (selectedRegion != nil && selectedRegion.isAutomatic == NO) {
+		GRDRegion *multihopExit = [self preferredMultihopExitRegion];
+		if ([selectedRegion isEqual:multihopExit]) {
+			//
+			// Note from CJ 2026-10-27
+			// Ensure that we detect and prevent a VPN tunnel
+			// and multihop exit region collision!
+			self.selectedRegion = oldSelectedRegion;
+			return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Multihop exit region '%@' must not match preferred VPN tunnel region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [multihopExit displayName], [selectedRegion displayName]]];
+		}
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:selectedRegion requiringSecureCoding:YES error:&archiveErr];
 		if (archiveErr != nil) {
 			return archiveErr;
 		}
 		[defaults setObject:regionData forKey:kGuardianRegionOverride];
+		GRDLogg(@"Selected region: %@", [selectedRegion displayName]);
 		
 	} else {
-		//resetting the value to nil, (Automatic)
-		GRDLogg(@"Automatic region selection selected.");
+		// resetting the value to nil, (Automatic)
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
 		
@@ -991,6 +1001,7 @@
 		// whenever the user changes time zones but has since set the routing
 		// mode to a specific region
 		[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
+		GRDLogg(@"Automatic region selection selected.");
 	}
 	
 	return nil;
