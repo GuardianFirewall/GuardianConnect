@@ -683,90 +683,96 @@
 }
 
 - (void)disconnectVPNTunnelWithCompletion:(void (^)(NSError * _Nullable))completion {
-	NEVPNManager *vpnManager = [NEVPNManager sharedManager];
-	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
-	__block NSError *tunnelError = nil;
-	dispatch_group_t group = dispatch_group_create();
-	
-	dispatch_group_enter(group);
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-		if (vpnManager.enabled == YES) {
-			GRDWarningLogg(@"Disconnecting IKEv2 VPN");
-			// Note from CJ 2022-02-23:
-			// You may think that we do not want to disable the VPN profile
-			// but as it turns out we are triggering some other bananas bug with the
-			// WireGuard integration which means that if it's not set to enable == NO
-			// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
-			// will get stuck in a connection loop
-			[vpnManager setEnabled:NO];
-			[vpnManager setOnDemandEnabled:NO];
-			[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-				if (saveErr != nil) {
-					GRDErrorLogg(@"Failed to disconnect IKEv2 tunnel: %@", saveErr);
-					tunnelError = saveErr;
+		NEVPNManager *vpnManager 				= [NEVPNManager sharedManager];
+		NETunnelProviderManager *tunnelManager 	= [self.tunnelManager tunnelProviderManager];
+		__block NSError *tunnelError 			= nil;
+		
+		dispatch_queue_t queue = dispatch_queue_create("com.guardianapp.GuardianConnect.VPN-Tunnels", DISPATCH_QUEUE_SERIAL);
+		dispatch_async(queue, ^{
+			GRDWarningLogg(@"Loading IKEv2 tunnel manager");
+			[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				if (error != nil) {
+					GRDErrorLogg(@"[IKEv2] Failed to load preferences prior to disconnecting the VPN tunnel: %@", [error localizedDescription]);
 				}
-				[[vpnManager connection] stopVPNTunnel];
-				dispatch_group_leave(group);
+				GRDWarningLogg(@"Disconnecting IKEv2 VPN");
+				// Note from CJ 2022-02-23:
+				// You may think that we do not want to disable the VPN profile
+				// but as it turns out we are triggering some other bananas bug with the
+				// WireGuard integration which means that if it's not set to enable == NO
+				// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
+				// will get stuck in a connection loop
+				[vpnManager setEnabled:NO];
+				[vpnManager setOnDemandEnabled:NO];
+				[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+					if (saveErr != nil) {
+						GRDErrorLogg(@"Failed to disconnect IKEv2 tunnel: %@", saveErr);
+						tunnelError = saveErr;
+					}
+					[[vpnManager connection] stopVPNTunnel];
+				}];
 			}];
-			
-		} else {
-			dispatch_group_leave(group);
-		}
-	});
-	
-	dispatch_group_enter(group);
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-		if (tunnelManager.enabled == YES) {
-			GRDWarningLogg(@"Disconnecting WireGuard VPN");
-			// Note from CJ 2022-02-22:
-			// This is a complete and utter hack that took
-			// me 9 hours to track and down and finess.
-			// The first one to touch this without explicit approval
-			// will die a painful death
-			[tunnelManager setEnabled:NO];
-			[tunnelManager setOnDemandEnabled:NO];
-			
-//
-// Note from CJ 2026-09-29
-// This has been commented out for the time being as I think
-// that I have figured out the race condition here but I want
-// to leave this mess in the sources for the time being in
-// case I have to return to it
-//#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-//			[tunnelManager setOnDemandRules:@[]];
-//			[tunnelManager setProtocolConfiguration:nil];
-//			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-//				if (error != nil) {
-//					tunnelError = error;
-//				}
-//				dispatch_group_leave(group);
-//			}];
-			// Note from CJ 2023-02-20
-			// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
-			// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
-			// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
-			// This might seem very dangerous but should remain as is for now
-//			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-			
-//#else
-			[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-				if (saveErr != nil) {
-					GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
-					tunnelError = saveErr;
+		});
+		
+		dispatch_async(queue, ^{
+			GRDWarningLogg(@"Loading WireGuard tunnel manager");
+			[tunnelManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				if (error != nil) {
+					GRDErrorLogg(@"[WireGuard] Failed to preferences prior to disconnecting the VPN tunnel: %@", [error localizedDescription]);
 				}
-				[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-				dispatch_group_leave(group);
+				GRDWarningLogg(@"Disconnecting WireGuard VPN");
+				// Note from CJ 2022-02-22:
+				// This is a complete and utter hack that took
+				// me 9 hours to track and down and finess.
+				// The first one to touch this without explicit approval
+				// will die a painful death
+				[tunnelManager setEnabled:NO];
+				[tunnelManager setOnDemandEnabled:NO];
+				
+				//
+				// Note from CJ 2026-09-29
+				// This has been commented out for the time being as I think
+				// that I have figured out the race condition here but I want
+				// to leave this mess in the sources for the time being in
+				// case I have to return to it
+				//#if TARGET_OS_MAC && !TARGET_OS_IPHONE
+				//			[tunnelManager setOnDemandRules:@[]];
+				//			[tunnelManager setProtocolConfiguration:nil];
+				//			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				//				if (error != nil) {
+				//					tunnelError = error;
+				//				}
+				//				dispatch_group_leave(group);
+				//			}];
+				// Note from CJ 2023-02-20
+				// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
+				// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
+				// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
+				// This might seem very dangerous but should remain as is for now
+				//			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+				
+				//#else
+				[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+					if (saveErr != nil) {
+						GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
+						tunnelError = saveErr;
+					}
+					[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+				}];
+				//#endif
 			}];
-//#endif
-			
-		} else {
-			dispatch_group_leave(group);
-		}
-	});
-	
-
-	dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-		if (completion) completion(tunnelError);
+		});
+		
+		//
+		// Note from CJ 2026-10-27
+		// Ensure that the completion handler isn't called
+		// until all the tunnel managers have been touched
+		// and then return on the main thread again!
+		dispatch_async(queue, ^{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				if (completion) completion(tunnelError);
+			});
+		});
 	});
 }
 
