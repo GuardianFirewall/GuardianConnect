@@ -230,7 +230,12 @@
 }
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
-	[self selectRegion:region];
+	NSError *regionSelectionErr = [self selectRegion:region];
+	if (regionSelectionErr != nil) {
+		if (completion) completion(GRDVPNHelperFail, regionSelectionErr);
+		return;
+	}
+	
 	if (region != nil && region.isAutomatic == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
 		[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
