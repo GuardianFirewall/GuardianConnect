@@ -1104,10 +1104,25 @@
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
 
+
 # pragma mark - Multihop
+
+- (BOOL)multihopEnabled {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	return [defaults boolForKey:kGRDMultihopEnabled];
+}
+
+- (void)setMultihopEnabled:(BOOL)enabled {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setBool:enabled forKey:kGRDMultihopEnabled];
+}
 
 - (GRDRegion *)preferredMultihopExitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if (![defaults boolForKey:kGRDMultihopEnabled]) {
+		return nil;
+	}
+	
 	if ([defaults valueForKey:kGRDPreferredMultihopExitRegion] == nil) {
 		return nil;
 	}
@@ -1116,6 +1131,11 @@
 	NSError *unarchiveErr;
 	GRDRegion *multihopRegion = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:multihopRegionData error:&unarchiveErr];
 	return multihopRegion;
+}
+
+- (void)clearPreferredMultihopExitRegion {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults removeObjectForKey:kGRDPreferredMultihopExitRegion];
 }
 
 - (void)setPreferredMultihopExitRegion:(GRDRegion *)exitRegion completion:(void (^ _Nullable)(NSError * _Nullable))completion {

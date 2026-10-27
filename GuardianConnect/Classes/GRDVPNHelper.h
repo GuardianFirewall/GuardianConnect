@@ -332,7 +332,13 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 # pragma mark - Multihop
 
+- (BOOL)multihopEnabled;
+
+- (void)setMultihopEnabled:(BOOL)enabled;
+
 - (GRDRegion * _Nullable)preferredMultihopExitRegion;
+
+- (void)clearPreferredMultihopExitRegion;
 
 - (void)setPreferredMultihopExitRegion:(GRDRegion * _Nullable)exitRegion completion:(void(^_Nullable)(NSError *_Nullable error))completion;
 

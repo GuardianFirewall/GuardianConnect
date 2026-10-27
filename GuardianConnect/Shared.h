@@ -82,6 +82,7 @@ static NSString * const kGRDWGIPv6Address                               = @"mapp
 static NSString * const kGRDClientId                               		= @"client-id";
 
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
+static NSString * const kGRDMultihopEnabled								= @"kGRDMultihopEnabled";
 static NSString * const kGRDPreferredMultihopExitRegion					= @"kGRDPreferredMultihopExitRegion";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 static NSString * const kGRDMultihopDisabled							= @"disabled";
