@@ -691,12 +691,15 @@
 		NETunnelProviderManager *tunnelManager 	= [[[GRDVPNHelper sharedInstance] tunnelManager] tunnelProviderManager];
 		__block NSError *tunnelError 			= nil;
 		
-		dispatch_queue_t queue = dispatch_queue_create("com.guardianapp.GuardianConnect.VPN-Tunnels", DISPATCH_QUEUE_SERIAL);
-		dispatch_async(queue, ^{
+		dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+		dispatch_group_t group = dispatch_group_create();
+		
+		dispatch_group_enter(group);
+		dispatch_group_async(group, queue, ^{
 			GRDWarningLogg(@"Loading IKEv2 tunnel manager");
 			[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 				if (error != nil) {
-					GRDErrorLogg(@"[IKEv2] Failed to load preferences prior to disconnecting the VPN tunnel: %@", [error localizedDescription]);
+					GRDErrorLogg(@"[IKEv2] Failed to load preferences prior to disconnecting the VPN tunnel: %@", error);
 				}
 				GRDWarningLogg(@"Disconnecting IKEv2 VPN");
 				// Note from CJ 2022-02-23:
@@ -713,66 +716,36 @@
 						tunnelError = saveErr;
 					}
 					[[vpnManager connection] stopVPNTunnel];
+					dispatch_group_leave(group);
 				}];
 			}];
 		});
 		
-		dispatch_async(queue, ^{
+		dispatch_group_enter(group);
+		dispatch_group_async(group, queue, ^{
 			GRDWarningLogg(@"Loading WireGuard tunnel manager");
 			[tunnelManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 				if (error != nil) {
-					GRDErrorLogg(@"[WireGuard] Failed to preferences prior to disconnecting the VPN tunnel: %@", [error localizedDescription]);
+					GRDErrorLogg(@"[WireGuard] Failed to preferences prior to disconnecting the VPN tunnel: %@", error);
 				}
 				GRDWarningLogg(@"Disconnecting WireGuard VPN");
-				// Note from CJ 2022-02-22:
-				// This is a complete and utter hack that took
-				// me 9 hours to track and down and finess.
-				// The first one to touch this without explicit approval
-				// will die a painful death
+
 				[tunnelManager setEnabled:NO];
 				[tunnelManager setOnDemandEnabled:NO];
-				
-				//
-				// Note from CJ 2026-09-29
-				// This has been commented out for the time being as I think
-				// that I have figured out the race condition here but I want
-				// to leave this mess in the sources for the time being in
-				// case I have to return to it
-				//#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-				//			[tunnelManager setOnDemandRules:@[]];
-				//			[tunnelManager setProtocolConfiguration:nil];
-				//			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-				//				if (error != nil) {
-				//					tunnelError = error;
-				//				}
-				//				dispatch_group_leave(group);
-				//			}];
-				// Note from CJ 2023-02-20
-				// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
-				// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
-				// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
-				// This might seem very dangerous but should remain as is for now
-				//			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-				
-				//#else
 				[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
 					if (saveErr != nil) {
 						GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
 						tunnelError = saveErr;
 					}
 					[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+					dispatch_group_leave(group);
 				}];
-				//#endif
 			}];
 		});
 		
-		//
-		// Note from CJ 2026-10-27
-		// Ensure that the completion handler isn't called
-		// until all the tunnel managers have been touched
-		// and then return on the main thread again!
-		dispatch_async(queue, ^{
+		dispatch_group_notify(group, queue, ^{
 			dispatch_async(dispatch_get_main_queue(), ^{
+				GRDDebugLog(@"Done disconnecting");
 				if (completion) completion(tunnelError);
 			});
 		});
@@ -987,7 +960,7 @@
 			// Ensure that we detect and prevent a VPN tunnel
 			// and multihop exit region collision!
 			self.selectedRegion = oldSelectedRegion;
-			return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Multihop exit region '%@' must not match preferred VPN tunnel region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [multihopExit displayName], [selectedRegion displayName]]];
+			return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"The preferred VPN tunnel region '%@' must not match the multihop exit region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [selectedRegion displayName], [multihopExit displayName]]];
 		}
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:selectedRegion requiringSecureCoding:YES error:&archiveErr];
