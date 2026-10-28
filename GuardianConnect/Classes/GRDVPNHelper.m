@@ -476,7 +476,6 @@
 						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 							[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 								NSError *vpnErr;
-								self.currentTunnelManager = vpnManager;
 								[[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
 								if (vpnErr != nil) {
 									GRDErrorLogg(@"[IKEv2] Failed to start VPN: %@", vpnErr);
@@ -625,7 +624,6 @@
 				}
 				
 				NETunnelProviderSession *session = (NETunnelProviderSession*)tunnelManager.connection;
-				self.currentTunnelManager = tunnelManager;
 				
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
 				if ([session respondsToSelector:@selector(sendProviderMessage:returnError:responseHandler:)]) {
