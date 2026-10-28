@@ -688,7 +688,7 @@
 - (void)disconnectVPNTunnelWithCompletion:(void (^)(NSError * _Nullable))completion {
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 		NEVPNManager *vpnManager 				= [NEVPNManager sharedManager];
-		NETunnelProviderManager *tunnelManager 	= [self.tunnelManager tunnelProviderManager];
+		NETunnelProviderManager *tunnelManager 	= [[[GRDVPNHelper sharedInstance] tunnelManager] tunnelProviderManager];
 		__block NSError *tunnelError 			= nil;
 		
 		dispatch_queue_t queue = dispatch_queue_create("com.guardianapp.GuardianConnect.VPN-Tunnels", DISPATCH_QUEUE_SERIAL);
