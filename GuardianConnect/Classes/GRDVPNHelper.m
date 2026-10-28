@@ -1150,6 +1150,11 @@
 	NSData *multihopRegionData = [defaults objectForKey:kGRDPreferredMultihopExitRegion];
 	NSError *unarchiveErr;
 	GRDRegion *multihopRegion = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:multihopRegionData error:&unarchiveErr];
+	if (unarchiveErr != nil) {
+		GRDErrorLogg(@"Failed to decode preferred GRDRegion data: %@", [unarchiveErr localizedDescription]);
+		return nil;
+	}
+	
 	return multihopRegion;
 }
 
@@ -1159,9 +1164,17 @@
 }
 
 - (void)setPreferredMultihopExitRegion:(GRDRegion *)exitRegion completion:(void (^ _Nullable)(NSError * _Nullable))completion {
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *exitName = [exitRegion multihopExitRegionName];
+	NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
+	NSString *exitName 			= [exitRegion multihopExitRegionName];
+	
 	if (exitRegion != nil) {
+		GRDRegion *preferredVPNRegion = [self selectedRegion];
+		if ([exitName isEqual:preferredVPNRegion]) {
+#warning see if you can detect an optimal type region and then do something intelligent with that instead
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"The multihop exit region '%@' must not match the preferred VPN tunnel region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [exitRegion displayName], [preferredVPNRegion displayName]]]);
+			return;
+		}
+		
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:exitRegion requiringSecureCoding:YES error:&archiveErr];
 		if (archiveErr != nil) {
