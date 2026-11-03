@@ -9,6 +9,7 @@
 @import UserNotifications;
 #import <GuardianConnect/GRDServerManager.h>
 #import <GuardianConnect/GRDHousekeepingAPI.h>
+#import <GuardianConnect/GRDVPNHelper.h>
 
 #if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
@@ -60,6 +61,13 @@
 }
 
 - (void)selectGuardianHostWithCompletion:(void (^)(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage))completion {
+	GRDSGWServer *pinned = [[GRDVPNHelper sharedInstance] pinnedServer];
+	if (pinned != nil) {
+		GRDLogg(@"Server pinned, skipping server selection: %@", pinned.hostname);
+		if (completion) completion(pinned, nil);
+		return;
+	}
+	
     [self getGuardianHostsWithCompletion:^(NSArray * _Nullable servers, NSError * _Nullable errorMessage) {
         if (servers == nil) {
             if (completion) completion(nil, errorMessage);
@@ -185,6 +193,15 @@
 }
 
 - (void)findBestHostInRegion:(GRDRegion * _Nullable)region completion:(void(^_Nullable)(GRDSGWServer * _Nullable server, NSError *error))completion {
+	GRDSGWServer *pinned = [[GRDVPNHelper sharedInstance] pinnedServer];
+	if (pinned != nil) {
+		GRDLogg(@"Server pinned, skipping server selection: %@", pinned.hostname);
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (completion) completion(pinned, nil);
+		});
+		return;
+	}
+	
     if (region == nil) {
         GRDDebugLog(@"Region is nil, using automatic routing logic!");
         GRDCredential *mainCredentials = [GRDCredentialManager mainCredentials];
