@@ -25,13 +25,13 @@
 	}
 	
 	if (dnsServers == nil || [dnsServers isEqualToString:@""]) {
-		dnsServers = @"1.1.1.1, 1.0.0.1";
+		dnsServers = kGRDDNSServerCloudflare;
 	}
 	
 	if ([credential.server smartRoutingProxyEnabled] && dnsSRPEnabled) {
-		dnsServers = @"10.183.10.11";
+		dnsServers = kGRDSRPDNSServerUS;
 		if ([[credential.server.region countryISOCode] isEqualToString:@"UK"]) {
-			dnsServers = @"10.183.10.12";
+			dnsServers = kGRDSRPDNSServerUK;
 		}
 	}
 	

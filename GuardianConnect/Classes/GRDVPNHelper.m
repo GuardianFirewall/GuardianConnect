@@ -1143,7 +1143,6 @@
 	if (exitRegion != nil) {
 		GRDRegion *preferredVPNRegion = [self selectedRegion];
 		if ([exitName isEqual:preferredVPNRegion]) {
-#warning see if you can detect an optimal type region and then do something intelligent with that instead
 			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"The multihop exit region '%@' must not match the preferred VPN tunnel region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [exitRegion displayName], [preferredVPNRegion displayName]]]);
 			return;
 		}
