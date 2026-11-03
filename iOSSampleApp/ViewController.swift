@@ -58,14 +58,14 @@ class ViewController: UIViewController {
         }
         
         // can use this as an early validation upon launch to make sure VPN credentials are still valid
-        GRDVPNHelper.sharedInstance().verifyMainCredentials { (success, error) in
-            if (success) {
-                print("Valid VPN credentials present!");
-                DispatchQueue.main.async {
-                    self.createVPNButton.isEnabled = true
-                }
-            }
-        }
+		GRDCredentialManager.mainCredentials().verify { (credentialValid, error) in
+			if (credentialValid) {
+				print("Valid VPN credentials present!");
+				DispatchQueue.main.async {
+					self.createVPNButton.isEnabled = true
+				}
+			}
+		}
 		
 		// populate the region selection data
 		self.populateRegionDataIfNecessary()

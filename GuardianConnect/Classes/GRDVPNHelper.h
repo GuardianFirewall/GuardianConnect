@@ -33,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GRDVPNHelper : NSObject
 
-@property NEVPNManager *currentTunnelManager;
-
 /// The GuardianConnect API hostname to use for the majority of API calls
 /// WARNING: Some API endpoints are always going to use the public Connect
 /// API hostname https://connect-api.guardianapp.com
@@ -290,14 +288,6 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 /// @param completion block Completion block that will contain an NSDictionary of credentials upon success
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * _Nullable credentials, NSError * _Nullable error))completion;
 
-/// Verify that the current main VPN credentials are valid if applicable. 
-/// A valid Subscriber Credential is automatically obtained and provided to
-/// the VPN node alongside the credential details.
-/// If the device is currently connected and the server indicates that
-/// the VPN credentials are no longer valid the device is automatically
-/// migrated to a new server within the same region
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion;
-
 /// Call this to properly assign a GRDRegion to all GRDServerManager instances
 /// @param region the region to select a server from. Pass nil to reset to Automatic region selection mode
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)region;
@@ -343,9 +333,15 @@ typedef NS_ENUM(NSInteger, GRDVPNHelperConnectionStatus) {
 
 # pragma mark - Multihop
 
+- (BOOL)multihopEnabled;
+
+- (void)setMultihopEnabled:(BOOL)enabled;
+
 - (GRDRegion * _Nullable)preferredMultihopExitRegion;
 
-- (NSError *)setPreferredMultihopExitRegion:(GRDRegion * _Nullable)exitRegion;
+- (void)clearPreferredMultihopExitRegion;
+
+- (void)setPreferredMultihopExitRegion:(GRDRegion * _Nullable)exitRegion completion:(void(^_Nullable)(NSError *_Nullable error))completion;
 
 
 #pragma mark - Client Rules

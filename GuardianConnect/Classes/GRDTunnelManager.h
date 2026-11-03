@@ -39,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)loadTunnelManagerFromPreferences:(void (^_Nullable)(NETunnelProviderManager * __nullable manager, NSError * __nullable errorMessage))completion;
 
-/// Convenience method to quickly delete the current tunnel manager out of the iOS preferences
+/// Convenience method to quickly delete the current tunnel manager out of the Apple OS system preferences
+/// - Parameter completion: completion block return an error or nil
 - (void)removeTunnelFromPreferences:(void (^_Nullable)(NSError *_Nullable error))completion;
 
 /// Used to determine whether or not the NETunnelManager has already been configured on this device

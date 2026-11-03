@@ -218,7 +218,7 @@
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol postCredentialCallback:(void (^)(void))postCredentialCallback completion:(void (^)(GRDVPNHelperStatusCode status, NSError * _Nullable))completion {
 	GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:_preferBetaCapableServers];
-	[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
+	[serverManager setMultihopRegionSet:[self multihopEnabled]];
 	[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 		if (errorMessage != nil) {
 			if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -231,11 +231,16 @@
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
 	[self setPinnedServer:nil];
-	[self selectRegion:region];
+	NSError *regionSelectionErr = [self selectRegion:region];
+	if (regionSelectionErr != nil) {
+		if (completion) completion(GRDVPNHelperFail, regionSelectionErr);
+		return;
+	}
+	
 	if (region != nil && region.isAutomatic == NO) {
 		GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:region.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-		[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
-		[serverManager findBestHostInRegion:region completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
+		[serverManager setMultihopRegionSet:[self multihopEnabled]];
+		[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 			[self configureUserFirstTimeForTransportProtocol:protocol server:server connectionStatus:nil completion:completion];
 		}];
 		
@@ -282,7 +287,7 @@
 		if (![GRDVPNHelper activeConnectionPossible]) {
 			if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
 			GRDServerManager *serverManager = [[GRDServerManager alloc] initWithServerFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-			[serverManager setMultihopRegionSet:[self preferredMultihopExitRegion] != nil];
+			[serverManager setMultihopRegionSet:[self multihopEnabled]];
 			[serverManager selectGuardianHostWithCompletion:^(GRDSGWServer * _Nullable server, NSError * _Nullable errorMessage) {
 				if (errorMessage != nil) {
 					if (completion) completion(GRDVPNHelperFail, errorMessage);
@@ -509,7 +514,6 @@
 						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 							[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
 								NSError *vpnErr;
-								self.currentTunnelManager = vpnManager;
 								[[vpnManager connection] startVPNTunnelAndReturnError:&vpnErr];
 								if (vpnErr != nil) {
 									GRDErrorLogg(@"[IKEv2] Failed to start VPN: %@", vpnErr);
@@ -658,7 +662,6 @@
 				}
 				
 				NETunnelProviderSession *session = (NETunnelProviderSession*)tunnelManager.connection;
-				self.currentTunnelManager = tunnelManager;
 				
 #if TARGET_OS_MAC && !TARGET_OS_IPHONE
 				if ([session respondsToSelector:@selector(sendProviderMessage:returnError:responseHandler:)]) {
@@ -721,90 +724,69 @@
 }
 
 - (void)disconnectVPNTunnelWithCompletion:(void (^)(NSError * _Nullable))completion {
-	NEVPNManager *vpnManager = [NEVPNManager sharedManager];
-	NETunnelProviderManager *tunnelManager = [self.tunnelManager tunnelProviderManager];
-	__block NSError *tunnelError = nil;
-	dispatch_group_t group = dispatch_group_create();
-	
-	dispatch_group_enter(group);
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-		if (vpnManager.enabled == YES) {
-			GRDWarningLogg(@"Disconnecting IKEv2 VPN");
-			// Note from CJ 2022-02-23:
-			// You may think that we do not want to disable the VPN profile
-			// but as it turns out we are triggering some other bananas bug with the
-			// WireGuard integration which means that if it's not set to enable == NO
-			// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
-			// will get stuck in a connection loop
-			[vpnManager setEnabled:NO];
-			[vpnManager setOnDemandEnabled:NO];
-			[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-				if (saveErr != nil) {
-					GRDErrorLogg(@"Failed to disconnect IKEv2 tunnel: %@", saveErr);
-					tunnelError = saveErr;
+		NEVPNManager *vpnManager 				= [NEVPNManager sharedManager];
+		NETunnelProviderManager *tunnelManager 	= [[[GRDVPNHelper sharedInstance] tunnelManager] tunnelProviderManager];
+		__block NSError *tunnelError 			= nil;
+		
+		dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+		dispatch_group_t group = dispatch_group_create();
+		
+		dispatch_group_enter(group);
+		dispatch_group_async(group, queue, ^{
+			GRDWarningLogg(@"Loading IKEv2 tunnel manager");
+			[vpnManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				if (error != nil) {
+					GRDErrorLogg(@"[IKEv2] Failed to load preferences prior to disconnecting the VPN tunnel: %@", error);
 				}
-				[[vpnManager connection] stopVPNTunnel];
-				dispatch_group_leave(group);
+				GRDWarningLogg(@"Disconnecting IKEv2 VPN");
+				// Note from CJ 2022-02-23:
+				// You may think that we do not want to disable the VPN profile
+				// but as it turns out we are triggering some other bananas bug with the
+				// WireGuard integration which means that if it's not set to enable == NO
+				// the IKEv2 connection after switching protocols from WireGuard -> IKEv2
+				// will get stuck in a connection loop
+				[vpnManager setEnabled:NO];
+				[vpnManager setOnDemandEnabled:NO];
+				[vpnManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+					if (saveErr != nil) {
+						GRDErrorLogg(@"Failed to disconnect IKEv2 tunnel: %@", saveErr);
+						tunnelError = saveErr;
+					}
+					[[vpnManager connection] stopVPNTunnel];
+					dispatch_group_leave(group);
+				}];
 			}];
-			
-		} else {
-			dispatch_group_leave(group);
-		}
-	});
-	
-	dispatch_group_enter(group);
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-		if (tunnelManager.enabled == YES) {
-			GRDWarningLogg(@"Disconnecting WireGuard VPN");
-			// Note from CJ 2022-02-22:
-			// This is a complete and utter hack that took
-			// me 9 hours to track and down and finess.
-			// The first one to touch this without explicit approval
-			// will die a painful death
-			[tunnelManager setEnabled:NO];
-			[tunnelManager setOnDemandEnabled:NO];
-			
-//
-// Note from CJ 2026-09-29
-// This has been commented out for the time being as I think
-// that I have figured out the race condition here but I want
-// to leave this mess in the sources for the time being in
-// case I have to return to it
-//#if TARGET_OS_MAC && !TARGET_OS_IPHONE
-//			[tunnelManager setOnDemandRules:@[]];
-//			[tunnelManager setProtocolConfiguration:nil];
-//			[tunnelManager removeFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
-//				if (error != nil) {
-//					tunnelError = error;
-//				}
-//				dispatch_group_leave(group);
-//			}];
-			// Note from CJ 2023-02-20
-			// It may seems as though we'd want the line below in the completion handler from removeFromPreferencesWithCompletionHandler
-			// but if I recall correctly, this was done this was specifically to thread the needle on the race condition within
-			// the NetworkExtension.framework to actually be able to disconnect the WireGuard connection successfully
-			// This might seem very dangerous but should remain as is for now
-//			[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-			
-//#else
-			[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
-				if (saveErr != nil) {
-					GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
-					tunnelError = saveErr;
+		});
+		
+		dispatch_group_enter(group);
+		dispatch_group_async(group, queue, ^{
+			GRDWarningLogg(@"Loading WireGuard tunnel manager");
+			[tunnelManager loadFromPreferencesWithCompletionHandler:^(NSError * _Nullable error) {
+				if (error != nil) {
+					GRDErrorLogg(@"[WireGuard] Failed to preferences prior to disconnecting the VPN tunnel: %@", error);
 				}
-				[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
-				dispatch_group_leave(group);
-			}];
-//#endif
-			
-		} else {
-			dispatch_group_leave(group);
-		}
-	});
-	
+				GRDWarningLogg(@"Disconnecting WireGuard VPN");
 
-	dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-		if (completion) completion(tunnelError);
+				[tunnelManager setEnabled:NO];
+				[tunnelManager setOnDemandEnabled:NO];
+				[tunnelManager saveToPreferencesWithCompletionHandler:^(NSError *saveErr) {
+					if (saveErr != nil) {
+						GRDErrorLogg(@"Failed to disconnect WireGuard tunnel: %@", saveErr);
+						tunnelError = saveErr;
+					}
+					[(NETunnelProviderSession *)tunnelManager.connection stopTunnel];
+					dispatch_group_leave(group);
+				}];
+			}];
+		});
+		
+		dispatch_group_notify(group, queue, ^{
+			dispatch_async(dispatch_get_main_queue(), ^{
+				GRDDebugLog(@"Done disconnecting");
+				if (completion) completion(tunnelError);
+			});
+		});
 	});
 }
 
@@ -934,8 +916,7 @@
 
 - (void)createStandaloneCredentialsForTransportProtocol:(TransportProtocol)protocol validForDays:(NSInteger)days server:(GRDSGWServer *)server completion:(void (^)(NSDictionary * credentials, NSError * error))completion {
 	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential *subscriberCredential, NSError *error) {
-		if (subscriberCredential != nil) {
-			
+		if (subscriberCredential != nil) {	
 			NSArray *clientRules = [self apiPortableClientRules];
 			NSDictionary *deviceFilterConfigs = [[GRDDeviceFilterConfigBlocklist currentBlocklistConfig] apiPortableBlocklist];
 			GRDRegion *exitRegion = [self preferredMultihopExitRegion];
@@ -1010,83 +991,31 @@
 	return eapCredentialsValidFor;
 }
 
-# pragma mark - Credential Validation Helper
-
-- (void)verifyMainCredentialsWithCompletion:(void(^)(BOOL valid, NSError * _Nullable error))completion {
-	GRDCredential *mainCreds = [GRDCredentialManager mainCredentials];
-	if (![mainCreds canSendSGWAPIRequests]) {
-		if (completion) completion(NO, [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:@"Main credential can't send SGW API requests"]);
-		return;
-	}
-	
-	[self getValidSubscriberCredentialWithCompletion:^(GRDSubscriberCredential * _Nullable subscriberCredential, NSError * _Nullable error) {
-		if (error != nil) {
-			if (completion) completion(NO, error);
-			return;
-		}
-		
-		[[GRDGatewayAPI new] verifyCredentialsForClientId:mainCreds.clientId withAPIToken:mainCreds.apiAuthToken hostname:mainCreds.hostname subscriberCredential:subscriberCredential.jwt completion:^(BOOL credentialsValid, NSError * _Nullable error) {
-			if (error == nil) {
-				if (credentialsValid == YES) {
-					if (completion) completion(YES, nil);
-					return;
-				
-				} else {
-					if ([self isConnected] == NO) {
-						[self forceDisconnectVPNTunnel];
-						// Create a fresh set of credentials (new user) in our current region.
-						GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-						[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-							[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server connectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
-								if (completion) completion(YES, error);
-							}];
-						}];
-					
-					} else {
-						if (completion) completion(NO, error);
-						return;
-					}
-				}
-				
-			} else {
-				if ([self isConnected] == NO) {
-					[self forceDisconnectVPNTunnel];
-					//create a fresh set of credentials (new user) in our current region.
-					GRDServerManager *serverManager = [[GRDServerManager alloc] initWithRegionPrecision:self.regionPrecision serverFeatureEnvironment:self.serverFeatureEnvironment betaCapableServers:self.preferBetaCapableServers];
-					[serverManager findBestHostInRegion:[self selectedRegion] completion:^(GRDSGWServer * _Nullable server, NSError * _Nonnull error) {
-						[self configureUserFirstTimeForTransportProtocol:mainCreds.transportProtocol server:server connectionStatus:nil completion:^(GRDVPNHelperStatusCode status, NSError * _Nullable error) {
-							if (error != nil) {
-								if (completion) completion(NO, error);
-								return;
-							}
-							
-							if (completion) completion(YES, nil);
-						}];
-					}];
-				
-				} else {
-					if (completion) completion(NO, error);
-					return;
-				}
-			}
-		}];
-	}];
-}
-
 - (NSError * _Nullable)selectRegion:(GRDRegion * _Nullable)selectedRegion {
-	self.selectedRegion = selectedRegion;
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	GRDRegion *oldSelectedRegion 	= self.selectedRegion;
+	self.selectedRegion 			= selectedRegion;
+	NSUserDefaults *defaults 		= [NSUserDefaults standardUserDefaults];
+	
 	if (selectedRegion != nil && selectedRegion.isAutomatic == NO) {
+		GRDRegion *multihopExit = [self preferredMultihopExitRegion];
+		if ([selectedRegion isEqual:multihopExit]) {
+			//
+			// Note from CJ 2026-10-27
+			// Ensure that we detect and prevent a VPN tunnel
+			// and multihop exit region collision!
+			self.selectedRegion = oldSelectedRegion;
+			return [GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"The preferred VPN tunnel region '%@' must not match the multihop exit region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [selectedRegion displayName], [multihopExit displayName]]];
+		}
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:selectedRegion requiringSecureCoding:YES error:&archiveErr];
 		if (archiveErr != nil) {
 			return archiveErr;
 		}
 		[defaults setObject:regionData forKey:kGuardianRegionOverride];
+		GRDLogg(@"Selected region: %@", [selectedRegion displayName]);
 		
 	} else {
-		//resetting the value to nil, (Automatic)
-		GRDLogg(@"Automatic region selection selected.");
+		// resetting the value to nil, (Automatic)
 		self.selectedRegion = nil;
 		[defaults removeObjectForKey:kGuardianRegionOverride];
 		
@@ -1098,6 +1027,7 @@
 		// whenever the user changes time zones but has since set the routing
 		// mode to a specific region
 		[defaults removeObjectForKey:kGRDLastKnownAutomaticRegion];
+		GRDLogg(@"Automatic region selection selected.");
 	}
 	
 	return nil;
@@ -1211,10 +1141,25 @@
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
 }
 
+
 # pragma mark - Multihop
+
+- (BOOL)multihopEnabled {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	return [defaults boolForKey:kGRDMultihopEnabled];
+}
+
+- (void)setMultihopEnabled:(BOOL)enabled {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setBool:enabled forKey:kGRDMultihopEnabled];
+}
 
 - (GRDRegion *)preferredMultihopExitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if (![defaults boolForKey:kGRDMultihopEnabled]) {
+		return nil;
+	}
+	
 	if ([defaults valueForKey:kGRDPreferredMultihopExitRegion] == nil) {
 		return nil;
 	}
@@ -1222,36 +1167,51 @@
 	NSData *multihopRegionData = [defaults objectForKey:kGRDPreferredMultihopExitRegion];
 	NSError *unarchiveErr;
 	GRDRegion *multihopRegion = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:multihopRegionData error:&unarchiveErr];
+	if (unarchiveErr != nil) {
+		GRDErrorLogg(@"Failed to decode preferred GRDRegion data: %@", [unarchiveErr localizedDescription]);
+		return nil;
+	}
+	
 	return multihopRegion;
 }
 
-- (NSError *)setPreferredMultihopExitRegion:(GRDRegion *)exitRegion {
+- (void)clearPreferredMultihopExitRegion {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *exitName = [exitRegion multihopExitRegionName];
+	[defaults removeObjectForKey:kGRDPreferredMultihopExitRegion];
+}
+
+- (void)setPreferredMultihopExitRegion:(GRDRegion *)exitRegion completion:(void (^ _Nullable)(NSError * _Nullable))completion {
+	NSUserDefaults *defaults 	= [NSUserDefaults standardUserDefaults];
+	NSString *exitName 			= [exitRegion multihopExitRegionName];
+	
 	if (exitRegion != nil) {
+		GRDRegion *preferredVPNRegion = [self selectedRegion];
+		if ([exitName isEqual:preferredVPNRegion]) {
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"The multihop exit region '%@' must not match the preferred VPN tunnel region '%@'. Please change your VPN tunnel region selection or change your preferred multihop exit region", [exitRegion displayName], [preferredVPNRegion displayName]]]);
+			return;
+		}
+		
 		NSError *archiveErr;
 		NSData *regionData = [NSKeyedArchiver archivedDataWithRootObject:exitRegion requiringSecureCoding:YES error:&archiveErr];
 		if (archiveErr != nil) {
-			return archiveErr;
+			if (completion) completion([GRDErrorHelper errorWithErrorCode:kGRDGenericErrorCode andErrorMessage:[NSString stringWithFormat:@"Failed to store multihop exit region: %@", archiveErr]]);
+			return;
 		}
 		[defaults setObject:regionData forKey:kGRDPreferredMultihopExitRegion];
 		
 	} else {
-		[defaults removeObjectForKey:kGRDPreferredMultihopExitRegion];
 		exitName = kGRDMultihopDisabled;
 	}
 	
-	__block NSError *multihopError;
 	GRDCredential *mainCredential = [GRDCredentialManager mainCredentials];
 	if ([mainCredential canSendSGWAPIRequests]) {
 		[[GRDGatewayAPI new] setMultihopExitRegion:exitName hostname:[mainCredential hostname] deviceId:[mainCredential clientId] apiAuthToken:[mainCredential apiAuthToken] completion:^(NSDictionary * _Nullable multihopConfigs, NSError * _Nullable error) {
-			if (error != nil) {
-				multihopError = error;
-			}
+			if (completion) completion(error);
 		}];
+		
+	} else {
+		if (completion) completion(nil);
 	}
-	
-	return multihopError;
 }
 
 

@@ -75,11 +75,9 @@
 		} else if (manager == nil) {
 			GRDWarningLogg(@"No tunnel provider manager installed. Creating and installing a new one");
 			NETunnelProviderManager *tunnelManager = [NETunnelProviderManager new];
-			GRDLogg(@"Successfully saved new tunnel provider manager");
 			self.tunnelProviderManager = tunnelManager;
 			if (completion) completion(tunnelManager, nil);
 			return;
-
 			
 		} else {
 			GRDLogg(@"Tunnel provider manager ready to go");
@@ -118,8 +116,6 @@
 			return;
 		}
 		
-		[self setTunnelLoaded:YES];
-		
 		if (managers.count == 0) {
 			if (completion) completion(nil, nil);
 			
@@ -133,6 +129,7 @@
 				}];
 			}
 			
+			[self setTunnelLoaded:YES];
 			NETunnelProviderManager *manager = managers[0];
 			if (completion) completion(manager, nil);
 			if (self.tunnelLoadedCallback) self.tunnelLoadedCallback(manager.connection.status, nil);

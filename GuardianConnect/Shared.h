@@ -83,6 +83,7 @@ static NSString * const kGRDWGIPv6Address                               = @"mapp
 static NSString * const kGRDClientId                               		= @"client-id";
 
 static NSString * const kGuardianRegionOverride							= @"kGuardianRegionOverride";
+static NSString * const kGRDMultihopEnabled								= @"kGRDMultihopEnabled";
 static NSString * const kGRDPreferredMultihopExitRegion					= @"kGRDPreferredMultihopExitRegion";
 static NSString * const kGuardianSubscriptionExpiresDate                = @"subscriptionExpiresDate";
 static NSString * const kGRDMultihopDisabled							= @"disabled";
@@ -99,7 +100,7 @@ static NSString * const kGRDLastKnownAutomaticRegion	 				= @"kGRDLastKnownAutom
 static NSString * const kGuardianEncodedAppStoreReceipt 						= @"kGuardianEncodedAppStoreReceipt";
 static NSString * const kGuardianPreferredSubscriberCredentialValidationMethod 	= @"kGuardianPreferredSubscriberCredentialValidationMethod";
 
-//moved to make framework friendly
+// Subscription
 static NSString * const kIsPremiumUser                                  = @"userHasPaidSubscription";
 static NSString * const kGRDSubscriptionUpdatedNotification				= @"GRDSubscriptionUpdatedNotification";
 
@@ -124,8 +125,13 @@ static NSString * const kGRDDisconnectOnEthernet		= @"kGRDDisconnectOnEthernet";
 static NSString * const kGRDDisconnectOnTrustedNetworks	= @"kGRDDisconnectOnTrustedNetworks";
 static NSString * const kGRDTrustedNetworksArray		= @"kGRDTrustedNetworksArray";
 
-static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
 
+# pragma mark - Misc
+static NSString * const kGRDDNSServerCloudflare     	= @"1.1.1.1, 1.0.0.1";
+static NSString * const kGRDDNSServerDNSFilter      	= @"103.247.36.36, 103.247.37.37";
+static NSString * const kGRDSRPDNSServerUS		     	= @"10.183.10.11";
+static NSString * const kGRDSRPDNSServerUK 		     	= @"10.183.10.12";
+static NSString * const kGRDKillSwitchEnabled       	= @"kGRDKillSwitchEnabled";
 static NSString * const kGRDDeviceFilterConfigBlocklist = @"kGRDDeviceFilterConfigBlocklist";
 
 #pragma mark - Stealth Mode (GRD-1391)

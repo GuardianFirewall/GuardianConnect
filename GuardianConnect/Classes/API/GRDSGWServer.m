@@ -59,6 +59,7 @@
 		self.serverFeatureEnvironment 	= [coder decodeIntegerForKey:@"serverFeatureEnvironment"];
 		self.betaCapable 				= [coder decodeBoolForKey:@"betaCapable"];
 		self.smartRoutingProxyEnabled 	= [coder decodeBoolForKey:@"smartProxyRoutingEnabled"];
+		self.multihopEntryEnabled		= [coder decodeBoolForKey:@"multihopEntryEnabled"];
 		self.ipv4Address				= [coder decodeObjectForKey:@"ipv4Address"];
 		self.ipv6Address				= [coder decodeObjectForKey:@"ipv6Address"];
 		self.region 					= [coder decodeObjectForKey:@"region"];
@@ -75,6 +76,7 @@
 	[coder encodeInteger:self.serverFeatureEnvironment forKey:@"serverFeatureEnvironment"];
 	[coder encodeBool:self.betaCapable forKey:@"betaCapable"];
 	[coder encodeBool:self.smartRoutingProxyEnabled forKey:@"smartProxyRoutingEnabled"];
+	[coder encodeBool:self.multihopEntryEnabled forKey:@"multihopEntryEnabled"];
 	[coder encodeObject:self.ipv4Address forKey:@"ipv4Address"];
 	[coder encodeObject:self.ipv6Address forKey:@"ipv6Address"];
 	[coder encodeObject:self.region forKey:@"region"];
