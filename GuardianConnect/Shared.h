@@ -63,6 +63,7 @@ static NSString * const kGuardianSuccessfulSubscription                 = @"succ
 #pragma mark - SGW Features
 static NSString * const kGRDBetaCapablePreferred 						= @"kGRDBetaCapablePreferred";
 static NSString * const kGRDServerFeatureEnvironment 					= @"kGRDServerFeatureEnvironment";
+static NSString * const kGRDPinnedServer 								= @"kGRDPinnedServer";
 
 static NSString * const kGRDVPNHostLocation                             = @"kGRDVPNHostLocation";
 static NSString * const kGRDIncludesAllNetworks                         = @"kGRDIncludesAllNetworks";

@@ -192,6 +192,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// last-known-good IPs. Only a confirmed non-empty success overwrites the cache.
 - (void)refreshStealthIPCacheWithCompletion:(void (^_Nullable)(NSError * _Nullable error))completion;
 
+@property (nonatomic, nullable) GRDSGWServer *pinnedServer;
+@property (nonatomic, copy, nullable) NSString *peerToken;
+
 
 #if !TARGET_OS_OSX
 @property UIBackgroundTaskIdentifier bgTask;

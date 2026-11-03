@@ -230,6 +230,7 @@
 }
 
 - (void)configureFirstTimeUserForTransportProtocol:(TransportProtocol)protocol withRegion:(GRDRegion * _Nullable)region completion:(void(^)(GRDVPNHelperStatusCode, NSError *))completion {
+	[self setPinnedServer:nil];
 	NSError *regionSelectionErr = [self selectRegion:region];
 	if (regionSelectionErr != nil) {
 		if (completion) completion(GRDVPNHelperFail, regionSelectionErr);
@@ -249,6 +250,12 @@
 }
 
 - (void)configureUserFirstTimeForTransportProtocol:(TransportProtocol)protocol server:(GRDSGWServer *)server connectionStatus:(void (^)(GRDVPNHelperConnectionStatus))status completion:(void (^)(GRDVPNHelperStatusCode, NSError * _Nullable))completion {
+	GRDSGWServer *pinned = [self pinnedServer];
+	if (pinned != nil && [pinned.hostname isEqualToString:server.hostname] == NO) {
+		GRDWarningLogg(@"Explicit server choice %@ replaces pinned server %@", server.hostname, pinned.hostname);
+		[self setPinnedServer:nil];
+	}
+	
 	if (status) status(GRDVPNHelperConnectionObtainingNewCredential);
 	[self createStandaloneCredentialsForTransportProtocol:protocol validForDays:30 server:server completion:^(NSDictionary * _Nonnull credentials, NSError * _Nonnull errorMessage) {
 		if (errorMessage != nil) {
@@ -361,6 +368,37 @@
 
 - (void)setStealthModeEnabled:(BOOL)stealthModeEnabled {
 	[[NSUserDefaults standardUserDefaults] setBool:stealthModeEnabled forKey:kGRDStealthModeEnabled];
+}
+
+- (GRDSGWServer *)pinnedServer {
+	NSData *serverData = [[NSUserDefaults standardUserDefaults] objectForKey:kGRDPinnedServer];
+	if (serverData == nil) {
+		return nil;
+	}
+	
+	NSError *unarchiveErr;
+	GRDSGWServer *server = [NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[GRDSGWServer class], [GRDRegion class], [NSString class], [NSNumber class], [NSArray class], nil] fromData:serverData error:&unarchiveErr];
+	if (unarchiveErr != nil) {
+		GRDErrorLogg(@"Failed to unarchive pinned server: %@", unarchiveErr);
+	}
+	return server;
+}
+
+- (void)setPinnedServer:(GRDSGWServer *)pinnedServer {
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if (pinnedServer == nil) {
+		[defaults removeObjectForKey:kGRDPinnedServer];
+		return;
+	}
+	
+	NSError *archiveErr;
+	NSData *serverData = [NSKeyedArchiver archivedDataWithRootObject:pinnedServer requiringSecureCoding:YES error:&archiveErr];
+	if (archiveErr != nil) {
+		GRDErrorLogg(@"Failed to archive pinned server: %@", archiveErr);
+		return;
+	}
+	[defaults setObject:serverData forKey:kGRDPinnedServer];
+	GRDLogg(@"Pinned server: %@", pinnedServer.hostname);
 }
 
 - (void)refreshStealthIPCacheWithCompletion:(void (^_Nullable)(NSError * _Nullable))completion {
@@ -798,6 +836,7 @@
 	[defaults removeObjectForKey:kGRDDisconnectOnEthernet];
 	[defaults removeObjectForKey:kGuardianTransportProtocol];
 	[defaults removeObjectForKey:kGRDDeviceFilterConfigBlocklist];
+	[defaults removeObjectForKey:kGRDPinnedServer];
 	
 	[GRDKeychain removeAllKeychainItems];
 	[GRDKeychain removeSubscriberCredentialWithRetries:3];
@@ -896,7 +935,12 @@
 				GRDCurve25519 *keys = [[GRDCurve25519 alloc] init];
 				[keys generateKeyPair];
 				
-				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:@{@"public-key":keys.publicKey} deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:[exitRegion multihopExitRegionName] completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
+				NSMutableDictionary *transportOptions = [NSMutableDictionary dictionaryWithObject:keys.publicKey forKey:@"public-key"];
+				if (self.peerToken != nil && [[self pinnedServer].hostname isEqualToString:server.hostname]) {
+					[transportOptions setObject:self.peerToken forKey:@"peer-token"];
+				}
+				
+				[[GRDGatewayAPI new] registerDeviceCredentialForTransportProtocol:[GRDTransportProtocol transportProtocolStringFor:protocol] hostname:server.hostname subscriberCredential:subscriberCredential.jwt transportOptions:transportOptions deviceFilterConfigs:deviceFilterConfigs clientRules:clientRules multihopExitRegion:[exitRegion multihopExitRegionName] completion:^(NSDictionary * _Nullable credentialDetails, NSError * _Nullable error) {
 					if (error != nil) {
 						if (completion) completion(nil, error);
 						return;
