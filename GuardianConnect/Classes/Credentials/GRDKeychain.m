@@ -123,10 +123,8 @@
                                            length:[(__bridge NSData *)copyResult length] encoding:NSUTF8StringEncoding];
     } else if (results != errSecItemNotFound) {
 		GRDErrorLogg(@"Error obtaining keychain data for item '%@': %ld", accountKeyStr, (long)results);
-        if (@available(iOS 11.3, *)) {
-            NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(results, nil));
-			GRDErrorLogg(@"Error message: %@", errMessage);
-        }
+        NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(results, nil));
+        GRDErrorLogg(@"Error message: %@", errMessage);
     }
     
     return passStr;
@@ -167,10 +165,8 @@
 		
 	} else if (results != errSecItemNotFound) {
 		GRDErrorLogg(@"Error obtaining keychain data for item '%@': %ld", accountKeyString, (long)results);
-		if (@available(iOS 11.3, *)) {
-			NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(results, nil));
-			GRDErrorLogg(@"Error message: %@", errMessage);
-		}
+        NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(results, nil));
+        GRDErrorLogg(@"Error message: %@", errMessage);
 	}
 	
 	return returnData;
@@ -219,10 +215,8 @@
                             };
     OSStatus result = SecItemDelete((__bridge CFDictionaryRef)query);
     if (result != errSecSuccess && result != errSecItemNotFound) {
-        if (@available(iOS 11.3, *)) {
-            NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(result, nil));
-			GRDErrorLogg(@"Error message: %@", errMessage);
-        }
+        NSString *errMessage = CFBridgingRelease(SecCopyErrorMessageString(result, nil));
+        GRDErrorLogg(@"Error message: %@", errMessage);
         GRDErrorLogg(@"Failed to delete password entry '%@' with status: %ld", accountKeyStr, (long)result);
     }
     

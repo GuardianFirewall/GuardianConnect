@@ -513,10 +513,8 @@
 	protocolConfig.username = credential.username;
 	protocolConfig.passwordReference = credential.passwordRef;
 	protocolConfig.deadPeerDetectionRate = NEVPNIKEv2DeadPeerDetectionRateLow; /* increase DPD tolerance from default 10min to 30min */
-    if (@available(iOS 14.2, *)) {
-        protocolConfig.includeAllNetworks = self.vpnKillSwitchEnabled;
-        protocolConfig.excludeLocalNetworks = YES;
-    }
+    protocolConfig.includeAllNetworks = self.vpnKillSwitchEnabled;
+    protocolConfig.excludeLocalNetworks = YES;
     
 	//
 	// Note from CJ 2026-07-16
@@ -590,11 +588,8 @@
 		// settings too!
 		BOOL srpPACEnabled = ([GRDVPNHelper smartRoutingProxyEnabled] && [GRDVPNHelper smartRoutingProxyMode] == SRPModePAC);
 		protocol.proxySettings = [GRDVPNHelper proxySettingsForSGWServer:mainCredentials.server srpPACEnabled:srpPACEnabled];
-		
-		if (@available(iOS 14.2, *)) {
-			protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
-			protocol.excludeLocalNetworks = YES;
-		}
+        protocol.includeAllNetworks = self.vpnKillSwitchEnabled;
+        protocol.excludeLocalNetworks = YES;
 		
 		tunnelManager.protocolConfiguration = protocol;
 		tunnelManager.enabled = YES;
