@@ -1224,7 +1224,7 @@
 				GCC_PREFIX_HEADER = $SRCROOT/GuardianConnect/PrefixHeader.pch;
 				INFOPLIST_FILE = GuardianConnect/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1259,7 +1259,7 @@
 				GCC_PREFIX_HEADER = $SRCROOT/GuardianConnect/PrefixHeader.pch;
 				INFOPLIST_FILE = GuardianConnect/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
